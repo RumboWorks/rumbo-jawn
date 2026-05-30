@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Rumbo{% endblock %}</title>
+    <link rel="stylesheet" href="/dist/main.css">
+</head>
+<body class="rj-body">
+    <header class="rj-header">
+        <div class="rj-header__inner">
+            <a href="/" class="rj-header__logo">Rumbo</a>
+        </div>
+    </header>
+
+    <main class="rj-main">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="rj-footer">
+        <div class="rj-footer__inner">
+            <p>&copy; Rumbo</p>
+        </div>
+    </footer>
+
+    <script type="module" src="/dist/main.js"></script>
+</body>
+</html>

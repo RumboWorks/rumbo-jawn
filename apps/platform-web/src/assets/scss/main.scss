@@ -1,0 +1,69 @@
+// Rumbo platform SCSS entry point.
+// Phase 01 will build out the full design-system foundation.
+// CSS custom properties use the rj- prefix for shared platform/design-system styles.
+
+:root {
+  --rj-color-bg: #ffffff;
+  --rj-color-text: #1a1a1a;
+  --rj-color-border: #d1d5db;
+  --rj-color-muted: #6b7280;
+  --rj-font-sans: system-ui, -apple-system, sans-serif;
+  --rj-spacing-base: 1rem;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--rj-font-sans);
+  background: var(--rj-color-bg);
+  color: var(--rj-color-text);
+  line-height: 1.5;
+}
+
+.rj-container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 var(--rj-spacing-base);
+}
+
+.rj-header {
+  border-bottom: 1px solid var(--rj-color-border);
+  padding: 0.75rem var(--rj-spacing-base);
+}
+
+.rj-header__inner {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.rj-header__logo {
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--rj-color-text);
+}
+
+.rj-main {
+  padding: 2rem var(--rj-spacing-base);
+}
+
+.rj-footer {
+  border-top: 1px solid var(--rj-color-border);
+  padding: 1rem var(--rj-spacing-base);
+  color: var(--rj-color-muted);
+  font-size: 0.875rem;
+}
+
+.rj-footer__inner {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.rj-placeholder-note {
+  color: var(--rj-color-muted);
+  font-style: italic;
+}

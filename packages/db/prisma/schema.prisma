@@ -1,0 +1,12 @@
+// Rumbo database schema.
+// Uses MySQL (MariaDB-compatible) for MVP on shared EC2 servers.
+// Models are added phase by phase — Phase 02 adds auth/users/orgs.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}

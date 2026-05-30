@@ -143,3 +143,9 @@ Consequences:
 - `ai_calls` table logs which provider and model was used per call.
 - Provider API keys live in `.env`. Model and provider selection per call type lives in DB-backed config.
 - DeepSeek shares the OpenAI API schema; its adapter may reuse the OpenAI client with a different base URL.
+
+## 2026-05-30 — Development environment /ndg
+
+Status: Accepted
+
+Decision: The app is being developed in /var/www/rumbo on an EC2 server. You must ask the user if you want changes to the Apache proxy.  Mysql is installed, you can ask the user to create a db or do it yourself.

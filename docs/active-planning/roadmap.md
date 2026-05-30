@@ -8,7 +8,7 @@ Do not mark work complete unless it can be verified in the repository.
 
 ### Platform foundation
 
-- [ ] Phase 00 — Project foundation
+- [x] Phase 00 — Project foundation
 - [ ] Phase 01 — Platform shell
 - [ ] Phase 02 — Shared auth and organizations
 - [ ] Phase 03 — Shared jobs, AI provider layer, storage, and artifacts
@@ -32,6 +32,4 @@ Model Eval should influence shared platform decisions but should not be implemen
 
 ## Next up
 
-1. Complete Phase 00.
-2. Run Phase 00 closeout.
-3. Review and revise Phase 01 before assignment.
+1. Review and revise Phase 01 before assignment.
