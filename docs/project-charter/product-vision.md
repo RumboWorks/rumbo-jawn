@@ -1,38 +1,46 @@
-# Rumbo Product Vision
+# Product Vision
 
-## Working identity
+## Product family
 
-Rumbo is the internal codename for a family of AI/nonprofit guidance tools. The external working title may be Rumbo Works, but public naming may change. Internal naming may use `rj-` / RJ as a shorthand for Rumbo Jawn.
+Rumbo is a modular platform and product family for AI-assisted tools that help nonprofit and mission-driven teams analyze, evaluate, improve, and operationalize communications and related workflows.
 
-## Product direction
+The platform should support multiple tools over time without each tool reinventing users, organizations, authentication, billing, jobs, AI provider handling, admin visibility, storage, or design-system conventions.
 
-Rumbo should help nonprofit, association, school, foundation, and public-sector teams use AI in a more guided, trustworthy, evaluable, and organization-aware way.
+## First MVP tool
 
-The platform should support multiple tools without creating isolated technical islands. Early likely tools include:
+The first MVP tool is Sounds Like Us.
 
-- Sounds Like Us: analyze public source material and produce reusable writing guidance.
-- Model Eval: help teams evaluate AI writing outputs against criteria that matter to them.
-- Research/crawler/observatory capabilities: gather and analyze public information over time.
-- Embeddable widgets: public trust, transparency, evaluation, or guidance widgets that can spread brand recognition.
+Sounds Like Us helps an organization generate reusable writing guidance from public source material such as website pages and, later, PDFs. The guidance can help staff or AI tools write in a voice that better matches the organization.
 
-## Strategic principles
+## Planned sibling tool
 
-1. Build one modular platform, not a pile of unrelated apps.
-2. Share auth, orgs, billing readiness, admin, jobs, AI provider logic, storage, and cost tracking.
-3. Keep tool-specific workflows modular and isolated enough to prevent cross-tool breakage.
-4. Make public trust part of the product: AI disclosures, privacy notes, source-grounded outputs where practical, and clear limits.
-5. Use high-quality internal docs and agent guidance because the product publicly claims expertise in AI and agent guidance.
-6. Prefer practical MVPs over overbuilt infrastructure, but avoid choices that make future distribution impossible.
+Model Eval is a planned sibling tool.
 
-## Current target users
+It is out of scope for the initial MVP implementation, but its future needs should inform shared platform architecture. The platform should avoid one-off decisions that make sense only for Sounds Like Us and would block future tools like Model Eval.
 
-Primary early users:
+## Audience
 
-- Nonprofit communicators.
-- Fundraising/development teams.
-- Small organizational leadership teams.
-- Consultants helping nonprofits choose and use AI tools.
+Primary audience:
 
-## Brand posture
+- nonprofit organizations,
+- associations,
+- schools,
+- foundations,
+- public agencies,
+- mission-driven communications teams,
+- consultants helping those groups use AI responsibly.
 
-Rumbo may remain an internal codename. Public-facing anonymous brochure pages should live in one WordPress site. Tool app pages should live in the shared platform and may use subdomains externally.
+## Product principles
+
+- Make AI guidance practical and usable by nontechnical teams.
+- Avoid treating prompts as throwaway text; treat guidance as an asset.
+- Help organizations understand and control how AI tools interact with their voice, standards, and public content.
+- Keep privacy, data minimization, and disclosure visible.
+- Build shared platform capabilities once, then reuse them across tools.
+- Dogfood high-quality AI/agent guidance because the product family publicly claims expertise in AI and agent guidance.
+
+## MVP posture
+
+The first MVP should validate the platform/tool pattern and launch Sounds Like Us without overbuilding the full product family.
+
+Rumbo should start as a modular monolith, not a distributed system, but should preserve seams for later distribution.

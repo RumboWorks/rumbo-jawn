@@ -12,17 +12,34 @@ For most coding tasks, use this reading order:
 2. `docs/README.md`
 3. The assigned phase file in `docs/development-phases/`
 4. Any `.agent/*.agent.md` file referenced by the phase file or task prompt
-5. Any additional project-charter, active-planning, reference, or working-note files explicitly referenced by those files
+5. Any additional project-charter, tool, active-planning, reference, or working-note files explicitly referenced by those files
 
 Agents should not read every file in `docs/` by default. The current phase file and `docs/README.md` define the relevant reading path.
 
+## Platform vs tool scope
+
+Rumbo is the shared platform/product family.
+
+Sounds Like Us is the first MVP tool built on the Rumbo platform.
+
+Model Eval is a planned sibling tool. It is out of scope for initial MVP implementation unless a phase file explicitly says otherwise.
+
+When implementing shared services, do not name or model them as Sounds Like Us-only services.
+
+When implementing Sounds Like Us features, do not add Model Eval features. Consider Model Eval only as an architectural constraint for shared platform decisions.
+
+Tools may have their own routes, views, assets, services, jobs, and tables. Shared concerns such as auth, users, orgs, memberships, jobs, AI calls, storage, billing readiness, admin visibility, usage limits, and core design-system conventions belong to the platform.
+
+Tool modules must not depend on each other's internals.
+
 ## Source-of-truth structure
 
-The repository separates stable agreements, active planning, execution phases, reference material, temporary notes, archives, and specialist agent instructions.
+The repository separates stable agreements, tool-specific notes, active planning, execution phases, reference material, temporary notes, archives, and specialist agent instructions.
 
 Use these locations:
 
 - Stable project agreements: `docs/project-charter/`
+- Tool-specific product notes and boundaries: `docs/tools/`
 - Active planning docs: `docs/active-planning/`
 - Phase execution docs: `docs/development-phases/`
 - Reference docs: `docs/reference/`
@@ -39,6 +56,7 @@ Use `docs/working-notes/` for exploratory notes, investigation results, temporar
 Working notes are not source of truth. If a working note affects future work, promote the relevant information into the appropriate source-of-truth file:
 
 - `docs/project-charter/` for stable project agreements
+- `docs/tools/` for tool-specific scope, behavior, user flows, or product notes
 - `docs/active-planning/decision-log.md` for decisions
 - `docs/active-planning/roadmap.md` for roadmap changes
 - `docs/active-planning/deferred-work.md` for postponed work
@@ -86,6 +104,14 @@ Do not assume every `.agent/` file should be loaded for every task. Use a specia
 
 If a new recurring workflow emerges, create a new `.agent/*.agent.md` file instead of scattering reusable instructions across random docs or working notes.
 
+## Provider-specific guidance bridges
+
+This repository may be used with multiple coding-agent providers.
+
+Provider-specific instruction files such as `.github/copilot-instructions.md`, `.github/instructions/*.instructions.md`, and `CLAUDE.md` should act as adapters that point back to this file, `docs/README.md`, and `.agent/` specialist files.
+
+Do not duplicate the full project doctrine separately for each provider.
+
 ## Development process
 
 This project uses guided iterative phases.
@@ -111,9 +137,10 @@ When assigned a phase:
 2. Follow its scope and out-of-scope section.
 3. Do not expand scope without recording the change.
 4. Keep implementation choices consistent with `docs/project-charter/`.
-5. Update active-planning docs when decisions, deferrals, or roadmap status change.
-6. Update reference docs only when behavior actually exists.
-7. Record temporary discoveries in `docs/working-notes/` only when needed.
+5. Keep platform/tool boundaries consistent with `docs/tools/`.
+6. Update active-planning docs when decisions, deferrals, or roadmap status change.
+7. Update reference docs only when behavior actually exists.
+8. Record temporary discoveries in `docs/working-notes/` only when needed.
 
 Each phase must end with closeout work. Closeout should confirm:
 

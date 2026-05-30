@@ -1,47 +1,45 @@
 # Phase Retrospectives
 
-Record each phase closeout here. Do not move to the next phase until the current phase is closed, split, or explicitly revised.
+Use this file for phase closeout summaries.
+
+Each phase retrospective should include:
+
+- phase,
+- date,
+- completed work,
+- incomplete work,
+- changes from original plan,
+- deferred items,
+- docs updated,
+- checks/tests run,
+- decision-log updates,
+- whether the next phase should proceed or be revised.
 
 ## Template
 
 ```md
-## Phase N — Name — Closeout YYYY-MM-DD
+## Phase XX — Name
 
-### Outcome
+Date:
 
-- Proceed to next phase / Stay in phase / Split phase / Revise roadmap
+Outcome:
+- Proceed to next phase
+- Stay in phase
+- Split remaining work
+- Move blocked work to later phase
+- Revise roadmap
 
-### What shipped
+Completed:
 
-- 
+Incomplete:
 
-### What did not ship
+Changed from original plan:
 
-- 
+Deferred:
 
-### What changed from the original plan
+Docs updated:
 
-- 
+Checks/tests run:
 
-### What we learned
-
-- 
-
-### Deferred or moved work
-
-- 
-
-### Docs updated
-
-- [ ] docs/active-planning/roadmap.md
-- [ ] docs/active-planning/decision-log.md
-- [ ] docs/active-planning/deferred-work.md
-- [ ] docs/reference/usage.md
-- [ ] next phase doc
-
-### Approval to proceed
-
-- [ ] Yes, proceed to the next phase.
-- [ ] No, remain in this phase.
-- [ ] Split remaining work into a new phase.
+Next phase recommendation:
 ```

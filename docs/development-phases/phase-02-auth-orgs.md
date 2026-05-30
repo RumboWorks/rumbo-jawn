@@ -1,98 +1,58 @@
-# Phase 02 — Auth and Organizations
+# Phase 02 — Shared Auth and Organizations
 
 ## Purpose
 
-Implement centralized identity and organization foundations shared across all Rumbo tools.
+Build shared platform authentication and organization membership foundations.
+
+This phase is platform work shared by all tools.
 
 ## What this phase delivers
 
-- Shared user, organization, and membership data model.
-- Session/auth foundation.
-- Google auth for MVP launch direction.
-- LinkedIn auth if practical without destabilizing the phase.
-- Email/password and/or magic-link path if practical.
-- Approved-domain auto-approval concept in shared auth/org logic.
-- Minimal account and organization screens.
+- Shared user model.
+- Shared organization model.
+- Membership model.
+- Login/session structure.
+- Google auth if practical.
+- LinkedIn auth if practical.
+- Email/password and/or magic-link direction if practical.
+- Approved-domain auto-approval logic foundation.
 
 ## Out of scope
 
-- Tool-specific user models.
-- Billing collection.
-- Advanced team permissions.
-- Enterprise SSO.
-- Complex onboarding flows.
-
-## Files likely touched
-
-- `packages/auth/`
-- `packages/db/`
-- `apps/platform-web/routes/`
-- `apps/platform-web/views/`
-- `docs/project-charter/data-model.md`
-- `docs/active-planning/decision-log.md`
-
-## Tasks
-
-- [ ] Finalize Prisma schema for users, orgs, memberships, auth accounts/sessions, and approved domains.
-- [ ] Implement auth provider approach selected for Express/Prisma.
-- [ ] Add Google OAuth.
-- [ ] Attempt LinkedIn OAuth only if the chosen auth library path is clear and low-risk.
-- [ ] Add account belongs to at least one org invariant.
-- [ ] Add minimal profile/account page.
-- [ ] Add minimal org switch/current org behavior if needed.
-- [ ] Add approved-domain auto-approval data model and placeholder flow.
-- [ ] Update data model, architecture, and usage docs.
+- Sounds Like Us feature behavior.
+- Model Eval feature behavior.
+- Complex billing.
+- Full admin dashboard beyond what is needed to verify auth/orgs.
 
 ## Acceptance criteria
 
-- [ ] A user can authenticate through the implemented MVP provider path.
-- [ ] Authenticated user is associated with at least one org.
-- [ ] Tool routes can require a user/org context through shared auth middleware.
-- [ ] No tool implements separate account logic.
-- [ ] Auth decisions and any deferred provider work are documented.
+- Users can authenticate through the implemented launch path.
+- Every user belongs to at least one organization.
+- Tool modules use shared auth/org logic rather than local user models.
+- Auth decisions are reflected in the decision log if implementation diverges.
 
-## Manual QA checklist
 
-- [ ] Run this phase's documented commands.
-- [ ] Visit any pages/routes created or changed in this phase.
-- [ ] Confirm visible placeholder text does not imply unfinished features are complete.
-- [ ] Confirm failures and blocked work are documented before moving on.
+## Phase closeout
 
-## Phase Closeout
+Use `.agent/phase-review.agent.md` for closeout.
 
 ### Completion checklist
 
 - [ ] All acceptance criteria pass.
-- [ ] New or changed commands are documented in `docs/reference/usage.md`.
-- [ ] New architectural decisions are recorded in `docs/active-planning/decision-log.md`.
-- [ ] Roadmap items are checked off, revised, or moved.
-- [ ] Deferred work is captured in `docs/active-planning/deferred-work.md` with a target phase or explicit reason.
-- [ ] Implementation discoveries are captured in `docs/active-planning/implementation-notes.md` when useful.
-- [ ] No known blocker is hidden only in comments, TODOs, chat history, or agent notes.
+- [ ] Relevant commands/checks were run.
 - [ ] Manual QA notes are recorded.
-
-### Retrospective questions
-
-1. What was completed exactly?
-2. What changed from the original phase plan?
-3. What did we discover that affects later phases?
-4. What is blocked?
-5. What moved to a later phase?
-6. What should be removed because it is no longer needed?
-7. Are we allowed to start the next phase?
+- [ ] New commands are documented in `docs/reference/usage.md`, if commands exist.
+- [ ] New architectural decisions are recorded in `docs/active-planning/decision-log.md`.
+- [ ] Roadmap items are checked off, added, or moved.
+- [ ] Deferred work is listed explicitly in `docs/active-planning/deferred-work.md`.
+- [ ] Working notes created during this phase were promoted, linked, archived, or deleted.
+- [ ] No unplanned files were added directly under `docs/`.
+- [ ] The next phase still makes sense or has been revised.
 
 ### Valid outcomes
 
-- Proceed to the next phase.
+- Proceed to next phase.
 - Stay in this phase and finish missing work.
 - Split remaining work into a new phase.
 - Move specific blocked work to a named later phase.
-- Revise the roadmap because the product understanding changed.
-
-## Documentation hygiene checklist
-
-- [ ] No unplanned files were added directly under `docs/`.
-- [ ] Any working notes are in `docs/working-notes/`.
-- [ ] Useful working-note content was promoted to source-of-truth docs.
-- [ ] Superseded notes/plans were moved to `docs/archive/`.
-- [ ] `docs/README.md` still points agents to the correct required reading.
+- Revise the roadmap because product understanding changed.

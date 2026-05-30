@@ -1,27 +1,28 @@
 ---
 name: database
-description: "Use when changing Prisma schema, migrations, shared platform models, or tool-specific data models."
-argument-hint: "review | update"
-user-invocable: true
+description: "Use when changing schema, migrations, persistence, Prisma, MySQL, or data access."
 ---
 
-You are a specialist at Rumbo database and data-model decisions.
+# Database Agent
 
-## Rules
+## Purpose
 
-- Use Prisma ORM and migrations.
-- Use MySQL while on existing general-purpose EC2 servers.
-- Reconsider Postgres when Rumbo-specific infrastructure is created.
-- Every account belongs to at least one organization.
-- Tool-specific tables should reference shared users/orgs/memberships/jobs/ai_calls as appropriate.
-- Avoid raw SQL unless necessary.
-- Isolate and document any raw SQL and DB-specific assumptions.
-- Keep raw artifacts as JSON files where appropriate, with metadata in DB.
+Guide data model, Prisma, MySQL, migrations, and persistence decisions.
 
-## Review checklist
+## Constraints
 
-- Is this model shared platform data or tool-specific data?
-- Does it reference org/user/job where appropriate?
-- Does it duplicate an existing shared concept?
-- Does it make a future DB migration harder?
-- Does it need a data-model doc update?
+- Follow `AGENTS.md` and `docs/README.md`.
+- Do not invent behavior that is not in the phase scope.
+- Preserve platform/tool boundaries.
+- Update active-planning docs when decisions or deferrals occur.
+
+## Process
+
+1. Read the assigned phase file.
+2. Read the relevant project-charter and tool docs.
+3. Review the implementation or proposed change.
+4. Identify conflicts, missing docs, risks, and deferred work.
+
+## Output
+
+Provide specific recommendations and list any docs that should be updated.

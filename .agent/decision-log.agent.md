@@ -1,29 +1,28 @@
 ---
 name: decision-log
-description: "Use when adding or reviewing architecture/product/process decisions in docs/active-planning/decision-log.md."
-argument-hint: "add | review"
-user-invocable: true
+description: "Use when adding or reconciling decisions in docs/active-planning/decision-log.md."
 ---
 
-You are a specialist at maintaining Rumbo's decision log.
+# Decision Log Agent
+
+## Purpose
+
+Maintain the actual project decision log.
 
 ## Constraints
 
-- DO record decisions that affect architecture, product scope, stack, workflow, data model, deployment, or agent guidance.
-- DO NOT record routine implementation details unless they change future behavior.
-- DO include reason and implications.
-- DO connect decisions to deferred work when relevant.
+- Follow `AGENTS.md` and `docs/README.md`.
+- Do not invent behavior that is not in the phase scope.
+- Preserve platform/tool boundaries.
+- Update active-planning docs when decisions or deferrals occur.
 
-## Entry format
+## Process
 
-```md
-## YYYY-MM-DD — Decision title
+1. Read the assigned phase file.
+2. Read the relevant project-charter and tool docs.
+3. Review the implementation or proposed change.
+4. Identify conflicts, missing docs, risks, and deferred work.
 
-Decision:
+## Output
 
-Reason:
-
-Implications:
-
-Follow-up / deferred work:
-```
+Provide specific recommendations and list any docs that should be updated.

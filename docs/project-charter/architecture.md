@@ -1,65 +1,64 @@
-# Rumbo Architecture
+# Architecture
 
-## Architecture summary
+## Architectural anchor
 
-Rumbo should start as a **modular monolith** deployed on self-contained EC2 infrastructure, with explicit seams for future distribution.
+Build Rumbo as a modular monolith for the MVP, with explicit seams for later distribution.
 
-This means:
+The platform should run on self-contained EC2 servers initially. Future architecture may move toward a more modern distributed DevOps setup when justified.
 
-- One monorepo.
-- Shared platform capabilities.
-- Tool modules with strong boundaries.
-- One deployable web app at first.
-- Separate worker process at first.
-- Clear path to split tools, admin, workers, Python services, database, and storage later.
+## Platform vs tools
 
-## Current deployment model
+Rumbo is the shared platform/product family.
 
-- EC2 Ubuntu servers.
-- Apache reverse proxy.
-- PM2-managed Node processes.
-- MySQL while using existing general-purpose servers.
-- Local filesystem storage through an abstraction.
+Sounds Like Us is the first MVP tool.
 
-Recommended PM2 processes for MVP:
+Model Eval is a planned sibling tool and is out of scope for initial MVP implementation unless a phase file explicitly says otherwise.
 
-```text
-rumbo-web
-rumbo-worker
-```
+Shared services belong to the platform:
 
-Possible future process:
+- authentication,
+- users,
+- organizations,
+- memberships,
+- subscriptions,
+- jobs,
+- AI calls and cost logging,
+- storage abstraction,
+- usage limits,
+- centralized admin,
+- billing readiness,
+- design-system conventions,
+- deployment conventions.
 
-```text
-rumbo-python-worker
-```
+Tool-specific modules may own:
 
-## Future deployment direction
+- tool routes,
+- tool views,
+- tool frontend assets,
+- tool services,
+- tool-specific jobs,
+- tool-specific database tables,
+- tool-specific artifacts.
 
-When justified, the architecture should allow:
+Tools must not depend on each other's internals.
 
-- Admin on a separate host/subdomain.
-- Tool-specific web apps on separate hosts.
-- Workers on separate hosts.
-- Python analysis as a separate worker/service.
-- Managed/cloud database.
-- S3-compatible object storage.
-- External queue service such as Redis/SQS/etc.
+## Repository strategy
 
-Do not build the distributed system now. Do preserve the seams.
+Use a monorepo.
 
-## Monorepo structure
+Recommended shape:
 
 ```text
 apps/
   platform-web/
   worker/
+
 tools/
   sounds-like-us/
   model-eval/
+
 packages/
   auth/
-  config/
   db/
   design-system/
   ai/
@@ -67,150 +66,151 @@ packages/
   jobs/
   storage/
   python-bridge/
+  config/
+
 python/
   analysis/
-docs/
-.agent/
 ```
 
-## Dependency rule
+The exact package structure may evolve during Phase 00 and Phase 01, but the boundary principle should remain: shared platform packages should not depend on tool modules.
 
-Tools may depend on shared packages.
+## Runtime
 
-Shared packages must not depend on tool internals.
+Current runtime direction:
 
-Tool modules should not import each other directly. Shared reusable logic belongs in a package.
-
-## Routing model
-
-Internally, route modules may live under:
-
-```text
-/admin
-/tools/sounds-like-us
-/tools/model-eval
-/api/...
-```
-
-Externally, Apache may route subdomains to the same app now:
-
-```text
-admin.example.com        -> same web app, admin routes
-sounds.example.com       -> same web app, Sounds Like Us routes
-eval.example.com         -> same web app, Model Eval routes
-```
-
-Later, the same hostnames can point to different servers if needed.
-
-## Backend
-
-- Express.
+- EC2 Ubuntu servers.
+- Apache reverse proxy.
+- PM2 process manager.
+- Express backend.
 - Node ESM only.
-- Plain JavaScript initially.
-- Thin route handlers should call service modules.
-- Shared logic should move to packages.
+- No CommonJS.
+- PM2 processes:
+  - `rumbo-web`
+  - `rumbo-worker`
+  - possible later `rumbo-python-worker`
 
-## Templating/frontend
+## Frontend and templating
 
-- Server-rendered Twig page shells by default.
-- Twig is preferred because page source traceability matters.
-- Vanilla JS modules for simple interactivity.
-- React for highly dynamic screens.
-- React can be mounted as an island inside a Twig page shell.
+Use server-rendered pages by default.
 
-Example:
+Use Twig for page templates unless a better option is explicitly chosen and documented.
 
-```text
-tools/sounds-like-us/views/guidance-workbench.twig
-tools/sounds-like-us/assets/js/guidance-workbench.jsx
-```
+Use vanilla JavaScript for simple interactivity.
 
-## CSS/design system
+Use React for highly dynamic screens where it is justified.
 
-- SCSS.
-- Shared design system.
-- No Bootstrap.
-- No Tailwind-style framework.
-- Lucide icons acceptable.
-- Compile shared base CSS plus per-tool CSS.
+Use Twig page shells with React islands/pages when needed so page source and routing remain traceable.
 
-Recommended outputs:
+Public anonymous brochure/marketing pages should live in one WordPress site, not separate brochure pages per tool.
 
-```text
-rumbo-base.css
-sounds-like-us.css
-model-eval.css
-```
+## CSS and visual design
+
+Use SCSS.
+
+Do not use Bootstrap, Tailwind, or a heavy CSS framework.
+
+Use a shared design-system foundation that works across simple server-rendered pages and complex React pages.
+
+Use Lucide as the default icon library unless a later decision changes this.
+
+Use moderate prefixing:
+
+- `rj-` for shared platform/design-system classes,
+- tool-specific prefixes for tool-specific classes, such as `slu-` and `meval-`.
+
+Phase 01 should establish functional scaffolding plus a minimal neutral design foundation, not a final visual brand system.
+
+## Build
+
+Use npm scripts.
+
+Use Vite where useful for SCSS, JS, and React bundling.
+
+Do not use Gulp unless a clear need emerges and is documented.
 
 ## Database
 
-- Prisma ORM.
-- MySQL for MVP on existing EC2 servers.
-- Prisma migrations are the official schema-change workflow.
-- Avoid DB-specific raw SQL unless needed. Isolate and document any raw SQL.
-- Reconsider Postgres when building Rumbo-specific infrastructure.
+Use Prisma as the ORM/data-access layer.
 
-Shared platform tables should include:
+Use MySQL while Rumbo is sharing existing general-purpose EC2 servers.
 
-- users
-- orgs
-- memberships
-- subscriptions
-- jobs
-- ai_calls
-- files/artifacts/manifests as needed
+Reconsider Postgres when building EC2 instances or infrastructure specifically for Rumbo.
 
-Tool-specific tables should reference shared platform tables.
+Use Prisma migrations.
 
-## Auth/orgs
+Avoid database-specific tricks unless needed. Isolate and document raw SQL when used.
 
-- Centralized auth for all tools.
-- Every account belongs to at least one organization.
-- Launch should support Google auth and probably LinkedIn auth.
-- Email/password and/or magic link should remain available if practical.
-- Approved-domain auto-approval belongs in shared auth/org logic.
-- Evaluate Passport.js first for Express-native multi-provider auth unless Auth.js proves better.
+## Auth and organizations
 
-## Jobs
+Use centralized auth shared across all tools.
 
-- Shared DB-backed jobs table for MVP.
-- Job payloads must be flexible because tools may ask very different things from similar verbs such as `extract_text`.
-- Long-running analysis should continue even if the user leaves the page.
-- Job progress should be available to the web UI.
+Every account should belong to at least one organization.
+
+Launch auth should include Google login and probably LinkedIn, plus email/password and/or magic link if practical.
+
+Approved-domain auto-approval belongs in shared auth/org logic.
+
+## Jobs, storage, and artifacts
+
+Use shared flexible DB-backed jobs for MVP.
+
+Use local EC2 file storage initially with an abstraction for later S3 or S3-compatible storage.
+
+Store raw crawl and AI artifacts as JSON files.
+
+Store metadata and status in the database.
+
+Use shared artifact manifests for job inputs, outputs, costs, and event logs.
+
+## Python
+
+Node should call Python via CLI/subprocess initially.
+
+Use JSON stdin/stdout/files as boundaries.
+
+Python may become a separate worker/service later.
+
+Python is appropriate for text analysis, ML, AI-heavy routines, extraction, scoring, and similar work.
 
 ## AI provider layer
 
-- Shared AI provider wrapper.
-- Provider/model configurable per call type.
-- Record token and cost data for each call.
-- Support global and per-org spend caps.
-- Cache by explicit cache keys/TTLs where safe.
+All AI calls should go through a shared provider wrapper.
 
-## Python integration
+Provider and model should be configurable per call type.
 
-- Node orchestrates and calls Python via CLI/subprocess initially.
-- Use JSON stdin/stdout/files as the integration boundary.
-- Python owns deeper text analysis, ML, extraction, and AI routines where libraries matter.
-- Python may later become a separate worker/service.
+Record token/cost usage for every AI call.
 
-## Storage
+Support global and per-organization spend caps.
 
-- Local EC2 filesystem initially.
-- Use a storage abstraction to allow later S3-compatible storage.
-- Store raw crawl/AI artifacts as JSON files when appropriate.
-- Store metadata/status in DB.
-- Use shared artifact manifests.
+Use cache keys and TTLs for crawl and AI reuse where appropriate.
+
+## Admin
+
+Use a centralized admin UX shared across tools.
+
+Admin can start under `/admin`.
+
+The architecture should allow admin to later move to a subdomain or separate host if useful.
 
 ## Embeddable widgets
 
-Embeddable widgets are a medium-priority platform capability. They are not the default UI model, but architectural choices should avoid preventing them.
+Embeddable widgets are a medium-priority platform capability, not a back-burner idea.
 
-Potential uses:
+They are valuable because useful public widgets can spread brand recognition.
 
-- AI Facts / transparency label.
-- Generated-with-guidance badge.
-- Public mini report cards.
-- Evaluation result snippets.
-- Organization guidance/voice summary badges.
+Do not make web components the default UI model for MVP, but keep them on the table for embeddable, cross-context, or framework-neutral widgets.
 
-Consider web components later for embeddable widgets, but do not make them the default component model for MVP app screens.
+## Future distribution seams
+
+The MVP may run on one EC2 server, but the architecture should not prevent later moving:
+
+- admin,
+- individual tools,
+- workers,
+- database,
+- storage,
+- queue,
+- Python services,
+- AI processing services,
+
+onto separate hosts or managed services.

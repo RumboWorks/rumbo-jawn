@@ -1,95 +1,99 @@
-# Rumbo Decision Log
+# Decision Log
 
-Record decisions that affect product direction, architecture, stack, workflow, or future maintainability.
+This is the actual project decision log.
 
-## 2026-05-30 — Use Rumbo Guided Phases
+Use `.agent/decision-log.agent.md` when maintaining this file.
 
-Decision: Use phase-based planning with short adaptive build loops and mandatory closeout reviews.
+## 2026-05-30 — Use guided iterative phases
 
-Reason: Detailed phase docs worked better than GitHub-issue-based planning, but the previous approach drifted near the finish line when new learning made older phase docs stale.
+Status: Accepted
 
-Implications:
+Decision:
+Use phase-based planning with short adaptive build loops and mandatory closeout reviews.
 
-- Future phases are provisional.
-- Each phase must end with a closeout review.
-- Work cannot silently disappear; it must be completed, deferred, moved, or removed with a documented reason.
+Rationale:
+Detailed phase docs work well for coding-agent execution, but plans drift as implementation reveals new information. The process needs controlled revision points.
 
-## 2026-05-30 — Use a monorepo
+Consequences:
+- Future phase files are provisional.
+- Each phase requires closeout.
+- Deferred work must be recorded.
+- Roadmap and phase docs must be updated when plans change.
 
-Decision: Use one monorepo for the Rumbo platform and tool modules.
+## 2026-05-30 — Build Rumbo as modular monolith for MVP
 
-Reason: Shared auth, orgs, billing, jobs, AI provider wrappers, storage, admin, and design system should not be duplicated across tools.
+Status: Accepted
 
-Risk: Work on one tool could create side effects for others.
+Decision:
+Build Rumbo as a modular monolith for MVP, with explicit seams for later distribution.
 
-Mitigation:
+Rationale:
+The project needs shared auth, orgs, jobs, AI provider handling, storage, billing readiness, admin, and design-system conventions without overbuilding distributed infrastructure too early.
 
-- Use modular tool boundaries.
-- Shared packages expose narrow contracts.
-- Shared packages must not depend on tool internals.
-- Tools must not import each other directly.
-- Tests and phase closeouts must check for cross-tool effects.
+Consequences:
+- One self-contained EC2 deployment can serve MVP work.
+- Shared services should be generic.
+- Tools must remain modular and isolated.
+- Architecture should not prevent later splitting tools, workers, admin, storage, database, or Python services onto separate hosts.
 
-## 2026-05-30 — Start as modular monolith on EC2
+## 2026-05-30 — Separate platform from tool modules
 
-Decision: Start as a modular monolith on self-contained EC2 servers.
+Status: Accepted
 
-Reason: This matches current working patterns and avoids premature distributed complexity.
+Decision:
+Rumbo is the shared platform/product family. Sounds Like Us is the first MVP tool built on the platform. Model Eval is a planned sibling tool and is out of scope for initial MVP implementation, but it should inform shared platform architecture.
 
-Future direction: Allow later movement to distributed DevOps: separate admin, tools, workers, DB, storage, Python services, and queue if justified.
+Rationale:
+The project needs shared platform capabilities without treating the first tool as the entire product.
 
-## 2026-05-30 — Express backend, ESM only
+Consequences:
+- Platform docs describe shared services.
+- Tool docs describe tool-specific behavior.
+- Sounds Like Us may drive first implementation, but shared services must not be named or modeled as if they belong only to Sounds Like Us.
+- Model Eval must not be implemented during the first MVP unless a phase explicitly adds it.
 
-Decision: Use Express for backend and ESM-only Node code.
+## 2026-05-30 — Use project-charter and active-planning doc split
 
-Reason: Express fits current stack preference and keeps implementation straightforward. ESM avoids mixing module systems.
+Status: Accepted
 
-## 2026-05-30 — Twig page shells with vanilla JS/React as needed
+Decision:
+Keep stable project agreements in `docs/project-charter/` and active planning files in `docs/active-planning/`.
 
-Decision: Use Twig for server-rendered page shells by default. Use vanilla JS for simple interactivity. Use React for highly dynamic screens.
+Rationale:
+Agents need a clean reading path. Stable docs, active logs, working notes, and archives should not be mixed together.
 
-Reason: The source of rendered HTML should be easy to find and understand. React should be available where the UI complexity justifies it.
+Consequences:
+- `docs/README.md` is the documentation map.
+- Agents should not read all docs by default.
+- Working notes are not source of truth.
+- Random top-level docs are not allowed.
 
-## 2026-05-30 — SCSS design system, no Bootstrap/Tailwind
+## 2026-05-30 — Use provider-neutral agent guidance with provider adapters
 
-Decision: Use SCSS with a shared design system. Do not use Bootstrap or Tailwind-style framework.
+Status: Accepted
 
-Reason: CSS choices must work across simple server-rendered pages and complex React pages without heavy utility-class markup.
+Decision:
+Use `AGENTS.md`, `docs/`, and `.agent/` as the master guidance system. Use provider-specific files such as `.github/copilot-instructions.md` and `CLAUDE.md` as adapters, not replacements.
 
-## 2026-05-30 — npm scripts and Vite, no Gulp by default
+Rationale:
+The project may use Codex, GitHub Copilot, Claude Code, or other coding agents. Guidance should survive provider switching.
 
-Decision: Use npm scripts as the build/task entry point. Use Vite where useful for SCSS/JS/React bundling. Do not use Gulp unless a strong need appears.
+Consequences:
+- `.agent/` files are specialist playbooks.
+- Provider-specific files should point back to canonical repo guidance.
+- Do not duplicate full doctrine in each provider system.
 
-## 2026-05-30 — Prisma with MySQL for current servers
+## 2026-05-30 — Phase 01 visual direction
 
-Decision: Use Prisma ORM and Prisma migrations. Stick with MySQL while using existing general-purpose EC2 servers. Reconsider Postgres when building infrastructure specifically for Rumbo.
+Status: Accepted
 
-Reason: Existing servers already run MySQL. Prisma preserves a path to Postgres/cloud DB later if database-specific assumptions are avoided.
+Decision:
+Phase 01 should establish functional scaffolding plus a minimal neutral design foundation. It should not finalize a full visual brand system.
 
-## 2026-05-30 — Centralized auth/orgs/admin across tools
+Rationale:
+The project needs SCSS/Twig/design-system rails early, but final visual direction should not be invented before real screens and product needs are clearer.
 
-Decision: Use centralized authentication, organizations, memberships, subscriptions, and admin UX across tools.
-
-Reason: Sounds Like Us and Model Eval should not require separate user accounts or separate admin systems.
-
-## 2026-05-30 — Auth providers
-
-Decision: Launch should include Google login and probably LinkedIn. Email/password and/or magic link should remain available if practical. Evaluate Passport.js first unless Auth.js proves better for Express/Prisma.
-
-## 2026-05-30 — Shared jobs/storage/AI provider layer
-
-Decision: Use shared DB-backed jobs, shared storage abstraction, and shared AI provider wrapper.
-
-Reason: Multiple tools need crawling, extraction, analysis, AI calls, cost tracking, and caching. These should not be duplicated.
-
-## 2026-05-30 — Python through JSON boundaries first
-
-Decision: Node should call Python via CLI/subprocess initially, using JSON stdin/stdout/files. Python may become a separate worker/service later.
-
-Reason: This keeps deployment simple while allowing Python for text analysis, ML, and AI work.
-
-## 2026-05-30 — Embeddable widgets remain important
-
-Decision: Embeddable widgets should remain a medium-priority platform capability, not a back-burner idea.
-
-Reason: Useful public widgets can spread brand recognition and support trust/transparency use cases.
+Consequences:
+- Phase 01 may create tokens, layout primitives, basic typography, form/button/card/alert/table styles.
+- Phase 01 should avoid polished marketing design, final palette, animations, illustrations, or complex component-library work.
+- Final visual design direction is deferred.

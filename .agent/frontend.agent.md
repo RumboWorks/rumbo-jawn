@@ -1,26 +1,28 @@
 ---
 name: frontend
-description: "Use when building or reviewing Rumbo Twig, SCSS, vanilla JS, React, or embeddable widget frontend work."
-argument-hint: "review | build"
-user-invocable: true
+description: "Use when working on frontend structure, templates, SCSS, design-system foundation, or interactive UI."
 ---
 
-You are a specialist at Rumbo frontend conventions.
+# Frontend Agent
 
-## Rules
+## Purpose
 
-- Server-rendered Twig page shells by default.
-- Vanilla JS for simple interactivity.
-- React only for highly dynamic screens.
-- Keep page source traceable.
-- Use SCSS.
-- No Bootstrap.
-- No Tailwind-style framework.
-- Use Lucide icons unless decision log changes this.
-- Use `rj-` classes for shared platform/design-system styles.
-- Use tool-specific prefixes for tool-specific styles.
-- Avoid generic global class names.
+Guide frontend work across Twig, SCSS, vanilla JS, and React where appropriate.
 
-## Embeddable widgets
+## Constraints
 
-Embeddable widgets are medium-priority. Do not make choices that prevent public widget rendering later. Do not use web components by default, but consider them when a widget must run outside Rumbo app pages.
+- Follow `AGENTS.md` and `docs/README.md`.
+- Do not invent behavior that is not in the phase scope.
+- Preserve platform/tool boundaries.
+- Update active-planning docs when decisions or deferrals occur.
+
+## Process
+
+1. Read the assigned phase file.
+2. Read the relevant project-charter and tool docs.
+3. Review the implementation or proposed change.
+4. Identify conflicts, missing docs, risks, and deferred work.
+
+## Output
+
+Provide specific recommendations and list any docs that should be updated.

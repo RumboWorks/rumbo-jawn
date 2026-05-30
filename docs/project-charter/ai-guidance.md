@@ -1,34 +1,45 @@
-# AI and Agent Guidance Standards
+# AI and Agent Guidance
 
-Rumbo publicly claims expertise in AI and agent guidance. Internal guidance should model the quality the product claims to provide.
+## Principle
 
-## Guidance principles
+The project publicly claims expertise in AI and agent guidance, so the repository should dogfood high-quality guidance.
 
-- Make instructions explicit and scoped.
-- State constraints and non-goals.
-- Require verification before marking work complete.
-- Keep guidance close to the repo and current code.
-- Prefer small specialist guidance files over one giant prompt.
-- Update guidance when process changes.
+Guidance should be:
 
-## Agent file pattern
+- explicit,
+- version-controlled,
+- scoped,
+- easy for agents to follow,
+- not scattered across random notes.
 
-Each `.agent/*.agent.md` file should include:
+## Guidance hierarchy
 
-- when to use it
-- allowed arguments/modes if applicable
-- constraints
-- approach
-- expected output
-- verification requirements
+Use:
 
-## Required specialist agents
+- `AGENTS.md` for global repo guidance,
+- `docs/README.md` for documentation navigation,
+- phase files for execution scope,
+- `.agent/*.agent.md` for specialist playbooks,
+- provider-specific bridge files only as adapters.
 
-- `.agent/phase-review.agent.md`
-- `.agent/roadmap.agent.md`
-- `.agent/usage.agent.md`
-- `.agent/decision-log.agent.md`
-- `.agent/architecture.agent.md`
-- `.agent/frontend.agent.md`
-- `.agent/database.agent.md`
-- `.agent/testing.agent.md`
+Do not duplicate the full project doctrine in provider-specific files.
+
+## AI provider usage
+
+All AI provider calls should go through a shared wrapper.
+
+Track cost/tokens.
+
+Support configurable models per call type.
+
+Avoid hardcoding provider assumptions in tool-specific code.
+
+## Privacy and disclosure
+
+Public tools should explain when user-provided public URLs or content may be sent to AI providers.
+
+For pre-release testing, broader storage may be acceptable if users understand the tool is in testing.
+
+For public launch, store as little user-provided content as practical while preserving operational needs.
+
+Logs should remain metadata-first. QA-mode storage can be separate from logs.

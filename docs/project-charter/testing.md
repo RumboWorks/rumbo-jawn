@@ -1,35 +1,25 @@
-# Testing and QA
+# Testing
 
-## Testing philosophy
+## Testing posture
 
-Tests should protect shared platform contracts and reduce cross-tool side effects.
+Every phase should include concrete acceptance criteria and a manual QA checklist.
+
+Tests should focus on behavior that matters to the current phase.
+
+Do not add elaborate testing infrastructure before the app structure exists, but do create a path for tests early.
 
 ## Phase expectations
 
-Each phase should define:
+A phase is not complete until:
 
-- automated checks required
-- manual QA checklist
-- cross-tool smoke checks if shared packages changed
-- docs that must be updated
+- its acceptance criteria pass,
+- relevant checks/tests have been run,
+- manual QA notes are recorded where needed,
+- docs are updated,
+- deferred work is captured.
 
-## MVP baseline
+## Browser testing
 
-Phase 00 should establish at least a minimal `npm run check` command even if it initially runs lightweight syntax/config checks.
+Playwright/browser testing is likely useful once the platform shell, auth flows, and Sounds Like Us user flows exist.
 
-## Cross-tool side effect guard
-
-When a shared package changes, check affected tool placeholders or tests before closing the phase.
-
-## Finish-line discipline
-
-The launch-hardening phase must include:
-
-- broken links
-- error states
-- empty states
-- admin visibility
-- privacy/AI disclosure
-- usage limits
-- deploy rehearsal
-- rollback notes
+It does not need to be fully built in Phase 00 unless a phase file explicitly adds it.

@@ -1,42 +1,60 @@
-# Data Model
+# Data Model Direction
 
-This document records the intended shared data model. Phase 00 should create a placeholder only; later phases will fill in the actual Prisma schema.
+## Shared platform data
 
-## Shared platform entities
+Shared platform tables should include, at minimum:
 
-Expected shared tables/models:
+- users,
+- organizations,
+- memberships,
+- subscriptions,
+- jobs,
+- AI calls,
+- provider/model configuration,
+- usage limits,
+- artifact manifests.
 
-- User
-- Organization
-- Membership
-- Subscription
-- Job
-- AiCall
-- Artifact / File / ArtifactManifest as needed
-- ToolConfig / AppConfig as needed
+Every account should belong to at least one organization.
 
-## Tool-specific entities
+Tool-specific tables should reference shared platform tables rather than duplicating user, org, auth, billing, or job concepts.
 
-Tool-specific tables should reference shared platform entities rather than recreating user/org/job concepts.
+## Tool-specific data
 
-Examples:
+Sounds Like Us may need tables for:
 
-- SoundsLikeUsRun
-- SoundsLikeUsProfile
-- SoundsLikeUsGuidanceOutput
-- ModelEvalProject
-- ModelEvalRun
-- ModelEvalArtifact
-- ModelEvalScore
+- analysis runs,
+- source URLs,
+- source documents,
+- generated guidance profiles,
+- output variants,
+- user selections/options,
+- feedback.
 
-## Core rules
+Model Eval may later need tables for:
 
-- Every account belongs to at least one organization.
-- Tool data belongs to an organization and, where appropriate, to the user who initiated it.
-- Long-running work is represented by shared jobs.
-- AI calls are logged in a shared table for cost, token, and provider tracking.
-- Raw artifacts can live as JSON files with metadata in DB.
+- evaluation projects,
+- models,
+- prompts,
+- artifacts,
+- criteria/rubrics,
+- scores,
+- reviewers,
+- reports.
 
-## Current database choice
+Model Eval is out of scope for initial MVP implementation.
 
-Use MySQL while using existing general-purpose EC2 servers. Use Prisma to preserve migration flexibility. Reconsider Postgres when building Rumbo-specific infrastructure.
+## Storage split
+
+Use database records for metadata, status, ownership, permissions, and queryable information.
+
+Use JSON files for raw crawl output, AI artifacts, large generated payloads, and job artifacts.
+
+Use artifact manifests to connect database records to stored files.
+
+## ORM
+
+Use Prisma.
+
+Use MySQL for now.
+
+Preserve the ability to move to Postgres or cloud databases later by avoiding unnecessary database-specific behavior.

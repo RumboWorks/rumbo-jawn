@@ -1,72 +1,55 @@
 # Deployment
 
-## Current deployment target
+## Current deployment direction
 
-- Self-contained EC2 Ubuntu server.
-- Apache reverse proxy.
-- PM2 process manager.
-- Node Express app.
-- MySQL.
-- Local filesystem storage.
+Use self-contained EC2 servers for MVP work.
 
-## PM2 processes
+Use Apache as reverse proxy.
 
-Expected MVP processes:
+Use PM2 to run Node processes.
 
-```text
-rumbo-web
-rumbo-worker
-```
+Initial processes:
 
-Possible future process:
+- `rumbo-web`
+- `rumbo-worker`
 
-```text
-rumbo-python-worker
-```
+Possible later process:
 
-## Apache routing
+- `rumbo-python-worker`
 
-Start with one app/server. Apache may route multiple hostnames to the same PM2 app.
+## Future direction
 
-Examples:
+The architecture should allow later movement toward a more modern distributed DevOps setup.
 
-```text
-admin.example.com        -> rumbo-web / admin routes
-sounds.example.com       -> rumbo-web / Sounds Like Us routes
-eval.example.com         -> rumbo-web / Model Eval routes
-```
+Do not require it for MVP.
 
-Later, these hostnames can point to separate servers without changing the public URL strategy.
+## Subdomains and routing
 
-## Environment/config
+Public app routes may use subdomains or paths.
 
-Use `.env` for:
+Admin may start under `/admin`, but the architecture should allow later admin subdomain routing.
 
-- environment selection
-- secrets
-- DB connection
-- OAuth provider secrets
-- Stripe keys
-- AI provider keys
+Do not couple physical hosting to product identity.
 
-Use DB-backed config for:
+Apache or a future proxy should be able to route hostnames to the same app now and different services later.
 
-- tool limits
-- model/provider choices
-- crawl limits
-- cache TTLs
-- spend caps
-- feature flags
-- enabled add-ons
-- per-org overrides
+## Environment
 
-## Future distribution seams
+Use `.env` for secrets and major environment differences:
 
-The code should not assume all pieces must always run on one server. Preserve seams for:
+- dev/test/prod selection,
+- database connection,
+- OAuth secrets,
+- Stripe keys,
+- AI provider keys.
 
-- web app split by tool/subdomain
-- worker split
-- Python service/worker
-- cloud DB
-- S3-compatible storage
-- external queue
+Use DB-backed configuration for tunable product/tool settings:
+
+- tool limits,
+- model choices,
+- crawl page limits,
+- cache TTLs,
+- spend caps,
+- feature flags,
+- enabled add-ons,
+- per-org overrides.

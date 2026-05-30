@@ -1,17 +1,15 @@
 # Implementation Notes
 
-Use this for discoveries that affect development but are not major architecture decisions.
+Implementation notes capture useful discoveries that are not full decisions.
 
-Decision-level items belong in `docs/active-planning/decision-log.md`.
+They are active but curated. Do not use this file for random scratch notes.
 
-## Template
+Use `docs/working-notes/` for exploratory notes. Promote durable findings here only when they affect future implementation.
 
-```md
-## YYYY-MM-DD — Short title
+## 2026-05-30 — Twig shells plus React islands
 
-Context:
+Highly dynamic screens may use React mounted inside a Twig page shell. This preserves page-source traceability while allowing dynamic UI where needed.
 
-Observation:
+## 2026-05-30 — Design rails before visual branding
 
-Effect on future phases:
-```
+Phase 01 should establish SCSS compilation, tokens, and basic reusable styles without trying to finalize the full visual brand.

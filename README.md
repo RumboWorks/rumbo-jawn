@@ -4,6 +4,14 @@ Rumbo is a modular platform for building AI-assisted tools for nonprofit and mis
 
 This repository is organized to support human planning, coding-agent implementation, and long-term maintainability. The project uses repo-local guidance files so decisions, phases, deferred work, and implementation notes stay close to the code.
 
+## Platform and tools
+
+Rumbo is the shared platform/product family.
+
+Sounds Like Us is the first MVP tool built on the platform.
+
+Model Eval is a planned sibling tool. It is out of scope for the initial MVP implementation, but it remains an architectural constraint so the platform does not become a one-off Sounds Like Us app.
+
 ## Current status
 
 This repository is in early project foundation work.
@@ -33,6 +41,7 @@ Specialist task guidance lives in `.agent/`.
 ```text
 docs/
   project-charter/      Stable or mostly stable project agreements
+  tools/                Tool-specific product notes and scope boundaries
   active-planning/      Roadmap, decision log, deferred work, retrospectives
   development-phases/   Phase-by-phase implementation guidance
   reference/            Verified usage and reference material

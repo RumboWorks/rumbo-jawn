@@ -1,58 +1,74 @@
 # Rumbo Documentation Map
 
-Do not read every file in `docs/` by default. This directory is organized so agents and humans can find the right source of truth without wading through stale notes.
+Do not read every file in `docs/` by default.
 
-## Required reading for coding agents
+For most coding tasks, read:
 
 1. `AGENTS.md`
-2. This file: `docs/README.md`
-3. The current phase file in `docs/development-phases/`
-4. Any additional files explicitly named by the phase file
+2. `docs/README.md`
+3. The assigned phase file in `docs/development-phases/`
+4. Any additional files explicitly referenced by the phase file
 
 ## Stable project charter
 
-Stable or slow-changing project agreements live in `docs/project-charter/`:
+Stable or mostly stable project agreements live in `docs/project-charter/`.
 
-- `product-vision.md` — what Rumbo is and what it is not
-- `architecture.md` — platform architecture and major technical direction
-- `coding-standards.md` — coding conventions and repo expectations
-- `data-model.md` — shared data-model principles
-- `deployment.md` — current and future deployment posture
-- `testing.md` — testing expectations
-- `ai-guidance.md` — AI/agent guidance principles for the project
+Read these when the current task touches product direction, architecture, standards, deployment, data modeling, testing, or AI guidance.
 
-These files should not be casually rewritten during implementation. Major changes should be recorded in `docs/active-planning/decision-log.md`.
+Key files:
+
+- `docs/project-charter/product-vision.md`
+- `docs/project-charter/architecture.md`
+- `docs/project-charter/coding-standards.md`
+- `docs/project-charter/data-model.md`
+- `docs/project-charter/deployment.md`
+- `docs/project-charter/testing.md`
+- `docs/project-charter/ai-guidance.md`
+
+## Tool notes
+
+Tool-specific product notes and boundaries live in `docs/tools/`.
+
+Key files:
+
+- `docs/tools/README.md`
+- `docs/tools/sounds-like-us.md`
+- `docs/tools/model-eval.md`
+
+Rumbo is the shared platform. Sounds Like Us is the first MVP tool. Model Eval is a planned sibling tool and is out of scope for initial MVP implementation unless a phase file explicitly says otherwise.
 
 ## Active planning
 
-Actively updated planning files live in `docs/active-planning/`:
+These files change during the project:
 
-- `roadmap.md` — current phase status and next work
-- `decision-log.md` — accepted, rejected, superseded, and deferred decisions
-- `deferred-work.md` — postponed work that must not disappear
-- `phase-retrospectives.md` — phase closeout notes
-- `implementation-notes.md` — useful implementation discoveries that are not full decisions
+- `docs/active-planning/roadmap.md`
+- `docs/active-planning/decision-log.md`
+- `docs/active-planning/deferred-work.md`
+- `docs/active-planning/phase-retrospectives.md`
+- `docs/active-planning/implementation-notes.md`
 
-## Development phases
+## Phase execution
 
-Agent-ready phase docs live in `docs/development-phases/`.
+Phase docs live in `docs/development-phases/`.
 
-Only the current phase should be treated as ready to execute. Later phase docs are provisional and should be reviewed before assignment.
+Phase 00 is intended to be immediately actionable. Later phase files are provisional until reviewed immediately before assignment.
 
 ## Reference
 
-Reference material lives in `docs/reference/`:
+Reference docs live in `docs/reference/`.
 
-- `usage.md` — man-page-style command usage, maintained from actual code only
+- `docs/reference/usage.md`
+
+Usage documentation should only describe commands and behavior that actually exist.
 
 ## Working notes
 
-Temporary notes, research, and agent scratch docs live in `docs/working-notes/`.
+Working notes live in `docs/working-notes/`.
 
-Working notes are not source of truth. If a working note affects future work, promote the relevant content into the project charter, active planning docs, reference docs, or the relevant phase file.
+They are not source of truth and are not required reading unless linked from a phase file, roadmap item, decision-log entry, tool file, or project-charter file.
 
 ## Archive
 
-Superseded plans and retired notes live in `docs/archive/`.
+Superseded material lives in `docs/archive/`.
 
-Archived material is not required reading unless specifically linked by a current source-of-truth document.
+Archived material is not source of truth.

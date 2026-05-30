@@ -1,53 +1,59 @@
 # Coding Standards
 
-## JavaScript/Node
+## General
 
-- Use ESM only.
-- Do not introduce CommonJS.
-- Prefer plain modern JavaScript for MVP unless a phase explicitly introduces TypeScript.
-- Keep route handlers thin.
-- Put business logic in services/packages.
-- Shared capabilities belong in `packages/`, not inside one tool.
+Prefer small, reviewable changes.
 
-## Express
+Use clear module boundaries.
 
-- Route modules should be explicit and easy to trace.
-- Tool routes should be isolated by tool module.
-- Do not create separate auth/session systems per tool.
+Do not introduce new architectural patterns unless the current phase calls for them or a decision is recorded.
 
-## Twig
+## Node
 
-- Use Twig for server-rendered page shells.
-- Keep page source traceable: each major page should have an obvious Twig file.
-- Dynamic React screens should still have a Twig shell that mounts the React component.
+Use ESM only.
 
-## Frontend JS
+Do not use CommonJS.
 
-- Use vanilla JS modules for simple behavior.
-- Use React only where the screen is meaningfully dynamic.
-- Do not convert simple forms/pages into React by default.
+Use Express for backend routes and services.
 
-## CSS/SCSS
+Prefer plain modern JavaScript for MVP unless a later decision introduces TypeScript.
 
-- Use SCSS.
-- No Bootstrap.
-- No Tailwind-style framework.
-- Use shared design-system classes with `rj-` prefix.
-- Use tool-specific prefixes for tool-only styles.
-- Avoid generic global classes.
+Keep route handlers thin. Put business logic in services and data access in repositories or shared packages.
 
-## Database
+## Frontend
 
-- Use Prisma migrations.
-- Avoid raw SQL unless needed.
-- If raw SQL is needed, isolate it and document DB assumptions.
-- Tool-specific tables should reference shared users/orgs/jobs where applicable.
+Use Twig/server-rendered pages by default.
 
-## Python
+Use vanilla JavaScript for simple interactivity.
 
-- Python routines should accept JSON input and return JSON output or write documented JSON artifacts.
-- Keep the Node/Python contract explicit.
+Use React only for highly dynamic screens.
+
+Avoid framework sprawl.
+
+## CSS
+
+Use SCSS.
+
+No Bootstrap.
+
+No Tailwind.
+
+No heavy utility-class framework.
+
+Use shared design-system conventions and tokenized CSS variables.
+
+Use `rj-` prefixes for shared design-system/platform classes and tool-specific prefixes for tool-specific classes.
 
 ## Documentation
 
-Update docs in the same phase as code changes. Do not leave docs stale for a later cleanup phase unless the deferral is recorded.
+Update documentation when behavior, commands, decisions, or scope change.
+
+Do not create random top-level files under `docs/`.
+
+Use `docs/working-notes/` for exploratory notes.
+
+## Naming
+
+Avoid naming shared services after a specific tool.
+
+For example, shared AI call logging should not be named as if it belongs only to Sounds Like Us.
