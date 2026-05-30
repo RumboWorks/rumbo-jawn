@@ -1,56 +1,78 @@
-# Rumbo Phase 00 Planning Pack
+# Rumbo
 
-This pack bootstraps the Rumbo platform MVP with repo-local documentation, agent guidance, and provisional phase docs.
+Rumbo is a modular platform for building AI-assisted tools for nonprofit and mission-driven communications, evaluation, guidance, and analysis workflows.
 
-Use this pack to create the initial repository documentation before product feature implementation begins.
+This repository is organized to support human planning, coding-agent implementation, and long-term maintainability. The project uses repo-local guidance files so decisions, phases, deferred work, and implementation notes stay close to the code.
 
-## First action
+## Current status
 
-Load this file into the repo, then assign:
+This repository is in early project foundation work.
 
-```text
-docs/development-phases/phase-00-project-foundation.md
-```
-
-to a coding agent.
-
-Phase 00 creates the project foundation. It should not implement product features.
-
-## Documentation organization
-
-The docs are intentionally split by stability:
+Start with the current phase file in:
 
 ```text
-docs/project-charter/       stable or slow-changing project agreements
-docs/active-planning/       actively updated planning files
-docs/development-phases/    agent-ready phase execution docs
-docs/reference/             verified reference docs
-docs/working-notes/         temporary notes, not source of truth
-docs/archive/               superseded material
+docs/development-phases/
 ```
 
-Agents should not be told to read all docs. The required reading path is:
+Do not assume later phase files are final. Future phases are provisional and should be reviewed before assignment.
+
+## For coding agents
+
+Before making changes, read:
 
 1. `AGENTS.md`
 2. `docs/README.md`
-3. the current phase file
-4. any additional files explicitly named by the phase file
+3. The assigned phase file in `docs/development-phases/`
 
-## Working method
+Do not read every file in `docs/` by default. The documentation map and phase file define the relevant reading path.
 
-Rumbo uses guided phases: detailed phase docs plus short adaptive build loops and mandatory closeout reviews.
+Specialist task guidance lives in `.agent/`.
 
-Every phase closeout should confirm what is done, what changed, what moved, what was deferred, and whether the next phase should be revised before assignment.
+## Documentation layout
 
-## Current architecture posture
+```text
+docs/
+  project-charter/      Stable or mostly stable project agreements
+  active-planning/      Roadmap, decision log, deferred work, retrospectives
+  development-phases/   Phase-by-phase implementation guidance
+  reference/            Verified usage and reference material
+  working-notes/        Temporary or exploratory notes
+  archive/              Superseded material
+```
 
-- Monorepo
-- Modular monolith for MVP
-- Shared platform services for auth, orgs, jobs, admin, AI calls, billing readiness, and storage abstraction
-- Tool-specific modules for Sounds Like Us, Model Eval, and future tools
-- Self-contained EC2 now, with seams for future distribution
-- Apache proxy, PM2, Express, ESM-only Node
-- Twig page shells, vanilla JS for simple interactivity, React for dynamic screens
-- SCSS design system, no Bootstrap/Tailwind
-- Prisma with MySQL for now
-- Python for text analysis/ML/AI work through JSON/subprocess boundaries initially
+## Agent guidance layout
+
+```text
+.agent/
+  *.agent.md            Specialist playbooks for recurring agent tasks
+```
+
+These files are instructions for agents. They are not source-of-truth project documentation.
+
+For example:
+
+```text
+docs/active-planning/decision-log.md
+  = actual project decision log
+
+.agent/decision-log.agent.md
+  = instructions for maintaining the decision log
+```
+
+## Development approach
+
+The project uses guided iterative phases:
+
+- keep stable product vision and architecture docs,
+- work in short, agent-ready phases,
+- treat future phases as provisional,
+- review and revise the plan after each phase,
+- never let deferred work disappear,
+- keep docs as the source of truth,
+- prefer working, verifiable slices over vague progress.
+
+## Repository setup
+
+Project setup, scripts, package structure, and local development commands will be documented in `docs/reference/usage.md` once they exist.
+
+Until then, follow the assigned phase file.
