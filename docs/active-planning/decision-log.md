@@ -97,3 +97,49 @@ Consequences:
 - Phase 01 may create tokens, layout primitives, basic typography, form/button/card/alert/table styles.
 - Phase 01 should avoid polished marketing design, final palette, animations, illustrations, or complex component-library work.
 - Final visual design direction is deferred.
+
+## 2026-05-30 — Use Passport.js for auth middleware
+
+Status: Accepted
+
+Decision:
+Use Passport.js for auth middleware. Do not use Auth.js (NextAuth.js v5).
+
+Rationale:
+Passport.js is Express-native, battle-tested, and has stable strategies for Google, LinkedIn, and local/magic-link auth. Auth.js v5 added Express support but was designed for Next.js and SvelteKit framework adapters; its Express+Prisma path has a history of breaking changes between major versions and is less proven.
+
+Consequences:
+- Use Passport.js strategies for each OAuth provider.
+- Pair with `express-session` and a DB-backed session store so sessions survive process restarts.
+- If LinkedIn OAuth proves unstable in Phase 02, defer it and record the deferral explicitly.
+- Supersedes the earlier "evaluate Passport.js first unless Auth.js proves better" hedge.
+
+## 2026-05-30 — Use `twig` npm package for Express/Twig integration
+
+Status: Accepted
+
+Decision:
+Use the `twig` npm package as the Twig template engine for Express.
+
+Rationale:
+It is the only actively maintained pure-JS Twig implementation for Node. It integrates with Express via `app.set('view engine', 'twig')` with no adapter layer needed. Other options are either abandoned or require a PHP runtime.
+
+Consequences:
+- The `twig` npm package implements Twig 1.x syntax. PHP-only Twig 2.x/3.x extensions are not available; avoid relying on them.
+- Wire via `app.set` in the platform-web entry point.
+
+## 2026-05-30 — AI providers for MVP: OpenAI, Anthropic, DeepSeek
+
+Status: Accepted
+
+Decision:
+Support OpenAI, Anthropic (Claude), and DeepSeek as AI providers for MVP. The shared AI provider wrapper in `packages/ai/` must abstract provider differences.
+
+Rationale:
+Different providers have meaningful cost and capability tradeoffs. Different call types (crawl summarization, guidance generation, evaluation) may favor different providers and models. Supporting three providers at MVP avoids lock-in and allows cost optimization without rebuilding the wrapper.
+
+Consequences:
+- `packages/ai/` normalizes request and response shape across providers.
+- `ai_calls` table logs which provider and model was used per call.
+- Provider API keys live in `.env`. Model and provider selection per call type lives in DB-backed config.
+- DeepSeek shares the OpenAI API schema; its adapter may reuse the OpenAI client with a different base URL.
