@@ -1,0 +1,53 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}Sounds Like Us — Rumbo{% endblock %}
+
+{% block content %}
+<div class="rj-container slu-page">
+
+    <div class="slu-hero">
+        <p class="rj-eyebrow">Sounds Like Us</p>
+        <h1 class="rj-h1">Generate writing guidance from your organization's voice</h1>
+        <p class="rj-lead">Enter a public website URL. We'll analyze the content and produce reusable writing guidance your team or AI tools can use to write in your organization's voice.</p>
+    </div>
+
+    <div class="slu-analyze-card rj-card rj-card--pad">
+        <form method="POST" action="/slu/analyze" class="slu-url-form">
+            <div class="rj-field">
+                <label class="rj-label rj-label--required" for="url">Organization website URL</label>
+                <input
+                    class="rj-input slu-url-input"
+                    type="url"
+                    id="url"
+                    name="url"
+                    value="{{ pendingUrl }}"
+                    placeholder="https://example.org"
+                    required
+                    autocomplete="off"
+                    spellcheck="false"
+                >
+                <span class="rj-hint">Use a public URL. Do not submit pages containing confidential or sensitive information.</span>
+            </div>
+
+            <div class="slu-privacy-notice rj-alert rj-alert--info">
+                <i data-lucide="info"></i>
+                <div>Content from submitted URLs may be sent to AI providers (OpenAI, Anthropic, DeepSeek) for analysis.</div>
+            </div>
+
+            <button type="submit" class="rj-btn rj-btn--primary rj-btn--lg">
+                <i data-lucide="sparkles"></i>
+                Analyze this organization
+            </button>
+        </form>
+    </div>
+
+    {% if currentUser %}
+    <div class="slu-history-link">
+        <a href="/slu/history" class="rj-btn rj-btn--ghost rj-btn--sm">
+            <i data-lucide="clock"></i> View past analyses
+        </a>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

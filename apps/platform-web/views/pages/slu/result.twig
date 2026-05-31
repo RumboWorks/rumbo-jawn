@@ -1,0 +1,119 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}{{ job.orgName ?? 'Guidance' }} — Sounds Like Us{% endblock %}
+
+{% block content %}
+<div class="rj-container slu-page slu-result-page">
+
+    <div class="slu-result-header">
+        <p class="rj-eyebrow">Sounds Like Us</p>
+        <h1 class="rj-h1">{{ job.orgName ?? 'Writing Guidance' }}</h1>
+        <p class="rj-caption slu-job-url">
+            <i data-lucide="globe"></i> {{ job.url }}
+            {% if job.pageCount %}· {{ job.pageCount }} page{% if job.pageCount != 1 %}s{% endif %} analyzed{% endif %}
+        </p>
+    </div>
+
+    {% if not guidance %}
+        <div class="rj-alert rj-alert--warning">
+            <i data-lucide="alert-triangle"></i>
+            <div>Guidance artifact could not be loaded. The analysis may still be processing.</div>
+        </div>
+    {% else %}
+
+    <div class="slu-result-grid">
+
+        <section class="slu-section rj-card rj-card--pad">
+            <h2 class="slu-section__heading">
+                <i data-lucide="building-2"></i> About this organization
+            </h2>
+            <p class="rj-body">{{ guidance.org_summary }}</p>
+        </section>
+
+        <section class="slu-section rj-card rj-card--pad">
+            <h2 class="slu-section__heading">
+                <i data-lucide="mic-2"></i> Voice &amp; tone
+            </h2>
+            <p class="rj-body">{{ guidance.voice_tone.description }}</p>
+            {% if guidance.voice_tone.markers %}
+            <div class="slu-markers">
+                {% for marker in guidance.voice_tone.markers %}
+                    <span class="rj-badge rj-badge--pine">{{ marker }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% if guidance.voice_tone.examples %}
+            <div class="slu-examples">
+                <p class="rj-eyebrow">Examples from the source</p>
+                {% for example in guidance.voice_tone.examples %}
+                    <blockquote class="slu-quote">"{{ example }}"</blockquote>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </section>
+
+        <section class="slu-section rj-card rj-card--pad">
+            <h2 class="slu-section__heading">
+                <i data-lucide="tag"></i> Key vocabulary
+            </h2>
+            <div class="slu-markers">
+                {% for term in guidance.key_vocabulary %}
+                    <span class="rj-badge rj-badge--neutral">{{ term }}</span>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="slu-section rj-card rj-card--pad">
+            <h2 class="slu-section__heading">
+                <i data-lucide="pencil"></i> Phrases to use
+            </h2>
+            <ul class="slu-list">
+                {% for phrase in guidance.phrases_to_use %}
+                    <li>{{ phrase }}</li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <section class="slu-section rj-card rj-card--pad slu-avoid">
+            <h2 class="slu-section__heading">
+                <i data-lucide="x-circle"></i> What to avoid
+            </h2>
+            <ul class="slu-list">
+                {% for item in guidance.what_to_avoid %}
+                    <li>{{ item }}</li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <section class="slu-section rj-card rj-card--pad slu-writing-guidance">
+            <h2 class="slu-section__heading">
+                <i data-lucide="file-text"></i> Writing guidance
+            </h2>
+            <p class="rj-body">{{ guidance.writing_guidance }}</p>
+        </section>
+
+        <section class="slu-section rj-card rj-card--pad slu-rewrite-prompt">
+            <h2 class="slu-section__heading">
+                <i data-lucide="sparkles"></i> Reusable system prompt
+            </h2>
+            <p class="rj-caption slu-prompt-hint">Copy this into any AI tool to write in {{ job.orgName ?? 'this organization' }}'s voice.</p>
+            <pre class="slu-prompt-block"><code>{{ guidance.rewrite_prompt }}</code></pre>
+            <button class="rj-btn rj-btn--secondary rj-btn--sm slu-copy-btn" data-copy-target="slu-prompt-text" onclick="navigator.clipboard.writeText(document.querySelector('.slu-prompt-block code').textContent)">
+                <i data-lucide="copy"></i> Copy
+            </button>
+        </section>
+
+    </div>
+
+    <div class="slu-result-actions">
+        <a href="/slu" class="rj-btn rj-btn--secondary">
+            <i data-lucide="plus"></i> Analyze another organization
+        </a>
+        <a href="/slu/history" class="rj-btn rj-btn--ghost">
+            <i data-lucide="clock"></i> View past analyses
+        </a>
+    </div>
+
+    {% endif %}
+</div>
+{% endblock %}

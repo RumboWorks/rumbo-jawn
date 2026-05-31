@@ -15,7 +15,7 @@ Do not mark work complete unless it can be verified in the repository.
 
 ### First tool: Sounds Like Us
 
-- [ ] Phase 04 — Sounds Like Us first run
+- [x] Phase 04 — Sounds Like Us first run
 - [ ] Phase 05 — Sounds Like Us guidance workbench
 - [ ] Phase 06 — Central admin and observability
 - [ ] Phase 07 — Billing, limits, and product controls
@@ -32,4 +32,4 @@ Model Eval should influence shared platform decisions but should not be implemen
 
 ## Next up
 
-1. Review and revise Phase 04 before assignment.
+1. Review and revise Phase 05 before assignment.

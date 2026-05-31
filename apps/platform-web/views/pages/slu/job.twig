@@ -1,0 +1,104 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}{{ title }} — Sounds Like Us{% endblock %}
+
+{% block content %}
+<div class="rj-container slu-page">
+
+    <div class="slu-job-header">
+        <p class="rj-eyebrow">Sounds Like Us</p>
+        <h1 class="rj-h1">Analyzing organization</h1>
+        {% if job.url %}
+        <p class="rj-caption slu-job-url">
+            <i data-lucide="globe"></i> {{ job.url }}
+        </p>
+        {% endif %}
+    </div>
+
+    <div class="slu-status-card rj-card rj-card--pad" id="slu-status-card"
+         data-job-id="{{ job.id }}"
+         data-status="{{ job.status }}">
+
+        {% if job.status == 'DONE' %}
+            <div class="slu-status slu-status--done">
+                <i data-lucide="check-circle-2"></i>
+                <span>Analysis complete</span>
+            </div>
+            <a href="/slu/jobs/{{ job.id }}/result" class="rj-btn rj-btn--primary rj-btn--lg slu-result-btn">
+                <i data-lucide="sparkles"></i> View guidance
+            </a>
+
+        {% elseif job.status == 'FAILED' %}
+            <div class="slu-status slu-status--failed">
+                <i data-lucide="x-circle"></i>
+                <span>Analysis failed</span>
+            </div>
+            {% if job.errorMsg %}
+            <p class="rj-body-sm slu-error-msg">{{ job.errorMsg }}</p>
+            {% endif %}
+            <a href="/slu" class="rj-btn rj-btn--secondary">Try again</a>
+
+        {% else %}
+            <div class="slu-status slu-status--running" id="slu-status-indicator">
+                <i data-lucide="loader"></i>
+                <span id="slu-status-text">
+                    {% if job.status == 'PENDING' %}Queued — waiting for worker…
+                    {% else %}Crawling and analyzing…{% endif %}
+                </span>
+            </div>
+            <div class="slu-progress-steps" id="slu-progress-steps">
+                <div class="slu-step" id="step-crawl">
+                    <i data-lucide="globe"></i> Crawling pages
+                </div>
+                <div class="slu-step" id="step-analyze">
+                    <i data-lucide="brain"></i> Analyzing voice and tone
+                </div>
+                <div class="slu-step" id="step-guidance">
+                    <i data-lucide="file-text"></i> Generating guidance
+                </div>
+            </div>
+        {% endif %}
+
+    </div>
+
+</div>
+
+<script type="module">
+// Poll job status every 3 seconds while pending/running
+const card = document.getElementById('slu-status-card');
+const jobId = card?.dataset.jobId;
+let status = card?.dataset.status;
+
+if (jobId && (status === 'PENDING' || status === 'RUNNING')) {
+    let step = 0;
+    const steps = ['step-crawl', 'step-analyze', 'step-guidance'];
+
+    const poll = async () => {
+        try {
+            const res = await fetch(`/slu/jobs/${jobId}/status`);
+            const data = await res.json();
+            status = data.status;
+
+            // Animate step indicators
+            step = Math.min(step + 1, steps.length - 1);
+            steps.forEach((id, i) => {
+                const el = document.getElementById(id);
+                if (el) el.classList.toggle('is-active', i <= step);
+            });
+
+            if (status === 'DONE') {
+                window.location.href = `/slu/jobs/${jobId}/result`;
+            } else if (status === 'FAILED') {
+                window.location.reload();
+            } else {
+                setTimeout(poll, 3000);
+            }
+        } catch {
+            setTimeout(poll, 5000);
+        }
+    };
+
+    setTimeout(poll, 3000);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,189 @@
+// Sounds Like Us tool styles — slu- prefix for all tool-specific classes.
+// Scoped under [data-tool="slu"] where needed for overrides.
+
+// ---- Page layout ----
+
+.slu-page {
+  padding-block: var(--rj-space-10);
+}
+
+.slu-hero {
+  max-width: 680px;
+  margin-bottom: var(--rj-space-8);
+
+  .rj-h1 { margin-block: var(--rj-space-3) var(--rj-space-4); }
+}
+
+// ---- URL input form ----
+
+.slu-analyze-card { max-width: 640px; }
+
+.slu-url-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rj-space-4);
+}
+
+.slu-url-input { font-size: var(--rj-text-lg); padding: 12px 16px; }
+
+.slu-privacy-notice {
+  font-size: var(--rj-text-sm);
+  align-items: flex-start;
+}
+
+.slu-history-link { margin-top: var(--rj-space-4); }
+
+// ---- Job progress ----
+
+.slu-job-header {
+  margin-bottom: var(--rj-space-8);
+  .rj-h1 { margin-block: var(--rj-space-3) var(--rj-space-2); }
+}
+
+.slu-job-url {
+  display: flex;
+  align-items: center;
+  gap: var(--rj-space-1);
+  color: var(--rj-fg-3);
+  word-break: break-all;
+  svg { flex-shrink: 0; }
+}
+
+.slu-status-card { max-width: 560px; }
+
+.slu-status {
+  display: flex;
+  align-items: center;
+  gap: var(--rj-space-3);
+  font-size: var(--rj-text-lg);
+  font-weight: var(--rj-weight-semibold);
+  margin-bottom: var(--rj-space-6);
+
+  svg { width: 24px; height: 24px; }
+
+  &--running svg { animation: slu-spin 1.2s linear infinite; }
+  &--done    { color: var(--rj-success); }
+  &--failed  { color: var(--rj-danger); }
+}
+
+@keyframes slu-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.slu-progress-steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rj-space-2);
+  margin-bottom: var(--rj-space-6);
+}
+
+.slu-step {
+  display: flex;
+  align-items: center;
+  gap: var(--rj-space-2);
+  font-size: var(--rj-text-sm);
+  color: var(--rj-fg-3);
+  padding: var(--rj-space-2) var(--rj-space-3);
+  border-radius: var(--rj-radius-sm);
+  transition: color var(--rj-dur) var(--rj-ease), background var(--rj-dur) var(--rj-ease);
+
+  svg { width: 16px; height: 16px; }
+
+  &.is-active {
+    color: var(--rj-pine-600);
+    background: var(--rj-pine-50);
+    font-weight: var(--rj-weight-medium);
+  }
+}
+
+.slu-result-btn { margin-top: var(--rj-space-2); }
+.slu-error-msg  { color: var(--rj-fg-3); margin-bottom: var(--rj-space-4); }
+
+// ---- Result page ----
+
+.slu-result-header {
+  margin-bottom: var(--rj-space-8);
+  .rj-h1 { margin-block: var(--rj-space-3) var(--rj-space-2); }
+}
+
+.slu-result-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--rj-space-4);
+
+  @media (min-width: 768px) {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .slu-writing-guidance,
+  .slu-rewrite-prompt { grid-column: 1 / -1; }
+}
+
+.slu-section__heading {
+  display: flex;
+  align-items: center;
+  gap: var(--rj-space-2);
+  font-family: var(--rj-font-sans);
+  font-size: var(--rj-text-sm);
+  font-weight: var(--rj-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--rj-tracking-caps);
+  color: var(--rj-fg-3);
+  margin-bottom: var(--rj-space-4);
+
+  svg { width: 15px; height: 15px; }
+}
+
+.slu-markers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--rj-space-2);
+  margin-top: var(--rj-space-3);
+}
+
+.slu-examples {
+  margin-top: var(--rj-space-4);
+  .rj-eyebrow { margin-bottom: var(--rj-space-2); }
+}
+
+.slu-quote {
+  border-left: 3px solid var(--rj-pine-200);
+  padding-left: var(--rj-space-3);
+  color: var(--rj-fg-2);
+  font-style: italic;
+  font-size: var(--rj-text-sm);
+  margin-block: var(--rj-space-2);
+}
+
+.slu-list {
+  padding-left: var(--rj-space-5);
+  li { font-size: var(--rj-text-sm); line-height: var(--rj-leading-normal); }
+  li + li { margin-top: var(--rj-space-2); }
+}
+
+.slu-avoid .slu-list li { color: var(--rj-fg-2); }
+
+.slu-prompt-hint { margin-bottom: var(--rj-space-3); }
+
+.slu-prompt-block {
+  background: var(--rj-bg-sunken);
+  border: 1px solid var(--rj-border);
+  border-radius: var(--rj-radius-md);
+  padding: var(--rj-space-4);
+  font-size: var(--rj-text-sm);
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin-bottom: var(--rj-space-3);
+
+  code { background: none; border: none; padding: 0; font-size: inherit; }
+}
+
+.slu-result-actions {
+  display: flex;
+  gap: var(--rj-space-3);
+  flex-wrap: wrap;
+  margin-top: var(--rj-space-8);
+  padding-top: var(--rj-space-6);
+  border-top: 1px solid var(--rj-border);
+}

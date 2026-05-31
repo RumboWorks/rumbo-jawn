@@ -1,0 +1,66 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}Your analyses — Sounds Like Us{% endblock %}
+
+{% block content %}
+<div class="rj-container slu-page">
+
+    <div class="slu-hero">
+        <p class="rj-eyebrow">Sounds Like Us</p>
+        <h1 class="rj-h1">Your analyses</h1>
+    </div>
+
+    {% if jobs|length == 0 %}
+        <p class="rj-body-sm rj-placeholder-note">No analyses yet. <a href="/slu">Analyze an organization.</a></p>
+    {% else %}
+    <div class="rj-table-wrap">
+        <table class="rj-table">
+            <thead>
+                <tr>
+                    <th>Organization / URL</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for job in jobs %}
+                <tr>
+                    <td>
+                        {% if job.orgName %}<strong>{{ job.orgName }}</strong><br>{% endif %}
+                        <span class="rj-caption">{{ job.url }}</span>
+                    </td>
+                    <td>
+                        {% if job.status == 'DONE' %}
+                            <span class="rj-badge rj-badge--success"><span class="rj-dot"></span>Done</span>
+                        {% elseif job.status == 'FAILED' %}
+                            <span class="rj-badge rj-badge--danger"><span class="rj-dot"></span>Failed</span>
+                        {% elseif job.status == 'RUNNING' %}
+                            <span class="rj-badge rj-badge--pine"><span class="rj-dot"></span>Running</span>
+                        {% else %}
+                            <span class="rj-badge rj-badge--neutral"><span class="rj-dot"></span>Pending</span>
+                        {% endif %}
+                    </td>
+                    <td class="rj-num">{{ job.createdAt|date("M j, Y") }}</td>
+                    <td>
+                        {% if job.status == 'DONE' %}
+                            <a href="/slu/jobs/{{ job.id }}/result" class="rj-btn rj-btn--ghost rj-btn--sm">View</a>
+                        {% elseif job.status == 'RUNNING' or job.status == 'PENDING' %}
+                            <a href="/slu/jobs/{{ job.id }}" class="rj-btn rj-btn--ghost rj-btn--sm">Progress</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    <div style="margin-top: var(--rj-space-6)">
+        <a href="/slu" class="rj-btn rj-btn--primary rj-btn--sm">
+            <i data-lucide="plus"></i> New analysis
+        </a>
+    </div>
+
+</div>
+{% endblock %}

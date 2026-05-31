@@ -9,6 +9,14 @@ const oauthEnabled = {
   linkedin_enabled: !!(process.env.LINKEDIN_CLIENT_ID && process.env.LINKEDIN_CLIENT_SECRET),
 };
 
+// Capture returnTo before any Passport middleware runs.
+// Passport 0.6+ regenerates the session on login, clearing session data set beforehand.
+// Stashing in res.locals survives the regeneration.
+function captureReturnTo(req, res, next) {
+  res.locals.returnTo = req.session.returnTo ?? '/';
+  next();
+}
+
 // ---- Login / register pages ----
 
 router.get('/login', (req, res) => {
@@ -32,24 +40,19 @@ router.get('/register', (req, res) => {
 // ---- Local (email/password) ----
 
 router.post('/auth/local',
-  passport.authenticate('local', {
-    failureRedirect: '/login',
-    failureMessage:  true,
-  }),
-  (req, res) => {
-    const returnTo = req.session.returnTo ?? '/';
-    delete req.session.returnTo;
-    res.redirect(returnTo);
-  }
+  captureReturnTo,
+  passport.authenticate('local', { failureRedirect: '/login', failureMessage: true }),
+  (req, res) => res.redirect(res.locals.returnTo)
 );
 
 router.post('/register', async (req, res) => {
   const { name, email, password } = req.body;
   try {
     const user = await registerLocalUser({ name, email, password });
+    const returnTo = req.session.returnTo ?? '/';
     req.login(user, (err) => {
       if (err) return res.redirect('/login');
-      res.redirect('/');
+      res.redirect(returnTo);
     });
   } catch (err) {
     req.session.flash_error = err.message;
@@ -64,12 +67,9 @@ router.get('/auth/google',
 );
 
 router.get('/auth/google/callback',
+  captureReturnTo,
   passport.authenticate('google', { failureRedirect: '/login' }),
-  (req, res) => {
-    const returnTo = req.session.returnTo ?? '/';
-    delete req.session.returnTo;
-    res.redirect(returnTo);
-  }
+  (req, res) => res.redirect(res.locals.returnTo)
 );
 
 // ---- LinkedIn OAuth ----
@@ -79,12 +79,9 @@ router.get('/auth/linkedin',
 );
 
 router.get('/auth/linkedin/callback',
+  captureReturnTo,
   passport.authenticate('linkedin', { failureRedirect: '/login' }),
-  (req, res) => {
-    const returnTo = req.session.returnTo ?? '/';
-    delete req.session.returnTo;
-    res.redirect(returnTo);
-  }
+  (req, res) => res.redirect(res.locals.returnTo)
 );
 
 // ---- Logout ----

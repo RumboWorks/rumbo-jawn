@@ -213,6 +213,49 @@ Next phase recommendation: Proceed to Phase 04 — Sounds Like Us First Run.
 
 ---
 
+## Phase 04 — Sounds Like Us First Run
+
+Date: 2026-05-31
+
+Outcome: Proceed to next phase
+
+Completed:
+- `packages/crawler`: HTTP fetch + cheerio HTML parser; auto-discovers same-origin links; configurable page cap (default 8); text extraction strips nav/footer/scripts; `truncatePagesForPrompt` token budget helper
+- `tools/sounds-like-us`: analysis service (crawl → AI prompt → structured JSON guidance); routes (URL input, job create, status polling, result display, history); worker handler registered as `slu.analysis`
+- `packages/ai` split from `@rumbo/sounds-like-us` main export to avoid pulling `openai`/`undici` into the web process (Node 18 `File` global not available); separate `/analysis` sub-path export used by worker only
+- SLU Twig views: URL input form with privacy disclosure; job progress page with step indicators and JS polling; result page with all guidance sections (org summary, voice/tone, vocabulary, phrases, avoids, writing guidance, reusable system prompt); history table
+- `_slu.scss`: tool-specific styles under `slu-` prefix; spinning loader animation; two-column result grid; copy prompt block
+- Auth `returnTo` bug fixed: Passport 0.6+ regenerates the session on `req.login()`, destroying session data set before login. Fixed by capturing `returnTo` in `res.locals` before any Passport middleware runs (`captureReturnTo` middleware applied to all login/register/OAuth success handlers).
+- `POST /register` now respects `returnTo` — users who hit `/slu`, enter a URL, and get redirected to register return to `/slu` after registration
+- 18/18 Playwright QA tests pass including 3 new SLU-specific tests
+
+Incomplete: Nothing — all Phase 04 acceptance criteria met.
+
+Changed from original plan:
+- `@rumbo/sounds-like-us` package split into two exports (`.` = router only, `./analysis` = AI handler) to prevent `openai`/`@anthropic-ai/sdk`/`undici` loading in the web process on Node 18.
+- Auth `returnTo` session loss was a pre-existing bug exposed by the SLU redirect flow; fixed as part of this phase.
+
+Deferred:
+- End-to-end AI call test (requires live API keys confirmed working with Anthropic; queued for manual verification)
+- Guidance workbench (Phase 05)
+- PDF input (paid feature, out of scope for initial MVP)
+- Crawler `robots.txt` respect (should be added before public launch)
+
+Docs updated:
+- `docs/active-planning/phase-retrospectives.md` (this entry)
+- `docs/active-planning/roadmap.md` (Phase 04 marked complete)
+- `tests/qa.spec.js` (3 SLU tests added)
+
+Checks/tests run:
+- `npm run build --workspace=rumbo-web` — clean, 27KB CSS, 12KB JS
+- `npx playwright test` — 18/18 pass including SLU form render, auth redirect, and resume-after-auth flow
+- Manual: SLU page at `/slu` renders correctly (screenshot confirmed)
+- PM2 stable: rumbo-web and rumbo-worker online, no crash loops after fix
+
+Next phase recommendation: Proceed to Phase 05 — Sounds Like Us Guidance Workbench.
+
+---
+
 ## Template
 
 ```md

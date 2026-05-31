@@ -177,6 +177,45 @@ test('full cycle: register → logout → login', async ({ page }) => {
   await expect(page.locator('text=Cycle User')).toBeVisible();
 });
 
+// ---- Sounds Like Us ----
+
+test('SLU page renders with form and privacy notice', async ({ page }) => {
+  await page.goto('/slu');
+  await screenshot(page, '12-slu');
+
+  await expect(page.locator('text=SOUNDS LIKE US')).toBeVisible();
+  await expect(page.locator('input[name="url"]')).toBeVisible();
+  await expect(page.locator('text=AI providers')).toBeVisible();
+  await expect(page.locator('button[type="submit"]')).toContainText('Analyze');
+});
+
+test('SLU: submitting URL without auth redirects to register', async ({ page }) => {
+  await page.goto('/slu');
+  await page.fill('input[name="url"]', 'https://example.org');
+  await page.click('button[type="submit"]');
+  await expect(page).toHaveURL(/register/);
+  // URL should be pre-stashed for resume after auth
+});
+
+test('SLU: URL input pre-fills after returning from auth', async ({ page }) => {
+  // Submit URL → get redirected to register → register → land at /slu with URL retained
+  await page.goto('/slu');
+  await page.fill('input[name="url"]', 'https://example.org');
+  await page.click('button[type="submit"]');
+  await expect(page).toHaveURL(/register/);
+
+  // Register
+  const email = `slu-resume-${Date.now()}@example.org`;
+  await page.fill('input[name="name"]', 'SLU Resume');
+  await page.fill('input[name="email"]', email);
+  await page.fill('input[name="password"]', 'testpass99');
+  await page.click('button[type="submit"]');
+
+  // Should land on /slu (returnTo set to /slu)
+  await expect(page).toHaveURL('/slu');
+  await screenshot(page, '13-slu-after-auth');
+});
+
 test('requireAuth redirects unauthenticated users', async ({ page }) => {
   // /account uses app layout but doesn't require auth yet — this tests
   // that protected routes (added in Phase 04+) will redirect correctly.

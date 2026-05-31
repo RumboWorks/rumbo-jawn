@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@rumbo/jobs": "^0.0.1",
+    "@rumbo/sounds-like-us": "^0.0.1",
     "dotenv": "^16.4.0"
   }
 }

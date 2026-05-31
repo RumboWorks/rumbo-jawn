@@ -3,5 +3,16 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "main": "src/index.js"
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./analysis": "./src/analysis-service.js"
+  },
+  "dependencies": {
+    "@rumbo/ai": "^0.0.1",
+    "@rumbo/crawler": "^0.0.1",
+    "@rumbo/db": "^0.0.1",
+    "@rumbo/jobs": "^0.0.1",
+    "@rumbo/storage": "^0.0.1"
+  }
 }
