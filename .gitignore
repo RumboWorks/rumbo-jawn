@@ -2,6 +2,7 @@ TRASH
 .claude
 
 node_modules/
+storage/
 test-results/
 tests/screenshots/
 tests/report/

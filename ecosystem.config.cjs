@@ -16,7 +16,6 @@ module.exports = {
     {
       name: 'rumbo-worker',
       script: './apps/worker/src/index.js',
-      node_args: '--require ./polyfills.cjs',
       env: {
         NODE_ENV: 'development',
       },
