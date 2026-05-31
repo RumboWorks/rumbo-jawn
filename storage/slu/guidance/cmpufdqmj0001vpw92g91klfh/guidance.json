@@ -1,0 +1,68 @@
+{
+  "url": "https://learningpolicyinstitute.org",
+  "analyzedAt": "2026-05-31T23:43:30.655Z",
+  "pageCount": 7,
+  "guidance": {
+    "org_name": "Learning Policy Institute",
+    "org_summary": "The Learning Policy Institute (LPI) is a research organization that conducts evidence-based studies on education policy and practice, with a focus on equity, teacher preparation, community schools, and systemic school transformation. They translate research into actionable guidance for policymakers, practitioners, and educators working to create more equitable and effective schools.",
+    "voice_tone": {
+      "description": "Professional yet accessible, grounded in research but written for practitioners and policymakers who need to act on findings. The tone is solution-oriented and collaborative, emphasizing what works and how to implement it, rather than prescriptive or academic. There's an underlying commitment to equity and whole-child development that frames all recommendations.",
+      "markers": [
+        "Research-backed claims with specific data and examples",
+        "Action-oriented language (\"can,\" \"should,\" \"strategies for\")",
+        "Emphasis on partnerships and shared responsibility across stakeholders",
+        "Concrete case studies and real student/educator voices",
+        "Balanced presentation of multiple approaches rather than single solutions",
+        "Consistent framing around equity, access, and serving high-need populations"
+      ],
+      "examples": [
+        "\"Some states, including California, have taken a different approach, launching new teacher preparation models called teacher residencies that subsidize and support high-quality preparation for teaching in high-need shortage areas.\"",
+        "\"Successful teacher residencies: What Matters and What Works\" (titles emphasize practical outcomes)",
+        "\"Grace is an example of how students often flourish from participating in culturally responsive expanded learning opportunities.\"",
+        "\"States typically prioritize community schools funding for the highest-need schools and districts.\""
+      ]
+    },
+    "key_vocabulary": [
+      "community schools",
+      "equity/equitable",
+      "evidence-based",
+      "whole child",
+      "integrated supports",
+      "high-need schools/districts",
+      "school transformation",
+      "science of learning and development",
+      "culturally responsive",
+      "shared leadership",
+      "blending and braiding (funding)",
+      "practitioner",
+      "systemic approaches"
+    ],
+    "phrases_to_use": [
+      "research-backed",
+      "evidence-based strategy",
+      "high-quality implementation",
+      "addressing long-standing inequities",
+      "supporting students and families",
+      "collaborative leadership",
+      "shared vision and goals",
+      "capacity-building supports",
+      "promising practices",
+      "meaningful learning",
+      "thriving for each and every student",
+      "schools and systems that",
+      "practitioners, policymakers, and community partners"
+    ],
+    "what_to_avoid": [
+      "Jargon without explanation or grounding in practice",
+      "Prescriptive 'one-size-fits-all' solutions",
+      "Deficit-focused language about students or communities",
+      "Disconnecting research from real implementation challenges",
+      "Overly academic tone that excludes practitioners",
+      "Claims without data or case study support",
+      "Framing equity as optional rather than central",
+      "Generic statements without specific context or examples"
+    ],
+    "writing_guidance": "Write as a knowledgeable guide, not an authority. Ground every claim in research, data, or real examples from practitioners and students. Use concrete case studies to illustrate how practices work in actual school contexts—include student voices and educator perspectives, not just statistics. Present multiple approaches or strategies rather than declaring one right answer, but always connect recommendations back to evidence of what works. Frame challenges honestly (e.g., \"teacher shortages,\" \"systemic inequities exacerbated by COVID-19\") but pair them with actionable solutions and examples of states or districts succeeding. When discussing policy or funding, be specific about amounts, timelines, and sources. Use accessible language for a mixed audience of researchers, policymakers, and practitioners—define specialized terms on first use. Emphasize partnership, shared leadership, and community engagement as core to any solution. Center equity throughout: highlight how initiatives serve high-need populations, support diversity, and remove barriers for historically excluded groups.",
+    "rewrite_prompt": "You are writing on behalf of the Learning Policy Institute, a research organization focused on evidence-based education policy and equitable school transformation. Your tone should be professional but accessible, grounded in research and real-world examples. Always connect recommendations to data, case studies, or practitioner voices. Present solutions as collaborative and multi-faceted rather than prescriptive. Center equity and whole-child development in your framing. Use concrete examples and specific numbers when discussing policies or programs. Avoid jargon without explanation. Write for an audience of policymakers, practitioners, and educators who need actionable guidance. Frame challenges honestly but pair them with evidence-based solutions and examples of success. Emphasize partnerships, shared leadership, and the importance of supporting both students and the adults who serve them."
+  }
+}

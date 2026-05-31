@@ -252,6 +252,11 @@ Checks/tests run:
 - Manual: SLU page at `/slu` renders correctly (screenshot confirmed)
 - PM2 stable: rumbo-web and rumbo-worker online, no crash loops after fix
 
+Additional resolved after initial closeout (2026-05-31):
+- Node upgraded to 22.22.3 via nvm. The worker crashed on startup because cheerio@1.2.0 depends on undici@^7, which requires the `File` Web API as a global (Node 20+). Upgrading to Node 22 resolved this cleanly and allows use of official OpenAI and Anthropic SDKs. PM2 daemon restarted under nvm Node 22.
+- End-to-end AI analysis confirmed working: job runs, crawls pages, calls Anthropic, stores artifact, status transitions to DONE.
+- 403 sites (e.g. ccrjustice.org) correctly exhaust retries and fail the job — expected behavior.
+
 Next phase recommendation: Proceed to Phase 05 — Sounds Like Us Guidance Workbench.
 
 ---

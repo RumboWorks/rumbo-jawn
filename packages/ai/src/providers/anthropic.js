@@ -9,8 +9,6 @@ function getClient() {
 
 export async function anthropicChat({ model, messages, systemPrompt, temperature = 0.7, maxTokens = 4096 }) {
   const start = Date.now();
-
-  // Anthropic puts system prompt separately, not in messages array
   const res = await getClient().messages.create({
     model,
     max_tokens: maxTokens,
@@ -18,7 +16,6 @@ export async function anthropicChat({ model, messages, systemPrompt, temperature
     ...(systemPrompt && { system: systemPrompt }),
     messages: messages.filter(m => m.role !== 'system'),
   });
-
   const content = res.content.map(b => (b.type === 'text' ? b.text : '')).join('');
   return {
     content,

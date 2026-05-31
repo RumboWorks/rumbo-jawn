@@ -70,23 +70,33 @@ const jobId = card?.dataset.jobId;
 let status = card?.dataset.status;
 
 if (jobId && (status === 'PENDING' || status === 'RUNNING')) {
-    let step = 0;
     const steps = ['step-crawl', 'step-analyze', 'step-guidance'];
+    let pollCount = 0;
+
+    const setStep = (n) => {
+        steps.forEach((id, i) => {
+            const el = document.getElementById(id);
+            if (el) el.classList.toggle('is-active', i <= n);
+        });
+    };
+
+    // Only show first step active initially
+    setStep(-1);
 
     const poll = async () => {
         try {
             const res = await fetch(`/slu/jobs/${jobId}/status`);
             const data = await res.json();
             status = data.status;
+            pollCount++;
 
-            // Animate step indicators
-            step = Math.min(step + 1, steps.length - 1);
-            steps.forEach((id, i) => {
-                const el = document.getElementById(id);
-                if (el) el.classList.toggle('is-active', i <= step);
-            });
+            if (status === 'RUNNING') {
+                // Advance step indicator slowly as time passes
+                setStep(Math.min(Math.floor(pollCount / 3), steps.length - 1));
+            }
 
             if (status === 'DONE') {
+                setStep(steps.length - 1);
                 window.location.href = `/slu/jobs/${jobId}/result`;
             } else if (status === 'FAILED') {
                 window.location.reload();
