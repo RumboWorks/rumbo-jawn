@@ -61,6 +61,18 @@ npm run pm2:restart  # restart both processes
 npm run pm2:logs     # tail logs
 ```
 
+## QA / Playwright
+
+Runs against the live server on `localhost:4000`. Server must be running first.
+
+```sh
+npm run qa           # run all tests headless
+npm run qa:headed    # same but with a visible browser window (local only)
+npx playwright test --grep "login"  # run a subset by name
+```
+
+Screenshots from each run land in `tests/screenshots/`. The suite covers page rendering, design system, theme switching, brand mark, and full auth flows.
+
 ## Database (Prisma)
 
 Run from `packages/db/`.
