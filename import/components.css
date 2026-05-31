@@ -1,0 +1,243 @@
+/* ============================================================================
+   RumboWorks — Shared Components (rj-)
+   Depends on colors_and_type.css. Used by Design System cards + UI kits.
+   ========================================================================== */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+.rj-root {
+  font-family: var(--rj-font-sans);
+  color: var(--rj-fg);
+  background: var(--rj-bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---- Buttons --------------------------------------------------------- */
+.rj-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--rj-space-2);
+  font-family: var(--rj-font-sans);
+  font-size: var(--rj-text-sm);
+  font-weight: var(--rj-weight-semibold);
+  line-height: 1;
+  padding: 11px 18px;
+  border-radius: var(--rj-radius-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background var(--rj-dur) var(--rj-ease),
+              border-color var(--rj-dur) var(--rj-ease),
+              color var(--rj-dur) var(--rj-ease),
+              box-shadow var(--rj-dur) var(--rj-ease),
+              transform var(--rj-dur-fast) var(--rj-ease);
+}
+.rj-btn:active { transform: translateY(1px); }
+.rj-btn:focus-visible { outline: none; box-shadow: var(--rj-ring); }
+.rj-btn .rj-i { width: 17px; height: 17px; }
+
+/* Primary = ember (human action) */
+.rj-btn--primary { background: var(--rj-ember-500); color: #fff; }
+.rj-btn--primary:hover { background: var(--rj-ember-600); }
+
+/* Brand = pine */
+.rj-btn--brand { background: var(--rj-pine-600); color: #fff; }
+.rj-btn--brand:hover { background: var(--rj-pine-700); }
+
+/* Secondary = outline on paper */
+.rj-btn--secondary {
+  background: var(--rj-white);
+  color: var(--rj-pine-700);
+  border-color: var(--rj-stone-300);
+}
+.rj-btn--secondary:hover { background: var(--rj-stone-50); border-color: var(--rj-stone-400); }
+
+/* Ghost */
+.rj-btn--ghost { background: transparent; color: var(--rj-fg-2); }
+.rj-btn--ghost:hover { background: var(--rj-stone-100); color: var(--rj-fg); }
+
+/* Danger */
+.rj-btn--danger { background: var(--rj-white); color: var(--rj-danger); border-color: var(--rj-danger); }
+.rj-btn--danger:hover { background: var(--rj-danger-bg); }
+
+.rj-btn--sm { padding: 7px 12px; font-size: var(--rj-text-cap); }
+.rj-btn--lg { padding: 14px 24px; font-size: var(--rj-text-base); }
+.rj-btn:disabled, .rj-btn[aria-disabled="true"] {
+  opacity: 0.5; cursor: not-allowed; transform: none;
+}
+
+/* ---- Organic button variant ------------------------------------------ */
+/* Hand-drawn, imperfect corners — each corner a different radius so the
+   shape reads as drawn, not stamped. Add .rj-btn--organic to any button. */
+.rj-btn--organic { border-radius: 16px 11px 17px 12px; }
+.rj-btn--organic:hover { border-radius: 13px 17px 12px 16px; }
+.rj-btn--organic.rj-btn--lg { border-radius: 20px 14px 22px 15px; }
+.rj-btn--organic.rj-btn--lg:hover { border-radius: 16px 21px 15px 20px; }
+.rj-btn--organic.rj-btn--sm { border-radius: 12px 8px 13px 9px; }
+
+/* ---- Inputs ---------------------------------------------------------- */
+.rj-field { display: flex; flex-direction: column; gap: 6px; }
+.rj-label {
+  font-size: var(--rj-text-cap);
+  font-weight: var(--rj-weight-semibold);
+  color: var(--rj-fg-2);
+}
+.rj-input, .rj-select, .rj-textarea {
+  font-family: var(--rj-font-sans);
+  font-size: var(--rj-text-base);
+  color: var(--rj-fg);
+  background: var(--rj-white);
+  border: 1px solid var(--rj-stone-300);
+  border-radius: var(--rj-radius-md);
+  padding: 10px 13px;
+  transition: border-color var(--rj-dur) var(--rj-ease), box-shadow var(--rj-dur) var(--rj-ease);
+  width: 100%;
+}
+.rj-input::placeholder, .rj-textarea::placeholder { color: var(--rj-stone-400); }
+.rj-input:focus, .rj-select:focus, .rj-textarea:focus {
+  outline: none;
+  border-color: var(--rj-ember-400);
+  box-shadow: var(--rj-ring);
+}
+.rj-input:hover, .rj-select:hover, .rj-textarea:hover { border-color: var(--rj-stone-400); }
+.rj-hint { font-size: var(--rj-text-cap); color: var(--rj-fg-3); }
+
+/* ---- Badges / chips -------------------------------------------------- */
+.rj-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--rj-text-micro);
+  font-weight: var(--rj-weight-bold);
+  letter-spacing: 0.01em;
+  padding: 3px 9px;
+  border-radius: var(--rj-radius-pill);
+  text-transform: capitalize;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.rj-badge--neutral { background: var(--rj-stone-100); color: var(--rj-stone-700); }
+.rj-badge--pine    { background: var(--rj-pine-50);  color: var(--rj-pine-700); }
+.rj-badge--ember   { background: var(--rj-ember-50); color: var(--rj-ember-600); }
+.rj-badge--success { background: var(--rj-success-bg); color: var(--rj-success-fg); }
+.rj-badge--warning { background: var(--rj-warning-bg); color: var(--rj-warning-fg); }
+.rj-badge--danger  { background: var(--rj-danger-bg);  color: var(--rj-danger-fg); }
+.rj-badge--info    { background: var(--rj-info-bg);    color: var(--rj-info-fg); }
+.rj-badge .rj-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+/* ---- Organic badge variant ------------------------------------------- */
+/* Hand-drawn highlighter swish: ink-dark text on an irregular translucent
+   marker stroke. Add .rj-badge--organic alongside a color class. */
+.rj-badge--organic {
+  position: relative;
+  background: transparent !important;
+  color: var(--rj-ink);
+  isolation: isolate;
+  padding: 3px 12px;
+  border-radius: 0;
+  text-transform: none;
+}
+.rj-badge--organic::before {
+  content: "";
+  position: absolute;
+  inset: 0px -3px;
+  z-index: -1;
+  background: var(--rj-ochre-300);
+  border-radius: 58% 42% 64% 36% / 60% 64% 36% 40%;
+  transform: rotate(-1.6deg);
+  opacity: 0.62;
+}
+.rj-badge--organic.rj-badge--pine::before    { background: var(--rj-pine-300); }
+.rj-badge--organic.rj-badge--ember::before   { background: var(--rj-ember-300); }
+.rj-badge--organic.rj-badge--success::before { background: #7FBE9C; }
+.rj-badge--organic.rj-badge--warning::before { background: var(--rj-ochre-300); }
+.rj-badge--organic.rj-badge--danger::before  { background: #E59A88; }
+.rj-badge--organic.rj-badge--info::before    { background: #9FC4C8; }
+.rj-badge--organic.rj-badge--neutral::before { background: var(--rj-stone-300); }
+.rj-badge--organic:nth-child(even)::before { transform: rotate(1.4deg); border-radius: 46% 54% 38% 62% / 44% 40% 60% 56%; }
+.rj-badge--organic .rj-dot { background: var(--rj-ink); opacity: 0.55; }
+
+/* ---- Cards ----------------------------------------------------------- */
+.rj-card {
+  background: var(--rj-white);
+  border: 1px solid var(--rj-border);
+  border-radius: var(--rj-radius-lg);
+  box-shadow: var(--rj-shadow-sm);
+}
+.rj-card--flat { box-shadow: none; }
+.rj-card--pad { padding: var(--rj-space-6); }
+
+/* ---- Tables ---------------------------------------------------------- */
+.rj-table { width: 100%; border-collapse: collapse; font-size: var(--rj-text-sm); }
+.rj-table th {
+  text-align: left;
+  font-size: var(--rj-text-micro);
+  font-weight: var(--rj-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--rj-tracking-caps);
+  color: var(--rj-fg-3);
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--rj-border);
+  background: var(--rj-stone-50);
+}
+.rj-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--rj-border);
+  color: var(--rj-fg);
+}
+.rj-table tbody tr { transition: background var(--rj-dur-fast) var(--rj-ease); }
+.rj-table tbody tr:hover { background: var(--rj-pine-50); }
+.rj-table .rj-num { font-family: var(--rj-font-mono); font-variant-numeric: tabular-nums; }
+
+/* ---- Alerts ---------------------------------------------------------- */
+.rj-alert {
+  display: flex;
+  gap: var(--rj-space-3);
+  padding: 14px 16px;
+  border-radius: var(--rj-radius-md);
+  border: 1px solid;
+  font-size: var(--rj-text-sm);
+  line-height: var(--rj-leading-snug);
+}
+.rj-alert--info    { background: var(--rj-info-bg);    border-color: #BCD6D8; color: var(--rj-info-fg); }
+.rj-alert--success { background: var(--rj-success-bg); border-color: #BFDDC9; color: var(--rj-success-fg); }
+.rj-alert--warning { background: var(--rj-warning-bg); border-color: #ECD9A0; color: var(--rj-warning-fg); }
+.rj-alert--danger  { background: var(--rj-danger-bg);  border-color: #E9C3B8; color: var(--rj-danger-fg); }
+.rj-alert .rj-i { flex: none; width: 18px; height: 18px; margin-top: 1px; }
+
+/* ---- Logo lockup ----------------------------------------------------- */
+.rj-logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; }
+.rj-logo img { display: block; }
+.rj-wordmark {
+  font-family: var(--rj-font-brand);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  color: var(--rj-pine-800);
+  line-height: 1;
+}
+.rj-wordmark--light { color: var(--rj-stone-50); }
+.rj-tool-tag {
+  font-family: var(--rj-font-sans);
+  font-weight: var(--rj-weight-semibold);
+  font-size: var(--rj-text-cap);
+  color: var(--rj-stone-500);
+  padding-left: 10px;
+  margin-left: 2px;
+  border-left: 1px solid var(--rj-stone-300);
+}
+
+/* ---- Misc ------------------------------------------------------------ */
+.rj-divider { height: 1px; background: var(--rj-border); border: none; }
+.rj-kbd {
+  font-family: var(--rj-font-mono);
+  font-size: var(--rj-text-micro);
+  background: var(--rj-stone-100);
+  border: 1px solid var(--rj-stone-300);
+  border-bottom-width: 2px;
+  border-radius: var(--rj-radius-sm);
+  padding: 2px 6px;
+  color: var(--rj-fg-2);
+}

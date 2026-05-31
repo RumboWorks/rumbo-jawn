@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Type families</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Bitter:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Hanken+Grotesk:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="../components.css">
+<style>html,body{margin:0}body{background:var(--rj-paper);font-family:var(--rj-font-sans);color:var(--rj-ink)}.card{padding:22px 24px}
+.specimen{display:flex;justify-content:space-between;align-items:flex-start;padding:14px 16px;border:1px solid var(--rj-border);border-radius:10px;background:var(--rj-white)}
+.role{font-family:var(--rj-font-mono);font-size:10px;font-weight:600;padding:3px 9px;border-radius:99px;white-space:nowrap;flex:none;margin-top:4px}
+</style>
+</head><body class="rj-root"><div class="card">
+
+<div class="rj-eyebrow" style="margin-bottom:6px">Two serifs, kept together</div>
+<div class="rj-caption" style="margin-bottom:16px">Both warm and characterful. Pair them, or settle on one later — the system supports both via <b style="color:var(--rj-fg-2);font-family:var(--rj-font-mono)">--rj-font-serif</b> (Lora) and <b style="color:var(--rj-fg-2);font-family:var(--rj-font-mono)">--rj-font-slab</b> (Bitter).</div>
+
+<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:22px">
+  <div class="specimen">
+    <div>
+      <div style="font-family:'Lora',serif;font-size:31px;font-weight:600;letter-spacing:-.01em;line-height:1.08">Keep AI on course</div>
+      <div style="font-family:'Lora',serif;font-size:14.5px;color:var(--rj-fg-2);margin-top:5px;line-height:1.5">Warm, calligraphic, inviting — the human voice. <i>Italics for emphasis.</i> Aa Bb Cc 0123456789</div>
+    </div>
+    <span class="role" style="background:var(--rj-pine-600);color:#fff">Lora · primary</span>
+  </div>
+  <div class="specimen">
+    <div>
+      <div style="font-family:'Bitter',serif;font-size:31px;font-weight:600;letter-spacing:-.01em;line-height:1.08">Keep AI on course</div>
+      <div style="font-family:'Bitter',serif;font-size:14.5px;color:var(--rj-fg-2);margin-top:5px;line-height:1.5">Sturdy slab — grounded, confident headers &amp; accents. <i>Italics too.</i> Aa Bb Cc 0123456789</div>
+    </div>
+    <span class="role" style="background:var(--rj-ember-50);color:var(--rj-ember-700)">Bitter · slab</span>
+  </div>
+</div>
+
+<div class="rj-eyebrow" style="margin-bottom:12px">The rest of the family</div>
+<div style="display:flex;flex-direction:column;gap:12px">
+  <div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--rj-border);padding-bottom:11px">
+    <div style="font-family:var(--rj-font-brand);font-size:26px;font-weight:700;letter-spacing:-.035em">Bricolage Grotesque</div>
+    <div class="rj-caption" style="font-family:var(--rj-font-mono);font-size:11px">Brand · wordmark only</div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--rj-border);padding-bottom:11px">
+    <div style="font-family:var(--rj-font-sans);font-size:26px;font-weight:700;letter-spacing:-.02em">Hanken Grotesk</div>
+    <div class="rj-caption" style="font-family:var(--rj-font-mono);font-size:11px">Sans · UI &amp; body</div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:baseline">
+    <div style="font-family:var(--rj-font-mono);font-size:22px;font-weight:600">IBM Plex Mono</div>
+    <div class="rj-caption" style="font-family:var(--rj-font-mono);font-size:11px">Mono · data &amp; cost</div>
+  </div>
+</div>
+
+</div></body></html>

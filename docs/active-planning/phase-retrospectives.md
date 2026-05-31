@@ -172,6 +172,47 @@ Next phase recommendation: Proceed to Phase 03 — Shared Jobs, AI Provider Laye
 
 ---
 
+## Phase 03 — Shared Jobs, AI Provider Layer, Storage, and Artifacts
+
+Date: 2026-05-31
+
+Outcome: Proceed to next phase
+
+Completed:
+- Prisma schema additions: `Job` (with status/payload/result/retry), `AiCall` (cost/token logging), `ArtifactManifest` (storage pointer); all tables created via `db push --force-reset` (full schema repush after FK constraint collision from incremental push)
+- `packages/jobs`: `createJob`, `claimNextJob` (atomic transaction-based claim), `completeJob`, `failJob` (with retry logic), `getJob`, `listJobs`
+- `packages/ai`: provider wrapper dispatching to OpenAI, Anthropic, DeepSeek; call-type config map; cost estimation and `AiCall` DB logging per call; DeepSeek reuses OpenAI client with different base URL
+- `packages/storage`: `writeArtifact` (write + `ArtifactManifest` row), `readArtifact`, `readArtifactJson`, `deleteArtifact`, `artifactPath` helper; `STORAGE_ROOT` env var override for S3 seam
+- `packages/python-bridge`: `callPython` (spawn + JSON stdin/stdout boundary), `pingPython` (availability check)
+- `apps/worker`: polling loop with `claimNextJob` → handler dispatch → `completeJob`/`failJob`; `registerHandler` for tool packages to wire in; `WORKER_POLL_MS` env var
+- `scripts/test-phase03.js`: smoke test verifying all six components end-to-end
+
+Incomplete: Nothing — all Phase 03 acceptance criteria met.
+
+Changed from original plan:
+- `prisma db push` with incremental schema change failed (errno 121 FK collision on MariaDB). Used `--force-reset` to rebuild full schema cleanly. Data was dropped (only test data existed).
+- Storage root defaults to `./storage` relative to `cwd()` of the process. Add `STORAGE_ROOT` to `.env` to point at a persistent path on the EC2 host.
+
+Deferred:
+- Real AI call testing — providers wired; actual calls deferred until API keys are set in `.env`
+- Cost estimate rates are hardcoded; move to DB-backed config table in a later phase
+- S3 storage backend — seam is in place (`storageRoot()` and `writeArtifact` abstraction); swap in Phase 09 or when needed
+- Worker handler registration pattern is stub-only; first real handler (`slu.analysis`) wires in Phase 04
+
+Docs updated:
+- `docs/active-planning/phase-retrospectives.md` (this entry)
+- `docs/active-planning/roadmap.md` (Phase 03 marked complete)
+- `docs/active-planning/deferred-work.md` (storage root, AI call testing)
+
+Checks/tests run:
+- `node scripts/test-phase03.js` — all 6 checks pass: createJob ✓, claimNextJob ✓, writeArtifact ✓, readArtifactJson ✓, completeJob (artifacts=1) ✓, pingPython ✓
+- `node apps/worker/src/index.js` — worker starts and polls without errors ✓
+- `npm run build --workspace=rumbo-web` — clean build ✓
+
+Next phase recommendation: Proceed to Phase 04 — Sounds Like Us First Run.
+
+---
+
 ## Template
 
 ```md

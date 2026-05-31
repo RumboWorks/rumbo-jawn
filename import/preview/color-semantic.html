@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Semantic</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Bitter:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Hanken+Grotesk:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="../components.css">
+<style>
+html,body{margin:0}
+body{background:var(--rj-paper);font-family:var(--rj-font-sans);color:var(--rj-ink)}
+.card{padding:22px 24px}
+.swatches{display:flex;gap:0;border-radius:10px;overflow:hidden;border:1px solid var(--rj-border)}
+.sw{flex:1;height:74px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:7px}
+.sw span{font-family:var(--rj-font-mono);font-size:10px;font-weight:600}
+.lbl{display:flex;justify-content:space-between;margin-top:9px;font-size:11px;color:var(--rj-fg-3);font-family:var(--rj-font-mono)}
+.lbl b{color:var(--rj-fg-2);font-weight:600}
+
+</style></head><body class="rj-root"><div class="card">
+<div class="rj-eyebrow" style="margin-bottom:16px">Semantic · status</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:13px">
+  <div style="border:1px solid var(--rj-border);border-radius:10px;overflow:hidden">
+     <div style="height:46px;background:#236B4E"></div>
+     <div style="background:#E6F1EA;padding:10px 12px">
+       <div style="font-weight:700;font-size:13px;color:#236B4E">Success</div>
+       <div style="font-size:11px;color:var(--rj-fg-3);margin-top:2px">Job complete, approved</div>
+       <div style="font-family:var(--rj-font-mono);font-size:10px;color:var(--rj-fg-3);margin-top:6px">#236B4E · #E6F1EA</div>
+     </div>
+   </div><div style="border:1px solid var(--rj-border);border-radius:10px;overflow:hidden">
+     <div style="height:46px;background:#B07D1E"></div>
+     <div style="background:#FBF0D4;padding:10px 12px">
+       <div style="font-weight:700;font-size:13px;color:#B07D1E">Warning</div>
+       <div style="font-size:11px;color:var(--rj-fg-3);margin-top:2px">Limits, review needed</div>
+       <div style="font-family:var(--rj-font-mono);font-size:10px;color:var(--rj-fg-3);margin-top:6px">#B07D1E · #FBF0D4</div>
+     </div>
+   </div><div style="border:1px solid var(--rj-border);border-radius:10px;overflow:hidden">
+     <div style="height:46px;background:#B23A28"></div>
+     <div style="background:#F8E3DE;padding:10px 12px">
+       <div style="font-weight:700;font-size:13px;color:#B23A28">Danger</div>
+       <div style="font-size:11px;color:var(--rj-fg-3);margin-top:2px">Failures, destructive</div>
+       <div style="font-family:var(--rj-font-mono);font-size:10px;color:var(--rj-fg-3);margin-top:6px">#B23A28 · #F8E3DE</div>
+     </div>
+   </div><div style="border:1px solid var(--rj-border);border-radius:10px;overflow:hidden">
+     <div style="height:46px;background:#37636B"></div>
+     <div style="background:#E2EEEF;padding:10px 12px">
+       <div style="font-weight:700;font-size:13px;color:#37636B">Info</div>
+       <div style="font-size:11px;color:var(--rj-fg-3);margin-top:2px">Disclosure, neutral notes</div>
+       <div style="font-family:var(--rj-font-mono);font-size:10px;color:var(--rj-fg-3);margin-top:6px">#37636B · #E2EEEF</div>
+     </div>
+   </div>
+</div>
+</div></body></html>

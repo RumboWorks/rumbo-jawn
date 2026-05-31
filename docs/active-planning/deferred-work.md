@@ -43,6 +43,22 @@ Reason: Strategy wired but untested. Decision log notes to defer and record if u
 Blocking: Nothing.
 Must not forget because: LinkedIn is listed as a launch auth option.
 
+## Deferred item: Storage root configuration on EC2
+
+Originally identified: Phase 03
+Deferred to: before Phase 04 runs real crawl jobs
+Reason: Storage root defaults to ./storage relative to cwd. On EC2, this should point to a persistent path outside the app directory.
+Blocking: Real artifact writes in Phase 04+.
+Must not forget because: Artifacts written to the wrong path will be lost on deploy.
+
+## Deferred item: AI provider key verification
+
+Originally identified: Phase 03
+Deferred to: as soon as API keys are available
+Reason: All three provider adapters are wired; actual call testing deferred until OPENAI_API_KEY, ANTHROPIC_API_KEY, DEEPSEEK_API_KEY are set.
+Blocking: Phase 04 SLU analysis requires at least one working provider.
+Must not forget because: Phase 04 won't function without a working AI provider.
+
 ## Deferred item: Prisma migration history setup
 
 Originally identified: Phase 02

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Buttons</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Bitter:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Hanken+Grotesk:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="../components.css">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>html,body{margin:0}body{background:var(--rj-paper);font-family:var(--rj-font-sans);color:var(--rj-ink)}.card{padding:22px 24px}.row{display:flex;gap:11px;align-items:center;flex-wrap:wrap}</style>
+</head><body class="rj-root"><div class="card">
+<div class="rj-eyebrow" style="margin-bottom:13px">Buttons · <span style="color:var(--rj-stone-500)">standard</span></div>
+<div class="row" style="margin-bottom:11px">
+  <button class="rj-btn rj-btn--primary"><i data-lucide="sparkles" class="rj-i "></i>Generate guidance</button>
+  <button class="rj-btn rj-btn--brand"><i data-lucide="compass" class="rj-i "></i>Open workbench</button>
+  <button class="rj-btn rj-btn--secondary">Add source</button>
+  <button class="rj-btn rj-btn--ghost">Cancel</button>
+  <button class="rj-btn rj-btn--danger"><i data-lucide="trash-2" class="rj-i "></i>Delete</button>
+</div>
+<div class="rj-eyebrow" style="margin:20px 0 13px;color:var(--rj-ember-600)">Organic · hand-drawn corners</div>
+<div class="row" style="margin-bottom:8px">
+  <button class="rj-btn rj-btn--organic rj-btn--primary"><i data-lucide="sparkles" class="rj-i "></i>Generate guidance</button>
+  <button class="rj-btn rj-btn--organic rj-btn--brand"><i data-lucide="compass" class="rj-i "></i>Open workbench</button>
+  <button class="rj-btn rj-btn--organic rj-btn--secondary">Add source</button>
+  <button class="rj-btn rj-btn--organic rj-btn--ghost">Cancel</button>
+</div>
+<div class="rj-caption" style="margin-top:15px">Same set, two shapes — add <b style="color:var(--rj-fg-2);font-family:var(--rj-font-mono)">.rj-btn--organic</b> for uneven, drawn corners that shift on hover. Ember = primary action; pine = brand navigation.</div>
+<script>lucide.createIcons();</script></div></body></html>

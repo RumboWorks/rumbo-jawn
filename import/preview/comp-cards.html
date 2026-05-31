@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Bitter:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Hanken+Grotesk:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="../components.css">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>html,body{margin:0}body{background:var(--rj-paper);font-family:var(--rj-font-sans);color:var(--rj-ink)}.card{padding:22px 24px}.row{display:flex;gap:11px;align-items:center;flex-wrap:wrap}</style>
+</head><body class="rj-root"><div class="card">
+<div class="rj-eyebrow" style="margin-bottom:14px">Cards</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+  <div class="rj-card rj-card--pad">
+    <div style="display:flex;align-items:center;gap:9px;margin-bottom:9px">
+      <span style="width:30px;height:30px;border-radius:8px;background:var(--rj-pine-50);color:var(--rj-pine-600);display:flex;align-items:center;justify-content:center"><i data-lucide="file-text" class="rj-i "></i></span>
+      <span class="rj-badge rj-badge--success"><span class="rj-dot"></span>Complete</span>
+    </div>
+    <div class="rj-h4" style="margin-bottom:3px">Voice & tone profile</div>
+    <div class="rj-body-sm">Generated from 6 public pages · 1,284 tokens</div>
+    <hr class="rj-divider" style="margin:13px 0">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="font-family:var(--rj-font-mono);font-size:12px;color:var(--rj-fg-3)">$0.042</span>
+      <button class="rj-btn rj-btn--secondary rj-btn--sm">Open</button>
+    </div>
+  </div>
+  <div class="rj-card rj-card--pad" style="background:var(--rj-pine-800);border-color:var(--rj-pine-800)">
+    <div class="rj-eyebrow" style="color:var(--rj-ochre-300);margin-bottom:8px">Upgrade</div>
+    <div class="rj-h4" style="color:var(--rj-stone-50);font-family:var(--rj-font-serif);margin-bottom:5px">Add PDF sources</div>
+    <div class="rj-body-sm" style="color:var(--rj-pine-200);margin-bottom:14px">Bring brand books & style guides into the analysis.</div>
+    <button class="rj-btn rj-btn--primary rj-btn--sm"><i data-lucide="arrow-up-right" class="rj-i "></i>Upgrade plan</button>
+  </div>
+</div>
+<script>lucide.createIcons();</script></div></body></html>

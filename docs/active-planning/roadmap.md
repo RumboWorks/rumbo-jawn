@@ -11,7 +11,7 @@ Do not mark work complete unless it can be verified in the repository.
 - [x] Phase 00 — Project foundation
 - [x] Phase 01 — Platform shell
 - [x] Phase 02 — Shared auth and organizations
-- [ ] Phase 03 — Shared jobs, AI provider layer, storage, and artifacts
+- [x] Phase 03 — Shared jobs, AI provider layer, storage, and artifacts
 
 ### First tool: Sounds Like Us
 
@@ -32,4 +32,4 @@ Model Eval should influence shared platform decisions but should not be implemen
 
 ## Next up
 
-1. Review and revise Phase 03 before assignment.
+1. Review and revise Phase 04 before assignment.

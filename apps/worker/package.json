@@ -8,6 +8,7 @@
     "dev": "node src/index.js"
   },
   "dependencies": {
+    "@rumbo/jobs": "^0.0.1",
     "dotenv": "^16.4.0"
   }
 }
