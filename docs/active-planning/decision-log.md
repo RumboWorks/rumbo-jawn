@@ -149,3 +149,33 @@ Consequences:
 Status: Accepted
 
 Decision: The app is being developed in /var/www/rumbo on an EC2 server. You must ask the user if you want changes to the Apache proxy.  Mysql is installed, you can ask the user to create a db or do it yourself.
+
+## 2026-05-31 — Use prisma db push instead of prisma migrate dev for Phase 02
+
+Status: Accepted
+
+Decision:
+Use `prisma db push` to apply schema changes for Phase 02. Do not use `prisma migrate dev` until the DB user has CREATE DATABASE permission (needed for the shadow database).
+
+Rationale:
+`prisma migrate dev` requires permission to create a temporary shadow database. The `rumbo_dev` MySQL user has only access to `rumbo_dev` and cannot create new databases. `prisma db push` synchronizes the schema directly without a shadow database.
+
+Consequences:
+- No migration history files exist for Phase 02 tables.
+- Before Phase 03, either grant the `rumbo_dev` user CREATE DATABASE permission, or configure `SHADOW_DATABASE_URL` in `.env` pointing to a separate database.
+- If migration history is needed retroactively, it can be created with `prisma migrate diff` + `prisma migrate resolve`.
+
+## 2026-05-31 — LinkedIn OAuth deferred from Phase 02
+
+Status: Deferred
+
+Decision:
+LinkedIn OAuth is wired (strategy + routes exist) but is not testable in Phase 02 because credentials have not been configured. Defer verification to when credentials are available.
+
+Rationale:
+The decision log already flagged that LinkedIn OAuth should be deferred and recorded if unstable. Since it cannot be tested without credentials, it is treated as a deferred item rather than a confirmed working feature.
+
+Consequences:
+- LinkedIn OAuth routes (`/auth/linkedin`, `/auth/linkedin/callback`) exist but are gated on `LINKEDIN_CLIENT_ID` and `LINKEDIN_CLIENT_SECRET` being set.
+- Test and confirm LinkedIn OAuth when credentials are available.
+- If LinkedIn's OAuth proves unreliable, remove the strategy and record the removal.

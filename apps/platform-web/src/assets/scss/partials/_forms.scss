@@ -1,0 +1,117 @@
+// Form styles — inputs, labels, selects, textareas, fieldsets, error states.
+
+.rj-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rj-space-1);
+}
+
+.rj-form-group + .rj-form-group {
+  margin-top: var(--rj-space-4);
+}
+
+.rj-label {
+  font-size: var(--rj-text-sm);
+  font-weight: var(--rj-font-medium);
+  color: var(--rj-color-text-subtle);
+}
+
+.rj-label--required::after {
+  content: ' *';
+  color: var(--rj-color-danger);
+}
+
+.rj-input,
+.rj-select,
+.rj-textarea {
+  width: 100%;
+  padding: var(--rj-space-2) var(--rj-space-3);
+  font-size: var(--rj-text-sm);
+  color: var(--rj-color-text);
+  background: var(--rj-color-bg);
+  border: 1px solid var(--rj-color-border-strong);
+  border-radius: var(--rj-radius);
+  transition: border-color var(--rj-transition-fast), box-shadow var(--rj-transition-fast);
+  appearance: none;
+
+  &::placeholder {
+    color: var(--rj-color-text-disabled);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--rj-color-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--rj-color-accent) 20%, transparent);
+  }
+
+  &:disabled {
+    background: var(--rj-color-bg-muted);
+    color: var(--rj-color-text-disabled);
+    cursor: not-allowed;
+  }
+
+  &.is-error {
+    border-color: var(--rj-color-danger);
+
+    &:focus {
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--rj-color-danger) 20%, transparent);
+    }
+  }
+}
+
+.rj-textarea {
+  resize: vertical;
+  min-height: 6rem;
+}
+
+.rj-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--rj-space-2) center;
+  padding-right: var(--rj-space-8);
+}
+
+.rj-form-hint {
+  font-size: var(--rj-text-xs);
+  color: var(--rj-color-text-muted);
+}
+
+.rj-form-error {
+  font-size: var(--rj-text-xs);
+  color: var(--rj-color-danger);
+}
+
+// Checkbox / radio
+.rj-check-group {
+  display: flex;
+  align-items: center;
+  gap: var(--rj-space-2);
+
+  input[type='checkbox'],
+  input[type='radio'] {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    accent-color: var(--rj-color-accent);
+    cursor: pointer;
+  }
+
+  label {
+    font-size: var(--rj-text-sm);
+    cursor: pointer;
+  }
+}
+
+// Fieldset
+fieldset.rj-fieldset {
+  border: 1px solid var(--rj-color-border);
+  border-radius: var(--rj-radius-md);
+  padding: var(--rj-space-4);
+
+  legend {
+    font-size: var(--rj-text-sm);
+    font-weight: var(--rj-font-semibold);
+    padding-inline: var(--rj-space-2);
+    color: var(--rj-color-text-subtle);
+  }
+}

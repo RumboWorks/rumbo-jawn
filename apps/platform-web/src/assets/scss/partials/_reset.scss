@@ -1,0 +1,42 @@
+// Minimal reset — enough to establish consistent baseline, nothing opinionated.
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--rj-font-sans);
+  font-size: var(--rj-text-base);
+  line-height: var(--rj-leading-normal);
+  background: var(--rj-color-bg);
+  color: var(--rj-color-text);
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+p,
+h1, h2, h3, h4, h5, h6,
+ul, ol, dl,
+figure,
+blockquote,
+pre {
+  margin: 0;
+}

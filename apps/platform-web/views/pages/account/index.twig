@@ -1,0 +1,27 @@
+{% extends "layouts/app.twig" %}
+
+{% block title %}Account — Rumbo{% endblock %}
+
+{% block sidebar %}
+    <span class="rj-sidebar__label">Account</span>
+    <div class="rj-sidebar__section">
+        <a href="/account" class="rj-sidebar__link is-active">
+            <i data-lucide="user"></i> Profile
+        </a>
+        <a href="/account/org" class="rj-sidebar__link">
+            <i data-lucide="building-2"></i> Organization
+        </a>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="rj-page-header">
+        <h1>Account</h1>
+        <p>Account and organization settings — placeholder. Implemented in Phase 02.</p>
+    </div>
+
+    <div class="rj-alert rj-alert--info">
+        <i data-lucide="info"></i>
+        <div class="rj-alert__body">Auth and account features are implemented in Phase 02.</div>
+    </div>
+{% endblock %}

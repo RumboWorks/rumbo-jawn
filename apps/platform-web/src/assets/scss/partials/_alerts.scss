@@ -1,0 +1,52 @@
+// Alert / notice components.
+
+.rj-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--rj-space-3);
+  padding: var(--rj-space-3) var(--rj-space-4);
+  border-radius: var(--rj-radius);
+  border: 1px solid;
+  font-size: var(--rj-text-sm);
+
+  svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    stroke: currentColor;
+  }
+}
+
+.rj-alert__body {
+  flex: 1;
+  min-width: 0;
+
+  p + p {
+    margin-top: var(--rj-space-1);
+  }
+}
+
+.rj-alert--info {
+  background: var(--rj-color-info-bg);
+  border-color: var(--rj-color-info);
+  color: var(--rj-color-info);
+}
+
+.rj-alert--success {
+  background: var(--rj-color-success-bg);
+  border-color: var(--rj-color-success);
+  color: var(--rj-color-success);
+}
+
+.rj-alert--warning {
+  background: var(--rj-color-warning-bg);
+  border-color: var(--rj-color-warning);
+  color: var(--rj-color-warning);
+}
+
+.rj-alert--danger {
+  background: var(--rj-color-danger-bg);
+  border-color: var(--rj-color-danger);
+  color: var(--rj-color-danger);
+}

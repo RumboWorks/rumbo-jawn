@@ -1,0 +1,54 @@
+// Table styles.
+
+.rj-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--rj-color-border);
+  border-radius: var(--rj-radius-md);
+}
+
+.rj-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--rj-text-sm);
+
+  thead {
+    background: var(--rj-color-bg-subtle);
+    border-bottom: 1px solid var(--rj-color-border);
+
+    th {
+      padding: var(--rj-space-3) var(--rj-space-4);
+      text-align: left;
+      font-weight: var(--rj-font-semibold);
+      color: var(--rj-color-text-subtle);
+      white-space: nowrap;
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px solid var(--rj-color-border);
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      &:hover {
+        background: var(--rj-color-bg-subtle);
+      }
+    }
+
+    td {
+      padding: var(--rj-space-3) var(--rj-space-4);
+      color: var(--rj-color-text);
+      vertical-align: middle;
+    }
+  }
+}
+
+// Empty state cell
+.rj-table__empty {
+  text-align: center;
+  color: var(--rj-color-text-muted);
+  font-style: italic;
+  padding: var(--rj-space-8) !important;
+}

@@ -9,8 +9,10 @@
     "build": "vite build"
   },
   "dependencies": {
+    "@rumbo/auth": "^0.0.1",
     "dotenv": "^16.4.0",
     "express": "^4.21.0",
+    "lucide": "^1.17.0",
     "twig": "^1.16.0"
   },
   "devDependencies": {

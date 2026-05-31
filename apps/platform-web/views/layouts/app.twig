@@ -6,32 +6,30 @@
     <title>{% block title %}Rumbo{% endblock %}</title>
     <link rel="stylesheet" href="/dist/main.css">
 </head>
-<body class="rj-body">
+<body class="rj-app-body">
     <header class="rj-header">
         <div class="rj-header__inner">
             <a href="/" class="rj-header__logo">Rumbo</a>
             <nav class="rj-header__nav">
                 {% if currentUser %}
-                    <a href="/slu" class="rj-header__nav-link">Sounds Like Us</a>
-                    <a href="/account" class="rj-header__nav-link">{{ currentUser.name ?? currentUser.email }}</a>
+                    <span class="rj-header__nav-link">{{ currentUser.name ?? currentUser.email }}</span>
                     <a href="/auth/logout" class="rj-header__nav-link">Sign out</a>
                 {% else %}
                     <a href="/login" class="rj-header__nav-link">Sign in</a>
-                    <a href="/register" class="rj-btn rj-btn--primary rj-btn--sm">Get started</a>
                 {% endif %}
             </nav>
         </div>
     </header>
 
-    <main class="rj-main">
-        {% block content %}{% endblock %}
-    </main>
+    <div class="rj-app-shell">
+        <nav class="rj-sidebar">
+            {% block sidebar %}{% endblock %}
+        </nav>
 
-    <footer class="rj-footer">
-        <div class="rj-footer__inner">
-            <p>&copy; Rumbo</p>
-        </div>
-    </footer>
+        <main class="rj-app-content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
 
     <script type="module" src="/dist/main.js"></script>
 </body>

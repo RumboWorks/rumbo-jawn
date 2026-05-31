@@ -1,0 +1,52 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}Sign in — Rumbo{% endblock %}
+
+{% block content %}
+<div class="rj-container">
+    <div class="rj-auth-box">
+        <h1 class="rj-auth-box__heading">Sign in to Rumbo</h1>
+
+        {% if flash_error %}
+            <div class="rj-alert rj-alert--danger">
+                <i data-lucide="circle-x"></i>
+                <div class="rj-alert__body">{{ flash_error }}</div>
+            </div>
+        {% endif %}
+
+        {% if google_enabled %}
+        <a href="/auth/google" class="rj-btn rj-btn--secondary rj-btn--oauth">
+            <i data-lucide="log-in"></i> Continue with Google
+        </a>
+        {% endif %}
+
+        {% if linkedin_enabled %}
+        <a href="/auth/linkedin" class="rj-btn rj-btn--secondary rj-btn--oauth">
+            <i data-lucide="log-in"></i> Continue with LinkedIn
+        </a>
+        {% endif %}
+
+        {% if google_enabled or linkedin_enabled %}
+        <div class="rj-auth-divider"><span>or</span></div>
+        {% endif %}
+
+        <form method="POST" action="/auth/local" class="rj-form">
+            <div class="rj-form-group">
+                <label class="rj-label" for="email">Email</label>
+                <input class="rj-input" type="email" id="email" name="email"
+                       autocomplete="email" required placeholder="you@example.org">
+            </div>
+            <div class="rj-form-group">
+                <label class="rj-label" for="password">Password</label>
+                <input class="rj-input" type="password" id="password" name="password"
+                       autocomplete="current-password" required>
+            </div>
+            <button type="submit" class="rj-btn rj-btn--primary">Sign in</button>
+        </form>
+
+        <p class="rj-auth-box__footer">
+            Don't have an account? <a href="/register">Create one</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

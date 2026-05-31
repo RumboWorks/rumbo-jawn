@@ -1,0 +1,33 @@
+{% extends "layouts/app.twig" %}
+
+{% block title %}Admin — Rumbo{% endblock %}
+
+{% block sidebar %}
+    <span class="rj-sidebar__label">Admin</span>
+    <div class="rj-sidebar__section">
+        <a href="/admin" class="rj-sidebar__link is-active">
+            <i data-lucide="layout-dashboard"></i> Dashboard
+        </a>
+        <a href="/admin/users" class="rj-sidebar__link">
+            <i data-lucide="users"></i> Users
+        </a>
+        <a href="/admin/orgs" class="rj-sidebar__link">
+            <i data-lucide="building-2"></i> Organizations
+        </a>
+        <a href="/admin/jobs" class="rj-sidebar__link">
+            <i data-lucide="activity"></i> Jobs
+        </a>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="rj-page-header">
+        <h1>Admin</h1>
+        <p>Platform administration — placeholder. Implemented in Phase 06.</p>
+    </div>
+
+    <div class="rj-alert rj-alert--info">
+        <i data-lucide="info"></i>
+        <div class="rj-alert__body">Admin features are implemented in Phase 06.</div>
+    </div>
+{% endblock %}

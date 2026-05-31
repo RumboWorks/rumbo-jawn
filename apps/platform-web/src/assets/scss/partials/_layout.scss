@@ -1,0 +1,221 @@
+// Layout primitives — page shell, container, app shell, responsive breakpoints.
+
+// Breakpoints (used as min-width)
+// sm:  640px
+// md:  768px
+// lg:  1024px
+// xl:  1280px
+
+.rj-container {
+  max-width: var(--rj-max-width);
+  margin-inline: auto;
+  padding-inline: var(--rj-space-4);
+
+  @media (min-width: 768px) {
+    padding-inline: var(--rj-space-8);
+  }
+}
+
+// ---- Public page shell ----
+
+.rj-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.rj-header {
+  height: var(--rj-header-height);
+  border-bottom: 1px solid var(--rj-color-border);
+  background: var(--rj-color-bg);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.rj-header__inner {
+  width: 100%;
+  max-width: var(--rj-max-width);
+  margin-inline: auto;
+  padding-inline: var(--rj-space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--rj-space-4);
+
+  @media (min-width: 768px) {
+    padding-inline: var(--rj-space-8);
+  }
+}
+
+.rj-header__logo {
+  font-size: var(--rj-text-lg);
+  font-weight: var(--rj-font-bold);
+  text-decoration: none;
+  color: var(--rj-color-text);
+
+  &:hover {
+    color: var(--rj-color-text);
+  }
+}
+
+.rj-header__nav {
+  display: flex;
+  align-items: center;
+  gap: var(--rj-space-2);
+  margin-left: auto;
+}
+
+.rj-header__nav-link {
+  font-size: var(--rj-text-sm);
+  font-weight: var(--rj-font-medium);
+  color: var(--rj-color-text-subtle);
+  text-decoration: none;
+  padding: var(--rj-space-1) var(--rj-space-2);
+  border-radius: var(--rj-radius);
+  transition: color var(--rj-transition-fast), background var(--rj-transition-fast);
+
+  &:hover {
+    color: var(--rj-color-text);
+    background: var(--rj-color-bg-muted);
+  }
+
+  &.is-active {
+    color: var(--rj-color-accent);
+    font-weight: var(--rj-font-semibold);
+  }
+}
+
+.rj-main {
+  flex: 1;
+  padding-block: var(--rj-space-8);
+}
+
+.rj-footer {
+  flex-shrink: 0;
+  border-top: 1px solid var(--rj-color-border);
+  padding-block: var(--rj-space-4);
+  color: var(--rj-color-text-muted);
+  font-size: var(--rj-text-sm);
+}
+
+.rj-footer__inner {
+  max-width: var(--rj-max-width);
+  margin-inline: auto;
+  padding-inline: var(--rj-space-4);
+
+  @media (min-width: 768px) {
+    padding-inline: var(--rj-space-8);
+  }
+}
+
+// ---- App shell (logged-in, with sidebar) ----
+
+.rj-app-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.rj-app-shell {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.rj-sidebar {
+  width: var(--rj-sidebar-width);
+  flex-shrink: 0;
+  border-right: 1px solid var(--rj-color-border);
+  background: var(--rj-color-bg-subtle);
+  padding: var(--rj-space-4) 0;
+  overflow-y: auto;
+  display: none;
+
+  @media (min-width: 1024px) {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.rj-sidebar__section {
+  padding: var(--rj-space-2) var(--rj-space-3);
+}
+
+.rj-sidebar__label {
+  font-size: var(--rj-text-xs);
+  font-weight: var(--rj-font-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--rj-color-text-muted);
+  padding: var(--rj-space-2) var(--rj-space-3);
+}
+
+.rj-sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: var(--rj-space-2);
+  font-size: var(--rj-text-sm);
+  font-weight: var(--rj-font-medium);
+  color: var(--rj-color-text-subtle);
+  text-decoration: none;
+  padding: var(--rj-space-2) var(--rj-space-3);
+  border-radius: var(--rj-radius);
+  transition: color var(--rj-transition-fast), background var(--rj-transition-fast);
+
+  svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    stroke: currentColor;
+  }
+
+  &:hover {
+    color: var(--rj-color-text);
+    background: var(--rj-color-bg-muted);
+  }
+
+  &.is-active {
+    color: var(--rj-color-accent);
+    background: color-mix(in srgb, var(--rj-color-accent) 8%, transparent);
+    font-weight: var(--rj-font-semibold);
+  }
+}
+
+.rj-app-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--rj-space-8);
+  min-width: 0;
+}
+
+.rj-page-header {
+  margin-bottom: var(--rj-space-6);
+
+  h1, h2 {
+    margin-bottom: var(--rj-space-1);
+  }
+
+  p {
+    color: var(--rj-color-text-muted);
+    font-size: var(--rj-text-sm);
+  }
+}
+
+// ---- Utility ----
+
+.rj-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.rj-placeholder-note {
+  color: var(--rj-color-text-muted);
+  font-style: italic;
+}

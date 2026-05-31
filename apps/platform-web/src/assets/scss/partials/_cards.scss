@@ -1,0 +1,46 @@
+// Card component.
+
+.rj-card {
+  background: var(--rj-color-bg);
+  border: 1px solid var(--rj-color-border);
+  border-radius: var(--rj-radius-md);
+  box-shadow: var(--rj-shadow-sm);
+  overflow: hidden;
+}
+
+.rj-card__header {
+  padding: var(--rj-space-4) var(--rj-space-5);
+  border-bottom: 1px solid var(--rj-color-border);
+  display: flex;
+  align-items: center;
+  gap: var(--rj-space-3);
+
+  h2, h3, h4 {
+    flex: 1;
+    font-size: var(--rj-text-base);
+    font-weight: var(--rj-font-semibold);
+  }
+}
+
+.rj-card__body {
+  padding: var(--rj-space-5);
+}
+
+.rj-card__footer {
+  padding: var(--rj-space-4) var(--rj-space-5);
+  border-top: 1px solid var(--rj-color-border);
+  background: var(--rj-color-bg-subtle);
+  display: flex;
+  align-items: center;
+  gap: var(--rj-space-3);
+}
+
+// Flat card (no shadow)
+.rj-card--flat {
+  box-shadow: none;
+}
+
+// Subtle card (lighter background)
+.rj-card--subtle {
+  background: var(--rj-color-bg-subtle);
+}

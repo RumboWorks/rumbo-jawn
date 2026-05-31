@@ -1,6 +1,6 @@
 // Rumbo database schema.
 // Uses MySQL (MariaDB-compatible) for MVP on shared EC2 servers.
-// Models are added phase by phase — Phase 02 adds auth/users/orgs.
+// Phase 02 adds: User, Organization, Membership, OAuthAccount, ApprovedDomain, Session.
 
 generator client {
   provider = "prisma-client-js"
@@ -9,4 +9,80 @@ generator client {
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+// ---- Auth / Users ----
+
+model User {
+  id           String       @id @default(cuid())
+  email        String       @unique
+  name         String?
+  avatarUrl    String?
+  passwordHash String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  lastLoginAt  DateTime?
+  memberships  Membership[]
+  oauthAccounts OAuthAccount[]
+}
+
+model OAuthAccount {
+  id         String @id @default(cuid())
+  provider   String
+  providerId String
+  userId     String
+  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerId])
+  @@index([userId])
+}
+
+// ---- Organizations ----
+
+model Organization {
+  id              String          @id @default(cuid())
+  name            String
+  slug            String          @unique
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  memberships     Membership[]
+  approvedDomains ApprovedDomain[]
+}
+
+model Membership {
+  id        String     @id @default(cuid())
+  userId    String
+  orgId     String
+  role      MemberRole @default(MEMBER)
+  createdAt DateTime   @default(now())
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, orgId])
+  @@index([orgId])
+}
+
+enum MemberRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+model ApprovedDomain {
+  id     String       @id @default(cuid())
+  domain String
+  orgId  String
+  org    Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@unique([domain, orgId])
+  @@index([orgId])
+}
+
+// ---- Sessions ----
+
+model Session {
+  id        String    @id
+  sid       String    @unique
+  data      String    @db.MediumText
+  expiresAt DateTime?
 }

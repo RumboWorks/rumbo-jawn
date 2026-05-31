@@ -1,0 +1,13 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}{{ status }} — Rumbo{% endblock %}
+
+{% block content %}
+<div class="rj-container">
+    <div class="rj-page-header">
+        <h1>{{ status }}</h1>
+        <p>{{ message }}</p>
+    </div>
+    <a href="/" class="rj-btn rj-btn--secondary">Go home</a>
+</div>
+{% endblock %}
