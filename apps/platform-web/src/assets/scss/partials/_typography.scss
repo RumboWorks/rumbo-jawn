@@ -1,76 +1,51 @@
-// Typography scale — headings, body, utilities.
+// Typography — headings, body, semantic helpers, links, code.
 
-h1, h2, h3, h4, h5, h6 {
-  font-weight: var(--rj-font-semibold);
-  line-height: var(--rj-leading-tight);
-  color: var(--rj-color-text);
-}
+h1, h2, h3, h4, h5, h6 { color: var(--rj-fg); }
 
-h1 { font-size: var(--rj-text-3xl); }
-h2 { font-size: var(--rj-text-2xl); }
-h3 { font-size: var(--rj-text-xl); }
-h4 { font-size: var(--rj-text-lg); }
-h5 { font-size: var(--rj-text-base); }
-h6 { font-size: var(--rj-text-sm); }
+h1 { font-family: var(--rj-font-serif); font-size: var(--rj-text-h1); font-weight: var(--rj-weight-semibold); line-height: var(--rj-leading-tight); letter-spacing: var(--rj-tracking-tight); }
+h2 { font-family: var(--rj-font-serif); font-size: var(--rj-text-h2); font-weight: var(--rj-weight-semibold); line-height: var(--rj-leading-snug); }
+h3 { font-family: var(--rj-font-sans);  font-size: var(--rj-text-h3); font-weight: var(--rj-weight-bold);     line-height: var(--rj-leading-snug); letter-spacing: var(--rj-tracking-tight); }
+h4 { font-family: var(--rj-font-sans);  font-size: var(--rj-text-h4); font-weight: var(--rj-weight-semibold); line-height: var(--rj-leading-snug); }
+h5 { font-family: var(--rj-font-sans);  font-size: var(--rj-text-base); font-weight: var(--rj-weight-semibold); }
+h6 { font-family: var(--rj-font-sans);  font-size: var(--rj-text-sm);   font-weight: var(--rj-weight-semibold); }
 
-p {
-  line-height: var(--rj-leading-relaxed);
-}
+p { line-height: var(--rj-leading-relaxed); }
 
 a {
-  color: var(--rj-color-accent);
-  text-decoration: underline;
+  color: var(--rj-link);
   text-underline-offset: 2px;
-
-  &:hover {
-    color: var(--rj-color-accent-hover);
-  }
+  &:hover { color: var(--rj-link-hover); }
 }
 
-code,
-kbd,
-samp,
-pre {
-  font-family: var(--rj-font-mono);
-  font-size: 0.875em;
-}
-
+code, kbd, samp, pre { font-family: var(--rj-font-mono); font-size: 0.875em; }
 code {
-  background: var(--rj-color-bg-muted);
-  padding: 0.1em 0.35em;
+  background: var(--rj-bg-sunken);
+  border: 1px solid var(--rj-border);
   border-radius: var(--rj-radius-sm);
-  border: 1px solid var(--rj-color-border);
+  padding: 0.1em 0.35em;
+  font-variant-numeric: tabular-nums;
 }
-
 pre {
-  background: var(--rj-color-bg-muted);
-  border: 1px solid var(--rj-color-border);
-  border-radius: var(--rj-radius);
+  background: var(--rj-bg-sunken);
+  border: 1px solid var(--rj-border);
+  border-radius: var(--rj-radius-md);
   padding: var(--rj-space-4);
   overflow-x: auto;
-
-  code {
-    background: none;
-    border: none;
-    padding: 0;
-  }
+  code { background: none; border: none; padding: 0; }
 }
 
-small,
-.rj-text-sm  { font-size: var(--rj-text-sm); }
-.rj-text-xs  { font-size: var(--rj-text-xs); }
-.rj-text-lg  { font-size: var(--rj-text-lg); }
-.rj-text-xl  { font-size: var(--rj-text-xl); }
-.rj-text-muted    { color: var(--rj-color-text-muted); }
-.rj-text-subtle   { color: var(--rj-color-text-subtle); }
-.rj-text-bold     { font-weight: var(--rj-font-bold); }
-.rj-text-semibold { font-weight: var(--rj-font-semibold); }
-.rj-text-medium   { font-weight: var(--rj-font-medium); }
+ul, ol { padding-left: var(--rj-space-6); li + li { margin-top: var(--rj-space-1); } }
 
-ul, ol {
-  padding-left: var(--rj-space-6);
-
-  li + li {
-    margin-top: var(--rj-space-1);
-  }
-}
+// ---- Semantic type helpers ----
+.rj-display { font-family: var(--rj-font-serif);  font-size: var(--rj-text-display); line-height: var(--rj-leading-tight);   letter-spacing: var(--rj-tracking-tight);  font-weight: var(--rj-weight-semibold); color: var(--rj-fg); }
+.rj-h1      { font-family: var(--rj-font-serif);  font-size: var(--rj-text-h1);      line-height: var(--rj-leading-tight);   letter-spacing: var(--rj-tracking-tight);  font-weight: var(--rj-weight-semibold); color: var(--rj-fg); }
+.rj-h2      { font-family: var(--rj-font-serif);  font-size: var(--rj-text-h2);      line-height: var(--rj-leading-snug);    font-weight: var(--rj-weight-semibold); color: var(--rj-fg); }
+.rj-h3      { font-family: var(--rj-font-sans);   font-size: var(--rj-text-h3);      line-height: var(--rj-leading-snug);    letter-spacing: var(--rj-tracking-tight); font-weight: var(--rj-weight-bold); color: var(--rj-fg); }
+.rj-h4      { font-family: var(--rj-font-sans);   font-size: var(--rj-text-h4);      line-height: var(--rj-leading-snug);    font-weight: var(--rj-weight-semibold); color: var(--rj-fg); }
+.rj-body    { font-family: var(--rj-font-sans);   font-size: var(--rj-text-base);    line-height: var(--rj-leading-normal);  font-weight: var(--rj-weight-regular); color: var(--rj-fg); }
+.rj-body-sm { font-family: var(--rj-font-sans);   font-size: var(--rj-text-sm);      line-height: var(--rj-leading-normal);  color: var(--rj-fg-2); }
+.rj-lead    { font-family: var(--rj-font-serif);  font-size: var(--rj-text-lg);      line-height: var(--rj-leading-relaxed); font-weight: var(--rj-weight-regular); color: var(--rj-fg-2); }
+.rj-eyebrow { font-family: var(--rj-font-sans);   font-size: var(--rj-text-micro);   font-weight: var(--rj-weight-bold);     letter-spacing: var(--rj-tracking-caps); text-transform: uppercase; color: var(--rj-pine-600); }
+.rj-caption { font-family: var(--rj-font-sans);   font-size: var(--rj-text-cap);     line-height: var(--rj-leading-snug);    color: var(--rj-fg-3); }
+.rj-mono,
+.rj-code    { font-family: var(--rj-font-mono);   font-size: var(--rj-text-sm);      font-weight: var(--rj-weight-medium);   color: var(--rj-fg-2); font-variant-numeric: tabular-nums; }

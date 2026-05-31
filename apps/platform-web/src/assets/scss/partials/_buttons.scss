@@ -1,94 +1,81 @@
-// Button styles — variants and sizes.
-// All buttons use rj- prefix.
+// Buttons — variants, sizes, organic variant.
 
 .rj-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--rj-space-2);
-  padding: var(--rj-space-2) var(--rj-space-4);
+  font-family: var(--rj-font-sans);
   font-size: var(--rj-text-sm);
-  font-weight: var(--rj-font-medium);
+  font-weight: var(--rj-weight-semibold);
   line-height: 1;
-  border-radius: var(--rj-radius);
+  padding: 11px 18px;
+  border-radius: var(--rj-radius-md);
   border: 1px solid transparent;
   cursor: pointer;
   text-decoration: none;
   white-space: nowrap;
-  transition: background var(--rj-transition-fast), color var(--rj-transition-fast),
-              border-color var(--rj-transition-fast), box-shadow var(--rj-transition-fast);
   user-select: none;
+  transition:
+    background var(--rj-dur) var(--rj-ease),
+    border-color var(--rj-dur) var(--rj-ease),
+    color var(--rj-dur) var(--rj-ease),
+    box-shadow var(--rj-dur) var(--rj-ease),
+    transform var(--rj-dur-fast) var(--rj-ease);
 
-  svg {
-    width: 16px;
-    height: 16px;
-    flex-shrink: 0;
-    stroke: currentColor;
-  }
+  &:active { transform: translateY(1px); }
+  &:focus-visible { outline: none; box-shadow: var(--rj-ring); }
+
+  svg { width: 17px; height: 17px; flex-shrink: 0; stroke: currentColor; }
 
   &:disabled,
-  &[aria-disabled="true"] {
-    opacity: 0.5;
-    cursor: not-allowed;
-    pointer-events: none;
-  }
+  &[aria-disabled="true"] { opacity: 0.5; cursor: not-allowed; transform: none; pointer-events: none; }
 }
 
-// Primary
+// Primary — ember (human action)
 .rj-btn--primary {
-  background: var(--rj-color-accent);
-  color: var(--rj-color-accent-text);
-  border-color: var(--rj-color-accent);
-
-  &:hover {
-    background: var(--rj-color-accent-hover);
-    border-color: var(--rj-color-accent-hover);
-  }
+  background: var(--rj-ember-500);
+  color: #fff;
+  &:hover { background: var(--rj-ember-600); }
 }
 
-// Secondary (outlined)
-.rj-btn--secondary {
-  background: var(--rj-color-bg);
-  color: var(--rj-color-text-subtle);
-  border-color: var(--rj-color-border-strong);
+// Brand — pine
+.rj-btn--brand {
+  background: var(--rj-pine-600);
+  color: #fff;
+  &:hover { background: var(--rj-pine-700); }
+}
 
-  &:hover {
-    background: var(--rj-color-bg-muted);
-    color: var(--rj-color-text);
-  }
+// Secondary — outline on paper
+.rj-btn--secondary {
+  background: var(--rj-bg-raised);
+  color: var(--rj-pine-700);
+  border-color: var(--rj-stone-300);
+  &:hover { background: var(--rj-stone-50); border-color: var(--rj-stone-400); }
 }
 
 // Ghost
 .rj-btn--ghost {
   background: transparent;
-  color: var(--rj-color-text-subtle);
-  border-color: transparent;
-
-  &:hover {
-    background: var(--rj-color-bg-muted);
-    color: var(--rj-color-text);
-  }
+  color: var(--rj-fg-2);
+  &:hover { background: var(--rj-stone-100); color: var(--rj-fg); }
 }
 
 // Danger
 .rj-btn--danger {
-  background: var(--rj-color-danger);
-  color: #ffffff;
-  border-color: var(--rj-color-danger);
-
-  &:hover {
-    background: #b91c1c;
-    border-color: #b91c1c;
-  }
+  background: var(--rj-bg-raised);
+  color: var(--rj-danger);
+  border-color: var(--rj-danger);
+  &:hover { background: var(--rj-danger-bg); }
 }
 
 // Sizes
-.rj-btn--sm {
-  padding: var(--rj-space-1) var(--rj-space-3);
-  font-size: var(--rj-text-xs);
-}
+.rj-btn--sm { padding: 7px 12px; font-size: var(--rj-text-cap); }
+.rj-btn--lg { padding: 14px 24px; font-size: var(--rj-text-base); }
 
-.rj-btn--lg {
-  padding: var(--rj-space-3) var(--rj-space-6);
-  font-size: var(--rj-text-base);
-}
+// Organic — hand-drawn imperfect corners
+.rj-btn--organic { border-radius: 16px 11px 17px 12px; }
+.rj-btn--organic:hover { border-radius: 13px 17px 12px 16px; }
+.rj-btn--organic.rj-btn--lg { border-radius: 20px 14px 22px 15px; }
+.rj-btn--organic.rj-btn--lg:hover { border-radius: 16px 21px 15px 20px; }
+.rj-btn--organic.rj-btn--sm { border-radius: 12px 8px 13px 9px; }

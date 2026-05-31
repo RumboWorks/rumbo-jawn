@@ -1,0 +1,62 @@
+// Badges / chips — standard and organic highlighter variant.
+
+.rj-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--rj-text-micro);
+  font-weight: var(--rj-weight-bold);
+  letter-spacing: 0.01em;
+  padding: 3px 9px;
+  border-radius: var(--rj-radius-pill);
+  text-transform: capitalize;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.rj-badge .rj-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+.rj-badge--neutral { background: var(--rj-stone-100); color: var(--rj-stone-700); }
+.rj-badge--pine    { background: var(--rj-pine-50);   color: var(--rj-pine-700); }
+.rj-badge--ember   { background: var(--rj-ember-50);  color: var(--rj-ember-600); }
+.rj-badge--success { background: var(--rj-success-bg); color: var(--rj-success-fg); }
+.rj-badge--warning { background: var(--rj-warning-bg); color: var(--rj-warning-fg); }
+.rj-badge--danger  { background: var(--rj-danger-bg);  color: var(--rj-danger-fg); }
+.rj-badge--info    { background: var(--rj-info-bg);    color: var(--rj-info-fg); }
+
+// Organic — hand-drawn highlighter swish
+.rj-badge--organic {
+  position: relative;
+  background: transparent !important;
+  color: var(--rj-ink);
+  isolation: isolate;
+  padding: 3px 12px;
+  border-radius: 0;
+  text-transform: none;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0px -3px;
+    z-index: -1;
+    background: var(--rj-ochre-300);
+    border-radius: 58% 42% 64% 36% / 60% 64% 36% 40%;
+    transform: rotate(-1.6deg);
+    opacity: 0.62;
+  }
+
+  &.rj-badge--pine::before    { background: var(--rj-pine-300); }
+  &.rj-badge--ember::before   { background: var(--rj-ember-300); }
+  &.rj-badge--success::before { background: #7FBE9C; }
+  &.rj-badge--warning::before { background: var(--rj-ochre-300); }
+  &.rj-badge--danger::before  { background: #E59A88; }
+  &.rj-badge--info::before    { background: #9FC4C8; }
+  &.rj-badge--neutral::before { background: var(--rj-stone-300); }
+
+  &:nth-child(even)::before {
+    transform: rotate(1.4deg);
+    border-radius: 46% 54% 38% 62% / 44% 40% 60% 56%;
+  }
+
+  .rj-dot { background: var(--rj-ink); opacity: 0.55; }
+}

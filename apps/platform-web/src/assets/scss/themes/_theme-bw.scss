@@ -1,0 +1,86 @@
+// Black & White theme — all colors converted to appropriate greyscale values.
+// Maintains the same lightness/contrast relationships as Rumboworks.
+// Useful for print preview, accessibility testing, and low-distraction mode.
+
+[data-theme="bw"] {
+  // ---- Pine → dark greys ----
+  --rj-pine-50:  #f0f0f0;
+  --rj-pine-100: #e4e4e4;
+  --rj-pine-200: #cccccc;
+  --rj-pine-300: #aaaaaa;
+  --rj-pine-400: #888888;
+  --rj-pine-500: #606060;
+  --rj-pine-600: #424242;
+  --rj-pine-700: #2e2e2e;
+  --rj-pine-800: #222222;
+  --rj-pine-900: #161616;
+
+  // ---- Ember → mid greys (action tone preserved via darkness) ----
+  --rj-ember-50:  #f5f5f5;
+  --rj-ember-100: #ebebeb;
+  --rj-ember-200: #d4d4d4;
+  --rj-ember-300: #b0b0b0;
+  --rj-ember-400: #888888;
+  --rj-ember-500: #555555;
+  --rj-ember-600: #3d3d3d;
+  --rj-ember-700: #2a2a2a;
+
+  // ---- Ochre → light-mid greys ----
+  --rj-ochre-100: #f0f0f0;
+  --rj-ochre-300: #d8d8d8;
+  --rj-ochre-500: #aaaaaa;
+  --rj-ochre-700: #777777;
+
+  // ---- Stone → neutral greys (near 1:1, already close) ----
+  --rj-paper:     #f8f8f8;
+  --rj-white:     #ffffff;
+  --rj-stone-50:  #f2f2f2;
+  --rj-stone-100: #e8e8e8;
+  --rj-stone-200: #d8d8d8;
+  --rj-stone-300: #c0c0c0;
+  --rj-stone-400: #9e9e9e;
+  --rj-stone-500: #7e7e7e;
+  --rj-stone-600: #5e5e5e;
+  --rj-stone-700: #444444;
+  --rj-stone-800: #2e2e2e;
+  --rj-stone-900: #1a1a1a;
+  --rj-ink:       #111111;
+
+  // ---- Semantic status — distinct grey tones ----
+  --rj-success:    #2e2e2e;
+  --rj-success-bg: #ebebeb;
+  --rj-success-fg: #111111;
+  --rj-warning:    #444444;
+  --rj-warning-bg: #f2f2f2;
+  --rj-warning-fg: #222222;
+  --rj-danger:     #1a1a1a;
+  --rj-danger-bg:  #e2e2e2;
+  --rj-danger-fg:  #111111;
+  --rj-info:       #4a4a4a;
+  --rj-info-bg:    #f0f0f0;
+  --rj-info-fg:    #222222;
+
+  // ---- Semantic surface / text roles ----
+  --rj-bg:         var(--rj-paper);
+  --rj-bg-raised:  var(--rj-white);
+  --rj-bg-sunken:  var(--rj-stone-50);
+  --rj-surface-2:  var(--rj-stone-50);
+  --rj-fg:         var(--rj-ink);
+  --rj-fg-2:       var(--rj-stone-600);
+  --rj-fg-3:       var(--rj-stone-500);
+  --rj-fg-on-dark: var(--rj-stone-50);
+  --rj-border:     var(--rj-stone-200);
+  --rj-border-2:   var(--rj-stone-300);
+  --rj-link:       var(--rj-pine-700);
+  --rj-link-hover: var(--rj-pine-900);
+  --rj-focus:      var(--rj-ember-500);
+
+  // ---- Elevation (neutral shadows) ----
+  --rj-shadow-xs: 0 1px 2px rgba(0,0,0,0.07);
+  --rj-shadow-sm: 0 1px 3px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.06);
+  --rj-shadow-md: 0 2px 8px rgba(0,0,0,0.10), 0 1px 3px rgba(0,0,0,0.07);
+  --rj-shadow-lg: 0 8px 24px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.07);
+  --rj-shadow-xl: 0 16px 40px rgba(0,0,0,0.16), 0 4px 10px rgba(0,0,0,0.10);
+  --rj-ring:      0 0 0 3px rgba(0,0,0,0.22);
+  --rj-ring-pine: 0 0 0 3px rgba(0,0,0,0.16);
+}

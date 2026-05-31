@@ -1,14 +1,16 @@
 // Rumbo platform SCSS entry point.
-// Imports all partials in dependency order.
-// Phase 01 establishes the neutral design-system foundation.
-// Final brand palette and visual identity are deferred.
+// Load order: base structural tokens → themes (color) → reset → components.
+// Add a new theme by creating themes/_theme-{name}.scss and importing it here.
 
-@use 'partials/tokens';
+@use 'partials/base-tokens';       // structural tokens (spacing, radii, type scale, motion)
+@use 'themes/theme-rumboworks';    // default color theme — :root + [data-theme="rumboworks"]
+@use 'themes/theme-bw';            // black & white theme — [data-theme="bw"]
 @use 'partials/reset';
 @use 'partials/typography';
 @use 'partials/layout';
 @use 'partials/buttons';
 @use 'partials/forms';
+@use 'partials/badges';
 @use 'partials/cards';
 @use 'partials/alerts';
 @use 'partials/tables';

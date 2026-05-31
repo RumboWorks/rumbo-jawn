@@ -1,7 +1,7 @@
-// Auth page styles — login, register boxes.
+// Auth page styles — login/register box layout.
 
 .rj-auth-box {
-  max-width: 400px;
+  max-width: 420px;
   margin: var(--rj-space-12) auto;
   display: flex;
   flex-direction: column;
@@ -9,8 +9,10 @@
 }
 
 .rj-auth-box__heading {
-  font-size: var(--rj-text-2xl);
-  font-weight: var(--rj-font-bold);
+  font-family: var(--rj-font-serif);
+  font-size: var(--rj-text-h2);
+  font-weight: var(--rj-weight-semibold);
+  color: var(--rj-fg);
   text-align: center;
   margin-bottom: var(--rj-space-2);
 }
@@ -18,28 +20,20 @@
 .rj-auth-box__footer {
   text-align: center;
   font-size: var(--rj-text-sm);
-  color: var(--rj-color-text-muted);
+  color: var(--rj-fg-3);
 }
 
-.rj-btn--oauth {
-  width: 100%;
-  justify-content: center;
-  gap: var(--rj-space-2);
-}
+.rj-btn--oauth { width: 100%; justify-content: center; }
 
 .rj-auth-divider {
   display: flex;
   align-items: center;
   gap: var(--rj-space-3);
-  color: var(--rj-color-text-muted);
+  color: var(--rj-fg-3);
   font-size: var(--rj-text-sm);
 
   &::before,
-  &::after {
-    content: '';
-    flex: 1;
-    border-top: 1px solid var(--rj-color-border);
-  }
+  &::after { content: ''; flex: 1; border-top: 1px solid var(--rj-border); }
 }
 
 .rj-form {
@@ -47,9 +41,5 @@
   flex-direction: column;
   gap: var(--rj-space-4);
 
-  .rj-btn {
-    margin-top: var(--rj-space-2);
-    width: 100%;
-    justify-content: center;
-  }
+  .rj-btn { margin-top: var(--rj-space-2); width: 100%; justify-content: center; }
 }

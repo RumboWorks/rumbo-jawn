@@ -4,28 +4,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Rumbo{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Bitter:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Hanken+Grotesk:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/dist/main.css">
+    <script>
+        (function() {
+            var t = localStorage.getItem('rj-theme') || 'rumboworks';
+            document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
 </head>
-<body class="rj-app-body">
+<body{% if tool is defined %} data-tool="{{ tool }}"{% endif %} style="display:flex;flex-direction:column;min-height:100vh;">
     <header class="rj-header">
         <div class="rj-header__inner">
-            <a href="/" class="rj-header__logo">Rumbo</a>
+            <a href="/" class="rj-logo">
+                <img src="/brand/rumboworks-mark.svg" alt="" width="28" height="28">
+                <span class="rj-wordmark">Rumbo</span>
+            </a>
+            {% block header_nav %}
             <nav class="rj-header__nav">
                 {% if currentUser %}
-                    <span class="rj-header__nav-link">{{ currentUser.name ?? currentUser.email }}</span>
+                    <span class="rj-header__nav-link" style="cursor:default;">{{ currentUser.name ?? currentUser.email }}</span>
                     <a href="/auth/logout" class="rj-header__nav-link">Sign out</a>
                 {% else %}
                     <a href="/login" class="rj-header__nav-link">Sign in</a>
                 {% endif %}
+                <div class="rj-theme-switcher">
+                    <select id="rj-theme-select" aria-label="Color theme">
+                        <option value="rumboworks">Rumboworks</option>
+                        <option value="bw">Black &amp; White</option>
+                    </select>
+                </div>
             </nav>
+            {% endblock %}
         </div>
     </header>
 
-    <div class="rj-app-shell">
+    <div class="rj-app-shell" style="flex:1;overflow:hidden;">
         <nav class="rj-sidebar">
             {% block sidebar %}{% endblock %}
         </nav>
-
         <main class="rj-app-content">
             {% block content %}{% endblock %}
         </main>

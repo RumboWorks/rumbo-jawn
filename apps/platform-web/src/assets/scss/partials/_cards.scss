@@ -1,46 +1,32 @@
-// Card component.
+// Cards.
 
 .rj-card {
-  background: var(--rj-color-bg);
-  border: 1px solid var(--rj-color-border);
-  border-radius: var(--rj-radius-md);
+  background: var(--rj-bg-raised);
+  border: 1px solid var(--rj-border);
+  border-radius: var(--rj-radius-lg);
   box-shadow: var(--rj-shadow-sm);
-  overflow: hidden;
 }
+
+.rj-card--flat { box-shadow: none; }
+.rj-card--pad  { padding: var(--rj-space-6); }
 
 .rj-card__header {
-  padding: var(--rj-space-4) var(--rj-space-5);
-  border-bottom: 1px solid var(--rj-color-border);
+  padding: var(--rj-space-4) var(--rj-space-6);
+  border-bottom: 1px solid var(--rj-border);
   display: flex;
   align-items: center;
   gap: var(--rj-space-3);
 
-  h2, h3, h4 {
-    flex: 1;
-    font-size: var(--rj-text-base);
-    font-weight: var(--rj-font-semibold);
-  }
+  h2, h3, h4 { flex: 1; font-size: var(--rj-text-base); font-weight: var(--rj-weight-semibold); }
 }
 
-.rj-card__body {
-  padding: var(--rj-space-5);
-}
+.rj-card__body { padding: var(--rj-space-6); }
 
 .rj-card__footer {
-  padding: var(--rj-space-4) var(--rj-space-5);
-  border-top: 1px solid var(--rj-color-border);
-  background: var(--rj-color-bg-subtle);
+  padding: var(--rj-space-4) var(--rj-space-6);
+  border-top: 1px solid var(--rj-border);
+  background: var(--rj-bg-sunken);
   display: flex;
   align-items: center;
   gap: var(--rj-space-3);
-}
-
-// Flat card (no shadow)
-.rj-card--flat {
-  box-shadow: none;
-}
-
-// Subtle card (lighter background)
-.rj-card--subtle {
-  background: var(--rj-color-bg-subtle);
 }

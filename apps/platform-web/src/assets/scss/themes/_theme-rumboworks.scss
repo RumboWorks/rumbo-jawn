@@ -1,0 +1,87 @@
+// Rumboworks theme — warm, editorial "field guide / wayfinding".
+// Pine = identity & structure. Ember = human action & warmth.
+// Applied as default (:root) and explicitly via [data-theme="rumboworks"].
+
+:root,
+[data-theme="rumboworks"] {
+  // ---- Pine (primary identity / structure) ----
+  --rj-pine-50:  #EAF3EE;
+  --rj-pine-100: #D2E6DC;
+  --rj-pine-200: #A7CDBA;
+  --rj-pine-300: #74AE92;
+  --rj-pine-400: #48906E;
+  --rj-pine-500: #2C7355;
+  --rj-pine-600: #1F5B43;
+  --rj-pine-700: #184734;
+  --rj-pine-800: #143A2B;
+  --rj-pine-900: #102D22;
+
+  // ---- Ember / Clay (action / warmth / CTA) ----
+  --rj-ember-50:  #FBEEE8;
+  --rj-ember-100: #F6D9CB;
+  --rj-ember-200: #ECB29A;
+  --rj-ember-300: #E0825A;
+  --rj-ember-400: #D26B3E;
+  --rj-ember-500: #C2562F;
+  --rj-ember-600: #A4441F;
+  --rj-ember-700: #85371A;
+
+  // ---- Ochre / Sand (accent, marks, attention) ----
+  --rj-ochre-100: #F7E9C6;
+  --rj-ochre-300: #E8C97A;
+  --rj-ochre-500: #D9A441;
+  --rj-ochre-700: #A87A26;
+
+  // ---- Stone (warm neutrals: paper → ink) ----
+  --rj-paper:     #FAF7F1;
+  --rj-white:     #FFFFFF;
+  --rj-stone-50:  #F5F1E8;
+  --rj-stone-100: #ECE6D9;
+  --rj-stone-200: #DCD4C4;
+  --rj-stone-300: #C4BAA6;
+  --rj-stone-400: #A39884;
+  --rj-stone-500: #827767;
+  --rj-stone-600: #615A4D;
+  --rj-stone-700: #494339;
+  --rj-stone-800: #332F28;
+  --rj-stone-900: #211E18;
+  --rj-ink:       #1E2A24;
+
+  // ---- Semantic status ----
+  --rj-success:    #236B4E;
+  --rj-success-bg: #E6F1EA;
+  --rj-success-fg: #143A2B;
+  --rj-warning:    #B07D1E;
+  --rj-warning-bg: #FBF0D4;
+  --rj-warning-fg: #6B4A0E;
+  --rj-danger:     #B23A28;
+  --rj-danger-bg:  #F8E3DE;
+  --rj-danger-fg:  #6E2218;
+  --rj-info:       #37636B;
+  --rj-info-bg:    #E2EEEF;
+  --rj-info-fg:    #1F3A3F;
+
+  // ---- Semantic surface / text roles ----
+  --rj-bg:         var(--rj-paper);
+  --rj-bg-raised:  var(--rj-white);
+  --rj-bg-sunken:  var(--rj-stone-50);
+  --rj-surface-2:  var(--rj-stone-50);
+  --rj-fg:         var(--rj-ink);
+  --rj-fg-2:       var(--rj-stone-600);
+  --rj-fg-3:       var(--rj-stone-500);
+  --rj-fg-on-dark: var(--rj-stone-50);
+  --rj-border:     var(--rj-stone-200);
+  --rj-border-2:   var(--rj-stone-300);
+  --rj-link:       var(--rj-pine-600);
+  --rj-link-hover: var(--rj-pine-700);
+  --rj-focus:      var(--rj-ember-500);
+
+  // ---- Elevation (warm-tinted shadows) ----
+  --rj-shadow-xs: 0 1px 2px rgba(30,42,36,0.06);
+  --rj-shadow-sm: 0 1px 3px rgba(30,42,36,0.08), 0 1px 2px rgba(30,42,36,0.04);
+  --rj-shadow-md: 0 2px 8px rgba(30,42,36,0.08), 0 1px 3px rgba(30,42,36,0.06);
+  --rj-shadow-lg: 0 8px 24px rgba(30,42,36,0.10), 0 2px 6px rgba(30,42,36,0.06);
+  --rj-shadow-xl: 0 16px 40px rgba(30,42,36,0.14), 0 4px 10px rgba(30,42,36,0.08);
+  --rj-ring:      0 0 0 3px rgba(194,86,47,0.32);
+  --rj-ring-pine: 0 0 0 3px rgba(31,91,67,0.26);
+}
