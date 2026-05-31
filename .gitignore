@@ -2,6 +2,9 @@ TRASH
 .claude
 
 node_modules/
+test-results/
+tests/screenshots/
+tests/report/
 .env
 **/public/dist/
 *.log
