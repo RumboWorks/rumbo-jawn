@@ -4,28 +4,28 @@ import { createRoot } from 'react-dom/client';
 // ---- Constants ----
 
 const GUIDANCE_TASKS = [
-  { value: 'write_new',         label: 'Writing something new' },
-  { value: 'rewrite_existing',  label: 'Rewriting existing text' },
-  { value: 'critique_existing', label: 'Critiquing existing text' },
+  { value: 'write_new',         label: 'Write',    desc: 'Create a new piece from scratch in your voice.' },
+  { value: 'rewrite_existing',  label: 'Rewrite',  desc: 'Revise existing content while matching your voice.' },
+  { value: 'critique_existing', label: 'Critique', desc: 'Critique existing content and suggest improvements.' },
 ];
 
 const LENGTH_OPTIONS = {
   write_new: [
-    { value: 'short_post',       label: 'Short post',        desc: '50–150 words' },
-    { value: 'brief_piece',      label: 'Brief piece',       desc: '150–350 words' },
-    { value: 'standard_article', label: 'Standard article',  desc: '350–700 words' },
-    { value: 'full_length_piece',label: 'Full-length piece',  desc: '700+ words' },
+    { value: 'short_post',       label: 'Short',        desc: '50–150 words' },
+    { value: 'brief_piece',      label: 'Brief',       desc: '150–350 words' },
+    { value: 'standard_article', label: 'Standard',  desc: '350–700 words' },
+    { value: 'full_length_piece',label: 'Full-length',  desc: '700+ words' },
   ],
   rewrite_existing: [
-    { value: 'shorter',    label: 'Shorter',         desc: 'Compress while preserving message' },
-    { value: 'about_same', label: 'About the same',  desc: 'Same length, better voice' },
-    { value: 'longer',     label: 'Longer',          desc: 'Expand with context' },
+    { value: 'shorter',    label: 'Shorter',  desc: 'Compress while preserving message' },
+    { value: 'about_same', label: 'Same',     desc: 'Same length, better voice' },
+    { value: 'longer',     label: 'Longer',   desc: 'Expand with context' },
   ],
   critique_existing: [
     { value: 'quick_take',        label: 'Quick take',         desc: 'Short overall reaction' },
-    { value: 'summary_critique',  label: 'Summary critique',   desc: 'Strengths, weaknesses, top improvements' },
-    { value: 'detailed_critique', label: 'Detailed critique',  desc: 'By category with recommendations' },
-    { value: 'point_by_point',    label: 'Point-by-point',     desc: 'Specific issues organized by passage' },
+    { value: 'summary_critique',  label: 'Summary',   desc: 'Strengths, weaknesses, top improvements' },
+    { value: 'detailed_critique', label: 'Detailed',  desc: 'By category with recommendations' },
+    { value: 'point_by_point',    label: 'Point-by‑point',     desc: 'Specific issues organized by passage' },
   ],
 };
 
@@ -45,7 +45,7 @@ const READING_LEVELS = [
   { value: 'easy_read',        label: 'Easy Read',         sub: 'Grade 2–3' },
   { value: 'plain_language',   label: 'Plain Language',    sub: 'Grade 4–5' },
   { value: 'general_adult',    label: 'General Adult',     sub: 'Grade 6–8' },
-  { value: 'specialist_expert',label: 'Specialist / Expert',sub: 'Grade 8–10+' },
+  { value: 'specialist_expert',label: 'Specialist/ Expert',sub: 'Grade 8–10+' },
 ];
 
 const FEEDBACK_CATEGORIES = [
@@ -235,49 +235,155 @@ function ControlSection({ colorKey, title, children, isVoice }) {
 }
 
 function RadioGroup({ name, options, value, onChange }) {
+  const containerRef = useRef(null);
+  const indicatorRef = useRef(null);
+  const activeDesc = options.find(o => o.value === value)?.desc ?? '';
+
+  const slideIndicator = useCallback(() => {
+    const container = containerRef.current;
+    const indicator = indicatorRef.current;
+    if (!container || !indicator) return;
+    const activeBtn = container.querySelector('.slu-wb__seg-btn.is-active');
+    if (!activeBtn) { indicator.style.opacity = '0'; return; }
+    const cr = container.getBoundingClientRect();
+    const br = activeBtn.getBoundingClientRect();
+    indicator.style.width = `${br.width}px`;
+    indicator.style.transform = `translateX(${br.left - cr.left}px)`;
+    indicator.style.opacity = '1';
+  }, []);
+
+  useEffect(() => { slideIndicator(); }, [value, slideIndicator]);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(slideIndicator);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [slideIndicator]);
+
+  useEffect(() => {
+    const raf = requestAnimationFrame(slideIndicator);
+    return () => cancelAnimationFrame(raf);
+  }, [slideIndicator]);
+
   return (
-    <div className="slu-wb__radio-group" role="radiogroup">
-      {options.map(opt => (
-        <label key={opt.value} className={`slu-wb__radio-opt${value === opt.value ? ' is-selected' : ''}`}>
-          <input type="radio" name={name} value={opt.value} checked={value === opt.value} onChange={() => onChange(opt.value)} />
-          <span className="slu-wb__radio-label">{opt.label}</span>
-          {opt.desc && <span className="slu-wb__radio-desc">{opt.desc}</span>}
-        </label>
-      ))}
-    </div>
+    <>
+      <div className="slu-wb__segmented" ref={containerRef} role="radiogroup">
+        <span className="slu-wb__seg-indicator" ref={indicatorRef} aria-hidden="true" />
+        {options.map(opt => (
+          <button
+            key={opt.value}
+            type="button"
+            className={`slu-wb__seg-btn${value === opt.value ? ' is-active' : ''}`}
+            onClick={() => onChange(opt.value)}
+          >
+            <span className="slu-wb__seg-label">{opt.label}</span>
+          </button>
+        ))}
+      </div>
+      {activeDesc && <p className="slu-wb__seg-active-desc">{activeDesc}</p>}
+    </>
   );
 }
 
 function SegmentedControl({ options, value, onChange }) {
+  const containerRef = useRef(null);
+  const indicatorRef = useRef(null);
+  const activeDesc = options.find(o => o.value === value)?.sub ?? '';
+
+  const slideIndicator = useCallback(() => {
+    const container = containerRef.current;
+    const indicator = indicatorRef.current;
+    if (!container || !indicator) return;
+    const activeBtn = container.querySelector('.slu-wb__seg-btn.is-active');
+    if (!activeBtn) { indicator.style.opacity = '0'; return; }
+    const cr = container.getBoundingClientRect();
+    const br = activeBtn.getBoundingClientRect();
+    indicator.style.width = `${br.width}px`;
+    indicator.style.transform = `translateX(${br.left - cr.left}px)`;
+    indicator.style.opacity = '1';
+  }, []);
+
+  useEffect(() => { slideIndicator(); }, [value, slideIndicator]);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(slideIndicator);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [slideIndicator]);
+
+  useEffect(() => {
+    const raf = requestAnimationFrame(slideIndicator);
+    return () => cancelAnimationFrame(raf);
+  }, [slideIndicator]);
+
   return (
-    <div className="slu-wb__segmented">
-      {options.map(opt => (
+    <>
+      <div className="slu-wb__segmented" ref={containerRef}>
+        <span className="slu-wb__seg-indicator" ref={indicatorRef} aria-hidden="true" />
+        {options.map(opt => (
+          <button
+            key={opt.value}
+            type="button"
+            className={`slu-wb__seg-btn${value === opt.value ? ' is-active' : ''}`}
+            onClick={() => onChange(opt.value)}
+          >
+            <span className="slu-wb__seg-label">{opt.label}</span>
+          </button>
+        ))}
+      </div>
+      {activeDesc && <p className="slu-wb__seg-active-desc">{activeDesc}</p>}
+    </>
+  );
+}
+
+function ViewModeSwitch({ value, onChange }) {
+  const containerRef = useRef(null);
+  const indicatorRef = useRef(null);
+
+  const slideIndicator = useCallback(() => {
+    const container = containerRef.current;
+    const indicator = indicatorRef.current;
+    if (!container || !indicator) return;
+    const activeBtn = container.querySelector('.slu-wb__seg-btn.is-active');
+    if (!activeBtn) { indicator.style.opacity = '0'; return; }
+    const cr = container.getBoundingClientRect();
+    const br = activeBtn.getBoundingClientRect();
+    indicator.style.width = `${br.width}px`;
+    indicator.style.transform = `translateX(${br.left - cr.left}px)`;
+    indicator.style.opacity = '1';
+  }, []);
+
+  useEffect(() => { slideIndicator(); }, [value, slideIndicator]);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(slideIndicator);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [slideIndicator]);
+
+  useEffect(() => {
+    const raf = requestAnimationFrame(slideIndicator);
+    return () => cancelAnimationFrame(raf);
+  }, [slideIndicator]);
+
+  return (
+    <div className="slu-wb__segmented slu-wb__view-switch" ref={containerRef} role="group" aria-label="Guidance view mode">
+      <span className="slu-wb__seg-indicator" ref={indicatorRef} aria-hidden="true" />
+      {GUIDANCE_VIEW_MODES.map(opt => (
         <button
           key={opt.value}
           type="button"
           className={`slu-wb__seg-btn${value === opt.value ? ' is-active' : ''}`}
           onClick={() => onChange(opt.value)}
-          title={opt.sub}
-        >
-          {opt.label}
-        </button>
-      ))}
-    </div>
-  );
-}
-
-function ViewModeSwitch({ value, onChange }) {
-  return (
-    <div className="slu-wb__view-switch" role="group" aria-label="Guidance view mode">
-      {GUIDANCE_VIEW_MODES.map(opt => (
-        <button
-          key={opt.value}
-          type="button"
-          className={`slu-wb__view-btn${value === opt.value ? ' is-active' : ''}`}
-          onClick={() => onChange(opt.value)}
           aria-pressed={value === opt.value}
         >
-          {opt.label}
+          <span className="slu-wb__seg-label">{opt.label}</span>
         </button>
       ))}
     </div>
@@ -530,9 +636,6 @@ function GuidanceWorkbenchInner({ data }) {
       {/* Controls panel */}
       <aside className="slu-wb__controls">
         <div className="slu-wb__controls-inner">
-
-          {/* Our Voice */}
-          <ControlSection colorKey="voice" title="Our Voice" />
 
           {/* Guidance Task */}
           <ControlSection colorKey="task" title="Create guidance for…">

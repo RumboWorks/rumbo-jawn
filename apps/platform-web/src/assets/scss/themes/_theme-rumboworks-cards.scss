@@ -33,10 +33,11 @@
   // Transform the flat, border-connected three-column layout into
   // separated cards with subtle elevation.
 
-  // 1. Main grid — add gap between columns so panels float apart
+  // 1. Main grid — add gap, let columns size to their own content height
   .slu-wb {
     column-gap: var(--rj-space-5);
     padding: var(--rj-space-5);
+    align-items: start;
 
     @media (max-width: 860px) {
       padding: var(--rj-space-3);
@@ -44,31 +45,39 @@
     }
   }
 
-  // 2. Controls panel — just remove the connecting border, no card shape
+  // 2. Controls panel — one card
   .slu-wb__controls {
     border-right: none;
-    background: transparent;
+    background: var(--rj-bg-raised);
+    border-radius: var(--rj-radius-lg);
+    box-shadow: var(--rj-shadow-md);
 
     @media (max-width: 860px) {
       border-bottom: none;
     }
   }
 
-  // 3. Controls inner — add padding so cards have breathing room
+  // 3. Controls inner — default stacking, sections separated by light rules
   .slu-wb__controls-inner {
-    padding: var(--rj-space-1) 0;
-    display: flex;
-    flex-direction: column;
-    gap: var(--rj-space-4);
+    padding: 0;
   }
 
-  // 4. Each control section is its own card — float apart with shadow
+  // 4. Each control section separated by a light rule (no card shape)
   .slu-wb__ctrl-section {
     border-top: none;
-    background: var(--rj-bg-raised);
-    border-radius: var(--rj-radius-lg);
-    box-shadow: var(--rj-shadow-md);
-    padding: var(--rj-space-4) var(--rj-space-5);
+    padding: var(--rj-space-5) var(--rj-space-5);
+
+    & + & {
+      box-shadow: inset 0 1px 0 0 var(--rj-stone-100);
+    }
+
+    &:first-child {
+      padding-top: var(--rj-space-5);
+    }
+
+    &:last-child {
+      padding-bottom: var(--rj-space-5);
+    }
   }
 
   // 5. Output panel — card shape
@@ -76,10 +85,10 @@
     background: var(--rj-bg-raised);
     border-radius: var(--rj-radius-lg);
     box-shadow: var(--rj-shadow-md);
-    overflow: hidden; // keep radius clipping
+    overflow: hidden;
   }
 
-  // 6. Output inner — reduce padding since the panel itself has the card bg
+  // 6. Output inner — padding inside the output card
   .slu-wb__output-inner {
     padding: var(--rj-space-6) var(--rj-space-6) var(--rj-space-10);
   }
@@ -92,24 +101,25 @@
     box-shadow: var(--rj-shadow-sm);
   }
 
-  // 8. Actions panel — remove connecting border, add card shape
+  // 8. Actions panel — just a wrapper (no card shape), remove connecting border
   .slu-wb__actions {
     border-left: none;
-    background: var(--rj-bg-raised);
-    border-radius: var(--rj-radius-lg);
-    box-shadow: var(--rj-shadow-md);
-    padding: var(--rj-space-5);
+    background: transparent;
+    padding: 0;
 
     @media (max-width: 860px) {
       border-bottom: none;
-      padding: var(--rj-space-4);
+      padding: 0;
     }
   }
 
-  // 9. Actions card — already has a border, keep it but elevate
+  // 9. Actions card — the actual card inside the wrapper
   .slu-wb__actions-card {
-    border-color: var(--rj-stone-200);
-    box-shadow: var(--rj-shadow-sm);
+    background: var(--rj-bg-raised);
+    border-radius: var(--rj-radius-lg);
+    box-shadow: var(--rj-shadow-md);
+    border: none;
+    padding: var(--rj-space-5);
   }
 
   // 10. Feedback section separator — subtle inset line
