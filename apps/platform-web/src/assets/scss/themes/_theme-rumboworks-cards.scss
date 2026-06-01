@@ -1,0 +1,128 @@
+// Rumboworks Cards theme — same warm palette as Rumboworks but the
+// guidance workbench layout shifts from flat connected panels to
+// separated cards with elevation.
+//
+// Applied explicitly via [data-theme="rumboworks-cards"].
+// The base color tokens are inherited from :root (rumboworks defaults),
+// but the workbench source colors and card overrides are scoped here.
+
+[data-theme="rumboworks-cards"] {
+  // ---- Workbench source colors (same as rumboworks) ----
+  --slu-wb-voice:        #1F5B43;
+  --slu-wb-voice-bg:     #EAF3EE;
+  --slu-wb-voice-border: #A7CDBA;
+
+  --slu-wb-task:        #A4441F;
+  --slu-wb-task-bg:     #FBEEE8;
+  --slu-wb-task-border: #ECB29A;
+
+  --slu-wb-reading:        #2E5FA3;
+  --slu-wb-reading-bg:     #EBF2FB;
+  --slu-wb-reading-border: #A8C4E8;
+
+  --slu-wb-pack:        #A87A26;
+  --slu-wb-pack-bg:     #FBF5E5;
+  --slu-wb-pack-border: #E8C97A;
+
+  --slu-wb-generic:        #615A4D;
+  --slu-wb-generic-bg:     #F5F1E8;
+  --slu-wb-generic-border: #C4BAA6;
+
+  // ---- Workbench card-style overrides ----
+  //
+  // Transform the flat, border-connected three-column layout into
+  // separated cards with subtle elevation.
+
+  // 1. Main grid — add gap between columns so panels float apart
+  .slu-wb {
+    column-gap: var(--rj-space-5);
+    padding: var(--rj-space-5);
+
+    @media (max-width: 860px) {
+      padding: var(--rj-space-3);
+      gap: var(--rj-space-3);
+    }
+  }
+
+  // 2. Controls panel — just remove the connecting border, no card shape
+  .slu-wb__controls {
+    border-right: none;
+    background: transparent;
+
+    @media (max-width: 860px) {
+      border-bottom: none;
+    }
+  }
+
+  // 3. Controls inner — add padding so cards have breathing room
+  .slu-wb__controls-inner {
+    padding: var(--rj-space-1) 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--rj-space-4);
+  }
+
+  // 4. Each control section is its own card — float apart with shadow
+  .slu-wb__ctrl-section {
+    border-top: none;
+    background: var(--rj-bg-raised);
+    border-radius: var(--rj-radius-lg);
+    box-shadow: var(--rj-shadow-md);
+    padding: var(--rj-space-4) var(--rj-space-5);
+  }
+
+  // 5. Output panel — card shape
+  .slu-wb__output {
+    background: var(--rj-bg-raised);
+    border-radius: var(--rj-radius-lg);
+    box-shadow: var(--rj-shadow-md);
+    overflow: hidden; // keep radius clipping
+  }
+
+  // 6. Output inner — reduce padding since the panel itself has the card bg
+  .slu-wb__output-inner {
+    padding: var(--rj-space-6) var(--rj-space-6) var(--rj-space-10);
+  }
+
+  // 7. Output document — elevate the document itself inside the card
+  .slu-wb__out-document {
+    background: var(--rj-bg);
+    border-radius: var(--rj-radius-md);
+    border-color: var(--rj-stone-200);
+    box-shadow: var(--rj-shadow-sm);
+  }
+
+  // 8. Actions panel — remove connecting border, add card shape
+  .slu-wb__actions {
+    border-left: none;
+    background: var(--rj-bg-raised);
+    border-radius: var(--rj-radius-lg);
+    box-shadow: var(--rj-shadow-md);
+    padding: var(--rj-space-5);
+
+    @media (max-width: 860px) {
+      border-bottom: none;
+      padding: var(--rj-space-4);
+    }
+  }
+
+  // 9. Actions card — already has a border, keep it but elevate
+  .slu-wb__actions-card {
+    border-color: var(--rj-stone-200);
+    box-shadow: var(--rj-shadow-sm);
+  }
+
+  // 10. Feedback section separator — subtle inset line
+  .slu-wb__feedback-wrap {
+    border-top: none;
+    position: relative;
+
+    &::before {
+      content: '';
+      display: block;
+      height: 1px;
+      background: var(--rj-stone-200);
+      margin-bottom: var(--rj-space-6);
+    }
+  }
+}

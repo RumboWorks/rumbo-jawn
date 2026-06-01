@@ -5,6 +5,7 @@
 @use 'partials/base-tokens';       // structural tokens (spacing, radii, type scale, motion)
 @use 'themes/theme-rumboworks';    // default color theme — :root + [data-theme="rumboworks"]
 @use 'themes/theme-bw';            // black & white theme — [data-theme="bw"]
+@use 'themes/theme-rumboworks-cards'; // card-layout variant — [data-theme="rumboworks-cards"]
 @use 'partials/reset';
 @use 'partials/typography';
 @use 'partials/layout';
