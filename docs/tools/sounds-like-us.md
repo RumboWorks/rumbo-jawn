@@ -51,6 +51,14 @@ It may use React inside a Twig page shell if vanilla JavaScript becomes awkward.
 
 The workbench should allow users to change output options and produce variants without unnecessary repeat AI calls when internal structured output already contains enough information.
 
+The preview should read as one assembled guidance document. Source controls may be shown through source-colored left borders, but the output should not be split into separate standalone cards for each Guidance Block.
+
+The workbench supports a short Preview view and a Full Guidance view. Copy and download actions always use Full Guidance, regardless of the currently visible view.
+
+Preview omits detailed "Words and phrases to use" and "What to avoid" blocks; Full Guidance includes them when selected.
+
+For voice and tone, the analysis artifact stores both `voiceTone.previewSummary` and `voiceTone.fullGuidance`. Preview uses the concise summary; Full Guidance, copy, and downloads use the full guidance.
+
 ## Privacy posture
 
 Users should not submit URLs containing confidential, donor, member, client, or otherwise sensitive information.

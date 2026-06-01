@@ -35,7 +35,7 @@ export async function claimNextJob() {
 export async function completeJob(jobId, result = null) {
   return db.job.update({
     where: { id: jobId },
-    data: { status: 'DONE', result, completedAt: new Date() },
+    data: { status: 'DONE', result, errorMsg: null, completedAt: new Date() },
   });
 }
 

@@ -26,7 +26,13 @@ export function assembleBlocks(guidance, selections, includedBlockIds) {
   // ---- 1. Org-specific blocks (from AI analysis) ----
   for (const block of guidance.guidanceBlocks ?? []) {
     if (included.has(block.id)) {
-      blocks.push({ ...block, source: block.source ?? 'voice' });
+      const voiceToneFields = block.id === 'voice-tone'
+        ? {
+            content: guidance.voiceTone?.fullGuidance ?? block.content,
+            previewContent: block.previewContent ?? guidance.voiceTone?.previewSummary ?? guidance.voiceProfile?.summary ?? block.content,
+          }
+        : {};
+      blocks.push({ ...block, ...voiceToneFields, source: block.source ?? 'voice' });
     }
   }
 

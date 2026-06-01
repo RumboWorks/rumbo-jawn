@@ -57,6 +57,13 @@ const FEEDBACK_CATEGORIES = [
   { value: 'other',            label: 'Other' },
 ];
 
+const GUIDANCE_VIEW_MODES = [
+  { value: 'preview', label: 'Preview' },
+  { value: 'full_guidance', label: 'Full Guidance' },
+];
+
+const PREVIEW_EXCLUDED_BLOCK_IDS = new Set(['vocabulary', 'what-to-avoid']);
+
 // ---- Assembly (mirrors server-side guidance-assembly.service.js) ----
 // These content strings come from the server via __WORKBENCH_DATA__.guidance.guidanceBlocks
 // and from the platform config embedded in bestPracticePacks / genericBlocks.
@@ -138,7 +145,15 @@ function assembleBlocks(guidance, selections, includedBlocks) {
 
   // 1. Org-specific voice blocks (from AI)
   for (const b of guidance.guidanceBlocks ?? []) {
-    if (included.has(b.id)) blocks.push({ ...b, source: b.source ?? 'voice' });
+    if (included.has(b.id)) {
+      const voiceToneFields = b.id === 'voice-tone'
+        ? {
+            content: guidance.voiceTone?.fullGuidance ?? b.content,
+            previewContent: b.previewContent ?? guidance.voiceTone?.previewSummary ?? guidance.voiceProfile?.summary ?? b.content,
+          }
+        : {};
+      blocks.push({ ...b, ...voiceToneFields, source: b.source ?? 'voice' });
+    }
   }
 
   // 2. Task + length/detail block (always included, driven by selections)
@@ -174,6 +189,36 @@ function getDefaultIncludedBlocks(guidance) {
   ids.add('reading-level');
   ids.add('ai-cliche-avoidance');
   return ids;
+}
+
+function summarizeContent(content) {
+  const lines = content.split('\n').map(line => line.trim()).filter(Boolean);
+  const firstParagraph = lines.find(line => !line.startsWith('- ') && !line.match(/^\d+\./)) ?? lines[0] ?? '';
+  const bullets = lines.filter(line => line.startsWith('- ') || line.match(/^\d+\./)).slice(0, 2);
+  return [firstParagraph, ...bullets].filter(Boolean).join('\n');
+}
+
+function assemblePreviewBlocks(blocks) {
+  return blocks
+    .filter(block => !PREVIEW_EXCLUDED_BLOCK_IDS.has(block.id))
+    .map(block => ({ ...block, content: block.previewContent ?? summarizeContent(block.content) }));
+}
+
+function renderFullGuidanceText(orgName, blocks) {
+  const lines = [
+    `Writing Guidance — ${orgName}`,
+    '='.repeat(50),
+    '',
+  ];
+
+  for (const block of blocks) {
+    lines.push(block.heading ?? block.label);
+    lines.push('-'.repeat(30));
+    lines.push(block.content);
+    lines.push('');
+  }
+
+  return lines.join('\n');
 }
 
 // ---- Color map (source → CSS variable name) ----
@@ -232,6 +277,24 @@ function SegmentedControl({ options, value, onChange }) {
   );
 }
 
+function ViewModeSwitch({ value, onChange }) {
+  return (
+    <div className="slu-wb__view-switch" role="group" aria-label="Guidance view mode">
+      {GUIDANCE_VIEW_MODES.map(opt => (
+        <button
+          key={opt.value}
+          type="button"
+          className={`slu-wb__view-btn${value === opt.value ? ' is-active' : ''}`}
+          onClick={() => onChange(opt.value)}
+          aria-pressed={value === opt.value}
+        >
+          {opt.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function Toggle({ id, label, checked, onChange }) {
   return (
     <label className="slu-wb__toggle-row">
@@ -262,42 +325,20 @@ function StarRating({ value, onChange }) {
   );
 }
 
-function OutputBlock({ block }) {
-  const source = SOURCE_COLOR[block.source] ?? 'generic';
+function OutputDocument({ blocks }) {
   return (
-    <section className={`slu-wb__out-block slu-wb__out-block--${source}`} data-source={block.source}>
-      <div className="slu-wb__out-heading">
-        <span className={`slu-wb__out-dot slu-wb__out-dot--${source}`} />
-        <span>{block.heading ?? block.label}</span>
-      </div>
-      <div className="slu-wb__out-body">
-        {block.content.split('\n').map((line, i) => {
-          if (line.startsWith('- ') || line.startsWith('• ')) {
-            return null; // handled via pre-wrap, see below
-          }
-          return null;
-        })}
-        <pre className="slu-wb__out-pre">{block.content}</pre>
-      </div>
-    </section>
-  );
-}
+    <article className="slu-wb__out-document" aria-label="Assembled guidance output">
+      {blocks.map((block, i) => {
+        const source = SOURCE_COLOR[block.source] ?? 'generic';
+        const heading = block.heading ?? block.label;
 
-function VoiceProfileDisplay({ voiceProfile }) {
-  if (!voiceProfile) return null;
-  return (
-    <div className="slu-wb__voice-profile">
-      {voiceProfile.summary && (
-        <p className="slu-wb__voice-summary">{voiceProfile.summary}</p>
-      )}
-      {voiceProfile.toneAttributes?.length > 0 && (
-        <div className="slu-wb__voice-tags">
-          {voiceProfile.toneAttributes.map((tag, i) => (
-            <span key={i} className="slu-wb__voice-tag">{tag}</span>
-          ))}
-        </div>
-      )}
-    </div>
+        return (
+          <section key={`${block.id}-${i}`} className={`slu-wb__out-section slu-wb__out-section--${source}`} data-source={block.source}>
+            <pre className="slu-wb__out-pre">{`${heading}\n${block.content}`}</pre>
+          </section>
+        );
+      })}
+    </article>
   );
 }
 
@@ -319,6 +360,7 @@ function GuidanceWorkbench({ data }) {
   const [lengthDetail, setLengthDetail] = useState(savedOptions?.lengthDetail ?? DEFAULT_LENGTH.write_new);
   const [readingLevel, setReadingLevel] = useState(savedOptions?.readingLevel ?? 'general_adult');
   const [bestPracticePack, setBestPracticePack] = useState(savedOptions?.bestPracticePack ?? 'none');
+  const [guidanceViewMode, setGuidanceViewMode] = useState('preview');
   const [includedBlocks, setIncludedBlocks] = useState(() => {
     if (savedOptions?.includedBlocks) return new Set(savedOptions.includedBlocks);
     return getDefaultIncludedBlocks(guidance);
@@ -349,6 +391,20 @@ function GuidanceWorkbench({ data }) {
   // Assemble output from current selections
   const selections = { guidanceTask, lengthDetail, readingLevel, bestPracticePack };
   const assembledBlocks = assembleBlocks(guidance, selections, includedBlocks);
+  const previewBlocks = assemblePreviewBlocks(assembledBlocks);
+  const visibleBlocks = guidanceViewMode === 'full_guidance' ? assembledBlocks : previewBlocks;
+  const fullGuidanceText = renderFullGuidanceText(guidance.organization?.name ?? data.orgName ?? 'Organization', assembledBlocks);
+  const buildDownloadUrl = (format) => {
+    const params = new URLSearchParams({
+      format,
+      guidanceTask,
+      lengthDetail,
+      readingLevel,
+      bestPracticePack,
+      includedBlocks: [...includedBlocks].join(','),
+    });
+    return `${data.downloadUrlBase}?${params.toString()}`;
+  };
 
   // Auto-save options (debounced)
   const doSave = useCallback(() => {
@@ -365,15 +421,14 @@ function GuidanceWorkbench({ data }) {
 
   // Copy output
   const handleCopy = async () => {
-    const text = assembledBlocks.map(b => `${b.heading ?? b.label}\n${'─'.repeat(30)}\n${b.content}`).join('\n\n');
     try {
-      await navigator.clipboard.writeText(text);
+      await navigator.clipboard.writeText(fullGuidanceText);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
       // Fallback: select a hidden textarea
       const ta = document.getElementById('slu-wb-copy-fallback');
-      if (ta) { ta.value = text; ta.select(); document.execCommand('copy'); setCopied(true); setTimeout(() => setCopied(false), 2000); }
+      if (ta) { ta.value = fullGuidanceText; ta.select(); document.execCommand('copy'); setCopied(true); setTimeout(() => setCopied(false), 2000); }
     }
   };
 
@@ -404,10 +459,8 @@ function GuidanceWorkbench({ data }) {
       <aside className="slu-wb__controls">
         <div className="slu-wb__controls-inner">
 
-          {/* Our Voice — read-only display of AI profile */}
-          <ControlSection colorKey="voice" title="Our Voice">
-            <VoiceProfileDisplay voiceProfile={guidance.voiceProfile} />
-          </ControlSection>
+          {/* Our Voice */}
+          <ControlSection colorKey="voice" title="Our Voice" />
 
           {/* Guidance Task */}
           <ControlSection colorKey="task" title="Create guidance for…">
@@ -494,29 +547,12 @@ function GuidanceWorkbench({ data }) {
       {/* Output panel */}
       <main className="slu-wb__output">
         <div className="slu-wb__output-inner">
-
-          {/* Output actions bar */}
-          <div className="slu-wb__out-actions">
+          <div className="slu-wb__out-heading-row">
             <span className="slu-wb__out-meta">
-              {assembledBlocks.length} section{assembledBlocks.length !== 1 ? 's' : ''}
+              {guidanceViewMode === 'full_guidance' ? 'Full Guidance' : 'Preview'} · {assembledBlocks.length} section{assembledBlocks.length !== 1 ? 's' : ''}
             </span>
-            <div className="slu-wb__out-btns">
-              <button type="button" className="rj-btn rj-btn--secondary rj-btn--sm" onClick={handleCopy}>
-                {copied ? '✓ Copied' : 'Copy guidance'}
-              </button>
-              <a href={`${data.downloadUrlBase}?format=txt`} className="rj-btn rj-btn--ghost rj-btn--sm" download>
-                .txt
-              </a>
-              <a href={`${data.downloadUrlBase}?format=md`} className="rj-btn rj-btn--ghost rj-btn--sm" download>
-                .md
-              </a>
-            </div>
+            <ViewModeSwitch value={guidanceViewMode} onChange={setGuidanceViewMode} />
           </div>
-
-          {/* No-AI note */}
-          <p className="slu-wb__no-ai-note">
-            Variants assembled from your analysis — no new AI cost when you adjust options.
-          </p>
 
           {/* Assembled output */}
           {assembledBlocks.length === 0 ? (
@@ -525,9 +561,7 @@ function GuidanceWorkbench({ data }) {
             </div>
           ) : (
             <div className="slu-wb__out-blocks">
-              {assembledBlocks.map((block, i) => (
-                <OutputBlock key={`${block.id}-${i}`} block={block} />
-              ))}
+              <OutputDocument blocks={visibleBlocks} />
             </div>
           )}
 
@@ -574,6 +608,26 @@ function GuidanceWorkbench({ data }) {
         {/* Hidden fallback textarea for clipboard */}
         <textarea id="slu-wb-copy-fallback" style={{ position: 'absolute', left: '-9999px' }} readOnly />
       </main>
+
+      {/* Output actions */}
+      <aside className="slu-wb__actions" aria-label="Output actions">
+        <div className="slu-wb__actions-card">
+          <div>
+            <p className="slu-wb__actions-title">Output</p>
+          </div>
+          <div className="slu-wb__out-btns">
+            <button type="button" className="rj-btn rj-btn--secondary rj-btn--sm" onClick={handleCopy}>
+              {copied ? 'Copied' : 'Copy full guidance'}
+            </button>
+            <a href={buildDownloadUrl('txt')} className="rj-btn rj-btn--ghost rj-btn--sm" download>
+              Download .txt
+            </a>
+            <a href={buildDownloadUrl('md')} className="rj-btn rj-btn--ghost rj-btn--sm" download>
+              Download .md
+            </a>
+          </div>
+        </div>
+      </aside>
     </div>
   );
 }

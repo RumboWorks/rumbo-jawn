@@ -269,7 +269,7 @@ Outcome: Proceed to next phase
 
 Completed:
 - React island (`guidance-workbench.jsx`) mounted inside Twig page shell (`workbench.twig`); React built as a separate Vite entry point (`guidance-workbench.js`) loaded only on the workbench page
-- Color-coded provenance system: each control section has a colored title dot, and the output blocks it contributes are highlighted in the same color. Five source colors: voice (pine green), task (ember orange), reading (slate blue), pack (ochre gold), generic (stone). Works in both Rumboworks and Black & White themes.
+- Color-coded provenance system: each control section has a colored title dot, and its contributed output text is marked with a source-colored left border inside one assembled guidance document. Five source colors: voice (pine green), task (ember orange), reading (slate blue), pack (ochre gold), generic (stone). Works in both Rumboworks and Black & White themes.
 - "Our Voice" — read-only first panel showing the org's AI-detected voice profile (summary + tone attribute tags). No input options; colored title matches voice output blocks.
 - Guidance task control: Writing something new / Rewriting existing text / Critiquing existing text
 - Adaptive length/detail control: changes label and options based on selected task (Target length / Rewrite length / Critique depth)
@@ -277,13 +277,17 @@ Completed:
 - Best-practice pack radio group: None + 5 platform defaults (Fundraising, Email newsletters, Job descriptions, Social media, Press releases)
 - Guidance blocks toggle list: org-specific blocks (voice-tone, vocabulary, what-to-avoid from AI) + reading level + generic (AI-cliche avoidance, plain language, inclusive language) + best-practice pack toggle
 - All option changes assemble output client-side from pre-generated content — no new AI calls
-- Output panel: 6-section default output for legacy Learning Policy Institute run; each section has color-coded heading matching its source control
-- Copy guidance button (clipboard API with textarea fallback)
-- .txt and .md download via server-side routes, using current saved options
+- Output panel: single assembled guidance document for legacy Learning Policy Institute run, with source-colored left borders for text provenance
+- Phase 05 follow-up: output now has Preview and Full Guidance display modes; copy and download actions always use Full Guidance regardless of visible mode
+- Phase 05 follow-up: Preview omits the detailed "Words and phrases to use" and "What to avoid" blocks; Full Guidance still includes selected blocks
+- Phase 05 follow-up: output actions moved into a sticky right-side panel on desktop and stack above the guidance text on smaller screens
+- Copy full guidance button (clipboard API with textarea fallback)
+- .txt and .md download via server-side routes, using current selected options with saved-options fallback
 - Debounced auto-save of workbench options (PATCH /slu/jobs/:jobId/workbench/options → stored as artifact)
 - Optional 1–5 star feedback with category and comment, submitted to new SluFeedback DB table
 - New `SluFeedback` MySQL table (created via raw SQL; prisma client regenerated)
 - Guidance artifact v1 format: `sounds-like-us.guidance.v1` with `organization`, `voiceProfile`, `guidanceBlocks[]` — new runs get richer AI output
+- Phase 05 follow-up: guidance artifacts now include `voiceTone.previewSummary` and `voiceTone.fullGuidance`; Preview uses the concise voice/tone summary while Full Guidance, copy, and downloads use the full voice/tone block
 - Backward-compat transform: existing Phase 04 flat guidance artifacts are transformed to v1 format on the fly (no re-analysis required)
 - Updated analysis-service.js: new AI prompt returns `voice_profile` (toneAttributes, writingPatterns, vocabulary, phrases, avoid) and `guidance_blocks[]` (voice-tone, vocabulary, what-to-avoid) as structured JSON
 - `/slu/jobs/:jobId/result` now redirects to `/workbench`; job progress page redirects to workbench on completion
@@ -312,9 +316,9 @@ Docs updated:
 - `docs/active-planning/deferred-work.md` (PDF export, manager config, AI regeneration)
 
 Checks/tests run:
-- `npm run build --workspace=rumbo-web` — clean build; 37.9KB CSS, 11.8KB main.js, 209.6KB guidance-workbench.js
-- `npx playwright test` — 18/18 pass, no regressions
-- Manual workbench tests: Twig shell, React mount, color-coded source blocks — all pass
+- `npm run build --workspace=rumbo-web` — clean build; 38.57KB CSS, 11.85KB main.js, 210.69KB guidance-workbench.js after Phase 05 follow-up output-action changes
+- `npm run qa` / `npx playwright test` — 18/18 pass, no regressions
+- Manual workbench tests: Twig shell, React mount, color-coded bordered output text — all pass
 - PM2 stable: rumbo-web and rumbo-worker online under nvm Node 22
 
 Next phase recommendation: Proceed to Phase 06 — Central Admin and Observability. Review Phase 06 doc before assignment.

@@ -10,6 +10,27 @@ import { GENERIC_BLOCKS } from './guidance-blocks.config.js';
 
 const router = Router();
 
+function downloadSelectionsFromRequest(req, savedOptions) {
+  const selections = savedOptions ? { ...savedOptions } : {
+    guidanceTask: 'write_new',
+    lengthDetail: 'standard_article',
+    readingLevel: 'general_adult',
+    bestPracticePack: 'none',
+  };
+
+  for (const key of ['guidanceTask', 'lengthDetail', 'readingLevel', 'bestPracticePack']) {
+    if (typeof req.query[key] === 'string' && req.query[key].trim()) {
+      selections[key] = req.query[key].trim();
+    }
+  }
+
+  const includedBlocks = typeof req.query.includedBlocks === 'string'
+    ? req.query.includedBlocks.split(',').map(id => id.trim()).filter(Boolean)
+    : savedOptions?.includedBlocks;
+
+  return { selections, includedBlocks };
+}
+
 router.get('/', (req, res) => {
   res.render('pages/slu/index', {
     tool: 'slu',
@@ -157,8 +178,8 @@ router.get('/jobs/:jobId/workbench/download', requireAuth, async (req, res) => {
   if (!guidance) return res.status(422).send('Guidance not available');
   let savedOptions = null;
   try { savedOptions = await readArtifactJson(artifactPath('slu/options', job.id, 'options.json')); } catch { /* defaults */ }
-  const selections = savedOptions ?? { guidanceTask: 'write_new', lengthDetail: 'standard_article', readingLevel: 'general_adult', bestPracticePack: 'none' };
-  const includedIds = savedOptions?.includedBlocks ? new Set(savedOptions.includedBlocks) : defaultIncludedBlocks(guidance);
+  const { selections, includedBlocks } = downloadSelectionsFromRequest(req, savedOptions);
+  const includedIds = includedBlocks ? new Set(includedBlocks) : defaultIncludedBlocks(guidance);
   const blocks = assembleBlocks(guidance, selections, includedIds);
   const orgName = guidance.organization?.name ?? 'Organization';
   const slug = orgName.replace(/[^a-z0-9]+/gi, '-').toLowerCase();
