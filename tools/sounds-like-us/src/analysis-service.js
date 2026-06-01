@@ -1,6 +1,7 @@
 import { crawlUrl, truncatePagesForPrompt } from '@rumbo/crawler';
 import { aiCall } from '@rumbo/ai';
 import { writeArtifact, artifactPath } from '@rumbo/storage';
+import { getAnalysisPrompts, getGuidancePackage, renderTemplate } from './config/config-loader.js';
 
 const MAX_CRAWL_PAGES = 8;
 
@@ -75,87 +76,53 @@ function repairJsonLikeText(text) {
   });
 }
 
-// Backward-compat: transform the old Phase 04 flat guidance format into the v1 structure.
-function transformLegacyGuidance(legacy, { url, pageCount, jobId }) {
-  const g = legacy;
-  const previewSummary = g.voice_tone?.description ?? '';
-  const fullGuidance = [
-    g.voice_tone?.description ?? '',
-    g.voice_tone?.markers?.length
-      ? `Style markers: ${g.voice_tone.markers.join(', ')}.`
-      : '',
-    g.voice_tone?.examples?.length
-      ? `Examples from their writing: ${g.voice_tone.examples.map(e => `"${e}"`).join('; ')}.`
-      : '',
-    g.writing_guidance ?? '',
-  ].filter(Boolean).join('\n\n');
+function requireObject(value, label) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error(`AI guidance response is missing ${label}.`);
+  }
+}
 
-  return {
-    version: 'sounds-like-us.guidance.v1',
-    runId: jobId,
-    organization: {
-      name: g.org_name ?? 'Unknown',
-      detectedType: 'unknown',
-      summary: g.org_summary ?? '',
-    },
-    sourceBasis: {
-      urls: [url],
-      documents: [],
-      pageCount,
-      notes: ['Transformed from legacy Phase 04 format — guidanceBlocks regenerated from flat fields.'],
-    },
-    voiceTone: {
-      previewSummary,
-      fullGuidance,
-    },
-    voiceProfile: {
-      summary: previewSummary,
-      toneAttributes: g.voice_tone?.markers ?? [],
-      writingPatterns: g.voice_tone?.examples ?? [],
-      vocabulary: g.key_vocabulary ?? [],
-      phrases: g.phrases_to_use ?? [],
-      avoid: g.what_to_avoid ?? [],
-      audienceNotes: [],
-    },
-    guidanceBlocks: [
-      {
-        id: 'voice-tone',
-        label: 'Voice and tone',
-        source: 'voice',
-        defaultIncluded: true,
-        heading: 'Voice and tone',
-        previewContent: previewSummary,
-        content: fullGuidance,
-      },
-      {
-        id: 'vocabulary',
-        label: 'Words and phrases to use',
-        source: 'voice',
-        defaultIncluded: true,
-        heading: 'Words and phrases to use',
-        content: [
-          g.phrases_to_use?.length
-            ? `Preferred phrases:\n${g.phrases_to_use.map(p => `- ${p}`).join('\n')}`
-            : '',
-          g.key_vocabulary?.length
-            ? `Key vocabulary:\n${g.key_vocabulary.map(v => `- ${v}`).join('\n')}`
-            : '',
-        ].filter(Boolean).join('\n\n'),
-      },
-      {
-        id: 'what-to-avoid',
-        label: 'What to avoid',
-        source: 'voice',
-        defaultIncluded: true,
-        heading: 'What to avoid',
-        content: g.what_to_avoid?.length
-          ? `Avoid the following — they would clash with this organization's voice:\n${g.what_to_avoid.map(v => `- ${v}`).join('\n')}`
-          : 'No specific avoidances identified.',
-      },
-    ],
-    generatedAt: new Date().toISOString(),
-    modelInfo: { provider: 'unknown', model: 'unknown' },
-  };
+function requireString(value, label) {
+  if (typeof value !== 'string' || !value.trim()) {
+    throw new Error(`AI guidance response is missing ${label}.`);
+  }
+}
+
+function requireArray(value, label) {
+  if (!Array.isArray(value)) {
+    throw new Error(`AI guidance response is missing ${label}.`);
+  }
+}
+
+function validateParsedGuidance(parsed) {
+  requireObject(parsed, 'root object');
+  for (const field of ['org_name', 'org_short_name', 'org_type', 'org_summary']) {
+    requireString(parsed[field], field);
+  }
+
+  requireObject(parsed.voiceTone, 'voiceTone');
+  requireString(parsed.voiceTone.previewSummary, 'voiceTone.previewSummary');
+  requireString(parsed.voiceTone.fullGuidance, 'voiceTone.fullGuidance');
+
+  requireObject(parsed.voice_profile, 'voice_profile');
+  for (const field of ['tone_attributes', 'writing_patterns', 'vocabulary', 'phrases', 'avoid', 'audience_notes']) {
+    requireArray(parsed.voice_profile[field], `voice_profile.${field}`);
+  }
+
+  requireArray(parsed.guidance_blocks, 'guidance_blocks');
+  for (const [index, block] of parsed.guidance_blocks.entries()) {
+    requireObject(block, `guidance_blocks[${index}]`);
+    for (const field of ['id', 'label', 'heading', 'fullText']) {
+      requireString(block[field], `guidance_blocks[${index}].${field}`);
+    }
+    if (block.id === 'voice-tone') {
+      requireString(block.previewText, `guidance_blocks[${index}].previewText`);
+    }
+  }
+
+  if (!parsed.guidance_blocks.some(block => block.id === 'voice-tone')) {
+    throw new Error('AI guidance response is missing guidance_blocks entry with id "voice-tone".');
+  }
 }
 
 export async function runAnalysis(job) {
@@ -181,58 +148,13 @@ export async function runAnalysis(job) {
     .map((p, i) => `--- Page ${i + 1}: ${p.title}\nURL: ${p.url}\n\n${p.text}`)
     .join('\n\n');
 
-  const systemPrompt = `You are an expert communications analyst helping nonprofit and mission-driven organizations develop reusable writing guidance.
-
-Analyze the provided website content and produce a structured JSON guidance profile. Be specific, actionable, and grounded in the actual text. Avoid generic advice.
-
-Return ONLY valid JSON with no markdown fences or commentary. All arrays must contain plain JSON strings only. If a list item needs a note, put the note inside the same quoted string. Never place parenthetical notes outside quotes.`;
-
-  const userMessage = `Analyze this organization's website content and return a structured JSON guidance profile.
-
-URL analyzed: ${url}
-
-Content from ${pages.length} page(s):
-${pagesSummary}
-
-Return this exact JSON structure (no markdown fences, pure JSON). Use strict valid JSON: double-quoted keys, double-quoted string values, no comments, no trailing commas, and no parenthetical notes outside strings:
-{
-  "org_name": "inferred organization name",
-  "org_type": "nonprofit | school | foundation | public_agency | association | unknown",
-  "org_summary": "2-3 sentence summary of who they are and what they do",
-  "voiceTone": {
-    "previewSummary": "Concise 1-3 sentence voice/tone preview summary for Preview mode. Do not just repeat or truncate the full guidance.",
-    "fullGuidance": "Longer, detailed 2-4 paragraph voice/tone guidance for Full Guidance mode and copy/download output. Be specific — reference their actual style."
-  },
-  "voice_profile": {
-    "summary": "overall voice and tone characterization (2-3 sentences)",
-    "tone_attributes": ["Warm", "Plainspoken", "Hopeful"],
-    "writing_patterns": ["Uses concrete local examples", "Opens paragraphs with 'we' statements"],
-    "vocabulary": ["neighbors", "watershed", "together"],
-    "phrases": ["for generations", "your river", "protect what matters"],
-    "avoid": ["leverage", "synergy", "disrupt", "stakeholders", "utilize"],
-    "audience_notes": ["Speaks to supporters as neighbors and collaborators"]
-  },
-  "guidance_blocks": [
-    {
-      "id": "voice-tone",
-      "label": "Voice and tone",
-      "heading": "Voice and tone",
-      "content": "Use the same detailed text as voiceTone.fullGuidance."
-    },
-    {
-      "id": "vocabulary",
-      "label": "Words and phrases to use",
-      "heading": "Words and phrases to use",
-      "content": "A formatted list of specific words, phrases, and constructions that fit their voice. Group by type if helpful (preferred phrases, key vocabulary, sentence starters)."
-    },
-    {
-      "id": "what-to-avoid",
-      "label": "What to avoid",
-      "heading": "What to avoid",
-      "content": "A formatted list of specific things to avoid — words, phrases, tones, or patterns that would clash with this organization's voice. Be specific."
-    }
-  ]
-}`;
+  const promptConfig = getAnalysisPrompts().analysis;
+  const systemPrompt = promptConfig.system;
+  const userMessage = renderTemplate(promptConfig.userTemplate, {
+    url,
+    pageCount: pages.length,
+    pagesSummary,
+  });
 
   // ---- 3. AI analysis ----
   const raw = await aiCall({
@@ -255,31 +177,23 @@ Return this exact JSON structure (no markdown fences, pure JSON). Use strict val
     throw err;
   }
 
+  validateParsedGuidance(parsed);
+
   // Normalise the AI output into the v1 guidance object
-  const vp = parsed.voice_profile ?? {};
-  const voiceTone = parsed.voiceTone ?? parsed.voice_tone ?? {};
-  const parsedGuidanceBlocks = parsed.guidance_blocks ?? [];
-  const voiceToneBlock = parsedGuidanceBlocks.find(b => b.id === 'voice-tone');
-  const previewSummary = voiceTone.previewSummary ?? voiceTone.preview_summary ?? vp.summary ?? '';
-  const fullGuidance = voiceTone.fullGuidance ?? voiceTone.full_guidance ?? voiceToneBlock?.content ?? vp.summary ?? '';
-  const guidanceBlocks = parsedGuidanceBlocks.some(b => b.id === 'voice-tone')
-    ? parsedGuidanceBlocks
-    : [
-        {
-          id: 'voice-tone',
-          label: 'Voice and tone',
-          heading: 'Voice and tone',
-          content: fullGuidance,
-        },
-        ...parsedGuidanceBlocks,
-      ];
+  const vp = parsed.voice_profile;
+  const voiceTone = parsed.voiceTone;
+  const parsedGuidanceBlocks = parsed.guidance_blocks;
+  const previewSummary = voiceTone.previewSummary;
+  const fullGuidance = voiceTone.fullGuidance;
+  const generatedBlocks = getGuidancePackage().generatedGuidanceBlocks;
   const guidanceV1 = {
     version: 'sounds-like-us.guidance.v1',
     runId: job.id,
     organization: {
-      name: parsed.org_name ?? 'Unknown',
-      detectedType: parsed.org_type ?? 'unknown',
-      summary: parsed.org_summary ?? '',
+      name: parsed.org_name,
+      shortName: parsed.org_short_name,
+      detectedType: parsed.org_type,
+      summary: parsed.org_summary,
     },
     sourceBasis: {
       urls: [url],
@@ -293,19 +207,20 @@ Return this exact JSON structure (no markdown fences, pure JSON). Use strict val
     },
     voiceProfile: {
       summary: previewSummary,
-      toneAttributes: vp.tone_attributes ?? [],
-      writingPatterns: vp.writing_patterns ?? [],
-      vocabulary: vp.vocabulary ?? [],
-      phrases: vp.phrases ?? [],
-      avoid: vp.avoid ?? [],
-      audienceNotes: vp.audience_notes ?? [],
+      toneAttributes: vp.tone_attributes,
+      writingPatterns: vp.writing_patterns,
+      vocabulary: vp.vocabulary,
+      phrases: vp.phrases,
+      avoid: vp.avoid,
+      audienceNotes: vp.audience_notes,
     },
-    guidanceBlocks: guidanceBlocks.map(b => {
+    guidanceBlocks: parsedGuidanceBlocks.map(b => {
       if (b.id === 'voice-tone') {
         return {
+          ...generatedBlocks.voiceTone,
           ...b,
-          content: fullGuidance,
-          previewContent: previewSummary,
+          previewText: previewSummary,
+          fullText: fullGuidance,
           source: 'voice',
           defaultIncluded: true,
         };
@@ -333,11 +248,10 @@ Return this exact JSON structure (no markdown fences, pure JSON). Use strict val
   return {
     url,
     orgName:    guidanceV1.organization.name,
+    orgShortName: guidanceV1.organization.shortName,
     orgSummary: guidanceV1.organization.summary,
     guidancePath,
     pageCount:  pages.length,
     guidanceVersion: 'v1',
   };
 }
-
-export { transformLegacyGuidance };

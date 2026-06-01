@@ -2,11 +2,11 @@ import { Router } from 'express';
 import { createJob, getJob, listJobs } from '@rumbo/jobs';
 import { readArtifactJson, writeArtifact, artifactPath } from '@rumbo/storage';
 import { requireAuth } from '@rumbo/auth';
-import { transformLegacyGuidance } from './analysis-service.js';
 import { assembleBlocks, defaultIncludedBlocks, renderPlainText, renderMarkdown } from './guidance-assembly.service.js';
 import { saveFeedback } from './feedback.service.js';
 import { BEST_PRACTICE_PACKS } from './best-practice-packs.config.js';
 import { GENERIC_BLOCKS } from './guidance-blocks.config.js';
+import { getGuidancePackage } from './config/config-loader.js';
 
 const router = Router();
 
@@ -29,6 +29,19 @@ function downloadSelectionsFromRequest(req, savedOptions) {
     : savedOptions?.includedBlocks;
 
   return { selections, includedBlocks };
+}
+
+function isCurrentGuidanceArtifact(artifact) {
+  return Boolean(
+    artifact?.version === 'sounds-like-us.guidance.v1'
+    && artifact?.organization?.name
+    && artifact?.organization?.shortName
+    && artifact?.organization?.detectedType
+    && artifact?.voiceTone?.previewSummary
+    && artifact?.voiceTone?.fullGuidance
+    && Array.isArray(artifact?.guidanceBlocks)
+    && artifact.guidanceBlocks.every(block => block?.id && block?.label && block?.heading && block?.fullText)
+  );
 }
 
 router.get('/', (req, res) => {
@@ -100,12 +113,8 @@ router.get('/jobs/:jobId/workbench', requireAuth, async (req, res) => {
   if (guidancePath) {
     try {
       const artifact = await readArtifactJson(guidancePath);
-      if (artifact.version === 'sounds-like-us.guidance.v1') {
+      if (isCurrentGuidanceArtifact(artifact)) {
         guidance = artifact;
-      } else if (artifact.guidance) {
-        guidance = transformLegacyGuidance(artifact.guidance, {
-          url: job.payload?.url, pageCount: artifact.pageCount ?? 0, jobId: job.id,
-        });
       }
     } catch { /* artifact missing or malformed */ }
   }
@@ -130,6 +139,7 @@ router.get('/jobs/:jobId/workbench', requireAuth, async (req, res) => {
     url:       job.payload?.url,
     orgName:   guidance.organization?.name ?? job.result?.orgName,
     guidance,
+    guidancePackage: getGuidancePackage(),
     savedOptions,
     bestPracticePacks: BEST_PRACTICE_PACKS,
     genericBlocks: GENERIC_BLOCKS.map(b => ({ id: b.id, label: b.label, defaultIncluded: b.defaultIncluded })),
@@ -170,9 +180,7 @@ router.get('/jobs/:jobId/workbench/download', requireAuth, async (req, res) => {
   if (guidancePath) {
     try {
       const artifact = await readArtifactJson(guidancePath);
-      guidance = artifact.version === 'sounds-like-us.guidance.v1'
-        ? artifact
-        : transformLegacyGuidance(artifact.guidance ?? {}, { url: job.payload?.url, pageCount: 0, jobId: job.id });
+      guidance = isCurrentGuidanceArtifact(artifact) ? artifact : null;
     } catch { /* missing */ }
   }
   if (!guidance) return res.status(422).send('Guidance not available');
@@ -186,11 +194,11 @@ router.get('/jobs/:jobId/workbench/download', requireAuth, async (req, res) => {
   if (format === 'md') {
     res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
     res.setHeader('Content-Disposition', `attachment; filename="${slug}-guidance.md"`);
-    return res.send(renderMarkdown(orgName, blocks));
+    return res.send(renderMarkdown(guidance, blocks));
   }
   res.setHeader('Content-Type', 'text/plain; charset=utf-8');
   res.setHeader('Content-Disposition', `attachment; filename="${slug}-guidance.txt"`);
-  res.send(renderPlainText(orgName, blocks));
+  res.send(renderPlainText(guidance, blocks));
 });
 
 router.post('/jobs/:jobId/feedback', requireAuth, async (req, res) => {

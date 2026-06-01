@@ -593,26 +593,35 @@
   background: var(--rj-bg-raised);
   border-radius: var(--rj-radius-md);
   border: 1px solid var(--rj-border);
-  padding: var(--rj-space-5);
+  padding: var(--rj-space-5) var(--rj-space-5) var(--rj-space-4);
 }
 
 .slu-wb__out-section {
   border-left: 4px solid var(--rj-border);
-  padding: 0 0 0 var(--rj-space-4);
+  padding: var(--rj-space-1) 0 var(--rj-space-1) var(--rj-space-4);
 
   & + & {
-    margin-top: var(--rj-space-5);
+    margin-top: var(--rj-space-3);
   }
 }
 
-.slu-wb__out-pre {
-  font-family: var(--rj-font-sans);
+.slu-wb__out-p,
+.slu-wb__out-list {
+  margin: 0;
+  color: var(--rj-fg-2);
   font-size: var(--rj-text-sm);
   line-height: var(--rj-leading-relaxed);
-  color: var(--rj-fg-2);
-  white-space: pre-wrap;
-  word-break: break-word;
-  margin: 0;
+}
+
+.slu-wb__out-p + .slu-wb__out-p,
+.slu-wb__out-p + .slu-wb__out-list,
+.slu-wb__out-list + .slu-wb__out-p,
+.slu-wb__out-list + .slu-wb__out-list {
+  margin-top: var(--rj-space-2);
+}
+
+.slu-wb__out-list {
+  padding-left: var(--rj-space-5);
 }
 
 // Color-coded output section borders

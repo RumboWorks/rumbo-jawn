@@ -7,7 +7,7 @@
 
     <div class="slu-job-header">
         <p class="rj-eyebrow">Sounds Like Us</p>
-        <h1 class="rj-h1">Analyzing organization</h1>
+        <h1 class="rj-h1">We’re getting your analysis ready.</h1>
         {% if job.url %}
         <p class="rj-caption slu-job-url">
             <i data-lucide="globe"></i> {{ job.url }}
@@ -42,20 +42,19 @@
             <div class="slu-status slu-status--running" id="slu-status-indicator">
                 <i data-lucide="loader"></i>
                 <span id="slu-status-text">
-                    {% if job.status == 'PENDING' %}Queued — waiting for worker…
-                    {% else %}Crawling and analyzing…{% endif %}
+                    We’re getting your analysis ready.
                 </span>
             </div>
             <div class="slu-progress-steps" id="slu-progress-steps">
                 <div class="slu-step" id="step-crawl">
-                    <i data-lucide="globe"></i> Crawling pages
+                    <i data-lucide="globe"></i> Reviewing public pages
                 </div>
                 <div class="slu-step" id="step-analyze">
-                    <i data-lucide="brain"></i> Analyzing voice and tone
+                    <i data-lucide="brain"></i> Finding voice and tone patterns
                 </div>
                 <div class="slu-step" id="step-guidance">
                     <i data-lucide="file-text"></i>
-                    Generating guidance
+                    Creating writing guidance
                     <span class="slu-step__elapsed" id="step-guidance-elapsed"></span>
                 </div>
             </div>

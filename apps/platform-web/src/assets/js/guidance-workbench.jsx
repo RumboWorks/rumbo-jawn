@@ -65,80 +65,8 @@ const GUIDANCE_VIEW_MODES = [
 const PREVIEW_EXCLUDED_BLOCK_IDS = new Set(['vocabulary', 'what-to-avoid']);
 
 // ---- Assembly (mirrors server-side guidance-assembly.service.js) ----
-// These content strings come from the server via __WORKBENCH_DATA__.guidance.guidanceBlocks
-// and from the platform config embedded in bestPracticePacks / genericBlocks.
-// For the task+length block and reading level block, content is built here client-side
-// mirroring the config in guidance-blocks.config.js.
 
-const READING_LEVEL_CONTENT = {
-  easy_read: {
-    heading: 'Reading level — Easy Read (grade 2–3)',
-    content: `Write at a grade 2–3 reading level.
-- Use very short sentences — under 15 words when possible.
-- Use the most common, everyday words.
-- Give concrete, specific examples.
-- Use numbered or bulleted lists instead of paragraphs whenever possible.
-- Read each sentence aloud — if it feels difficult to say, shorten it.`,
-  },
-  plain_language: {
-    heading: 'Reading level — Plain Language (grade 4–5)',
-    content: `Write at a plain-language reading level (approximately grade 4–5).
-- Use short sentences and common words.
-- Spell out acronyms the first time they appear.
-- Use active voice.
-- Explain any technical terms in plain language when they must appear.`,
-  },
-  general_adult: {
-    heading: 'Reading level — General Adult (grade 6–8)',
-    content: `Write for a general adult audience (approximately grade 6–8).
-- Use clear, direct language appropriate for most adult readers.
-- Prefer active voice and specific language over abstract generalities.`,
-  },
-  specialist_expert: {
-    heading: 'Reading level — Specialist / Expert (grade 8–10+)',
-    content: `Write for an informed or expert audience (grade 8–10+).
-- Field-specific vocabulary and technical terms are appropriate when useful.
-- Precision is valued over simplicity.
-- Assume the reader has background knowledge.`,
-  },
-};
-
-const TASK_LENGTH_CONTENT = {
-  write_new: {
-    short_post: { heading: 'Task — Write something new — Short post (50–150 words)', content: `Create a short, self-contained piece suitable for a social media post or brief announcement.\n- Aim for 50–150 words.\n- Lead with the most important point.\n- Make every word count.` },
-    brief_piece: { heading: 'Task — Write something new — Brief piece (150–350 words)', content: `Write a brief piece of 150–350 words suitable for a short email, announcement, or introductory copy.\n- Open with a clear hook.\n- Close with a direct call to action.` },
-    standard_article: { heading: 'Task — Write something new — Standard article (350–700 words)', content: `Write a standard-length piece of 350–700 words suitable for a newsletter article or web page section.\n- Use a clear structure: opening, supporting sections, conclusion.\n- Balance depth with readability.` },
-    full_length_piece: { heading: 'Task — Write something new — Full-length piece (700+ words)', content: `Write a full-length piece of 700+ words suitable for a longer article or donor appeal.\n- Develop the topic with depth and context.\n- Use headings and clear sections.\n- Build to a strong conclusion with a clear call to action.` },
-  },
-  rewrite_existing: {
-    shorter: { heading: 'Task — Rewrite existing text — Make it shorter', content: `Rewrite the provided text to be shorter while preserving the key message.\n- Cut filler phrases, redundant sentences, and unnecessary qualifiers.\n- Aim to reduce length by 25–40% without losing substance.` },
-    about_same: { heading: 'Task — Rewrite existing text — About the same length', content: `Rewrite the provided text to better match this organization's voice while preserving roughly the same length.\n- Focus on word choice, sentence rhythm, and overall tone.` },
-    longer: { heading: 'Task — Rewrite existing text — Make it longer', content: `Rewrite the provided text with additional context or explanation.\n- Add supporting detail and specific examples where useful.\n- Maintain the original message and purpose.` },
-  },
-  critique_existing: {
-    quick_take: { heading: 'Task — Critique existing text — Quick take', content: `Give a brief overall reaction to the provided text (2–4 sentences).\n- Note the one or two most important things that are working.\n- Identify the single highest-priority issue to address.` },
-    summary_critique: { heading: 'Task — Critique existing text — Summary critique', content: `Provide a summary critique covering:\n1. Overall voice and tone match\n2. Main strengths\n3. Main weaknesses\n4. The two or three highest-priority improvements` },
-    detailed_critique: { heading: 'Task — Critique existing text — Detailed critique', content: `Provide a detailed critique organized by category:\n- Voice and tone alignment\n- Word choice and vocabulary\n- Sentence structure and rhythm\n- Clarity and readability\n- Overall effectiveness` },
-    point_by_point: { heading: 'Task — Critique existing text — Point-by-point review', content: `Provide a point-by-point review.\n- Note specific phrases or passages that work well or need revision.\n- Quote the text you are commenting on, explain what to change, and say why.` },
-  },
-};
-
-const GENERIC_BLOCK_CONTENT = {
-  'ai-cliche-avoidance': {
-    heading: 'Avoid AI clichés',
-    content: `Avoid the following AI-generated clichés and overused phrases:\n- "In today's world" / "In today's fast-paced world"\n- "Dive deep" / "Deep dive"\n- "Leverage" (as a verb) / "Utilize" / "Synergy"\n- "Game-changer" / "Disruptive" / "Revolutionary"\n- "Robust" (used generically) / "Comprehensive"\n- Excessive em dashes and colons used for dramatic effect\n- Opening with "In conclusion" or "In summary"\n\nReplace these with plain, specific, direct language.`,
-  },
-  'plain-language-guidance': {
-    heading: 'Plain-language principles',
-    content: `Apply plain-language principles:\n- Use active voice: "We protect watersheds" not "Watersheds are protected."\n- Choose common words: "use" not "utilize," "help" not "facilitate."\n- Keep sentences under 25 words when possible.\n- Spell out acronyms on first use.\n- Lead with the main point before the explanation.`,
-  },
-  'inclusive-language-guidance': {
-    heading: 'Inclusive language',
-    content: `Use inclusive language:\n- Default to people-first language.\n- Use gender-neutral language: singular "they/them," "people" instead of "guys."\n- Avoid language implying a single default experience.\n- Name communities directly rather than using euphemisms.`,
-  },
-};
-
-function assembleBlocks(guidance, selections, includedBlocks) {
+function assembleBlocks(guidance, guidancePackage, selections, includedBlocks) {
   const included = new Set(includedBlocks);
   const { guidanceTask = 'write_new', lengthDetail, readingLevel = 'general_adult', bestPracticePack = 'none' } = selections;
   const blocks = [];
@@ -148,8 +76,8 @@ function assembleBlocks(guidance, selections, includedBlocks) {
     if (included.has(b.id)) {
       const voiceToneFields = b.id === 'voice-tone'
         ? {
-            content: guidance.voiceTone?.fullGuidance ?? b.content,
-            previewContent: b.previewContent ?? guidance.voiceTone?.previewSummary ?? guidance.voiceProfile?.summary ?? b.content,
+            previewText: guidance.voiceTone?.previewSummary,
+            fullText: guidance.voiceTone?.fullGuidance,
           }
         : {};
       blocks.push({ ...b, ...voiceToneFields, source: b.source ?? 'voice' });
@@ -158,67 +86,128 @@ function assembleBlocks(guidance, selections, includedBlocks) {
 
   // 2. Task + length/detail block (always included, driven by selections)
   const effectiveLength = lengthDetail || DEFAULT_LENGTH[guidanceTask];
-  const tlBlock = TASK_LENGTH_CONTENT[guidanceTask]?.[effectiveLength];
-  if (tlBlock) blocks.push({ id: 'task-length', label: 'Guidance task', source: 'task', ...tlBlock });
+  const tlBlock = guidancePackage.taskLengthBlocks[guidanceTask]?.[effectiveLength];
+  if (tlBlock) blocks.push({ ...tlBlock, id: 'task-length', label: 'Guidance task', source: 'task', guidanceTask });
 
   // 3. Reading level block
   if (included.has('reading-level')) {
-    const rl = READING_LEVEL_CONTENT[readingLevel];
-    if (rl) blocks.push({ id: 'reading-level', label: 'Reading level', source: 'reading', ...rl });
+    const rl = guidancePackage.readingLevelBlocks[readingLevel];
+    if (rl) blocks.push({ ...rl, id: 'reading-level', label: 'Reading level', source: 'reading' });
   }
 
   // 4. Generic blocks
-  for (const [id, block] of Object.entries(GENERIC_BLOCK_CONTENT)) {
-    if (included.has(id)) blocks.push({ id, label: block.heading, source: 'generic', ...block });
+  for (const block of guidancePackage.genericBlocks) {
+    if (included.has(block.id)) blocks.push({ ...block });
   }
 
   // 5. Best-practice pack
   if (bestPracticePack !== 'none' && included.has('best-practice-pack')) {
     const pack = (window.__WORKBENCH_DATA__?.bestPracticePacks ?? []).find(p => p.id === bestPracticePack);
-    if (pack?.content) blocks.push({ id: 'best-practice-pack', label: pack.label, source: 'pack', heading: pack.heading, content: pack.content });
+    if (pack?.fullText) blocks.push({ id: 'best-practice-pack', label: pack.label, source: 'pack', heading: pack.heading, previewText: pack.previewText, fullText: pack.fullText });
   }
 
   return blocks;
 }
 
-function getDefaultIncludedBlocks(guidance) {
+function getDefaultIncludedBlocks(guidance, guidancePackage) {
   const ids = new Set();
   for (const b of guidance.guidanceBlocks ?? []) {
     if (b.defaultIncluded !== false) ids.add(b.id);
   }
   ids.add('reading-level');
-  ids.add('ai-cliche-avoidance');
+  for (const b of guidancePackage.genericBlocks ?? []) {
+    if (b.defaultIncluded) ids.add(b.id);
+  }
   return ids;
 }
 
-function summarizeContent(content) {
-  const lines = content.split('\n').map(line => line.trim()).filter(Boolean);
-  const firstParagraph = lines.find(line => !line.startsWith('- ') && !line.match(/^\d+\./)) ?? lines[0] ?? '';
-  const bullets = lines.filter(line => line.startsWith('- ') || line.match(/^\d+\./)).slice(0, 2);
-  return [firstParagraph, ...bullets].filter(Boolean).join('\n');
+function getGuidanceTokenContext(guidance) {
+  const organization = guidance.organization ?? {};
+  const tokens = {
+    voiceTonePreviewSummary: guidance.voiceTone?.previewSummary,
+    voiceToneFullGuidance: guidance.voiceTone?.fullGuidance,
+  };
+
+  if (typeof organization.name === 'string' && organization.name.trim()) tokens.organizationName = organization.name;
+  if (typeof organization.shortName === 'string' && organization.shortName.trim()) tokens.organizationShortName = organization.shortName;
+  if (typeof organization.detectedType === 'string' && organization.detectedType.trim()) tokens.detectedOrganizationType = organization.detectedType;
+
+  return tokens;
 }
 
-function assemblePreviewBlocks(blocks) {
+function blockContent(block, mode, tokenContext) {
+  const field = mode === 'preview' ? 'previewText' : 'fullText';
+  if (typeof block[field] !== 'string' || !block[field].trim()) {
+    throw new Error(`Missing ${field} for guidance block ${block.id}.`);
+  }
+  return renderTemplate(block[field], tokenContext);
+}
+
+function assemblePreviewBlocks(blocks, tokenContext) {
   return blocks
     .filter(block => !PREVIEW_EXCLUDED_BLOCK_IDS.has(block.id))
-    .map(block => ({ ...block, content: block.previewContent ?? summarizeContent(block.content) }));
+    .map(block => ({ ...block, content: blockContent(block, 'preview', tokenContext) }));
 }
 
-function renderFullGuidanceText(orgName, blocks) {
-  const lines = [
-    `Writing Guidance — ${orgName}`,
-    '='.repeat(50),
-    '',
-  ];
+function assembleFullBlocks(blocks, tokenContext) {
+  return blocks.map(block => ({ ...block, content: blockContent(block, 'full', tokenContext) }));
+}
 
-  for (const block of blocks) {
-    lines.push(block.heading ?? block.label);
-    lines.push('-'.repeat(30));
-    lines.push(block.content);
-    lines.push('');
-  }
+function orderDisplayBlocks(blocks) {
+  const order = new Map([
+    ['task-length', 10],
+    ['voice-tone', 20],
+    ['reading-level', 30],
+    ['best-practice-pack', 40],
+  ]);
+  const sourceOrder = new Map([
+    ['task', 10],
+    ['voice', 20],
+    ['reading', 30],
+    ['pack', 40],
+    ['generic', 50],
+  ]);
 
-  return lines.join('\n');
+  return blocks
+    .map((block, index) => ({ block, index }))
+    .sort((a, b) => {
+      const aOrder = order.get(a.block.id) ?? sourceOrder.get(a.block.source) ?? 90;
+      const bOrder = order.get(b.block.id) ?? sourceOrder.get(b.block.source) ?? 90;
+      return aOrder - bOrder || a.index - b.index;
+    })
+    .map(({ block }) => block);
+}
+
+function renderTemplate(template, tokens) {
+  return template.replace(/\{\{([A-Za-z0-9_]+)\}\}/g, (match, tokenName) => {
+    if (!(tokenName in tokens) || tokens[tokenName] === undefined || tokens[tokenName] === null || tokens[tokenName] === '') {
+      throw new Error(`Missing guidance template token: ${tokenName}`);
+    }
+    return String(tokens[tokenName]);
+  });
+}
+
+function taskOpeningSentence(guidancePackage, tokenContext, guidanceTask) {
+  const template = guidancePackage.outputTemplates?.taskOpenings?.[guidanceTask];
+  if (!template) throw new Error(`Missing task opening template: ${guidanceTask}`);
+  return renderTemplate(template, tokenContext);
+}
+
+function addTaskOpening(blocks, guidancePackage, tokenContext) {
+  return blocks.map(block => {
+    if (block.id !== 'task-length') return block;
+    return { ...block, content: `${taskOpeningSentence(guidancePackage, tokenContext, block.guidanceTask)}\n\n${block.content}` };
+  });
+}
+
+function renderFullGuidanceText(blocks) {
+  return blocks.map(block => normalizeGuidanceText(block.content)).join('\n\n');
+}
+
+function normalizeGuidanceText(content) {
+  return content
+    .replace(/:\s+-\s+/g, ':\n- ')
+    .replace(/\s+-\s+(?=(?:"|'|[A-Z][A-Za-z ]{1,40}:|[A-Za-z0-9]))/g, '\n- ');
 }
 
 // ---- Color map (source → CSS variable name) ----
@@ -325,16 +314,65 @@ function StarRating({ value, onChange }) {
   );
 }
 
+function OutputContent({ content }) {
+  const groups = normalizeGuidanceText(content).split(/\n{2,}/).map(group => group.trim()).filter(Boolean);
+
+  return groups.map((group, groupIndex) => {
+    const lines = group.split('\n').map(line => line.trim()).filter(Boolean);
+    const chunks = [];
+    let listItems = [];
+    let paragraphLines = [];
+
+    const flushParagraph = () => {
+      if (!paragraphLines.length) return;
+      chunks.push({ type: 'paragraph', text: paragraphLines.join(' ') });
+      paragraphLines = [];
+    };
+
+    const flushList = () => {
+      if (!listItems.length) return;
+      chunks.push({ type: 'list', items: listItems });
+      listItems = [];
+    };
+
+    for (const line of lines) {
+      const isListItem = line.startsWith('- ') || line.startsWith('• ') || /^\d+\.\s/.test(line);
+      if (isListItem) {
+        flushParagraph();
+        listItems.push(line.replace(/^[-•]\s/, '').replace(/^\d+\.\s/, ''));
+      } else {
+        flushList();
+        paragraphLines.push(line);
+      }
+    }
+
+    flushParagraph();
+    flushList();
+
+    return chunks.map((chunk, chunkIndex) => {
+      const key = `${groupIndex}-${chunkIndex}`;
+      if (chunk.type === 'list') {
+        return (
+          <ul key={key} className="slu-wb__out-list">
+            {chunk.items.map((item, itemIndex) => <li key={itemIndex}>{item}</li>)}
+          </ul>
+        );
+      }
+
+      return <p key={key} className="slu-wb__out-p">{chunk.text}</p>;
+    });
+  });
+}
+
 function OutputDocument({ blocks }) {
   return (
     <article className="slu-wb__out-document" aria-label="Assembled guidance output">
       {blocks.map((block, i) => {
         const source = SOURCE_COLOR[block.source] ?? 'generic';
-        const heading = block.heading ?? block.label;
 
         return (
           <section key={`${block.id}-${i}`} className={`slu-wb__out-section slu-wb__out-section--${source}`} data-source={block.source}>
-            <pre className="slu-wb__out-pre">{`${heading}\n${block.content}`}</pre>
+            <OutputContent content={block.content} />
           </section>
         );
       })}
@@ -351,10 +389,42 @@ function useDebounce(fn, delay) {
   }, [fn, delay]);
 }
 
+function WorkbenchLoadError({ message }) {
+  return (
+    <div className="rj-container slu-page">
+      <div className="rj-alert rj-alert--warning">
+        <i data-lucide="alert-triangle"></i>
+        <span>{message}</span>
+      </div>
+    </div>
+  );
+}
+
+function hasGuidancePackage(guidancePackage) {
+  return Boolean(
+    guidancePackage?.outputTemplates?.taskOpenings
+    && guidancePackage?.readingLevelBlocks
+    && guidancePackage?.taskLengthBlocks
+    && Array.isArray(guidancePackage?.genericBlocks)
+  );
+}
+
+function hasGuidanceArtifact(guidance) {
+  return Boolean(
+    guidance?.organization?.name
+    && guidance?.organization?.shortName
+    && guidance?.organization?.detectedType
+    && guidance?.voiceTone?.previewSummary
+    && guidance?.voiceTone?.fullGuidance
+    && Array.isArray(guidance?.guidanceBlocks)
+    && guidance.guidanceBlocks.every(block => block?.id && block?.label && block?.heading && block?.fullText)
+  );
+}
+
 // ---- Main workbench component ----
 
-function GuidanceWorkbench({ data }) {
-  const { guidance, savedOptions, bestPracticePacks, genericBlocks } = data;
+function GuidanceWorkbenchInner({ data }) {
+  const { guidance, savedOptions, bestPracticePacks, genericBlocks, guidancePackage } = data;
 
   const [guidanceTask, setGuidanceTask] = useState(savedOptions?.guidanceTask ?? 'write_new');
   const [lengthDetail, setLengthDetail] = useState(savedOptions?.lengthDetail ?? DEFAULT_LENGTH.write_new);
@@ -363,7 +433,7 @@ function GuidanceWorkbench({ data }) {
   const [guidanceViewMode, setGuidanceViewMode] = useState('preview');
   const [includedBlocks, setIncludedBlocks] = useState(() => {
     if (savedOptions?.includedBlocks) return new Set(savedOptions.includedBlocks);
-    return getDefaultIncludedBlocks(guidance);
+    return getDefaultIncludedBlocks(guidance, guidancePackage);
   });
 
   const [copied, setCopied] = useState(false);
@@ -390,10 +460,13 @@ function GuidanceWorkbench({ data }) {
 
   // Assemble output from current selections
   const selections = { guidanceTask, lengthDetail, readingLevel, bestPracticePack };
-  const assembledBlocks = assembleBlocks(guidance, selections, includedBlocks);
-  const previewBlocks = assemblePreviewBlocks(assembledBlocks);
-  const visibleBlocks = guidanceViewMode === 'full_guidance' ? assembledBlocks : previewBlocks;
-  const fullGuidanceText = renderFullGuidanceText(guidance.organization?.name ?? data.orgName ?? 'Organization', assembledBlocks);
+  const orgName = guidance.organization.name;
+  const tokenContext = getGuidanceTokenContext(guidance);
+  const assembledBlocks = assembleBlocks(guidance, guidancePackage, selections, includedBlocks);
+  const previewBlocks = addTaskOpening(orderDisplayBlocks(assemblePreviewBlocks(assembledBlocks, tokenContext)), guidancePackage, tokenContext);
+  const fullDisplayBlocks = addTaskOpening(orderDisplayBlocks(assembleFullBlocks(assembledBlocks, tokenContext)), guidancePackage, tokenContext);
+  const visibleBlocks = guidanceViewMode === 'full_guidance' ? fullDisplayBlocks : previewBlocks;
+  const fullGuidanceText = renderFullGuidanceText(fullDisplayBlocks);
   const buildDownloadUrl = (format) => {
     const params = new URLSearchParams({
       format,
@@ -450,7 +523,6 @@ function GuidanceWorkbench({ data }) {
     }
   };
 
-  const orgName = guidance.organization?.name ?? data.orgName ?? 'Organization';
   const orgSummary = guidance.organization?.summary ?? '';
 
   return (
@@ -549,7 +621,7 @@ function GuidanceWorkbench({ data }) {
         <div className="slu-wb__output-inner">
           <div className="slu-wb__out-heading-row">
             <span className="slu-wb__out-meta">
-              {guidanceViewMode === 'full_guidance' ? 'Full Guidance' : 'Preview'} · {assembledBlocks.length} section{assembledBlocks.length !== 1 ? 's' : ''}
+              {guidanceViewMode === 'full_guidance' ? 'Full Guidance' : 'Preview'} · {visibleBlocks.length} section{visibleBlocks.length !== 1 ? 's' : ''}
             </span>
             <ViewModeSwitch value={guidanceViewMode} onChange={setGuidanceViewMode} />
           </div>
@@ -630,6 +702,22 @@ function GuidanceWorkbench({ data }) {
       </aside>
     </div>
   );
+}
+
+function GuidanceWorkbench({ data }) {
+  if (!data?.guidance) {
+    return <WorkbenchLoadError message="The guidance workbench could not load the guidance data for this analysis." />;
+  }
+
+  if (!hasGuidanceArtifact(data.guidance)) {
+    return <WorkbenchLoadError message="The guidance workbench could not load a complete guidance artifact for this analysis. Please regenerate the analysis." />;
+  }
+
+  if (!hasGuidancePackage(data.guidancePackage)) {
+    return <WorkbenchLoadError message="The guidance workbench could not load its guidance configuration. Please refresh after the app finishes restarting." />;
+  }
+
+  return <GuidanceWorkbenchInner data={data} />;
 }
 
 // ---- Mount ----

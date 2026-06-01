@@ -1,0 +1,209 @@
+{
+  "version": "sounds-like-us.guidance-package.v2",
+  "constants": {
+    "guidanceTask": {
+      "WRITE_NEW": "write_new",
+      "REWRITE_EXISTING": "rewrite_existing",
+      "CRITIQUE_EXISTING": "critique_existing"
+    },
+    "readingLevel": {
+      "EASY_READ": "easy_read",
+      "PLAIN_LANGUAGE": "plain_language",
+      "GENERAL_ADULT": "general_adult",
+      "SPECIALIST_EXPERT": "specialist_expert"
+    },
+    "writeLength": {
+      "SHORT_POST": "short_post",
+      "BRIEF_PIECE": "brief_piece",
+      "STANDARD_ARTICLE": "standard_article",
+      "FULL_LENGTH_PIECE": "full_length_piece"
+    },
+    "rewriteLength": {
+      "SHORTER": "shorter",
+      "ABOUT_SAME": "about_same",
+      "LONGER": "longer"
+    },
+    "critiqueDepth": {
+      "QUICK_TAKE": "quick_take",
+      "SUMMARY_CRITIQUE": "summary_critique",
+      "DETAILED_CRITIQUE": "detailed_critique",
+      "POINT_BY_POINT": "point_by_point"
+    }
+  },
+  "outputTemplates": {
+    "taskOpenings": {
+      "write_new": "You are writing new text for {{organizationName}}.",
+      "rewrite_existing": "You are rewriting existing text for {{organizationName}}.",
+      "critique_existing": "You are critiquing existing text for {{organizationName}}."
+    }
+  },
+  "generatedGuidanceBlocks": {
+    "voiceTone": {
+      "id": "voice-tone",
+      "label": "Voice and tone",
+      "heading": "Voice and tone",
+      "source": "voice",
+      "previewText": "{{voiceTonePreviewSummary}}",
+      "fullText": "{{voiceToneFullGuidance}}"
+    }
+  },
+  "readingLevelBlocks": {
+    "easy_read": {
+      "id": "reading-level-easy-read",
+      "label": "Easy Read",
+      "source": "reading",
+      "heading": "Reading level - Easy Read (grade 2-3)",
+      "previewText": "Write for a very accessible grade 2-3 reading level, using short sentences, everyday words, and concrete examples for {{organizationShortName}}'s audience.",
+      "fullText": "Write at a grade 2-3 reading level.\n- Use very short sentences, under 15 words when possible.\n- Use the most common, everyday words. Replace any specialized term with a plain alternative.\n- Give concrete, specific examples rather than abstract descriptions.\n- Use numbered or bulleted lists instead of paragraphs whenever possible.\n- Read each sentence aloud; if it feels difficult to say, shorten it."
+    },
+    "plain_language": {
+      "id": "reading-level-plain-language",
+      "label": "Plain Language",
+      "source": "reading",
+      "heading": "Reading level - Plain Language (grade 4-5)",
+      "previewText": "Write in plain language for {{organizationShortName}}'s audience, around grades 4-5, with short sentences, common words, active voice, and clear explanations.",
+      "fullText": "Write at a plain-language reading level, approximately grade 4-5.\n- Use short sentences and common words.\n- Spell out acronyms the first time they appear.\n- Use active voice.\n- Break up paragraphs with headings or bullets when the content allows.\n- Explain any technical terms in plain language when they must appear."
+    },
+    "general_adult": {
+      "id": "reading-level-general-adult",
+      "label": "General Adult",
+      "source": "reading",
+      "heading": "Reading level - General Adult (grade 6-8)",
+      "previewText": "Write for a general adult audience, around grades 6-8, using clear, direct language and active voice while preserving {{organizationShortName}}'s substance.",
+      "fullText": "Write for a general adult audience, approximately grade 6-8.\n- Use clear, direct language appropriate for most adult readers.\n- Occasional specialized terms are fine if they are familiar to {{organizationShortName}}'s audience.\n- Prefer active voice and specific language over abstract generalities.\n- Treat grade level as a target for clarity, not a rigid constraint."
+    },
+    "specialist_expert": {
+      "id": "reading-level-specialist-expert",
+      "label": "Specialist / Expert",
+      "source": "reading",
+      "heading": "Reading level - Specialist / Expert (grade 8-10+)",
+      "previewText": "Write for informed readers who can handle field-specific vocabulary, denser explanation, and precise language when it helps {{organizationShortName}} communicate accurately.",
+      "fullText": "Write for an informed or expert audience, grade 8-10+.\n- Field-specific vocabulary, denser explanation, and technical terms are appropriate when useful.\n- Precision is valued over simplicity.\n- Assume the reader has background knowledge in the relevant domain."
+    }
+  },
+  "taskLengthBlocks": {
+    "write_new": {
+      "short_post": {
+        "id": "write-new-short-post",
+        "label": "Short post",
+        "source": "task",
+        "heading": "Write something new - Short post (50-150 words)",
+        "previewText": "Create a short, self-contained piece for {{organizationName}}, suitable for a social media post, short blurb, or brief announcement.",
+        "fullText": "Create a short, self-contained piece for {{organizationName}}, suitable for a social media post, short blurb, or brief announcement.\n- Aim for 50-150 words.\n- Lead with the most important point.\n- Keep sentences short.\n- Make every word count."
+      },
+      "brief_piece": {
+        "id": "write-new-brief-piece",
+        "label": "Brief piece",
+        "source": "task",
+        "heading": "Write something new - Brief piece (150-350 words)",
+        "previewText": "Write a brief 150-350 word piece for {{organizationName}}, with a clear opening, one or two supporting points, and a direct next step.",
+        "fullText": "Write a brief piece of 150-350 words for {{organizationName}}, suitable for a short email, announcement, or introductory copy.\n- Open with a clear hook.\n- Organize with one or two supporting points.\n- Close with a direct call to action or next step."
+      },
+      "standard_article": {
+        "id": "write-new-standard-article",
+        "label": "Standard article",
+        "source": "task",
+        "heading": "Write something new - Standard article (350-700 words)",
+        "previewText": "Write a standard 350-700 word piece for {{organizationName}} with a clear structure, useful transitions, and enough depth for a general reader.",
+        "fullText": "Write a standard-length piece of 350-700 words for {{organizationName}}, suitable for a newsletter article, web page section, or blog-style piece.\n- Use a clear structure: opening, supporting sections, and a conclusion.\n- Use headings or transitions to guide the reader.\n- Balance depth with readability."
+      },
+      "full_length_piece": {
+        "id": "write-new-full-length-piece",
+        "label": "Full-length piece",
+        "source": "task",
+        "heading": "Write something new - Full-length piece (700+ words)",
+        "previewText": "Write a full-length piece for {{organizationName}}, developing the topic with context, examples, clear sections, and a strong conclusion.",
+        "fullText": "Write a full-length piece of 700+ words for {{organizationName}}, suitable for a longer article, donor appeal, or detailed web page.\n- Develop the topic with depth and context.\n- Use headings and clear sections.\n- Build to a strong conclusion with a clear call to action."
+      }
+    },
+    "rewrite_existing": {
+      "shorter": {
+        "id": "rewrite-existing-shorter",
+        "label": "Shorter",
+        "source": "task",
+        "heading": "Rewrite existing text - Make it shorter",
+        "previewText": "Revise the provided text so it sounds more like {{organizationShortName}} while becoming shorter and preserving the key message.",
+        "fullText": "Rewrite the provided text so it sounds more like {{organizationShortName}} while becoming shorter and preserving the key message and most important details.\n- Cut filler phrases, redundant sentences, and unnecessary qualifiers.\n- Aim to reduce length by 25-40% without losing substance.\n- Preserve the original meaning and most important details."
+      },
+      "about_same": {
+        "id": "rewrite-existing-about-same",
+        "label": "About the same",
+        "source": "task",
+        "heading": "Rewrite existing text - About the same length",
+        "previewText": "Revise the provided text so it sounds more like {{organizationShortName}} while preserving roughly the same length and original meaning.",
+        "fullText": "Rewrite the provided text so it sounds more like {{organizationShortName}}'s public communications while preserving roughly the same length and level of detail.\n- Focus on word choice, sentence rhythm, framing, and overall tone.\n- Do not significantly expand or cut content; this is a voice and style revision, not a structural one."
+      },
+      "longer": {
+        "id": "rewrite-existing-longer",
+        "label": "Longer",
+        "source": "task",
+        "heading": "Rewrite existing text - Make it longer",
+        "previewText": "Expand the provided text so it sounds more like {{organizationShortName}}, adding useful context, transitions, or explanation while preserving the original purpose.",
+        "fullText": "Rewrite the provided text so it sounds more like {{organizationShortName}}, with additional context, transitions, or explanation that provides more depth.\n- Add supporting detail, specific examples, or background information where useful.\n- Maintain the original message and purpose while building it out."
+      }
+    },
+    "critique_existing": {
+      "quick_take": {
+        "id": "critique-existing-quick-take",
+        "label": "Quick take",
+        "source": "task",
+        "heading": "Critique existing text - Quick take",
+        "previewText": "Give a brief overall reaction to the provided text, focusing on how well it matches {{organizationShortName}} and the highest-priority issue to address.",
+        "fullText": "Give a brief overall reaction to the provided text for {{organizationName}}, in 2-4 sentences.\n- Note the one or two most important things that are working.\n- Identify the single highest-priority issue to address.\n- Keep it direct and actionable."
+      },
+      "summary_critique": {
+        "id": "critique-existing-summary",
+        "label": "Summary critique",
+        "source": "task",
+        "heading": "Critique existing text - Summary critique",
+        "previewText": "Provide a short structured critique of the provided text, including its fit with {{organizationShortName}}'s voice, main strengths, main weaknesses, and top improvements.",
+        "fullText": "Provide a summary critique of the provided text for {{organizationName}} covering:\n1. Overall voice and tone match with {{organizationShortName}}\n2. Main strengths\n3. Main weaknesses\n4. The two or three highest-priority improvements\nFormat as a short structured review."
+      },
+      "detailed_critique": {
+        "id": "critique-existing-detailed",
+        "label": "Detailed critique",
+        "source": "task",
+        "heading": "Critique existing text - Detailed critique",
+        "previewText": "Provide a detailed critique of the provided text, focusing on voice, vocabulary, structure, clarity, and effectiveness for {{organizationShortName}}.",
+        "fullText": "Provide a detailed critique of the provided text for {{organizationName}}, organized by category:\n- Voice and tone alignment with {{organizationShortName}}\n- Word choice and vocabulary\n- Sentence structure and rhythm\n- Clarity and readability\n- Overall effectiveness\nFor each category, note specific strengths and specific issues with actionable recommendations."
+      },
+      "point_by_point": {
+        "id": "critique-existing-point-by-point",
+        "label": "Point-by-point",
+        "source": "task",
+        "heading": "Critique existing text - Point-by-point review",
+        "previewText": "Provide a point-by-point review of the provided text, calling out specific passages that work well or need revision for {{organizationShortName}}.",
+        "fullText": "Provide a point-by-point review of the provided text for {{organizationName}}.\n- Note specific phrases, sentences, or passages that work well or need revision.\n- Organize feedback by issue type or by passage.\n- Be specific: quote the text you are commenting on, explain what to change, and say why."
+      }
+    }
+  },
+  "genericBlocks": [
+    {
+      "id": "ai-cliche-avoidance",
+      "label": "Avoid AI clichés",
+      "source": "generic",
+      "defaultIncluded": true,
+      "heading": "Avoid AI clichés",
+      "previewText": "Avoid generic AI-sounding language. Keep {{organizationShortName}}'s writing specific, direct, and grounded in real meaning.",
+      "fullText": "Avoid the following AI-generated clichés and overused phrases:\n- \"In today's world\" / \"In today's fast-paced world\"\n- \"Dive deep\" / \"Deep dive\"\n- \"Leverage\" as a verb / \"Utilize\" / \"Synergy\"\n- \"Game-changer\" / \"Disruptive\" / \"Revolutionary\" / \"Transformative\"\n- \"Robust\" used generically / \"Comprehensive\" / \"Holistic\"\n- \"At the end of the day\" / \"It goes without saying\"\n- Excessive em dashes and colons used for dramatic effect\n- Opening with \"In conclusion\" or \"In summary\"\n- Rhetorical questions as openers such as \"Are you ready to...?\"\n\nReplace these with plain, specific, direct language that earns its meaning for {{organizationShortName}}."
+    },
+    {
+      "id": "plain-language-guidance",
+      "label": "Plain-language principles",
+      "source": "generic",
+      "defaultIncluded": false,
+      "heading": "Plain-language principles",
+      "previewText": "Apply plain-language principles so {{organizationShortName}}'s writing stays easy to follow: active voice, common words, short sentences, and one idea at a time.",
+      "fullText": "Apply plain-language principles throughout {{organizationShortName}}'s writing:\n- Use active voice: \"We protect watersheds\" not \"Watersheds are protected by us.\"\n- Choose common words: \"use\" not \"utilize,\" \"help\" not \"facilitate,\" \"show\" not \"demonstrate.\"\n- Keep sentences under 25 words when possible.\n- Use one idea per sentence.\n- Spell out acronyms on first use.\n- Avoid nominalizations: \"decide\" not \"make a decision,\" \"analyze\" not \"conduct an analysis.\"\n- Lead with the main point before the explanation."
+    },
+    {
+      "id": "inclusive-language-guidance",
+      "label": "Inclusive language",
+      "source": "generic",
+      "defaultIncluded": false,
+      "heading": "Inclusive language",
+      "previewText": "Use inclusive language that names people and communities directly, avoids assumptions, and keeps {{organizationShortName}}'s tone respectful and specific.",
+      "fullText": "Use inclusive language throughout {{organizationShortName}}'s writing:\n- Default to people-first language: \"people experiencing homelessness\" rather than \"the homeless.\"\n- Use gender-neutral language: singular \"they/them,\" \"people\" instead of \"guys.\"\n- Avoid language implying a single default experience: \"most people\" not \"normal people.\"\n- Name communities directly rather than using euphemisms.\n- Avoid ableist language: \"challenge\" not \"suffer from.\"\n- When describing race or ethnicity, use the terms communities prefer and capitalize them consistently."
+    }
+  ]
+}

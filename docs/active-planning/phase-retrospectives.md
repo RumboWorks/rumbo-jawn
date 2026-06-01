@@ -277,9 +277,11 @@ Completed:
 - Best-practice pack radio group: None + 5 platform defaults (Fundraising, Email newsletters, Job descriptions, Social media, Press releases)
 - Guidance blocks toggle list: org-specific blocks (voice-tone, vocabulary, what-to-avoid from AI) + reading level + generic (AI-cliche avoidance, plain language, inclusive language) + best-practice pack toggle
 - All option changes assemble output client-side from pre-generated content — no new AI calls
-- Output panel: single assembled guidance document for legacy Learning Policy Institute run, with source-colored left borders for text provenance
+- Output panel: single assembled guidance document for legacy Learning Policy Institute run, with source-colored left rails for text provenance and task-first display ordering
 - Phase 05 follow-up: output now has Preview and Full Guidance display modes; copy and download actions always use Full Guidance regardless of visible mode
 - Phase 05 follow-up: Preview omits the detailed "Words and phrases to use" and "What to avoid" blocks; Full Guidance still includes selected blocks
+- Phase 05 follow-up: Preview suppresses report-style section headings and renders paragraphs/lists in a continuous document flow
+- Phase 05 follow-up: assembly/source headings are excluded from Preview, Full Guidance, copied text, and `.txt`/`.md` downloads; output begins with a natural task-oriented sentence
 - Phase 05 follow-up: output actions moved into a sticky right-side panel on desktop and stack above the guidance text on smaller screens
 - Copy full guidance button (clipboard API with textarea fallback)
 - .txt and .md download via server-side routes, using current selected options with saved-options fallback
@@ -288,10 +290,13 @@ Completed:
 - New `SluFeedback` MySQL table (created via raw SQL; prisma client regenerated)
 - Guidance artifact v1 format: `sounds-like-us.guidance.v1` with `organization`, `voiceProfile`, `guidanceBlocks[]` — new runs get richer AI output
 - Phase 05 follow-up: guidance artifacts now include `voiceTone.previewSummary` and `voiceTone.fullGuidance`; Preview uses the concise voice/tone summary while Full Guidance, copy, and downloads use the full voice/tone block
-- Backward-compat transform: existing Phase 04 flat guidance artifacts are transformed to v1 format on the fly (no re-analysis required)
+- Phase 05 follow-up: guidance artifacts now require `organization.shortName` from the AI response; old intermediate artifacts without the current schema are treated as incomplete and should be regenerated
+- Phase 05 follow-up: legacy Phase 04 flat guidance transform was removed; active MVP runs now use the current artifact schema only
 - Updated analysis-service.js: new AI prompt returns `voice_profile` (toneAttributes, writingPatterns, vocabulary, phrases, avoid) and `guidance_blocks[]` (voice-tone, vocabulary, what-to-avoid) as structured JSON
 - `/slu/jobs/:jobId/result` now redirects to `/workbench`; job progress page redirects to workbench on completion
-- Platform config files: `guidance-blocks.config.js` (reading level + task/length + generic block content) and `best-practice-packs.config.js` (5 packs with full guidance text)
+- Phase 05 follow-up: guidance and prompt product copy moved into JSON config under `tools/sounds-like-us/src/config/`, with validated loaders and no hidden fallback copy for missing/broken config
+- Phase 05 follow-up: guidance config blocks and best-practice packs use explicit `previewText` and `fullText`; Preview no longer summarizes Full Guidance text deterministically
+- Platform config wrappers: `guidance-blocks.config.js` and `best-practice-packs.config.js` now expose validated JSON guidance content for existing imports
 - Pure `guidance-assembly.service.js` (no AI, no DB) shared by server (download routes) and client (React island)
 - 18/18 Playwright tests pass; 3 additional manual workbench tests (Twig shell, React mount with controls/output, color-coded source classes) all pass
 
