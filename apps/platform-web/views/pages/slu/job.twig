@@ -53,8 +53,14 @@
                 <div class="slu-step" id="step-analyze">
                     <i data-lucide="brain"></i> Analyzing voice and tone
                 </div>
-                <div class="slu-step" id="step-guidance">
-                    <i data-lucide="file-text"></i> Generating guidance
+                <div class="slu-step slu-step--has-bar" id="step-guidance">
+                    <div class="slu-step__row">
+                        <i data-lucide="file-text"></i>
+                        <span id="step-guidance-label">Generating guidance</span>
+                    </div>
+                    <div class="slu-step__bar-track" id="step-guidance-track">
+                        <div class="slu-step__bar-fill" id="step-guidance-bar"></div>
+                    </div>
                 </div>
             </div>
         {% endif %}
@@ -64,14 +70,21 @@
 </div>
 
 <script type="module">
-// Poll job status every 3 seconds while pending/running
-const card = document.getElementById('slu-status-card');
-const jobId = card?.dataset.jobId;
-let status = card?.dataset.status;
+const card   = document.getElementById('slu-status-card');
+const jobId  = card?.dataset.jobId;
+let   status = card?.dataset.status;
 
 if (jobId && (status === 'PENDING' || status === 'RUNNING')) {
-    const steps = ['step-crawl', 'step-analyze', 'step-guidance'];
-    let pollCount = 0;
+    const steps     = ['step-crawl', 'step-analyze', 'step-guidance'];
+    const barEl     = document.getElementById('step-guidance-bar');
+    const trackEl   = document.getElementById('step-guidance-track');
+    const labelEl   = document.getElementById('step-guidance-label');
+    let   pollCount = 0;
+
+    // Bar phases while generating (each phase is one poll tick = ~3s).
+    // Values are % widths. Cap at 85 until DONE, then fill to 100.
+    const BAR_PHASES = [12, 28, 42, 55, 65, 73, 79, 83, 85];
+    let   barPhase   = 0;
 
     const setStep = (n) => {
         steps.forEach((id, i) => {
@@ -80,24 +93,53 @@ if (jobId && (status === 'PENDING' || status === 'RUNNING')) {
         });
     };
 
-    // Only show first step active initially
+    const setBar = (pct, instant = false) => {
+        if (!barEl) return;
+        if (instant) barEl.style.transition = 'none';
+        barEl.style.width = pct + '%';
+        if (instant) requestAnimationFrame(() => { barEl.style.transition = ''; });
+    };
+
+    const advanceBar = () => {
+        const pct = BAR_PHASES[Math.min(barPhase, BAR_PHASES.length - 1)];
+        setBar(pct);
+        barPhase++;
+
+        // Update the label text to reflect sub-stages
+        if (labelEl) {
+            if (barPhase <= 2) labelEl.textContent = 'Building guidance profile…';
+            else if (barPhase <= 4) labelEl.textContent = 'Identifying vocabulary and tone…';
+            else if (barPhase <= 6) labelEl.textContent = 'Writing guidance blocks…';
+            else labelEl.textContent = 'Assembling guidance…';
+        }
+    };
+
     setStep(-1);
 
     const poll = async () => {
         try {
-            const res = await fetch(`/slu/jobs/${jobId}/status`);
+            const res  = await fetch(`/slu/jobs/${jobId}/status`);
             const data = await res.json();
             status = data.status;
             pollCount++;
 
             if (status === 'RUNNING') {
-                // Advance step indicator slowly as time passes
-                setStep(Math.min(Math.floor(pollCount / 3), steps.length - 1));
+                const stepN = Math.min(Math.floor(pollCount / 3), steps.length - 1);
+                setStep(stepN);
+
+                // Once the guidance step is active, start advancing the bar
+                if (stepN === steps.length - 1) {
+                    advanceBar();
+                }
             }
 
             if (status === 'DONE') {
                 setStep(steps.length - 1);
-                window.location.href = `/slu/jobs/${jobId}/workbench`;
+                setBar(100);
+                if (labelEl) labelEl.textContent = 'Guidance ready';
+                setTimeout(() => {
+                    window.location.href = `/slu/jobs/${jobId}/workbench`;
+                }, 600);
             } else if (status === 'FAILED') {
                 window.location.reload();
             } else {

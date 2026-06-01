@@ -95,6 +95,44 @@
     background: var(--rj-pine-50);
     font-weight: var(--rj-weight-medium);
   }
+
+  // Third step: stack the label row above the progress bar
+  &--has-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--rj-space-2);
+  }
+}
+
+.slu-step__row {
+  display: flex;
+  align-items: center;
+  gap: var(--rj-space-2);
+}
+
+// Progress bar track — hidden until step is active
+.slu-step__bar-track {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--rj-pine-100);
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 200ms var(--rj-ease);
+
+  .slu-step.is-active & {
+    opacity: 1;
+  }
+}
+
+.slu-step__bar-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 2px;
+  background: var(--rj-pine-500);
+  transition: width 800ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  // On completion, use a slightly faster snap to 100%
+  [data-done="true"] & { transition-duration: 300ms; }
 }
 
 .slu-result-btn { margin-top: var(--rj-space-2); }
