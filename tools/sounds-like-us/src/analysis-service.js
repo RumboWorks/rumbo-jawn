@@ -4,6 +4,81 @@ import { writeArtifact, artifactPath } from '@rumbo/storage';
 
 const MAX_CRAWL_PAGES = 8;
 
+// Backward-compat: transform the old Phase 04 flat guidance format into the v1 structure.
+function transformLegacyGuidance(legacy, { url, pageCount, jobId }) {
+  const g = legacy;
+  return {
+    version: 'sounds-like-us.guidance.v1',
+    runId: jobId,
+    organization: {
+      name: g.org_name ?? 'Unknown',
+      detectedType: 'unknown',
+      summary: g.org_summary ?? '',
+    },
+    sourceBasis: {
+      urls: [url],
+      documents: [],
+      pageCount,
+      notes: ['Transformed from legacy Phase 04 format — guidanceBlocks regenerated from flat fields.'],
+    },
+    voiceProfile: {
+      summary: g.voice_tone?.description ?? '',
+      toneAttributes: g.voice_tone?.markers ?? [],
+      writingPatterns: g.voice_tone?.examples ?? [],
+      vocabulary: g.key_vocabulary ?? [],
+      phrases: g.phrases_to_use ?? [],
+      avoid: g.what_to_avoid ?? [],
+      audienceNotes: [],
+    },
+    guidanceBlocks: [
+      {
+        id: 'voice-tone',
+        label: 'Voice and tone',
+        source: 'voice',
+        defaultIncluded: true,
+        heading: 'Voice and tone',
+        content: [
+          g.voice_tone?.description ?? '',
+          g.voice_tone?.markers?.length
+            ? `Style markers: ${g.voice_tone.markers.join(', ')}.`
+            : '',
+          g.voice_tone?.examples?.length
+            ? `Examples from their writing: ${g.voice_tone.examples.map(e => `"${e}"`).join('; ')}.`
+            : '',
+          g.writing_guidance ?? '',
+        ].filter(Boolean).join('\n\n'),
+      },
+      {
+        id: 'vocabulary',
+        label: 'Words and phrases to use',
+        source: 'voice',
+        defaultIncluded: true,
+        heading: 'Words and phrases to use',
+        content: [
+          g.phrases_to_use?.length
+            ? `Preferred phrases:\n${g.phrases_to_use.map(p => `- ${p}`).join('\n')}`
+            : '',
+          g.key_vocabulary?.length
+            ? `Key vocabulary:\n${g.key_vocabulary.map(v => `- ${v}`).join('\n')}`
+            : '',
+        ].filter(Boolean).join('\n\n'),
+      },
+      {
+        id: 'what-to-avoid',
+        label: 'What to avoid',
+        source: 'voice',
+        defaultIncluded: true,
+        heading: 'What to avoid',
+        content: g.what_to_avoid?.length
+          ? `Avoid the following — they would clash with this organization's voice:\n${g.what_to_avoid.map(v => `- ${v}`).join('\n')}`
+          : 'No specific avoidances identified.',
+      },
+    ],
+    generatedAt: new Date().toISOString(),
+    modelInfo: { provider: 'unknown', model: 'unknown' },
+  };
+}
+
 export async function runAnalysis(job) {
   const { url } = job.payload;
 
@@ -11,7 +86,6 @@ export async function runAnalysis(job) {
   const rawPages = await crawlUrl(url, { maxPages: MAX_CRAWL_PAGES });
   const pages = truncatePagesForPrompt(rawPages, 12000);
 
-  // Store raw crawl artifact
   await writeArtifact({
     jobId: job.id,
     type: 'slu.crawl.raw',
@@ -34,27 +108,47 @@ Analyze the provided website content and produce a structured JSON guidance prof
 
 Return ONLY valid JSON with no markdown fences or commentary.`;
 
-  const userMessage = `Analyze this organization's website content and return a JSON guidance profile.
+  const userMessage = `Analyze this organization's website content and return a structured JSON guidance profile.
 
 URL analyzed: ${url}
 
 Content from ${pages.length} page(s):
 ${pagesSummary}
 
-Return this exact JSON structure:
+Return this exact JSON structure (no markdown fences, pure JSON):
 {
   "org_name": "inferred organization name",
+  "org_type": "nonprofit | school | foundation | public_agency | association | unknown",
   "org_summary": "2-3 sentence summary of who they are and what they do",
-  "voice_tone": {
-    "description": "overall voice and tone characterization (2-3 sentences)",
-    "markers": ["specific observable style marker", "another marker"],
-    "examples": ["brief quoted example from the text", "another example"]
+  "voice_profile": {
+    "summary": "overall voice and tone characterization (2-3 sentences)",
+    "tone_attributes": ["Warm", "Plainspoken", "Hopeful"],
+    "writing_patterns": ["Uses concrete local examples", "Opens paragraphs with 'we' statements"],
+    "vocabulary": ["neighbors", "watershed", "together"],
+    "phrases": ["for generations", "your river", "protect what matters"],
+    "avoid": ["leverage", "synergy", "disrupt", "stakeholders", "utilize"],
+    "audience_notes": ["Speaks to supporters as neighbors and collaborators"]
   },
-  "key_vocabulary": ["word or short phrase central to their identity", "another term"],
-  "phrases_to_use": ["phrase that fits their voice", "another phrase"],
-  "what_to_avoid": ["thing that would clash with their voice", "another thing to avoid"],
-  "writing_guidance": "1-2 paragraph practical guidance for someone writing on behalf of this org",
-  "rewrite_prompt": "A system prompt a writer or AI tool could use to match this organization's voice"
+  "guidance_blocks": [
+    {
+      "id": "voice-tone",
+      "label": "Voice and tone",
+      "heading": "Voice and tone",
+      "content": "Full 2-4 paragraph voice and tone guidance for someone writing on behalf of this organization. Be specific — reference their actual style."
+    },
+    {
+      "id": "vocabulary",
+      "label": "Words and phrases to use",
+      "heading": "Words and phrases to use",
+      "content": "A formatted list of specific words, phrases, and constructions that fit their voice. Group by type if helpful (preferred phrases, key vocabulary, sentence starters)."
+    },
+    {
+      "id": "what-to-avoid",
+      "label": "What to avoid",
+      "heading": "What to avoid",
+      "content": "A formatted list of specific things to avoid — words, phrases, tones, or patterns that would clash with this organization's voice. Be specific."
+    }
+  ]
 }`;
 
   // ---- 3. AI analysis ----
@@ -65,15 +159,47 @@ Return this exact JSON structure:
     jobId: job.id,
   });
 
-  // Parse and validate the JSON response
-  let guidance;
+  let parsed;
   try {
-    // Strip any accidental markdown fences
     const cleaned = raw.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
-    guidance = JSON.parse(cleaned);
+    parsed = JSON.parse(cleaned);
   } catch {
-    throw new Error('AI returned invalid JSON. Raw response saved for debugging.');
+    throw new Error('AI returned invalid JSON for guidance profile.');
   }
+
+  // Normalise the AI output into the v1 guidance object
+  const vp = parsed.voice_profile ?? {};
+  const guidanceV1 = {
+    version: 'sounds-like-us.guidance.v1',
+    runId: job.id,
+    organization: {
+      name: parsed.org_name ?? 'Unknown',
+      detectedType: parsed.org_type ?? 'unknown',
+      summary: parsed.org_summary ?? '',
+    },
+    sourceBasis: {
+      urls: [url],
+      documents: [],
+      pageCount: pages.length,
+      notes: [],
+    },
+    voiceProfile: {
+      summary: vp.summary ?? '',
+      toneAttributes: vp.tone_attributes ?? [],
+      writingPatterns: vp.writing_patterns ?? [],
+      vocabulary: vp.vocabulary ?? [],
+      phrases: vp.phrases ?? [],
+      avoid: vp.avoid ?? [],
+      audienceNotes: vp.audience_notes ?? [],
+    },
+    guidanceBlocks: (parsed.guidance_blocks ?? []).map(b => ({
+      ...b,
+      source: 'voice',
+      defaultIncluded: true,
+    })),
+    generatedAt: new Date().toISOString(),
+    modelInfo: { provider: 'anthropic', model: 'claude-3-5-haiku-20241022' },
+  };
 
   // ---- 4. Store guidance artifact ----
   const guidancePath = artifactPath('slu/guidance', job.id, 'guidance.json');
@@ -81,19 +207,17 @@ Return this exact JSON structure:
     jobId: job.id,
     type: 'slu.guidance',
     relativePath: guidancePath,
-    content: JSON.stringify({
-      url,
-      analyzedAt: new Date().toISOString(),
-      pageCount: pages.length,
-      guidance,
-    }, null, 2),
+    content: JSON.stringify(guidanceV1, null, 2),
   });
 
   return {
     url,
-    orgName:       guidance.org_name,
-    orgSummary:    guidance.org_summary,
+    orgName:    guidanceV1.organization.name,
+    orgSummary: guidanceV1.organization.summary,
     guidancePath,
-    pageCount:     pages.length,
+    pageCount:  pages.length,
+    guidanceVersion: 'v1',
   };
 }
+
+export { transformLegacyGuidance };

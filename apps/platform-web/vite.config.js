@@ -1,7 +1,9 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import react from '@vitejs/plugin-react';
 
 export default defineConfig({
+  plugins: [react()],
   publicDir: false,
   css: {
     preprocessorOptions: {
@@ -14,6 +16,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve('./src/assets/js/main.js'),
+        'guidance-workbench': resolve('./src/assets/js/guidance-workbench.jsx'),
       },
       output: {
         entryFileNames: '[name].js',

@@ -67,6 +67,30 @@ Reason: prisma migrate dev requires CREATE DATABASE permission for shadow DB. ru
 Blocking: Need to grant permissions or configure SHADOW_DATABASE_URL before Phase 03 schema additions.
 Must not forget because: Without migration history, schema changes are harder to track and reverse safely.
 
+## Deferred item: PDF export from workbench
+
+Originally identified: Phase 05
+Deferred to: Phase 08 or a standalone polish phase
+Reason: Plain text and Markdown download are sufficient for MVP. PDF requires a rendering library (puppeteer or similar) and server-side generation.
+Blocking: Nothing.
+Must not forget because: PDF is the expected output format for many nonprofit use cases (print, share with board, attach to grant application).
+
+## Deferred item: Workbench manager/power-user configuration UI
+
+Originally identified: Phase 05
+Deferred to: post-MVP phases
+Reason: Phase 05 is config-driven but exposes no UI for managers to edit Guidance Blocks, create custom Best-Practice Packs, or turn Option Sets on/off.
+Blocking: Nothing — defaults work for launch.
+Must not forget because: The manager config system is required for paid-tier differentiation and org customization.
+
+## Deferred item: Guidance workbench regeneration / AI refinement
+
+Originally identified: Phase 05
+Deferred to: explicit paid/power-user phase
+Reason: Phase 05 assembles output from existing structured data without new AI calls. Future phases may add explicit "regenerate" or "refine with AI" actions, but these must be clearly labeled, cost-logged, and usage-capped.
+Blocking: Nothing.
+Must not forget because: The no-AI-on-option-change constraint is intentional. Any AI regeneration path requires explicit UI, logging, and spend caps.
+
 ## Deferred item: Embeddable widget use-case selection
 
 Originally identified: Platform planning  

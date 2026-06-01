@@ -24,7 +24,7 @@
                 <i data-lucide="check-circle-2"></i>
                 <span>Analysis complete</span>
             </div>
-            <a href="/slu/jobs/{{ job.id }}/result" class="rj-btn rj-btn--primary rj-btn--lg slu-result-btn">
+            <a href="/slu/jobs/{{ job.id }}/workbench" class="rj-btn rj-btn--primary rj-btn--lg slu-result-btn">
                 <i data-lucide="sparkles"></i> View guidance
             </a>
 
@@ -97,7 +97,7 @@ if (jobId && (status === 'PENDING' || status === 'RUNNING')) {
 
             if (status === 'DONE') {
                 setStep(steps.length - 1);
-                window.location.href = `/slu/jobs/${jobId}/result`;
+                window.location.href = `/slu/jobs/${jobId}/workbench`;
             } else if (status === 'FAILED') {
                 window.location.reload();
             } else {

@@ -261,6 +261,66 @@ Next phase recommendation: Proceed to Phase 05 — Sounds Like Us Guidance Workb
 
 ---
 
+## Phase 05 — Sounds Like Us Guidance Workbench
+
+Date: 2026-06-01
+
+Outcome: Proceed to next phase
+
+Completed:
+- React island (`guidance-workbench.jsx`) mounted inside Twig page shell (`workbench.twig`); React built as a separate Vite entry point (`guidance-workbench.js`) loaded only on the workbench page
+- Color-coded provenance system: each control section has a colored title dot, and the output blocks it contributes are highlighted in the same color. Five source colors: voice (pine green), task (ember orange), reading (slate blue), pack (ochre gold), generic (stone). Works in both Rumboworks and Black & White themes.
+- "Our Voice" — read-only first panel showing the org's AI-detected voice profile (summary + tone attribute tags). No input options; colored title matches voice output blocks.
+- Guidance task control: Writing something new / Rewriting existing text / Critiquing existing text
+- Adaptive length/detail control: changes label and options based on selected task (Target length / Rewrite length / Critique depth)
+- Reading level segmented control: Easy Read / Plain Language / General Adult / Specialist/Expert
+- Best-practice pack radio group: None + 5 platform defaults (Fundraising, Email newsletters, Job descriptions, Social media, Press releases)
+- Guidance blocks toggle list: org-specific blocks (voice-tone, vocabulary, what-to-avoid from AI) + reading level + generic (AI-cliche avoidance, plain language, inclusive language) + best-practice pack toggle
+- All option changes assemble output client-side from pre-generated content — no new AI calls
+- Output panel: 6-section default output for legacy Learning Policy Institute run; each section has color-coded heading matching its source control
+- Copy guidance button (clipboard API with textarea fallback)
+- .txt and .md download via server-side routes, using current saved options
+- Debounced auto-save of workbench options (PATCH /slu/jobs/:jobId/workbench/options → stored as artifact)
+- Optional 1–5 star feedback with category and comment, submitted to new SluFeedback DB table
+- New `SluFeedback` MySQL table (created via raw SQL; prisma client regenerated)
+- Guidance artifact v1 format: `sounds-like-us.guidance.v1` with `organization`, `voiceProfile`, `guidanceBlocks[]` — new runs get richer AI output
+- Backward-compat transform: existing Phase 04 flat guidance artifacts are transformed to v1 format on the fly (no re-analysis required)
+- Updated analysis-service.js: new AI prompt returns `voice_profile` (toneAttributes, writingPatterns, vocabulary, phrases, avoid) and `guidance_blocks[]` (voice-tone, vocabulary, what-to-avoid) as structured JSON
+- `/slu/jobs/:jobId/result` now redirects to `/workbench`; job progress page redirects to workbench on completion
+- Platform config files: `guidance-blocks.config.js` (reading level + task/length + generic block content) and `best-practice-packs.config.js` (5 packs with full guidance text)
+- Pure `guidance-assembly.service.js` (no AI, no DB) shared by server (download routes) and client (React island)
+- 18/18 Playwright tests pass; 3 additional manual workbench tests (Twig shell, React mount with controls/output, color-coded source classes) all pass
+
+Incomplete: Nothing — all Phase 05 acceptance criteria met.
+
+Changed from original plan:
+- `@vitejs/plugin-react@4` (not latest v6) required because project uses Vite 5.x; v6 requires Vite 8+
+- PM2 must be restarted from an nvm-sourced shell after any `npm install` that adds packages; system Node 18 causes undici `File is not defined` crash. Pattern confirmed: always restart PM2 with `export NVM_DIR=... && nvm use 22 && pm2 kill && pm2 start ecosystem.config.cjs`
+- `SluFeedback` table created via raw SQL rather than `prisma db push` — the FK collision bug on MariaDB incremental push persists; raw SQL is the established workaround (see Phase 03 retrospective)
+- Guidance blocks toggle in controls panel includes "best-practice pack" toggle that only appears when a pack is selected; this is cleaner than always showing it
+- `TASK_LENGTH_BLOCKS` block for the task+length combination is always included (not separately toggled) since it is the primary driver of the assembled output; user controls it via the task and length selectors
+
+Deferred:
+- PDF export (deferred to Phase 08 or later; logged in deferred-work.md)
+- Manager/power-user configuration UI for Guidance Blocks and Best-Practice Packs
+- Explicit AI regeneration/refinement action (must be cost-logged and spend-capped when added)
+- Additional Playwright tests for option-change/assembly behavior added to permanent qa.spec.js (manual tests confirmed passing; permanent tests deferred for Phase 06 QA round)
+
+Docs updated:
+- `docs/active-planning/phase-retrospectives.md` (this entry)
+- `docs/active-planning/roadmap.md` (Phase 05 marked complete)
+- `docs/active-planning/deferred-work.md` (PDF export, manager config, AI regeneration)
+
+Checks/tests run:
+- `npm run build --workspace=rumbo-web` — clean build; 37.9KB CSS, 11.8KB main.js, 209.6KB guidance-workbench.js
+- `npx playwright test` — 18/18 pass, no regressions
+- Manual workbench tests: Twig shell, React mount, color-coded source blocks — all pass
+- PM2 stable: rumbo-web and rumbo-worker online under nvm Node 22
+
+Next phase recommendation: Proceed to Phase 06 — Central Admin and Observability. Review Phase 06 doc before assignment.
+
+---
+
 ## Template
 
 ```md

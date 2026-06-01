@@ -158,3 +158,20 @@ model ArtifactManifest {
 
   @@index([jobId])
 }
+
+// ---- Sounds Like Us — Feedback ----
+
+model SluFeedback {
+  id        String   @id @default(cuid())
+  jobId     String
+  userId    String
+  orgId     String?
+  rating    Int                         // 1–5
+  comment   String?  @db.Text
+  category  String?                     // 'sounds_right' | 'sounds_wrong' | etc.
+  options   Json?                       // selected workbench options at time of feedback
+  createdAt DateTime @default(now())
+
+  @@index([jobId])
+  @@index([userId])
+}

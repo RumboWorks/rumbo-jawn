@@ -1,0 +1,74 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}{{ title }} — Sounds Like Us{% endblock %}
+
+{% block content %}
+<div class="slu-wb-shell">
+
+    {% if error %}
+    <div class="rj-container slu-page">
+        <div class="slu-result-header">
+            <p class="rj-eyebrow">Sounds Like Us</p>
+            <h1 class="rj-h1">{{ job.orgName ?? 'Guidance workbench' }}</h1>
+            {% if job.url %}
+            <p class="rj-caption slu-job-url">
+                <i data-lucide="globe"></i> {{ job.url }}
+            </p>
+            {% endif %}
+        </div>
+        <div class="rj-alert rj-alert--warning">
+            <i data-lucide="alert-triangle"></i>
+            <span>{{ error }}</span>
+        </div>
+        <div class="slu-result-actions">
+            <a href="/slu" class="rj-btn rj-btn--secondary">
+                <i data-lucide="rotate-ccw"></i> Start a new analysis
+            </a>
+            <a href="/slu/history" class="rj-btn rj-btn--ghost">
+                <i data-lucide="clock"></i> View history
+            </a>
+        </div>
+    </div>
+    {% else %}
+
+    {# Workbench header — Twig (stays outside React) #}
+    <div class="slu-wb-header">
+        <div class="slu-wb-header__inner">
+            <div class="slu-wb-header__meta">
+                <span class="rj-eyebrow">Sounds Like Us</span>
+                <h1 class="slu-wb-header__title">{{ job.orgName ?? 'Guidance workbench' }}</h1>
+                {% if job.url %}
+                <a href="{{ job.url }}" target="_blank" rel="noopener" class="slu-wb-header__url">
+                    <i data-lucide="globe"></i> {{ job.url }}
+                </a>
+                {% endif %}
+            </div>
+            <div class="slu-wb-header__actions">
+                {% if job.pageCount %}
+                <span class="rj-badge rj-badge--default">
+                    <i data-lucide="file-text"></i> {{ job.pageCount }} page{{ job.pageCount != 1 ? 's' : '' }} analyzed
+                </span>
+                {% endif %}
+                <span class="rj-badge rj-badge--success">
+                    <span class="rj-dot"></span> Guidance ready
+                </span>
+            </div>
+        </div>
+    </div>
+
+    {# React island mount point #}
+    <div id="guidance-workbench-root"></div>
+
+    {# Pass server data to React via window global — set before the script loads #}
+    <script>
+        window.__WORKBENCH_DATA__ = {{ initialDataJson | raw }};
+    </script>
+
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="/dist/guidance-workbench.js"></script>
+{% endblock %}
