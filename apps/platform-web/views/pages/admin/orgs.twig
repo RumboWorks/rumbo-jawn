@@ -1,0 +1,71 @@
+{% extends "layouts/app.twig" %}
+
+{% block title %}Organizations — Rumbo Admin{% endblock %}
+
+{% block sidebar %}
+    {% include "pages/admin/_sidebar.twig" %}
+{% endblock %}
+
+{% block content %}
+    <div class="rj-page-header">
+        <h1>Organizations</h1>
+        <p>Tenant records, membership counts, partner access, and tool activity.</p>
+    </div>
+
+    <div class="rj-table-wrap">
+        <table class="rj-table rj-admin-table">
+            <thead>
+                <tr>
+                    <th>Organization</th>
+                    <th>Type</th>
+                    <th>Members</th>
+                    <th>Partner access</th>
+                    <th>Jobs</th>
+                    <th>Created</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for org in orgs %}
+                    <tr>
+                        <td>
+                            <strong>{{ org.name }}</strong>
+                            <br><span class="rj-admin-muted">{{ org.slug }}</span>
+                            <br><span class="rj-admin-muted rj-admin-mono">{{ org.publicId }}</span>
+                        </td>
+                        <td>
+                            {% if org.organizationType == 'SOLO' %}
+                                <span class="rj-badge rj-badge--neutral"><span class="rj-dot"></span>Solo</span>
+                            {% else %}
+                                <span class="rj-badge rj-badge--pine"><span class="rj-dot"></span>{{ org.organizationType|lower }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="rj-num">{{ org.memberships|length }}</span>
+                            {% for membership in org.memberships|slice(0, 3) %}
+                                <br><span class="rj-admin-muted">{{ membership.user.email }} · {{ membership.role|lower }}</span>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% if org.partnerAccesses|length == 0 %}
+                                <span class="rj-admin-muted">None</span>
+                            {% else %}
+                                {% for access in org.partnerAccesses %}
+                                    <div>{{ access.partnerAccount.name }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="rj-num">{{ org._count.jobs }}</span>
+                            {% if org._count.approvedDomains %}
+                                <br><span class="rj-admin-muted">{{ org._count.approvedDomains }} domains</span>
+                            {% endif %}
+                        </td>
+                        <td class="rj-num">{{ org.createdAt|date("M j, Y") }}</td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="6" class="rj-table__empty">No organizations found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

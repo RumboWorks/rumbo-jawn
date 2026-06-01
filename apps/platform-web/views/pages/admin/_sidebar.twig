@@ -1,0 +1,24 @@
+<span class="rj-sidebar__label">Admin</span>
+<div class="rj-sidebar__section">
+    <a href="/admin" class="rj-sidebar__link{% if active == 'dashboard' %} is-active{% endif %}">
+        <i data-lucide="layout-dashboard"></i> Dashboard
+    </a>
+    <a href="/admin/users" class="rj-sidebar__link{% if active == 'users' %} is-active{% endif %}">
+        <i data-lucide="users"></i> Users
+    </a>
+    <a href="/admin/orgs" class="rj-sidebar__link{% if active == 'orgs' %} is-active{% endif %}">
+        <i data-lucide="building-2"></i> Organizations
+    </a>
+    <a href="/admin/jobs" class="rj-sidebar__link{% if active == 'jobs' %} is-active{% endif %}">
+        <i data-lucide="activity"></i> Jobs
+    </a>
+    <a href="/admin/sounds-like-us" class="rj-sidebar__link{% if active == 'slu' %} is-active{% endif %}">
+        <i data-lucide="sparkles"></i> SLU runs
+    </a>
+    <a href="/admin/ai-calls" class="rj-sidebar__link{% if active == 'ai-calls' %} is-active{% endif %}">
+        <i data-lucide="cpu"></i> AI calls
+    </a>
+    <a href="/admin/failures" class="rj-sidebar__link{% if active == 'failures' %} is-active{% endif %}">
+        <i data-lucide="circle-alert"></i> Failures
+    </a>
+</div>

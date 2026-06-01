@@ -7,6 +7,9 @@ Shared platform tables should include, at minimum:
 - users,
 - organizations,
 - memberships,
+- partner accounts,
+- partner memberships,
+- partner organization access,
 - subscriptions,
 - jobs,
 - AI calls,
@@ -14,7 +17,18 @@ Shared platform tables should include, at minimum:
 - usage limits,
 - artifact manifests.
 
-Every account should belong to at least one organization.
+Every account should belong to at least one organization. Solo users operate through an internal solo organization with a manager membership, even when the product UI does not need to emphasize organization language.
+
+Users are global identities. Access is determined by relationships rather than a single permanent user type:
+
+- platform administration through `User.isPlatformAdmin`,
+- direct organization membership,
+- partner-account membership,
+- partner access to managed organizations.
+
+Organization memberships use manager/member semantics. Organization managers can administer an organization; organization members have standard org access. Partner managers can act with manager-level rights inside organizations their partner account manages.
+
+Organization-scoped data must always include organization context and must be queried with server-side permission checks.
 
 Tool-specific tables should reference shared platform tables rather than duplicating user, org, auth, billing, or job concepts.
 

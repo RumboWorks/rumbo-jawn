@@ -1,0 +1,64 @@
+{% if jobs|length == 0 %}
+    <p class="rj-admin-empty">No jobs found.</p>
+{% else %}
+    <div class="rj-table-wrap">
+        <table class="rj-table rj-admin-table">
+            <thead>
+                <tr>
+                    <th>Job</th>
+                    <th>Status</th>
+                    <th>Owner</th>
+                    {% if not compact %}<th>AI</th>{% endif %}
+                    <th>Updated</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for job in jobs %}
+                    <tr>
+                        <td>
+                            <a href="/admin/jobs/{{ job.id }}"><strong>{{ job.type }}</strong></a>
+                            <br><span class="rj-admin-muted rj-admin-mono">{{ job.id }}</span>
+                            {% if job.sourceUrl %}
+                                <br><span class="rj-admin-muted">{{ job.sourceUrl }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if job.status == 'DONE' %}
+                                <span class="rj-badge rj-badge--success"><span class="rj-dot"></span>Done</span>
+                            {% elseif job.status == 'FAILED' %}
+                                <span class="rj-badge rj-badge--danger"><span class="rj-dot"></span>Failed</span>
+                            {% elseif job.status == 'RUNNING' %}
+                                <span class="rj-badge rj-badge--pine"><span class="rj-dot"></span>Running</span>
+                            {% elseif job.status == 'CANCELLED' %}
+                                <span class="rj-badge rj-badge--warning"><span class="rj-dot"></span>Cancelled</span>
+                            {% else %}
+                                <span class="rj-badge rj-badge--neutral"><span class="rj-dot"></span>Pending</span>
+                            {% endif %}
+                            {% if job.errorMsg %}
+                                <br><span class="rj-admin-muted">{{ job.errorMsg|slice(0, 96) }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if job.user %}
+                                {{ job.user.email }}
+                            {% else %}
+                                <span class="rj-admin-muted">No user</span>
+                            {% endif %}
+                            {% if job.organizationName %}
+                                <br><span class="rj-admin-muted">{{ job.organizationName }}</span>
+                            {% endif %}
+                        </td>
+                        {% if not compact %}
+                            <td>
+                                <span class="rj-num">{{ job.aiCallCount }}</span> calls
+                                <br><span class="rj-admin-muted rj-num">{{ job.aiTokens }} tokens</span>
+                                <br><span class="rj-admin-muted rj-num">${{ job.aiCostUsd|number_format(6, '.', ',') }}</span>
+                            </td>
+                        {% endif %}
+                        <td class="rj-num">{{ job.updatedAt|date("M j, Y g:ia") }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}

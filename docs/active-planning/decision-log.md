@@ -178,4 +178,21 @@ The decision log already flagged that LinkedIn OAuth should be deferred and reco
 Consequences:
 - LinkedIn OAuth routes (`/auth/linkedin`, `/auth/linkedin/callback`) exist but are gated on `LINKEDIN_CLIENT_ID` and `LINKEDIN_CLIENT_SECRET` being set.
 - Test and confirm LinkedIn OAuth when credentials are available.
+
+## 2026-06-01 — Use relationship-based organization and partner access model
+
+Status: Accepted
+
+Decision:
+Adopt the Model Eval prototype's identity/access model as Rumbo's shared platform foundation before building central admin. Users are global identities; access is determined by platform admin status, organization memberships, partner account memberships, and partner access to managed organizations. Solo users receive an internal solo organization and manager membership.
+
+Rationale:
+Rumbo will later host Model Eval as a sibling tool inside the same platform. Building Phase 06 central admin on a simple user/admin flag and basic org membership model would create immediate rework. The relationship-based model supports Sounds Like Us now while preserving the tenant and partner-management concepts Model Eval needs later.
+
+Consequences:
+- `User.isPlatformAdmin` gates platform admin access.
+- Organization membership roles use manager/member semantics.
+- Partner accounts can manage organizations through explicit access records.
+- Org-scoped queries should include explicit organization context and server-side permission checks.
+- Phase 06b admin and observability should be built on this access foundation.
 - If LinkedIn's OAuth proves unreliable, remove the strategy and record the removal.

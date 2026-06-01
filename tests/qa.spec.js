@@ -5,6 +5,7 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { db } from '@rumbo/db';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ss = (name) => path.join(__dirname, 'screenshots', `${name}.png`);
@@ -56,10 +57,46 @@ test('register page renders with all fields', async ({ page }) => {
   await expect(page.locator('input[name="password"]')).toBeVisible();
 });
 
-test('admin placeholder page renders', async ({ page }) => {
-  await page.goto('/admin');
+test('admin requires platform admin access', async ({ page }) => {
+  const res = await page.goto('/admin');
   await screenshot(page, '04-admin');
+  expect(res.status()).toBe(403);
+  await expect(page.locator('text=Forbidden')).toBeVisible();
+});
+
+test('platform admin can view central admin dashboard', async ({ page }) => {
+  const email = `admin-${Date.now()}@example.org`;
+  await registerUser(page, { name: 'Admin User', email, password: 'adminpass99' });
+  await db.user.update({ where: { email }, data: { isPlatformAdmin: true } });
+
+  await page.goto('/');
+  await expect(page.getByRole('link', { name: 'Admin', exact: true })).toBeVisible();
+
+  await page.goto('/admin');
+  await screenshot(page, '04-admin-dashboard');
+
   await expect(page.locator('h1')).toContainText('Admin');
+  await expect(page.locator('text=Central platform visibility')).toBeVisible();
+  await expect(page.locator('.rj-sidebar__link', { hasText: 'AI calls' })).toBeVisible();
+  await expect(page.locator('.rj-admin-metric__label', { hasText: 'Users' })).toBeVisible();
+
+  await page.goto('/admin/users');
+  await expect(page.locator('h1')).toContainText('Users');
+
+  await page.goto('/admin/orgs');
+  await expect(page.locator('h1')).toContainText('Organizations');
+
+  await page.goto('/admin/jobs');
+  await expect(page.locator('h1')).toContainText('Jobs');
+
+  await page.goto('/admin/sounds-like-us');
+  await expect(page.locator('h1')).toContainText('Sounds Like Us runs');
+
+  await page.goto('/admin/ai-calls');
+  await expect(page.locator('h1')).toContainText('AI calls');
+
+  await page.goto('/admin/failures');
+  await expect(page.locator('h1')).toContainText('Failures');
 });
 
 test('account placeholder page renders', async ({ page }) => {

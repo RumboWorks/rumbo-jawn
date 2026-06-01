@@ -1,0 +1,152 @@
+{% extends "layouts/app.twig" %}
+
+{% block title %}Job {{ job.id }} — Rumbo Admin{% endblock %}
+
+{% block sidebar %}
+    {% include "pages/admin/_sidebar.twig" %}
+{% endblock %}
+
+{% block content %}
+    <div class="rj-page-header rj-admin-title-row">
+        <div>
+            <h1>{{ job.type }}</h1>
+            <p><span class="rj-admin-mono">{{ job.id }}</span></p>
+        </div>
+        <a class="rj-btn rj-btn--secondary rj-btn--sm" href="/admin/jobs/{{ job.id }}/debug">
+            <i data-lucide="braces"></i> Raw JSON
+        </a>
+    </div>
+
+    <section class="rj-admin-metrics rj-admin-metrics--compact" aria-label="Job summary">
+        <div class="rj-admin-metric">
+            <span class="rj-admin-metric__label">Status</span>
+            <strong>{{ job.status }}</strong>
+        </div>
+        <div class="rj-admin-metric">
+            <span class="rj-admin-metric__label">Attempts</span>
+            <strong>{{ job.attempts }} / {{ job.maxAttempts }}</strong>
+        </div>
+        <div class="rj-admin-metric">
+            <span class="rj-admin-metric__label">AI calls</span>
+            <strong>{{ job.aiCallCount }}</strong>
+        </div>
+        <div class="rj-admin-metric">
+            <span class="rj-admin-metric__label">AI cost</span>
+            <strong>${{ job.aiCostUsd|number_format(6, '.', ',') }}</strong>
+        </div>
+    </section>
+
+    <div class="rj-admin-detail-grid">
+        <section class="rj-admin-panel">
+            <div class="rj-admin-panel__header"><h2>Ownership</h2></div>
+            <dl class="rj-admin-kv">
+                <dt>User</dt>
+                <dd>{% if job.user %}{{ job.user.email }}{% else %}<span class="rj-admin-muted">No user</span>{% endif %}</dd>
+                <dt>Organization</dt>
+                <dd>{% if job.org %}{{ job.org.name }} <span class="rj-admin-muted">{{ job.org.slug }}</span>{% else %}<span class="rj-admin-muted">No organization</span>{% endif %}</dd>
+                <dt>Source URL</dt>
+                <dd>{% if job.sourceUrl %}{{ job.sourceUrl }}{% else %}<span class="rj-admin-muted">None</span>{% endif %}</dd>
+            </dl>
+        </section>
+
+        <section class="rj-admin-panel">
+            <div class="rj-admin-panel__header"><h2>Timing</h2></div>
+            <dl class="rj-admin-kv">
+                <dt>Created</dt>
+                <dd class="rj-num">{{ job.createdAt|date("M j, Y g:ia") }}</dd>
+                <dt>Started</dt>
+                <dd class="rj-num">{% if job.startedAt %}{{ job.startedAt|date("M j, Y g:ia") }}{% else %}<span class="rj-admin-muted">Not started</span>{% endif %}</dd>
+                <dt>Completed</dt>
+                <dd class="rj-num">{% if job.completedAt %}{{ job.completedAt|date("M j, Y g:ia") }}{% else %}<span class="rj-admin-muted">Not completed</span>{% endif %}</dd>
+            </dl>
+        </section>
+    </div>
+
+    {% if job.errorMsg %}
+        <section class="rj-admin-panel">
+            <div class="rj-admin-panel__header"><h2>Error</h2></div>
+            <pre class="rj-admin-code">{{ job.errorMsg }}</pre>
+        </section>
+    {% endif %}
+
+    <section class="rj-admin-panel">
+        <div class="rj-admin-panel__header"><h2>AI calls</h2></div>
+        {% if job.aiCalls|length == 0 %}
+            <p class="rj-admin-empty">No AI calls attached to this job.</p>
+        {% else %}
+            <div class="rj-table-wrap">
+                <table class="rj-table rj-admin-table">
+                    <thead>
+                        <tr>
+                            <th>Call</th>
+                            <th>Model</th>
+                            <th>Tokens</th>
+                            <th>Cost</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for call in job.aiCalls %}
+                            <tr>
+                                <td>{{ call.callType }}</td>
+                                <td>{{ call.provider }}<br><span class="rj-admin-muted">{{ call.model }}</span></td>
+                                <td class="rj-num">{{ call.totalTokens }}</td>
+                                <td class="rj-num">${{ call.costUsd|number_format(6, '.', ',') }}</td>
+                                <td class="rj-num">{{ call.createdAt|date("M j, Y g:ia") }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </section>
+
+    <section class="rj-admin-panel">
+        <div class="rj-admin-panel__header"><h2>Artifacts</h2></div>
+        {% if job.artifacts|length == 0 %}
+            <p class="rj-admin-empty">No artifacts attached to this job.</p>
+        {% else %}
+            <div class="rj-table-wrap">
+                <table class="rj-table rj-admin-table">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Storage path</th>
+                            <th>Size</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for artifact in job.artifacts %}
+                            <tr>
+                                <td>{{ artifact.type }}</td>
+                                <td class="rj-admin-mono">{{ artifact.storagePath }}</td>
+                                <td class="rj-num">{% if artifact.sizeBytes %}{{ artifact.sizeBytes }} bytes{% else %}<span class="rj-admin-muted">Unknown</span>{% endif %}</td>
+                                <td class="rj-num">{{ artifact.createdAt|date("M j, Y g:ia") }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </section>
+
+    <div class="rj-admin-detail-grid">
+        <section class="rj-admin-panel">
+            <div class="rj-admin-panel__header"><h2>Payload</h2></div>
+            {% if job.payloadJson %}
+                <pre class="rj-admin-code">{{ job.payloadJson }}</pre>
+            {% else %}
+                <p class="rj-admin-empty">No payload.</p>
+            {% endif %}
+        </section>
+        <section class="rj-admin-panel">
+            <div class="rj-admin-panel__header"><h2>Result</h2></div>
+            {% if job.resultJson %}
+                <pre class="rj-admin-code">{{ job.resultJson }}</pre>
+            {% else %}
+                <p class="rj-admin-empty">No result.</p>
+            {% endif %}
+        </section>
+    </div>
+{% endblock %}

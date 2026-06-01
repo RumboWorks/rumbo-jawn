@@ -1,0 +1,167 @@
+import { db } from '@rumbo/db';
+
+const RECENT_LIMIT = 10;
+const LIST_LIMIT = 50;
+
+function decimalToNumber(value) {
+  if (value === null || value === undefined) return 0;
+  return Number(value);
+}
+
+function compactJob(job) {
+  const aiCalls = job.aiCalls ?? [];
+  const aiCostUsd = aiCalls.reduce((total, call) => total + decimalToNumber(call.costUsd), 0);
+  const aiTokens = aiCalls.reduce((total, call) => total + (call.totalTokens ?? 0), 0);
+
+  return {
+    ...job,
+    aiCostUsd,
+    aiTokens,
+    aiCallCount: aiCalls.length,
+    sourceUrl: job.payload?.url ?? null,
+    organizationName: job.result?.orgName ?? job.org?.name ?? null,
+  };
+}
+
+function safeJson(value) {
+  if (value === null || value === undefined) return '';
+  return JSON.stringify(value, null, 2);
+}
+
+export async function getAdminDashboard() {
+  const [
+    userCount,
+    orgCount,
+    partnerCount,
+    jobCount,
+    failedJobCount,
+    runningJobCount,
+    aiSummary,
+    recentJobs,
+    recentFailures,
+    recentAiCalls,
+    recentSluRuns,
+  ] = await Promise.all([
+    db.user.count(),
+    db.organization.count({ where: { deletedAt: null } }),
+    db.partnerAccount.count(),
+    db.job.count(),
+    db.job.count({ where: { status: 'FAILED' } }),
+    db.job.count({ where: { status: 'RUNNING' } }),
+    db.aiCall.aggregate({
+      _sum: { costUsd: true, promptTokens: true, outputTokens: true, totalTokens: true },
+      _count: true,
+    }),
+    db.job.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: RECENT_LIMIT,
+      include: { user: true, org: true, aiCalls: true },
+    }),
+    db.job.findMany({
+      where: { status: 'FAILED' },
+      orderBy: { updatedAt: 'desc' },
+      take: 5,
+      include: { user: true, org: true, aiCalls: true },
+    }),
+    db.aiCall.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+      include: { job: { include: { user: true, org: true } } },
+    }),
+    db.job.findMany({
+      where: { type: 'slu.analysis' },
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+      include: { user: true, org: true, aiCalls: true },
+    }),
+  ]);
+
+  return {
+    metrics: {
+      userCount,
+      orgCount,
+      partnerCount,
+      jobCount,
+      failedJobCount,
+      runningJobCount,
+      aiCallCount: aiSummary._count,
+      aiCostUsd: decimalToNumber(aiSummary._sum.costUsd),
+      aiTokens: aiSummary._sum.totalTokens ?? 0,
+    },
+    recentJobs: recentJobs.map(compactJob),
+    recentFailures: recentFailures.map(compactJob),
+    recentAiCalls,
+    recentSluRuns: recentSluRuns.map(compactJob),
+  };
+}
+
+export async function listAdminUsers() {
+  return db.user.findMany({
+    orderBy: { createdAt: 'desc' },
+    take: LIST_LIMIT,
+    include: {
+      memberships: { include: { org: true }, orderBy: { createdAt: 'asc' } },
+      partnerMemberships: { include: { partnerAccount: true }, orderBy: { createdAt: 'asc' } },
+      _count: { select: { jobs: true } },
+    },
+  });
+}
+
+export async function listAdminOrganizations() {
+  return db.organization.findMany({
+    where: { deletedAt: null },
+    orderBy: { createdAt: 'desc' },
+    take: LIST_LIMIT,
+    include: {
+      memberships: { include: { user: true }, orderBy: { createdAt: 'asc' } },
+      partnerAccesses: {
+        where: { removedAt: null },
+        include: { partnerAccount: true },
+        orderBy: { createdAt: 'desc' },
+      },
+      _count: { select: { jobs: true, approvedDomains: true } },
+    },
+  });
+}
+
+export async function listAdminJobs({ type = null, status = null } = {}) {
+  const jobs = await db.job.findMany({
+    where: {
+      ...(type && { type }),
+      ...(status && { status }),
+    },
+    orderBy: { createdAt: 'desc' },
+    take: LIST_LIMIT,
+    include: { user: true, org: true, aiCalls: true },
+  });
+
+  return jobs.map(compactJob);
+}
+
+export async function listAdminAiCalls() {
+  const calls = await db.aiCall.findMany({
+    orderBy: { createdAt: 'desc' },
+    take: LIST_LIMIT,
+    include: { job: { include: { user: true, org: true } } },
+  });
+
+  return calls.map(call => ({
+    ...call,
+    costUsdNumber: decimalToNumber(call.costUsd),
+  }));
+}
+
+export async function getAdminJobDetail(jobId) {
+  const job = await db.job.findUnique({
+    where: { id: jobId },
+    include: { user: true, org: true, aiCalls: true, artifacts: true },
+  });
+
+  if (!job) return null;
+
+  return {
+    ...compactJob(job),
+    payloadJson: safeJson(job.payload),
+    resultJson: safeJson(job.result),
+  };
+}

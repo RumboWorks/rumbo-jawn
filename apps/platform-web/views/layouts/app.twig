@@ -7,6 +7,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Bitter:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Hanken+Grotesk:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/brand/rumboworks-mark.svg">
+    <link rel="alternate icon" href="/favicon.ico">
     <link rel="stylesheet" href="/dist/main.css">
     <script>
         (function() {
@@ -26,6 +28,9 @@
             <nav class="rj-header__nav">
                 {% if currentUser %}
                     <span class="rj-header__nav-link" style="cursor:default;">{{ currentUser.name ?? currentUser.email }}</span>
+                    {% if currentUser.isPlatformAdmin %}
+                        <a href="/admin" class="rj-header__nav-link">Admin</a>
+                    {% endif %}
                     <a href="/auth/logout" class="rj-header__nav-link">Sign out</a>
                 {% else %}
                     <a href="/login" class="rj-header__nav-link">Sign in</a>

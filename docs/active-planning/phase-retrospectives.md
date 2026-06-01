@@ -330,6 +330,110 @@ Next phase recommendation: Proceed to Phase 06 — Central Admin and Observabili
 
 ---
 
+## Phase 06a — Identity, Organizations, and Access Foundation
+
+Date: 2026-06-01
+
+Outcome:
+- Proceed to Phase 06b — Central Admin and Observability
+
+Completed:
+- Split original Phase 06 into Phase 06a identity/access foundation and Phase 06b central admin/observability
+- Added shared platform access model inspired by the Model Eval prototype while keeping Rumbo's cuid/string IDs
+- Added `User.isPlatformAdmin`
+- Added organization `publicId`, `organizationType`, nullable creator reference, and soft-delete timestamp
+- Migrated membership semantics from `OWNER`/`ADMIN`/`MEMBER` to `MANAGER`/`MEMBER`
+- Backfilled existing memberships from `OWNER` to `MANAGER`
+- Backfilled one existing user without a membership into a solo organization
+- Added partner account, partner membership, partner organization access, and organization invite tables
+- Updated signup/org provisioning so solo users receive a solo organization and manager membership
+- Added shared role/permission helpers and organization access resolution
+- Gated `/admin` with `User.isPlatformAdmin`
+- Added a support command to grant platform admin access to an existing user
+
+Incomplete: Nothing required for Phase 06a acceptance criteria.
+
+Changed from original plan:
+- Phase 06 was split because the admin UI should be built on the correct identity/org/partner model.
+- Prisma `db push` partially applied schema changes and then hit the known MariaDB duplicate-key issue. Raw SQL was used to safely pre-migrate enum values and backfill `Organization.publicId`; Prisma client generation and schema validation then passed.
+
+Deferred:
+- Full admin dashboards and observability UI move to Phase 06b.
+- Partner self-service UI, invite acceptance flow, role-management UI, and admin impersonation remain out of scope.
+- Model Eval implementation remains planned sibling-tool work, not part of Phase 06a.
+
+Docs updated:
+- `docs/development-phases/phase-06a-identity-org-access-foundation.md`
+- `docs/development-phases/phase-06b-central-admin-observability.md`
+- `docs/project-charter/architecture.md`
+- `docs/project-charter/data-model.md`
+- `docs/active-planning/decision-log.md`
+- `docs/active-planning/implementation-notes.md`
+- `docs/active-planning/roadmap.md`
+- `docs/reference/usage.md`
+
+Checks/tests run:
+- Focused DB role migration check
+- Focused new-user solo org provisioning check
+- Focused org manager / partner manager role-resolution check
+- `npx prisma format --schema packages/db/prisma/schema.prisma`
+- `npx prisma validate --schema packages/db/prisma/schema.prisma`
+- `npx prisma generate --schema packages/db/prisma/schema.prisma`
+- `npm run build --workspace=rumbo-web`
+- `npm run qa` — 18/18 passed
+- PM2 restarted under nvm Node 22
+
+Next phase recommendation: Proceed to Phase 06b — Central Admin and Observability.
+
+---
+
+## Phase 06b — Central Admin and Observability
+
+Date: 2026-06-01
+
+Outcome:
+- Proceed to Phase 07 — Billing, Limits, and Product Controls
+
+Completed:
+- Replaced the `/admin` placeholder with a platform admin dashboard gated by `User.isPlatformAdmin`
+- Added central visibility for users, organizations, jobs, failures, AI calls, AI cost metadata, artifacts, and Sounds Like Us runs
+- Added shared admin data service that reads platform tables instead of creating tool-specific admin architecture
+- Added admin pages for dashboard, users, organizations, jobs, Sounds Like Us runs, AI calls, failures, and job detail
+- Added raw job debug JSON endpoint at `/admin/jobs/:jobId/debug`
+- Added admin SCSS for metric tiles, dense tables, filters, detail panels, and JSON blocks
+- Added favicon links to the app layout so authenticated/admin pages use the same favicon as public pages
+- Expanded Playwright QA to verify non-admin access is blocked and platform admins can render every new admin route
+- Reset the disposable `rumbo_dev` database with Prisma `db push --force-reset`, restoring clean Prisma/schema sync after the earlier MariaDB drift
+
+Incomplete:
+- Nothing required for Phase 06b acceptance criteria.
+
+Changed from original plan:
+- True job re-run/retry controls were not added. The phase delivered raw JSON debug aids, but retry controls need explicit idempotency and cost rules before they are safe.
+- The development database was reset because current Rumbo data is disposable and the user approved deleting it.
+
+Deferred:
+- Admin job re-run and retry controls are deferred to a later worker/admin reliability phase or Phase 09 launch hardening.
+
+Docs updated:
+- `docs/reference/usage.md`
+- `docs/active-planning/roadmap.md`
+- `docs/active-planning/deferred-work.md`
+- `docs/active-planning/implementation-notes.md`
+- `docs/active-planning/phase-retrospectives.md`
+
+Checks/tests run:
+- `npx prisma validate --schema packages/db/prisma/schema.prisma`
+- `npx prisma db push --schema packages/db/prisma/schema.prisma --force-reset --accept-data-loss`
+- `npm run build --workspace=rumbo-web`
+- `npm run pm2:restart`
+- HTTP smoke checks for `/` and `/admin`
+- `npm run qa` — 19/19 passed, including admin dashboard and admin route rendering
+
+Next phase recommendation: Proceed to Phase 07 — Billing, Limits, and Product Controls.
+
+---
+
 ## Template
 
 ```md

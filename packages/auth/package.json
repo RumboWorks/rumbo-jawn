@@ -4,6 +4,9 @@
   "private": true,
   "type": "module",
   "main": "src/index.js",
+  "scripts": {
+    "grant-platform-admin": "node src/scripts/grant-platform-admin.js"
+  },
   "dependencies": {
     "@quixo3/prisma-session-store": "^3.1.19",
     "@rumbo/db": "^0.0.1",

@@ -98,3 +98,11 @@ Deferred to: Phase 08 or earlier if a strong use case appears
 Reason: Widgets are valuable for brand spread, but the first public widget should be tied to a real product output.  
 Blocking: Need Sounds Like Us or another tool output worth embedding.  
 Must not forget because: Embeddable widgets are a medium-priority platform capability, not a back-burner idea.
+
+## Deferred item: Admin job re-run and retry controls
+
+Originally identified: Phase 06b  
+Deferred to: later worker/admin reliability phase, or Phase 09 launch hardening  
+Reason: Phase 06b added admin visibility and raw JSON debug aids. True re-run/retry buttons should wait until retry semantics, idempotency expectations, and cost implications are explicit.  
+Blocking: Need clearer product rules for whether re-runs reuse artifacts, create new jobs, or mutate failed jobs.  
+Must not forget because: Admin debugging will be much more useful once operators can safely retry failed runs without manual database or worker intervention.

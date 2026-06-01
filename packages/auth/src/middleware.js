@@ -6,8 +6,9 @@ export function requireAuth(req, res, next) {
 }
 
 // requireAdmin — 403 if the user is not a platform admin.
-// Admin flag is a placeholder until Phase 06 adds an admin role on User.
 export function requireAdmin(req, res, next) {
-  if (req.isAuthenticated() && req.user?.isAdmin) return next();
+  if (req.isAuthenticated() && req.user?.isPlatformAdmin) return next();
   res.status(403).render('pages/error', { status: 403, message: 'Forbidden' });
 }
+
+export const requirePlatformAdmin = requireAdmin;

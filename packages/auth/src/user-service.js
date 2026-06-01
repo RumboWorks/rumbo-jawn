@@ -54,8 +54,15 @@ export async function ensureOrgMembership(user) {
     });
   } else {
     const slug = await uniqueOrgSlug(user.email.split('@')[0]);
-    const org = await db.organization.create({ data: { name: `${user.name ?? user.email}'s org`, slug } });
-    await db.membership.create({ data: { userId: user.id, orgId: org.id, role: 'OWNER' } });
+    const org = await db.organization.create({
+      data: {
+        name: `${user.name ?? user.email}'s workspace`,
+        slug,
+        organizationType: 'SOLO',
+        createdByUserId: user.id,
+      },
+    });
+    await db.membership.create({ data: { userId: user.id, orgId: org.id, role: 'MANAGER' } });
   }
 }
 
@@ -63,7 +70,10 @@ export async function ensureOrgMembership(user) {
 export async function loadUser(id) {
   return db.user.findUnique({
     where: { id },
-    include: { memberships: { include: { org: true } } },
+    include: {
+      memberships: { include: { org: true } },
+      partnerMemberships: { include: { partnerAccount: true } },
+    },
   });
 }
 

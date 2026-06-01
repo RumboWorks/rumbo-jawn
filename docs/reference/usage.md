@@ -84,3 +84,25 @@ npm run db:generate --workspace=@rumbo/db
 # Run migrations in development
 npm run db:migrate --workspace=@rumbo/db
 ```
+
+## Platform Admin Access
+
+Grant platform admin access to an existing user:
+
+```sh
+npm run grant-platform-admin --workspace=@rumbo/auth -- user@example.com
+```
+
+This sets `User.isPlatformAdmin = true`. The `/admin` area is server-gated and returns 403 for non-admin users.
+
+Verified admin routes:
+
+- `/admin` — dashboard with platform metrics, recent jobs, failures, AI calls, and Sounds Like Us runs
+- `/admin/users` — user and relationship visibility
+- `/admin/orgs` — organization, membership, and partner-access visibility
+- `/admin/jobs` — recent jobs, with optional `type` and `status` query filters
+- `/admin/jobs/:jobId` — job detail with payload, result, AI calls, artifacts, and error text
+- `/admin/jobs/:jobId/debug` — raw JSON debug payload for a job
+- `/admin/sounds-like-us` — Sounds Like Us runs through shared job records
+- `/admin/ai-calls` — recent AI provider/model/token/cost metadata
+- `/admin/failures` — failed jobs

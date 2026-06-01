@@ -1,0 +1,68 @@
+{% extends "layouts/app.twig" %}
+
+{% block title %}Users — Rumbo Admin{% endblock %}
+
+{% block sidebar %}
+    {% include "pages/admin/_sidebar.twig" %}
+{% endblock %}
+
+{% block content %}
+    <div class="rj-page-header">
+        <h1>Users</h1>
+        <p>Recent platform identities and their organization or partner relationships.</p>
+    </div>
+
+    <div class="rj-table-wrap">
+        <table class="rj-table rj-admin-table">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Platform</th>
+                    <th>Organizations</th>
+                    <th>Partners</th>
+                    <th>Jobs</th>
+                    <th>Created</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                    <tr>
+                        <td>
+                            <strong>{{ user.name ?? user.email }}</strong>
+                            <br><span class="rj-admin-muted">{{ user.email }}</span>
+                        </td>
+                        <td>
+                            {% if user.isPlatformAdmin %}
+                                <span class="rj-badge rj-badge--pine"><span class="rj-dot"></span>Admin</span>
+                            {% else %}
+                                <span class="rj-badge rj-badge--neutral"><span class="rj-dot"></span>User</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.memberships|length == 0 %}
+                                <span class="rj-admin-muted">None</span>
+                            {% else %}
+                                {% for membership in user.memberships %}
+                                    <div>{{ membership.org.name }} <span class="rj-admin-muted">{{ membership.role|lower }}</span></div>
+                                {% endfor %}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.partnerMemberships|length == 0 %}
+                                <span class="rj-admin-muted">None</span>
+                            {% else %}
+                                {% for membership in user.partnerMemberships %}
+                                    <div>{{ membership.partnerAccount.name }} <span class="rj-admin-muted">{{ membership.role|lower }}</span></div>
+                                {% endfor %}
+                            {% endif %}
+                        </td>
+                        <td class="rj-num">{{ user._count.jobs }}</td>
+                        <td class="rj-num">{{ user.createdAt|date("M j, Y") }}</td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="6" class="rj-table__empty">No users found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

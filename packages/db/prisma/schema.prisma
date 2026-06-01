@@ -12,17 +12,22 @@ datasource db {
 // ---- Auth / Users ----
 
 model User {
-  id            String       @id @default(cuid())
-  email         String       @unique
-  name          String?
-  avatarUrl     String?
-  passwordHash  String?
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-  lastLoginAt   DateTime?
-  memberships   Membership[]
-  oauthAccounts OAuthAccount[]
-  jobs          Job[]
+  id                        String                      @id @default(cuid())
+  email                     String                      @unique
+  name                      String?
+  avatarUrl                 String?
+  passwordHash              String?
+  isPlatformAdmin           Boolean                     @default(false)
+  createdAt                 DateTime                    @default(now())
+  updatedAt                 DateTime                    @updatedAt
+  lastLoginAt               DateTime?
+  memberships               Membership[]
+  partnerMemberships        PartnerMembership[]
+  organizationsCreated      Organization[]              @relation("OrganizationCreatedBy")
+  partnerOrgAccessesCreated PartnerOrganizationAccess[] @relation("PartnerOrgAccessCreatedBy")
+  invitesSent               OrganizationInvite[]        @relation("OrganizationInviteSentBy")
+  oauthAccounts             OAuthAccount[]
+  jobs                      Job[]
 }
 
 model OAuthAccount {
@@ -39,14 +44,23 @@ model OAuthAccount {
 // ---- Organizations ----
 
 model Organization {
-  id              String          @id @default(cuid())
-  name            String
-  slug            String          @unique
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  memberships     Membership[]
-  approvedDomains ApprovedDomain[]
-  jobs            Job[]
+  id               String                      @id @default(cuid())
+  publicId         String                      @unique @default(cuid())
+  name             String
+  slug             String                      @unique
+  organizationType OrgType                     @default(SOLO)
+  createdByUserId  String?
+  createdAt        DateTime                    @default(now())
+  updatedAt        DateTime                    @updatedAt
+  deletedAt        DateTime?
+  createdBy        User?                       @relation("OrganizationCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull)
+  memberships      Membership[]
+  invites          OrganizationInvite[]
+  partnerAccesses  PartnerOrganizationAccess[]
+  approvedDomains  ApprovedDomain[]
+  jobs             Job[]
+
+  @@index([createdByUserId])
 }
 
 model Membership {
@@ -63,9 +77,34 @@ model Membership {
 }
 
 enum MemberRole {
-  OWNER
-  ADMIN
+  MANAGER
   MEMBER
+}
+
+enum OrgType {
+  SOLO
+  NONPROFIT
+  AGENCY
+  ENTERPRISE
+}
+
+model OrganizationInvite {
+  id              String     @id @default(cuid())
+  orgId           String
+  email           String
+  role            MemberRole @default(MEMBER)
+  invitedByUserId String?
+  inviteToken     String     @unique @default(cuid())
+  expiresAt       DateTime
+  acceptedAt      DateTime?
+  createdAt       DateTime   @default(now())
+
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  invitedBy User?        @relation("OrganizationInviteSentBy", fields: [invitedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([orgId])
+  @@index([email])
+  @@index([invitedByUserId])
 }
 
 model ApprovedDomain {
@@ -76,6 +115,57 @@ model ApprovedDomain {
 
   @@unique([domain, orgId])
   @@index([orgId])
+}
+
+model PartnerAccount {
+  id           String   @id @default(cuid())
+  publicId     String   @unique @default(cuid())
+  name         String
+  logoUrl      String?
+  primaryColor String?
+  supportEmail String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  memberships PartnerMembership[]
+  orgAccesses PartnerOrganizationAccess[]
+}
+
+model PartnerMembership {
+  id               String      @id @default(cuid())
+  partnerAccountId String
+  userId           String
+  role             PartnerRole @default(MANAGER)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  partnerAccount PartnerAccount @relation(fields: [partnerAccountId], references: [id], onDelete: Cascade)
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([partnerAccountId, userId])
+  @@index([partnerAccountId])
+  @@index([userId])
+}
+
+model PartnerOrganizationAccess {
+  id               String    @id @default(cuid())
+  partnerAccountId String
+  orgId            String
+  createdByUserId  String?
+  createdAt        DateTime  @default(now())
+  removedAt        DateTime?
+
+  partnerAccount PartnerAccount @relation(fields: [partnerAccountId], references: [id], onDelete: Cascade)
+  org            Organization   @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  createdBy      User?          @relation("PartnerOrgAccessCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull)
+
+  @@index([partnerAccountId])
+  @@index([orgId])
+  @@index([createdByUserId])
+}
+
+enum PartnerRole {
+  MANAGER
 }
 
 // ---- Sessions ----
@@ -90,22 +180,22 @@ model Session {
 // ---- Jobs ----
 
 model Job {
-  id          String     @id @default(cuid())
-  type        String                    // e.g. 'slu.analysis'
-  status      JobStatus  @default(PENDING)
+  id          String             @id @default(cuid())
+  type        String // e.g. 'slu.analysis'
+  status      JobStatus          @default(PENDING)
   userId      String?
   orgId       String?
-  payload     Json?                     // input parameters
-  result      Json?                     // summary output
-  errorMsg    String?    @db.Text
-  attempts    Int        @default(0)
-  maxAttempts Int        @default(3)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  payload     Json? // input parameters
+  result      Json? // summary output
+  errorMsg    String?            @db.Text
+  attempts    Int                @default(0)
+  maxAttempts Int                @default(3)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
   startedAt   DateTime?
   completedAt DateTime?
-  user        User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
-  org         Organization? @relation(fields: [orgId], references: [id], onDelete: SetNull)
+  user        User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
+  org         Organization?      @relation(fields: [orgId], references: [id], onDelete: SetNull)
   aiCalls     AiCall[]
   artifacts   ArtifactManifest[]
 
@@ -127,13 +217,13 @@ enum JobStatus {
 model AiCall {
   id           String   @id @default(cuid())
   jobId        String?
-  callType     String                    // e.g. 'crawl.summarize', 'guidance.generate'
-  provider     String                    // 'openai' | 'anthropic' | 'deepseek'
+  callType     String // e.g. 'crawl.summarize', 'guidance.generate'
+  provider     String // 'openai' | 'anthropic' | 'deepseek'
   model        String
   promptTokens Int      @default(0)
   outputTokens Int      @default(0)
   totalTokens  Int      @default(0)
-  costUsd      Decimal  @default(0) @db.Decimal(10,6)
+  costUsd      Decimal  @default(0) @db.Decimal(10, 6)
   durationMs   Int?
   cacheHit     Boolean  @default(false)
   createdAt    DateTime @default(now())
@@ -148,8 +238,8 @@ model AiCall {
 model ArtifactManifest {
   id          String   @id @default(cuid())
   jobId       String?
-  type        String                    // e.g. 'crawl.raw', 'guidance.profile'
-  storagePath String                    // relative path within storage root
+  type        String // e.g. 'crawl.raw', 'guidance.profile'
+  storagePath String // relative path within storage root
   sizeBytes   Int?
   mimeType    String?
   meta        Json?
@@ -166,10 +256,10 @@ model SluFeedback {
   jobId     String
   userId    String
   orgId     String?
-  rating    Int                         // 1–5
+  rating    Int // 1–5
   comment   String?  @db.Text
-  category  String?                     // 'sounds_right' | 'sounds_wrong' | etc.
-  options   Json?                       // selected workbench options at time of feedback
+  category  String? // 'sounds_right' | 'sounds_wrong' | etc.
+  options   Json? // selected workbench options at time of feedback
   createdAt DateTime @default(now())
 
   @@index([jobId])

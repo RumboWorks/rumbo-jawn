@@ -17,7 +17,8 @@ Do not mark work complete unless it can be verified in the repository.
 
 - [x] Phase 04 — Sounds Like Us first run
 - [x] Phase 05 — Sounds Like Us guidance workbench
-- [ ] Phase 06 — Central admin and observability
+- [x] Phase 06a — Identity, organizations, and access foundation
+- [x] Phase 06b — Central admin and observability
 - [ ] Phase 07 — Billing, limits, and product controls
 - [ ] Phase 08 — Embeddable widgets
 - [ ] Phase 09 — Finish-line discipline and launch hardening
@@ -32,4 +33,5 @@ Model Eval should influence shared platform decisions but should not be implemen
 
 ## Next up
 
-1. Review and revise Phase 06 before assignment.
+1. Build Phase 07 billing, limits, and product controls on the Phase 06a access model and Phase 06b admin visibility.
+2. Continue to treat Model Eval as planned sibling-tool work until the roadmap explicitly adds its implementation.

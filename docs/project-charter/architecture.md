@@ -146,6 +146,15 @@ Use centralized auth shared across all tools.
 
 Every account should belong to at least one organization.
 
+Users are global identities. Platform access is determined by relationships:
+
+- direct organization memberships,
+- partner-account memberships,
+- partner access to managed organizations,
+- platform admin status.
+
+Solo users should receive an internal solo organization and manager membership. Partner managers may act with manager-level rights inside organizations connected to their partner account.
+
 Launch auth should include Google login and probably LinkedIn, plus email/password and/or magic link if practical.
 
 Approved-domain auto-approval belongs in shared auth/org logic.
