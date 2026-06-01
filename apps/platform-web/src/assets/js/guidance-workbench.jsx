@@ -234,7 +234,7 @@ function ControlSection({ colorKey, title, children, isVoice }) {
   );
 }
 
-function RadioGroup({ name, options, value, onChange }) {
+function RadioGroup({ name, options, value, onChange, vertical }) {
   const containerRef = useRef(null);
   const indicatorRef = useRef(null);
   const activeDesc = options.find(o => o.value === value)?.desc ?? '';
@@ -247,10 +247,15 @@ function RadioGroup({ name, options, value, onChange }) {
     if (!activeBtn) { indicator.style.opacity = '0'; return; }
     const cr = container.getBoundingClientRect();
     const br = activeBtn.getBoundingClientRect();
-    indicator.style.width = `${br.width}px`;
-    indicator.style.transform = `translateX(${br.left - cr.left}px)`;
+    if (vertical) {
+      indicator.style.height = `${br.height}px`;
+      indicator.style.transform = `translateY(${br.top - cr.top}px)`;
+    } else {
+      indicator.style.width = `${br.width}px`;
+      indicator.style.transform = `translateX(${br.left - cr.left}px)`;
+    }
     indicator.style.opacity = '1';
-  }, []);
+  }, [vertical]);
 
   useEffect(() => { slideIndicator(); }, [value, slideIndicator]);
 
@@ -267,9 +272,11 @@ function RadioGroup({ name, options, value, onChange }) {
     return () => cancelAnimationFrame(raf);
   }, [slideIndicator]);
 
+  const segmentedClass = 'slu-wb__segmented' + (vertical ? ' slu-wb__segmented--vertical' : '');
+
   return (
     <>
-      <div className="slu-wb__segmented" ref={containerRef} role="radiogroup">
+      <div className={segmentedClass} ref={containerRef} role="radiogroup">
         <span className="slu-wb__seg-indicator" ref={indicatorRef} aria-hidden="true" />
         {options.map(opt => (
           <button
@@ -673,6 +680,7 @@ function GuidanceWorkbenchInner({ data }) {
               options={bestPracticePacks.map(p => ({ value: p.id, label: p.label }))}
               value={bestPracticePack}
               onChange={setBestPracticePack}
+              vertical
             />
           </ControlSection>
 

@@ -464,6 +464,34 @@
   color: var(--rj-fg-3);
 }
 
+// ---- Vertical variant (stacked, slides up/down) ----
+
+.slu-wb__segmented--vertical {
+  flex-direction: column;
+  flex-wrap: nowrap;
+  border-radius: var(--rj-radius-md);
+
+  .slu-wb__seg-indicator {
+    top: 0;
+    left: 3px;
+    right: 3px;
+    bottom: auto;
+    width: auto;
+    height: 0;
+    border-radius: calc(var(--rj-radius-md) - 2px);
+    transition:
+      transform var(--rj-dur-slow) var(--rj-ease),
+      height var(--rj-dur-slow) var(--rj-ease),
+      opacity var(--rj-dur-fast) var(--rj-ease);
+  }
+
+  .slu-wb__seg-btn {
+    flex: 0 0 auto;
+    text-align: left;
+    padding: var(--rj-space-2) var(--rj-space-3);
+  }
+}
+
 .slu-wb__view-switch {
   min-width: 210px;
 
