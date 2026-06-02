@@ -1,0 +1,19 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}Organization invitation — Rumbo{% endblock %}
+
+{% block content %}
+<div class="rj-container">
+    <div class="rj-auth-box">
+        <h1 class="rj-auth-box__heading">Join {{ invite.org.name }}</h1>
+        <p class="rj-auth-box__footer">
+            You were invited as {{ invite.role|lower }} using {{ invite.email }}.
+        </p>
+
+        <div class="rj-admin-title-row">
+            <a class="rj-btn rj-btn--primary" href="/register?invite={{ invite.inviteToken }}">Create account</a>
+            <a class="rj-btn rj-btn--secondary" href="/login?invite={{ invite.inviteToken }}">Sign in</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

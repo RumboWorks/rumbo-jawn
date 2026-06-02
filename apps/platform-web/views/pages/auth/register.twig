@@ -31,6 +31,9 @@
         {% endif %}
 
         <form method="POST" action="/register" class="rj-form">
+            {% if inviteToken %}
+                <input type="hidden" name="inviteToken" value="{{ inviteToken }}">
+            {% endif %}
             <div class="rj-form-group">
                 <label class="rj-label" for="name">Name</label>
                 <input class="rj-input" type="text" id="name" name="name"

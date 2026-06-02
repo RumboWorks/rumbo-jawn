@@ -8,20 +8,109 @@
         <a href="/account" class="rj-sidebar__link is-active">
             <i data-lucide="user"></i> Profile
         </a>
-        <a href="/account/org" class="rj-sidebar__link">
-            <i data-lucide="building-2"></i> Organization
-        </a>
+        {% for membership in account.visibleMemberships %}
+            {% if membership.role == 'MANAGER' %}
+                <a href="/account/orgs/{{ membership.org.id }}/members" class="rj-sidebar__link">
+                    <i data-lucide="users"></i> {{ membership.org.name }}
+                </a>
+            {% endif %}
+        {% endfor %}
     </div>
 {% endblock %}
 
 {% block content %}
     <div class="rj-page-header">
         <h1>Account</h1>
-        <p>Account and organization settings — placeholder. Implemented in Phase 02.</p>
+        <p>Manage your profile, password, and access.</p>
     </div>
 
-    <div class="rj-alert rj-alert--info">
-        <i data-lucide="info"></i>
-        <div class="rj-alert__body">Auth and account features are implemented in Phase 02.</div>
+    {% if flash_error %}
+        <div class="rj-alert rj-alert--danger">
+            <i data-lucide="circle-x"></i>
+            <div class="rj-alert__body">{{ flash_error }}</div>
+        </div>
+    {% endif %}
+    {% if flash_success %}
+        <div class="rj-alert rj-alert--success">
+            <i data-lucide="check-circle-2"></i>
+            <div class="rj-alert__body">{{ flash_success }}</div>
+        </div>
+    {% endif %}
+
+    <div class="rj-admin-detail-grid">
+        <section class="rj-admin-panel">
+            <div class="rj-admin-panel__header"><h2>Profile</h2></div>
+            <form class="rj-admin-form" method="post" action="/account/profile">
+                <label>
+                    <span>Name</span>
+                    <input type="text" name="name" value="{{ account.name ?? '' }}" required>
+                </label>
+                <label>
+                    <span>Email</span>
+                    <input type="email" name="email" value="{{ account.email }}" required>
+                </label>
+                <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit">
+                    <i data-lucide="save"></i> Save profile
+                </button>
+            </form>
+        </section>
+
+        <section class="rj-admin-panel">
+            <div class="rj-admin-panel__header"><h2>Password</h2></div>
+            {% if account.hasPassword %}
+                <form class="rj-admin-form" method="post" action="/account/password">
+                    <label>
+                        <span>Current password</span>
+                        <input type="password" name="currentPassword" autocomplete="current-password" required>
+                    </label>
+                    <label>
+                        <span>New password</span>
+                        <input type="password" name="newPassword" autocomplete="new-password" minlength="8" required>
+                    </label>
+                    <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit">
+                        <i data-lucide="save"></i> Change password
+                    </button>
+                </form>
+            {% else %}
+                <p class="rj-admin-empty">This account signs in with {{ account.authProviders|join(', ') }}.</p>
+            {% endif %}
+        </section>
     </div>
+
+    <section class="rj-admin-panel">
+        <div class="rj-admin-panel__header"><h2>Access</h2></div>
+        <dl class="rj-admin-kv">
+            <dt>Status</dt>
+            <dd>{{ account.status }}</dd>
+            <dt>Platform admin</dt>
+            <dd>{% if account.isPlatformAdmin %}Yes{% else %}No{% endif %}</dd>
+            <dt>Organizations</dt>
+            <dd>
+                {% if account.visibleMemberships|length == 0 %}
+                    <span class="rj-admin-muted">No team organizations.</span>
+                {% else %}
+                    {% for membership in account.visibleMemberships %}
+                        <div>
+                            {% if membership.role == 'MANAGER' %}
+                                <a href="/account/orgs/{{ membership.org.id }}/members">{{ membership.org.name }}</a>
+                            {% else %}
+                                {{ membership.org.name }}
+                            {% endif %}
+                            <span class="rj-admin-muted">{{ membership.role|lower }}</span>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </dd>
+            <dt>Partners</dt>
+            <dd>
+                {% if account.partnerMemberships|length == 0 %}
+                    <span class="rj-admin-muted">None</span>
+                {% else %}
+                    {% for membership in account.partnerMemberships %}
+                        <div>{{ membership.partnerAccount.name }} <span class="rj-admin-muted">{{ membership.role|lower }}</span></div>
+                    {% endfor %}
+                {% endif %}
+            </dd>
+        </dl>
+    </section>
 {% endblock %}

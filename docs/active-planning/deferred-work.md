@@ -126,3 +126,27 @@ Deferred to: later admin/search phase or Phase 09 launch hardening if needed bef
 Reason: Current admin tables are small, server-rendered, and capped. Lightweight client-side sort/filter/count is enough for the present listings.  
 Blocking: Need clearer operator workflows for relation-aware searches such as users by org, users by role, orgs by partner, usage over budget, and billing responsibility.  
 Must not forget because: Once admin lists need pagination or cross-entity filtering, the implementation should move to whitelisted server-side query params backed by Prisma instead of relying on client-side DOM filtering.
+
+## Deferred item: Partner account management screens
+
+Originally identified: Phase 08b
+Deferred to: partner-management phase or Model Eval migration planning
+Reason: Phase 08b added user/org account management but intentionally did not add partner-account self-service screens.
+Blocking: Need clearer partner workflows, branding needs, and whether partner management ships before or with Model Eval.
+Must not forget because: Partner accounts are part of the shared platform model and will matter once partner-managed organizations become a real workflow.
+
+## Deferred item: Account deletion and anonymization
+
+Originally identified: Phase 08b
+Deferred to: launch hardening, legal/privacy phase, or post-MVP account lifecycle work
+Reason: Phase 08b added suspension/deactivation but intentionally avoided permanent deletion/anonymization.
+Blocking: Need retention rules for jobs, artifacts, AI call logs, audit logs, billing records, feedback, and organization membership history.
+Must not forget because: Production users will eventually need a clear account deletion/privacy process.
+
+## Deferred item: OAuth account linking and unlinking
+
+Originally identified: Phase 08b
+Deferred to: later auth polish phase
+Reason: Phase 08b displays auth method indicators and supports local-password recovery but does not let users connect or disconnect OAuth providers.
+Blocking: Need provider-specific safety rules so users do not remove their only usable sign-in method.
+Must not forget because: OAuth account recovery and provider changes are common account-management needs.

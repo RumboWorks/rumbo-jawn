@@ -2,6 +2,7 @@ import passport from 'passport';
 import { buildGoogleStrategy } from './strategies/google.js';
 import { buildLinkedInStrategy } from './strategies/linkedin.js';
 import { buildLocalStrategy } from './strategies/local.js';
+import { isActiveUser } from './account-service.js';
 import { loadUser } from './user-service.js';
 
 export function configurePassport() {
@@ -22,6 +23,7 @@ export function configurePassport() {
   passport.deserializeUser(async (id, done) => {
     try {
       const user = await loadUser(id);
+      if (user && !isActiveUser(user)) return done(null, false);
       done(null, user ?? false);
     } catch (err) {
       done(err);

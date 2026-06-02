@@ -209,6 +209,17 @@
   }
 }
 
+.rj-admin-inline-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--rj-space-2);
+
+  select {
+    min-width: 120px;
+  }
+}
+
 .rj-admin-check {
   display: flex !important;
   grid-template-columns: none;

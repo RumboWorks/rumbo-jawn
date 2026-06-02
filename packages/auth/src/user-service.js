@@ -1,6 +1,10 @@
 import { ensureOrgEntitlement } from '@rumbo/billing';
 import { db } from '@rumbo/db';
 
+function isActiveUser(user) {
+  return !user.status || user.status === 'ACTIVE';
+}
+
 // Find a user by email, or return null.
 export async function findUserByEmail(email) {
   return db.user.findUnique({ where: { email } });
@@ -20,11 +24,13 @@ export async function findUserByOAuth(provider, providerId) {
 export async function findOrCreateOAuthUser({ provider, providerId, email, name, avatarUrl }) {
   const existing = await findUserByOAuth(provider, providerId);
   if (existing) {
+    if (!isActiveUser(existing)) throw new Error('Account is not active.');
     await db.user.update({ where: { id: existing.id }, data: { lastLoginAt: new Date() } });
     return existing;
   }
 
   let user = await findUserByEmail(email);
+  if (user && !isActiveUser(user)) throw new Error('Account is not active.');
   if (!user) {
     user = await db.user.create({ data: { email, name, avatarUrl } });
     await ensureOrgMembership(user);
@@ -64,7 +70,7 @@ export async function ensureOrgMembership(user) {
         createdByUserId: user.id,
       },
     });
-    await db.membership.create({ data: { userId: user.id, orgId: org.id, role: 'MANAGER' } });
+    await db.membership.create({ data: { userId: user.id, orgId: org.id, role: 'MEMBER' } });
     await ensureOrgEntitlement(org.id);
   }
 }

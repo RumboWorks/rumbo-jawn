@@ -29,7 +29,7 @@
                 {% for user in users %}
                     <tr>
                         <td>
-                            <strong>{{ user.name ?? user.email }}</strong>
+                            <a href="/admin/users/{{ user.id }}"><strong>{{ user.name ?? user.email }}</strong></a>
                             <br><span class="rj-admin-muted">{{ user.email }}</span>
                         </td>
                         <td>
@@ -37,6 +37,9 @@
                                 <span class="rj-badge rj-badge--pine"><span class="rj-dot"></span>Admin</span>
                             {% else %}
                                 <span class="rj-badge rj-badge--neutral"><span class="rj-dot"></span>User</span>
+                            {% endif %}
+                            {% if user.status and user.status != 'ACTIVE' %}
+                                <br><span class="rj-badge rj-badge--warning"><span class="rj-dot"></span>{{ user.status|lower }}</span>
                             {% endif %}
                         </td>
                         <td>

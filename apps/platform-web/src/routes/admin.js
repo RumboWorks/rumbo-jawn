@@ -1,5 +1,14 @@
 import { Router } from 'express';
-import { requirePlatformAdmin } from '@rumbo/auth';
+import {
+  adminAddUserMembership,
+  adminRemoveUserMembership,
+  adminUpdateUser,
+  createOrgInvite,
+  removeMembership,
+  requirePlatformAdmin,
+  Role,
+  setMembershipRole,
+} from '@rumbo/auth';
 import {
   setOrgBillingResponsible,
   setOrgSpendCap,
@@ -15,6 +24,7 @@ import {
   getAdminJobDetail,
   getAdminOrganizationDetail,
   getAdminProductControls,
+  getAdminUserDetail,
   listAdminAuditLogs,
   listAdminAiCalls,
   listAdminJobs,
@@ -50,6 +60,49 @@ router.get('/users', asyncHandler(async (req, res) => {
     active: 'users',
     users,
   });
+}));
+
+router.get('/users/:userId', asyncHandler(async (req, res) => {
+  const userDetail = await getAdminUserDetail(req.params.userId);
+  if (!userDetail) return res.status(404).render('pages/error', { status: 404, message: 'User not found' });
+  res.render('pages/admin/user-detail', {
+    title: `${userDetail.email} admin`,
+    active: 'users',
+    userDetail,
+  });
+}));
+
+router.post('/users/:userId/profile', asyncHandler(async (req, res) => {
+  await adminUpdateUser({
+    userId: req.params.userId,
+    actorId: req.user.id,
+    name: req.body.name,
+    email: req.body.email,
+    status: req.body.status,
+    statusReason: req.body.statusReason || null,
+    reason: req.body.reason || null,
+  });
+  redirectBack(req, res, `/admin/users/${req.params.userId}`);
+}));
+
+router.post('/users/:userId/memberships', asyncHandler(async (req, res) => {
+  await adminAddUserMembership({
+    userId: req.params.userId,
+    orgId: req.body.orgId,
+    role: req.body.role || 'MEMBER',
+    actorId: req.user.id,
+    reason: req.body.reason || null,
+  });
+  redirectBack(req, res, `/admin/users/${req.params.userId}`);
+}));
+
+router.post('/users/:userId/memberships/:membershipId/remove', asyncHandler(async (req, res) => {
+  await adminRemoveUserMembership({
+    membershipId: req.params.membershipId,
+    actorId: req.user.id,
+    reason: req.body.reason || null,
+  });
+  redirectBack(req, res, `/admin/users/${req.params.userId}`);
 }));
 
 router.get('/orgs', asyncHandler(async (req, res) => {
@@ -107,6 +160,40 @@ router.post('/orgs/:orgId/spend-cap', asyncHandler(async (req, res) => {
     orgId: req.params.orgId,
     aiSpendCapUsd: req.body.aiSpendCapUsd,
     actorId: req.user.id,
+    reason: req.body.reason || null,
+  });
+  redirectBack(req, res, `/admin/orgs/${req.params.orgId}`);
+}));
+
+router.post('/orgs/:orgId/invites', asyncHandler(async (req, res) => {
+  await createOrgInvite({
+    orgId: req.params.orgId,
+    email: req.body.email,
+    role: req.body.role || 'MEMBER',
+    invitedByUserId: req.user.id,
+    actorRole: Role.PLATFORM_ADMIN,
+  });
+  redirectBack(req, res, `/admin/orgs/${req.params.orgId}`);
+}));
+
+router.post('/orgs/:orgId/memberships/:membershipId/role', asyncHandler(async (req, res) => {
+  await setMembershipRole({
+    orgId: req.params.orgId,
+    membershipId: req.params.membershipId,
+    role: req.body.role,
+    actorId: req.user.id,
+    actorRole: Role.PLATFORM_ADMIN,
+    reason: req.body.reason || null,
+  });
+  redirectBack(req, res, `/admin/orgs/${req.params.orgId}`);
+}));
+
+router.post('/orgs/:orgId/memberships/:membershipId/remove', asyncHandler(async (req, res) => {
+  await removeMembership({
+    orgId: req.params.orgId,
+    membershipId: req.params.membershipId,
+    actorId: req.user.id,
+    actorRole: Role.PLATFORM_ADMIN,
     reason: req.body.reason || null,
   });
   redirectBack(req, res, `/admin/orgs/${req.params.orgId}`);

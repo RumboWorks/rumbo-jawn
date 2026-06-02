@@ -3,6 +3,7 @@
 // Run: npx playwright test
 
 import { test, expect } from '@playwright/test';
+import crypto from 'crypto';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { registerLocalUser } from '@rumbo/auth';
@@ -25,6 +26,10 @@ async function registerUser(page, { name, email, password }) {
   await page.fill('input[name="password"]', password);
   await page.click('button[type="submit"]');
   await page.waitForURL('/');
+}
+
+function hashToken(token) {
+  return crypto.createHash('sha256').update(token).digest('hex');
 }
 
 // ---- Page rendering ----
@@ -71,7 +76,7 @@ test('platform admin can view central admin dashboard', async ({ page }) => {
   const email = `admin-${runId}@example.org`;
   await registerUser(page, { name: 'Admin User', email, password: 'adminpass99' });
   await db.user.update({ where: { email }, data: { isPlatformAdmin: true } });
-  await registerLocalUser({
+  const sortUser = await registerLocalUser({
     name: 'Sort Check User',
     email: `sort-check-${runId}@example.org`,
     password: 'sortpass99',
@@ -122,6 +127,15 @@ test('platform admin can view central admin dashboard', async ({ page }) => {
   const descendingUsers = await normalizeColumn();
   expect(descendingUsers).toEqual([...ascendingUsers].reverse());
 
+  await page.goto(`/admin/users/${sortUser.id}`);
+  await expect(page.locator('h1')).toContainText('Sort Check User');
+  await expect(page.locator('.rj-admin-breadcrumbs').first()).toHaveText('admin / users');
+  await expect(page.locator('text=Platform admin').first()).toBeVisible();
+  await page.fill('form[action$="/profile"] input[name="name"]', 'Sort Check Edited');
+  await page.fill('form[action$="/profile"] input[name="reason"]', 'QA user edit');
+  await page.locator('form[action$="/profile"] button[type="submit"]').click();
+  await expect(page.locator('h1')).toContainText('Sort Check Edited');
+
   await page.goto('/admin/orgs');
   await expect(page.locator('h1')).toContainText('Organizations');
   await expect(page.locator('text=SLU budget').first()).toBeVisible();
@@ -171,10 +185,98 @@ test('platform admin can view central admin dashboard', async ({ page }) => {
   await expect(page.locator('h1')).toContainText('Failures');
 });
 
-test('account placeholder page renders', async ({ page }) => {
+test('account page supports profile and password edits', async ({ page }) => {
+  const runId = Date.now();
+  const email = `account-${runId}@example.org`;
+  const nextEmail = `account-edited-${runId}@example.org`;
+  await registerUser(page, { name: 'Account User', email, password: 'testpass99' });
+
   await page.goto('/account');
   await screenshot(page, '05-account');
   await expect(page.locator('h1')).toContainText('Account');
+  await expect(page.locator('text=No team organizations.')).toBeVisible();
+
+  await page.fill('form[action="/account/profile"] input[name="name"]', 'Account Edited');
+  await page.fill('form[action="/account/profile"] input[name="email"]', nextEmail);
+  await page.locator('form[action="/account/profile"] button[type="submit"]').click();
+  await expect(page.locator('text=Profile updated.')).toBeVisible();
+  await expect(page.locator('input[name="email"]').first()).toHaveValue(nextEmail);
+
+  await page.fill('form[action="/account/password"] input[name="currentPassword"]', 'testpass99');
+  await page.fill('form[action="/account/password"] input[name="newPassword"]', 'newpass99');
+  await page.locator('form[action="/account/password"] button[type="submit"]').click();
+  await expect(page.locator('text=Password updated.')).toBeVisible();
+
+  await page.goto('/auth/logout');
+  await page.goto('/login');
+  await page.fill('input[name="email"]', nextEmail);
+  await page.fill('input[name="password"]', 'newpass99');
+  await page.click('button[type="submit"]');
+  await page.waitForURL('/');
+});
+
+test('password reset token updates local password', async ({ page }) => {
+  const runId = Date.now();
+  const email = `reset-${runId}@example.org`;
+  const user = await registerLocalUser({ name: 'Reset User', email, password: 'oldpass99' });
+  const token = `qa-reset-${runId}`;
+  await db.passwordResetToken.create({
+    data: {
+      userId: user.id,
+      tokenHash: hashToken(token),
+      expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+    },
+  });
+
+  await page.goto(`/password/reset/${token}`);
+  await expect(page.locator('h1')).toContainText('Choose a new password');
+  await page.fill('input[name="password"]', 'resetpass99');
+  await page.click('button[type="submit"]');
+  await page.waitForURL('/account');
+
+  await page.goto('/auth/logout');
+  await page.goto('/login');
+  await page.fill('input[name="email"]', email);
+  await page.fill('input[name="password"]', 'resetpass99');
+  await page.click('button[type="submit"]');
+  await page.waitForURL('/');
+});
+
+test('promoted organization manager can view member management', async ({ page }) => {
+  const runId = Date.now();
+  const email = `manager-${runId}@example.org`;
+  const user = await registerLocalUser({ name: 'Manager User', email, password: 'manager99' });
+  const membership = await db.membership.findFirst({ where: { userId: user.id }, include: { org: true } });
+  await db.membership.update({ where: { id: membership.id }, data: { role: 'MANAGER' } });
+
+  await page.goto('/login');
+  await page.fill('input[name="email"]', email);
+  await page.fill('input[name="password"]', 'manager99');
+  await page.click('button[type="submit"]');
+  await page.waitForURL('/');
+
+  await page.goto('/account');
+  const orgLink = page.locator('.rj-sidebar__link', { hasText: membership.org.name });
+  await expect(orgLink).toBeVisible();
+  await orgLink.click();
+  await expect(page.locator('h1')).toContainText(membership.org.name);
+  await expect(page.locator('text=Invite member')).toBeVisible();
+});
+
+test('suspended users cannot sign in', async ({ page }) => {
+  const runId = Date.now();
+  const email = `suspended-${runId}@example.org`;
+  const user = await registerLocalUser({ name: 'Suspended User', email, password: 'suspend99' });
+  await db.user.update({
+    where: { id: user.id },
+    data: { status: 'SUSPENDED', statusReason: 'QA suspension', statusChangedAt: new Date() },
+  });
+
+  await page.goto('/login');
+  await page.fill('input[name="email"]', email);
+  await page.fill('input[name="password"]', 'suspend99');
+  await page.click('button[type="submit"]');
+  await expect(page).toHaveURL(/\/login/);
 });
 
 test('slu placeholder page renders', async ({ page }) => {

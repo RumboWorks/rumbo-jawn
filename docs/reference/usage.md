@@ -21,6 +21,13 @@ Key variables:
 | `PORT` | Express web port (default: `4000`) |
 | `DATABASE_URL` | MySQL connection string (e.g. `mysql://user:pass@localhost:3306/rumbo_dev`) |
 | `NODE_ENV` | `development` or `production` |
+| `EMAIL_TRANSPORT` | Email transport mode. Use `log` to log delivery intent without SMTP. |
+| `EMAIL_FROM` | Sender address for password recovery and organization invites. |
+| `EMAIL_SMTP_HOST` | SMTP host for email delivery. |
+| `EMAIL_SMTP_PORT` | SMTP port, commonly `587`. |
+| `EMAIL_SMTP_SECURE` | `true` for implicit TLS, otherwise STARTTLS-style SMTP. |
+| `EMAIL_SMTP_USER` | SMTP username. |
+| `EMAIL_SMTP_PASS` | SMTP password. |
 
 ## Install
 
@@ -83,6 +90,13 @@ npm run db:generate --workspace=@rumbo/db
 
 # Run migrations in development
 npm run db:migrate --workspace=@rumbo/db
+
+# Apply the Prisma schema directly to the dev database
+npm run db:push --workspace=@rumbo/db
+
+# Disposable dev DB only: reset schema from Prisma, then reseed defaults
+npx prisma db push --force-reset --accept-data-loss --schema packages/db/prisma/schema.prisma
+npm run seed-defaults --workspace=@rumbo/billing
 ```
 
 ## Platform Admin Access
@@ -94,6 +108,18 @@ npm run grant-platform-admin --workspace=@rumbo/auth -- user@example.com
 ```
 
 This sets `User.isPlatformAdmin = true`. The `/admin` area is server-gated and returns 403 for non-admin users.
+
+Platform-admin grants and revocations remain CLI-only. The admin UI can display platform-admin status but does not change it.
+
+## Account Management
+
+Verified account routes:
+
+- `/account` — signed-in user profile, email, password, and access summary
+- `/account/orgs/:orgId/members` — organization member management for permitted managers
+- `/password/forgot` — request a password reset email for a local-password account
+- `/password/reset/:token` — complete password reset with a valid reset token
+- `/invites/:token` — organization invitation landing/acceptance
 
 ## Billing / Entitlements
 
@@ -118,8 +144,9 @@ Verified admin routes:
 
 - `/admin` — dashboard with platform metrics, recent jobs, failures, AI calls, and Sounds Like Us runs
 - `/admin/users` — user and relationship visibility
+- `/admin/users/:userId` — user detail, profile/status editing, and organization membership management
 - `/admin/orgs` — organization, membership, and partner-access visibility
-- `/admin/orgs/:orgId` — organization entitlement controls for tier, billing responsibility, SLU usage budget, and AI spend cap
+- `/admin/orgs/:orgId` — organization member management and entitlement controls for tier, billing responsibility, SLU usage budget, and AI spend cap
 - `/admin/jobs` — recent jobs, with optional `type` and `status` query filters
 - `/admin/jobs/:jobId` — job detail with payload, result, AI calls, artifacts, and error text
 - `/admin/jobs/:jobId/debug` — raw JSON debug payload for a job

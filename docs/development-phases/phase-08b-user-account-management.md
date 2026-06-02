@@ -169,16 +169,27 @@ Use `.agent/phase-review.agent.md` for closeout.
 
 ### Completion checklist
 
-- [ ] All acceptance criteria pass.
-- [ ] Relevant commands/checks were run.
-- [ ] Manual QA notes are recorded.
-- [ ] New commands are documented in `docs/reference/usage.md`, if commands exist.
-- [ ] New architectural decisions are recorded in `docs/active-planning/decision-log.md`.
-- [ ] Roadmap items are checked off, added, or moved.
-- [ ] Deferred work is listed explicitly in `docs/active-planning/deferred-work.md`.
-- [ ] Working notes created during this phase were promoted, linked, archived, or deleted.
-- [ ] No unplanned files were added directly under `docs/`.
-- [ ] The next phase still makes sense or has been revised.
+- [x] All acceptance criteria pass.
+- [x] Relevant commands/checks were run.
+- [x] Manual QA notes are recorded.
+- [x] New commands are documented in `docs/reference/usage.md`, if commands exist.
+- [x] New architectural decisions are recorded in `docs/active-planning/decision-log.md`.
+- [x] Roadmap items are checked off, added, or moved.
+- [x] Deferred work is listed explicitly in `docs/active-planning/deferred-work.md`.
+- [x] Working notes created during this phase were promoted, linked, archived, or deleted.
+- [x] No unplanned files were added directly under `docs/`.
+- [x] The next phase still makes sense or has been revised.
+
+### Closeout notes
+
+- Implemented self-account profile editing, email editing, signed-in password changes, and password reset tokens.
+- Added SMTP-backed email infrastructure with `EMAIL_TRANSPORT=log` support for safe development checks.
+- Added organization invite creation, invite acceptance, and manager-visible member management.
+- Added user account status with suspended/deactivated login/session enforcement.
+- Added platform-admin user detail pages for profile/status and organization membership management while keeping platform-admin grants CLI-only.
+- Kept personal solo organizations as internal infrastructure and changed new solo memberships to `MEMBER` so organization-management UI stays hidden until platform admin promotion.
+- Applied the Prisma schema to the dev database with a disposable force reset and reseeded billing defaults.
+- Verification: `npm run db:generate --workspace=@rumbo/db`, `npx prisma db push --force-reset --accept-data-loss`, `npm run seed-defaults --workspace=@rumbo/billing`, `npm run build --workspace=rumbo-web`, `npm run qa`, and a log-mode organization invite smoke check.
 
 ### Valid outcomes
 

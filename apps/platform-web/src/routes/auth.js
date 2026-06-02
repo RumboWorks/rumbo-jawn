@@ -1,6 +1,12 @@
 import { Router } from 'express';
 import passport from 'passport';
-import { registerLocalUser } from '@rumbo/auth';
+import {
+  acceptInvite,
+  getInviteByToken,
+  registerLocalUser,
+  requestPasswordReset,
+  resetPasswordWithToken,
+} from '@rumbo/auth';
 
 const router = Router();
 
@@ -21,6 +27,7 @@ function captureReturnTo(req, res, next) {
 
 router.get('/login', (req, res) => {
   if (req.isAuthenticated()) return res.redirect('/');
+  if (req.query.invite) req.session.inviteToken = req.query.invite;
   res.render('pages/auth/login', {
     ...oauthEnabled,
     flash_error: req.session.flash_error ?? null,
@@ -30,8 +37,11 @@ router.get('/login', (req, res) => {
 
 router.get('/register', (req, res) => {
   if (req.isAuthenticated()) return res.redirect('/');
+  const inviteToken = req.query.invite || req.session.inviteToken || null;
+  if (inviteToken) req.session.inviteToken = inviteToken;
   res.render('pages/auth/register', {
     ...oauthEnabled,
+    inviteToken,
     flash_error: req.session.flash_error ?? null,
   });
   delete req.session.flash_error;
@@ -47,17 +57,80 @@ router.post('/auth/local',
 
 router.post('/register', async (req, res) => {
   const { name, email, password } = req.body;
+  const inviteToken = req.body.inviteToken || req.session.inviteToken || null;
   try {
-    const user = await registerLocalUser({ name, email, password });
+    const user = await registerLocalUser({ name, email, password, inviteToken });
     const returnTo = req.session.returnTo ?? '/';
     req.login(user, (err) => {
       if (err) return res.redirect('/login');
+      delete req.session.inviteToken;
       res.redirect(returnTo);
     });
   } catch (err) {
     req.session.flash_error = err.message;
     res.redirect('/register');
   }
+});
+
+router.get('/password/forgot', (req, res) => {
+  if (req.isAuthenticated()) return res.redirect('/account');
+  res.render('pages/auth/forgot-password', {
+    flash_error: req.session.flash_error ?? null,
+    flash_success: req.session.flash_success ?? null,
+  });
+  delete req.session.flash_error;
+  delete req.session.flash_success;
+});
+
+router.post('/password/forgot', async (req, res) => {
+  try {
+    await requestPasswordReset(req.body.email);
+    req.session.flash_success = 'If that account exists, a reset link has been sent.';
+  } catch (err) {
+    req.session.flash_error = err.message;
+  }
+  res.redirect('/password/forgot');
+});
+
+router.get('/password/reset/:token', (req, res) => {
+  if (req.isAuthenticated()) return res.redirect('/account');
+  res.render('pages/auth/reset-password', {
+    token: req.params.token,
+    flash_error: req.session.flash_error ?? null,
+  });
+  delete req.session.flash_error;
+});
+
+router.post('/password/reset/:token', async (req, res) => {
+  try {
+    const user = await resetPasswordWithToken(req.params.token, req.body.password);
+    req.login(user, (err) => {
+      if (err) return res.redirect('/login');
+      res.redirect('/account');
+    });
+  } catch (err) {
+    req.session.flash_error = err.message;
+    res.redirect(`/password/reset/${req.params.token}`);
+  }
+});
+
+router.get('/invites/:token', async (req, res) => {
+  const invite = await getInviteByToken(req.params.token);
+  if (!invite || invite.acceptedAt || invite.expiresAt < new Date()) {
+    return res.status(404).render('pages/error', { status: 404, message: 'Invitation not found or expired' });
+  }
+
+  if (req.isAuthenticated()) {
+    try {
+      await acceptInvite({ token: req.params.token, userId: req.user.id });
+      return res.redirect('/account');
+    } catch (err) {
+      return res.status(403).render('pages/error', { status: 403, message: err.message });
+    }
+  }
+
+  req.session.inviteToken = req.params.token;
+  res.render('pages/auth/invite', { invite });
 });
 
 // ---- Google OAuth ----

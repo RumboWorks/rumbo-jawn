@@ -22,7 +22,7 @@ Do not mark work complete unless it can be verified in the repository.
 - [x] Phase 07 — Billing, limits, and product controls
 - [x] Phase 07b — Admin UI for entitlements and product controls
 - [ ] Phase 08 — Embeddable widgets (deferred)
-- [ ] Phase 08b — User account management
+- [x] Phase 08b — User account management
 - [ ] Phase 09 — Finish-line discipline and launch hardening
 
 ### Future sibling tools
@@ -35,6 +35,5 @@ Model Eval should influence shared platform decisions but should not be implemen
 
 ## Next up
 
-1. Build Phase 08b user account management.
-2. Continue to Phase 09 finish-line discipline and launch hardening.
-3. Continue to treat Model Eval as planned sibling-tool work until the roadmap explicitly adds its implementation.
+1. Continue to Phase 09 finish-line discipline and launch hardening.
+2. Continue to treat Model Eval as planned sibling-tool work until the roadmap explicitly adds its implementation.

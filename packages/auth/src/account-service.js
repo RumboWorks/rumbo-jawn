@@ -1,0 +1,392 @@
+import crypto from 'crypto';
+import bcrypt from 'bcrypt';
+import { db } from '@rumbo/db';
+import { can, Permission, Role } from './permissions.js';
+import { buildAbsoluteUrl, sendEmail } from './email-service.js';
+import { findUserByEmail, ensureOrgMembership } from './user-service.js';
+import { resolveRole } from './org-access-service.js';
+
+const RESET_TOKEN_BYTES = 32;
+const RESET_TOKEN_TTL_MINUTES = 60;
+const INVITE_TTL_DAYS = 14;
+
+export const UserStatus = Object.freeze({
+  ACTIVE: 'ACTIVE',
+  SUSPENDED: 'SUSPENDED',
+  DEACTIVATED: 'DEACTIVATED',
+});
+
+function normalizeEmail(email) {
+  return String(email || '').trim().toLowerCase();
+}
+
+function normalizeName(name) {
+  const trimmed = String(name || '').trim();
+  return trimmed || null;
+}
+
+function hashToken(token) {
+  return crypto.createHash('sha256').update(token).digest('hex');
+}
+
+function addDays(days) {
+  const date = new Date();
+  date.setDate(date.getDate() + days);
+  return date;
+}
+
+function addMinutes(minutes) {
+  const date = new Date();
+  date.setMinutes(date.getMinutes() + minutes);
+  return date;
+}
+
+async function audit({ actorId, action, targetType, targetId, orgId = null, oldValue = null, newValue = null, reason = null }) {
+  return db.adminAuditLog.create({
+    data: { actorId, action, targetType, targetId, orgId, oldValue, newValue, reason },
+  });
+}
+
+export function isActiveUser(user) {
+  return !user || !user.status || user.status === UserStatus.ACTIVE;
+}
+
+export async function getAccountOverview(userId) {
+  const user = await db.user.findUnique({
+    where: { id: userId },
+    include: {
+      oauthAccounts: true,
+      memberships: {
+        include: {
+          org: {
+            include: {
+              memberships: { select: { role: true } },
+            },
+          },
+        },
+        orderBy: { createdAt: 'asc' },
+      },
+      partnerMemberships: { include: { partnerAccount: true }, orderBy: { createdAt: 'asc' } },
+    },
+  });
+  if (!user) return null;
+
+  const visibleMemberships = user.memberships.filter((membership) => {
+    const org = membership.org;
+    if (org.organizationType !== 'SOLO') return true;
+    return membership.role === 'MANAGER';
+  });
+
+  return {
+    ...user,
+    visibleMemberships,
+    hasPassword: Boolean(user.passwordHash),
+    authProviders: user.oauthAccounts.map(account => account.provider),
+  };
+}
+
+export async function updateOwnProfile(userId, { name, email }) {
+  const user = await db.user.findUnique({ where: { id: userId } });
+  if (!user) throw new Error('User not found.');
+  if (!isActiveUser(user)) throw new Error('Account is not active.');
+
+  const nextEmail = normalizeEmail(email);
+  if (!nextEmail) throw new Error('Email is required.');
+  const existing = await findUserByEmail(nextEmail);
+  if (existing && existing.id !== userId) throw new Error('That email address is already in use.');
+
+  return db.user.update({
+    where: { id: userId },
+    data: { name: normalizeName(name), email: nextEmail },
+  });
+}
+
+export async function changeOwnPassword(userId, { currentPassword, newPassword }) {
+  const user = await db.user.findUnique({ where: { id: userId } });
+  if (!user || !user.passwordHash) throw new Error('Password change is only available for local-password accounts.');
+  if (!isActiveUser(user)) throw new Error('Account is not active.');
+  if (String(newPassword || '').length < 8) throw new Error('New password must be at least 8 characters.');
+
+  const matches = await bcrypt.compare(String(currentPassword || ''), user.passwordHash);
+  if (!matches) throw new Error('Current password is incorrect.');
+
+  const passwordHash = await bcrypt.hash(newPassword, 12);
+  await db.user.update({ where: { id: userId }, data: { passwordHash } });
+  return { changed: true };
+}
+
+export async function requestPasswordReset(email) {
+  const normalizedEmail = normalizeEmail(email);
+  const user = normalizedEmail ? await findUserByEmail(normalizedEmail) : null;
+  if (!user || !user.passwordHash || !isActiveUser(user)) {
+    return { sent: false };
+  }
+
+  const token = crypto.randomBytes(RESET_TOKEN_BYTES).toString('base64url');
+  await db.passwordResetToken.create({
+    data: {
+      userId: user.id,
+      tokenHash: hashToken(token),
+      expiresAt: addMinutes(RESET_TOKEN_TTL_MINUTES),
+    },
+  });
+
+  const resetUrl = buildAbsoluteUrl(`/password/reset/${token}`);
+  await sendEmail({
+    to: user.email,
+    subject: 'Reset your Rumbo password',
+    text: `Use this link to reset your Rumbo password. It expires in ${RESET_TOKEN_TTL_MINUTES} minutes.\n\n${resetUrl}`,
+    html: `<p>Use this link to reset your Rumbo password. It expires in ${RESET_TOKEN_TTL_MINUTES} minutes.</p><p><a href="${resetUrl}">Reset password</a></p>`,
+  });
+
+  return { sent: true };
+}
+
+export async function resetPasswordWithToken(token, newPassword) {
+  if (String(newPassword || '').length < 8) throw new Error('New password must be at least 8 characters.');
+  const tokenHash = hashToken(String(token || ''));
+  const resetToken = await db.passwordResetToken.findUnique({
+    where: { tokenHash },
+    include: { user: true },
+  });
+
+  if (!resetToken || resetToken.usedAt || resetToken.expiresAt < new Date()) {
+    throw new Error('Password reset link is invalid or expired.');
+  }
+  if (!isActiveUser(resetToken.user)) throw new Error('Account is not active.');
+
+  const passwordHash = await bcrypt.hash(newPassword, 12);
+  await db.$transaction([
+    db.user.update({ where: { id: resetToken.userId }, data: { passwordHash } }),
+    db.passwordResetToken.update({ where: { id: resetToken.id }, data: { usedAt: new Date() } }),
+  ]);
+
+  return resetToken.user;
+}
+
+export async function createOrgInvite({ orgId, email, role = 'MEMBER', invitedByUserId, actorRole }) {
+  if (!can(actorRole, Permission.MANAGE_ORG_MEMBERS)) throw new Error('You do not have permission to invite members.');
+  const normalizedEmail = normalizeEmail(email);
+  if (!normalizedEmail) throw new Error('Email is required.');
+  if (!['MANAGER', 'MEMBER'].includes(role)) throw new Error('Invalid member role.');
+
+  const invite = await db.organizationInvite.create({
+    data: {
+      orgId,
+      email: normalizedEmail,
+      role,
+      invitedByUserId,
+      expiresAt: addDays(INVITE_TTL_DAYS),
+    },
+    include: { org: true },
+  });
+
+  const inviteUrl = buildAbsoluteUrl(`/invites/${invite.inviteToken}`);
+  await sendEmail({
+    to: invite.email,
+    subject: `You're invited to ${invite.org.name} on Rumbo`,
+    text: `You've been invited to ${invite.org.name} on Rumbo.\n\nAccept the invitation: ${inviteUrl}`,
+    html: `<p>You've been invited to ${invite.org.name} on Rumbo.</p><p><a href="${inviteUrl}">Accept invitation</a></p>`,
+  });
+
+  await audit({
+    actorId: invitedByUserId,
+    action: 'org.member.invited',
+    targetType: 'organization_invite',
+    targetId: invite.id,
+    orgId,
+    newValue: { email: invite.email, role: invite.role },
+  });
+
+  return invite;
+}
+
+export async function getManagedOrganization({ user, orgId }) {
+  const actorRole = await resolveRole(user, orgId);
+  if (!can(actorRole, Permission.MANAGE_ORG_MEMBERS)) return { org: null, actorRole };
+
+  const org = await db.organization.findFirst({
+    where: { id: orgId, deletedAt: null },
+    include: {
+      memberships: { include: { user: true }, orderBy: { createdAt: 'asc' } },
+      invites: {
+        where: { acceptedAt: null, expiresAt: { gt: new Date() } },
+        include: { invitedBy: true },
+        orderBy: { createdAt: 'desc' },
+      },
+    },
+  });
+
+  return { org, actorRole };
+}
+
+export async function getInviteByToken(token) {
+  if (!token) return null;
+  return db.organizationInvite.findUnique({
+    where: { inviteToken: token },
+    include: { org: true },
+  });
+}
+
+export async function acceptInvite({ token, userId }) {
+  const invite = await getInviteByToken(token);
+  if (!invite || invite.acceptedAt || invite.expiresAt < new Date()) {
+    throw new Error('Invitation is invalid or expired.');
+  }
+
+  const user = await db.user.findUnique({ where: { id: userId } });
+  if (!user) throw new Error('User not found.');
+  if (normalizeEmail(user.email) !== normalizeEmail(invite.email)) {
+    throw new Error('This invitation was sent to a different email address.');
+  }
+
+  await db.$transaction([
+    db.membership.upsert({
+      where: { userId_orgId: { userId, orgId: invite.orgId } },
+      update: { role: invite.role },
+      create: { userId, orgId: invite.orgId, role: invite.role },
+    }),
+    db.organizationInvite.update({ where: { id: invite.id }, data: { acceptedAt: new Date() } }),
+  ]);
+
+  await audit({
+    actorId: userId,
+    action: 'org.member.invite_accepted',
+    targetType: 'organization_invite',
+    targetId: invite.id,
+    orgId: invite.orgId,
+    newValue: { userId, role: invite.role },
+  });
+
+  return invite;
+}
+
+export async function createUserFromInviteIfNeeded(user, inviteToken) {
+  if (!inviteToken) {
+    await ensureOrgMembership(user);
+    return;
+  }
+
+  const invite = await getInviteByToken(inviteToken);
+  if (!invite || invite.acceptedAt || invite.expiresAt < new Date() || normalizeEmail(invite.email) !== normalizeEmail(user.email)) {
+    await ensureOrgMembership(user);
+    return;
+  }
+
+  await acceptInvite({ token: inviteToken, userId: user.id });
+}
+
+export async function setMembershipRole({ orgId, membershipId, role, actorId, actorRole, reason = null }) {
+  if (!can(actorRole, Permission.MANAGE_ORG_MEMBERS)) throw new Error('You do not have permission to manage members.');
+  if (!['MANAGER', 'MEMBER'].includes(role)) throw new Error('Invalid member role.');
+
+  const before = await db.membership.findUnique({ where: { id: membershipId } });
+  if (!before || before.orgId !== orgId) throw new Error('Membership not found.');
+  const updated = await db.membership.update({ where: { id: membershipId }, data: { role } });
+
+  await audit({
+    actorId,
+    action: 'org.member.role_changed',
+    targetType: 'membership',
+    targetId: membershipId,
+    orgId,
+    oldValue: { userId: before.userId, role: before.role },
+    newValue: { userId: updated.userId, role: updated.role },
+    reason,
+  });
+
+  return updated;
+}
+
+export async function removeMembership({ orgId, membershipId, actorId, actorRole, reason = null }) {
+  if (!can(actorRole, Permission.MANAGE_ORG_MEMBERS)) throw new Error('You do not have permission to manage members.');
+
+  const membership = await db.membership.findUnique({ where: { id: membershipId } });
+  if (!membership || membership.orgId !== orgId) throw new Error('Membership not found.');
+  await db.membership.delete({ where: { id: membershipId } });
+
+  await audit({
+    actorId,
+    action: 'org.member.removed',
+    targetType: 'membership',
+    targetId: membershipId,
+    orgId,
+    oldValue: { userId: membership.userId, role: membership.role },
+    reason,
+  });
+
+  return membership;
+}
+
+export async function adminUpdateUser({ userId, actorId, name, email, status, statusReason = null, reason = null }) {
+  const user = await db.user.findUnique({ where: { id: userId } });
+  if (!user) throw new Error('User not found.');
+  if (!Object.values(UserStatus).includes(status)) throw new Error('Invalid account status.');
+
+  const nextEmail = normalizeEmail(email);
+  if (!nextEmail) throw new Error('Email is required.');
+  const existing = await findUserByEmail(nextEmail);
+  if (existing && existing.id !== userId) throw new Error('That email address is already in use.');
+
+  const updated = await db.user.update({
+    where: { id: userId },
+    data: {
+      name: normalizeName(name),
+      email: nextEmail,
+      status,
+      statusReason: status === UserStatus.ACTIVE ? null : statusReason || null,
+      statusChangedAt: status !== user.status ? new Date() : user.statusChangedAt,
+    },
+  });
+
+  await audit({
+    actorId,
+    action: 'user.profile_changed',
+    targetType: 'user',
+    targetId: userId,
+    oldValue: { name: user.name, email: user.email, status: user.status, statusReason: user.statusReason },
+    newValue: { name: updated.name, email: updated.email, status: updated.status, statusReason: updated.statusReason },
+    reason,
+  });
+
+  return updated;
+}
+
+export async function adminAddUserMembership({ userId, orgId, role, actorId, reason = null }) {
+  if (!['MANAGER', 'MEMBER'].includes(role)) throw new Error('Invalid member role.');
+  const membership = await db.membership.upsert({
+    where: { userId_orgId: { userId, orgId } },
+    update: { role },
+    create: { userId, orgId, role },
+  });
+
+  await audit({
+    actorId,
+    action: 'user.membership_upserted',
+    targetType: 'membership',
+    targetId: membership.id,
+    orgId,
+    newValue: { userId, role },
+    reason,
+  });
+
+  return membership;
+}
+
+export async function adminRemoveUserMembership({ membershipId, actorId, reason = null }) {
+  const membership = await db.membership.findUnique({ where: { id: membershipId } });
+  if (!membership) throw new Error('Membership not found.');
+  await db.membership.delete({ where: { id: membershipId } });
+
+  await audit({
+    actorId,
+    action: 'user.membership_removed',
+    targetType: 'membership',
+    targetId: membershipId,
+    orgId: membership.orgId,
+    oldValue: { userId: membership.userId, role: membership.role },
+    reason,
+  });
+
+  return membership;
+}

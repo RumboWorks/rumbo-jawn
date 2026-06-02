@@ -112,6 +112,40 @@ export async function listAdminUsers() {
   });
 }
 
+export async function getAdminUserDetail(userId) {
+  const [user, organizations, auditLogs] = await Promise.all([
+    db.user.findUnique({
+      where: { id: userId },
+      include: {
+        oauthAccounts: true,
+        memberships: { include: { org: true }, orderBy: { createdAt: 'asc' } },
+        partnerMemberships: { include: { partnerAccount: true }, orderBy: { createdAt: 'asc' } },
+        jobs: { orderBy: { createdAt: 'desc' }, take: 10, include: { aiCalls: true, org: true } },
+        _count: { select: { jobs: true } },
+      },
+    }),
+    db.organization.findMany({
+      where: { deletedAt: null },
+      orderBy: { name: 'asc' },
+      select: { id: true, name: true, slug: true, organizationType: true },
+    }),
+    db.adminAuditLog.findMany({
+      where: { targetType: 'user', targetId: userId },
+      orderBy: { createdAt: 'desc' },
+      take: 20,
+      include: { actor: true, org: true },
+    }),
+  ]);
+
+  if (!user) return null;
+  return {
+    ...user,
+    recentJobs: user.jobs.map(compactJob),
+    organizations,
+    auditLogs,
+  };
+}
+
 export async function listAdminOrganizations() {
   const orgs = await db.organization.findMany({
     where: { deletedAt: null },
@@ -126,6 +160,11 @@ export async function listAdminOrganizations() {
         },
       },
       memberships: { include: { user: true }, orderBy: { createdAt: 'asc' } },
+      invites: {
+        where: { acceptedAt: null, expiresAt: { gt: new Date() } },
+        include: { invitedBy: true },
+        orderBy: { createdAt: 'desc' },
+      },
       partnerAccesses: {
         where: { removedAt: null },
         include: { partnerAccount: true },
