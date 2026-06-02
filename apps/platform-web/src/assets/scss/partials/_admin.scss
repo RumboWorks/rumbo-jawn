@@ -166,3 +166,33 @@
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+
+.rj-admin-form {
+  display: grid;
+  gap: var(--rj-space-4);
+  padding: var(--rj-space-5);
+
+  label {
+    display: grid;
+    gap: var(--rj-space-1);
+  }
+
+  label > span {
+    font-size: var(--rj-text-micro);
+    font-weight: var(--rj-weight-bold);
+    letter-spacing: var(--rj-tracking-caps);
+    text-transform: uppercase;
+    color: var(--rj-fg-3);
+  }
+}
+
+.rj-admin-check {
+  display: flex !important;
+  grid-template-columns: none;
+  align-items: center;
+  gap: var(--rj-space-2);
+
+  input {
+    width: auto;
+  }
+}

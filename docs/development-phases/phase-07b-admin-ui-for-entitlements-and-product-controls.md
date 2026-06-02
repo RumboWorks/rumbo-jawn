@@ -76,16 +76,16 @@ Use `.agent/phase-review.agent.md` for closeout.
 
 ### Completion checklist
 
-- [ ] All acceptance criteria pass.
-- [ ] Relevant commands/checks were run.
-- [ ] Manual QA notes are recorded.
-- [ ] New commands are documented in `docs/reference/usage.md`, if commands exist.
-- [ ] New architectural decisions are recorded in `docs/active-planning/decision-log.md`.
-- [ ] Roadmap items are checked off, added, or moved.
-- [ ] Deferred work is listed explicitly in `docs/active-planning/deferred-work.md`.
-- [ ] Working notes created during this phase were promoted, linked, archived, or deleted.
-- [ ] No unplanned files were added directly under `docs/`.
-- [ ] The next phase still makes sense or has been revised.
+- [x] All acceptance criteria pass.
+- [x] Relevant commands/checks were run.
+- [x] Manual QA notes are recorded.
+- [x] New commands are documented in `docs/reference/usage.md`, if commands exist.
+- [x] New architectural decisions are recorded in `docs/active-planning/decision-log.md`.
+- [x] Roadmap items are checked off, added, or moved.
+- [x] Deferred work is listed explicitly in `docs/active-planning/deferred-work.md`.
+- [x] Working notes created during this phase were promoted, linked, archived, or deleted.
+- [x] No unplanned files were added directly under `docs/`.
+- [x] The next phase still makes sense or has been revised.
 
 ### Valid outcomes
 

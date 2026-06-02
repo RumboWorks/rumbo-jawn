@@ -117,9 +117,12 @@ Verified admin routes:
 - `/admin` — dashboard with platform metrics, recent jobs, failures, AI calls, and Sounds Like Us runs
 - `/admin/users` — user and relationship visibility
 - `/admin/orgs` — organization, membership, and partner-access visibility
+- `/admin/orgs/:orgId` — organization entitlement controls for tier, billing responsibility, SLU usage budget, and AI spend cap
 - `/admin/jobs` — recent jobs, with optional `type` and `status` query filters
 - `/admin/jobs/:jobId` — job detail with payload, result, AI calls, artifacts, and error text
 - `/admin/jobs/:jobId/debug` — raw JSON debug payload for a job
 - `/admin/sounds-like-us` — Sounds Like Us runs through shared job records
 - `/admin/ai-calls` — recent AI provider/model/token/cost metadata
+- `/admin/product-controls` — feature flag and AI model/provider configuration controls
+- `/admin/audit-log` — recent product-control and entitlement audit entries
 - `/admin/failures` — failed jobs

@@ -29,7 +29,7 @@
                 {% for org in orgs %}
                     <tr>
                         <td>
-                            <strong>{{ org.name }}</strong>
+                            <a href="/admin/orgs/{{ org.id }}"><strong>{{ org.name }}</strong></a>
                             <br><span class="rj-admin-muted">{{ org.slug }}</span>
                             <br><span class="rj-admin-muted rj-admin-mono">{{ org.publicId }}</span>
                         </td>

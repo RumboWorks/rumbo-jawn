@@ -1,5 +1,9 @@
 import { db } from '@rumbo/db';
-import { getOrgSpendStatus, getUsageBudgetStatus, UsageKey } from '@rumbo/billing';
+import {
+  getOrgSpendStatus,
+  getUsageBudgetStatus,
+  UsageKey,
+} from '@rumbo/billing';
 
 const RECENT_LIMIT = 10;
 const LIST_LIMIT = 50;
@@ -139,6 +143,80 @@ export async function listAdminOrganizations() {
     }),
     spendStatus: await getOrgSpendStatus(org.id),
   })));
+}
+
+export async function getAdminOrganizationDetail(orgId) {
+  const org = await db.organization.findUnique({
+    where: { id: orgId },
+    include: {
+      entitlement: {
+        include: {
+          tier: true,
+          billingResponsibleUser: true,
+          billingResponsibleMembership: { include: { user: true } },
+        },
+      },
+      memberships: { include: { user: true }, orderBy: { createdAt: 'asc' } },
+      partnerAccesses: {
+        where: { removedAt: null },
+        include: { partnerAccount: true },
+        orderBy: { createdAt: 'desc' },
+      },
+      jobs: { orderBy: { createdAt: 'desc' }, take: 10, include: { aiCalls: true } },
+    },
+  });
+  if (!org) return null;
+
+  const [tiers, sluBudgetStatus, spendStatus, auditLogs] = await Promise.all([
+    db.productTier.findMany({ where: { isActive: true }, orderBy: { name: 'asc' } }),
+    getUsageBudgetStatus(org.id, { tool: 'slu', usageKey: UsageKey.SLU_ANALYSIS_ROLLING_7D }),
+    getOrgSpendStatus(org.id),
+    db.adminAuditLog.findMany({
+      where: { orgId: org.id },
+      orderBy: { createdAt: 'desc' },
+      take: 20,
+      include: { actor: true },
+    }),
+  ]);
+
+  return {
+    ...org,
+    tiers,
+    managerMemberships: org.memberships.filter(membership => membership.role === 'MANAGER'),
+    sluBudgetStatus,
+    spendStatus,
+    recentJobs: org.jobs.map(compactJob),
+    auditLogs,
+  };
+}
+
+export async function getAdminProductControls() {
+  const [tiers, aiModelConfigs, featureFlags, auditLogs] = await Promise.all([
+    db.productTier.findMany({ orderBy: { name: 'asc' } }),
+    db.aiModelConfig.findMany({ orderBy: [{ callType: 'asc' }, { scope: 'asc' }] }),
+    db.featureFlag.findMany({ orderBy: [{ key: 'asc' }, { scope: 'asc' }] }),
+    db.adminAuditLog.findMany({
+      where: {
+        OR: [
+          { targetType: 'feature_flag' },
+          { targetType: 'ai_model_config' },
+        ],
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 20,
+      include: { actor: true },
+    }),
+  ]);
+
+  return { tiers, aiModelConfigs, featureFlags, auditLogs };
+}
+
+export async function listAdminAuditLogs() {
+  return db.adminAuditLog.findMany({
+    orderBy: { createdAt: 'desc' },
+    take: LIST_LIMIT,
+    include: { actor: true, org: true },
+  });
 }
 
 export async function listAdminJobs({ type = null, status = null } = {}) {

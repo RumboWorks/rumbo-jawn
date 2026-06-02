@@ -1,8 +1,19 @@
 import { Router } from 'express';
 import { requirePlatformAdmin } from '@rumbo/auth';
 import {
+  setOrgBillingResponsible,
+  setOrgSpendCap,
+  setOrgSluBudget,
+  setOrgTier,
+  upsertAiModelConfig,
+  upsertFeatureFlag,
+} from '@rumbo/billing';
+import {
   getAdminDashboard,
   getAdminJobDetail,
+  getAdminOrganizationDetail,
+  getAdminProductControls,
+  listAdminAuditLogs,
   listAdminAiCalls,
   listAdminJobs,
   listAdminOrganizations,
@@ -15,6 +26,10 @@ router.use(requirePlatformAdmin);
 
 function asyncHandler(fn) {
   return (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
+}
+
+function redirectBack(req, res, fallback) {
+  res.redirect(req.get('Referer') || fallback);
 }
 
 router.get('/', asyncHandler(async (req, res) => {
@@ -41,6 +56,104 @@ router.get('/orgs', asyncHandler(async (req, res) => {
     title: 'Admin organizations',
     active: 'orgs',
     orgs,
+  });
+}));
+
+router.get('/orgs/:orgId', asyncHandler(async (req, res) => {
+  const org = await getAdminOrganizationDetail(req.params.orgId);
+  if (!org) return res.status(404).render('pages/error', { status: 404, message: 'Organization not found' });
+  res.render('pages/admin/org-detail', {
+    title: `${org.name} admin`,
+    active: 'orgs',
+    org,
+  });
+}));
+
+router.post('/orgs/:orgId/tier', asyncHandler(async (req, res) => {
+  await setOrgTier({
+    orgId: req.params.orgId,
+    tierKey: req.body.tierKey,
+    actorId: req.user.id,
+    reason: req.body.reason || null,
+  });
+  redirectBack(req, res, `/admin/orgs/${req.params.orgId}`);
+}));
+
+router.post('/orgs/:orgId/billing-responsible', asyncHandler(async (req, res) => {
+  await setOrgBillingResponsible({
+    orgId: req.params.orgId,
+    membershipId: req.body.membershipId || null,
+    actorId: req.user.id,
+    reason: req.body.reason || null,
+  });
+  redirectBack(req, res, `/admin/orgs/${req.params.orgId}`);
+}));
+
+router.post('/orgs/:orgId/usage-budget', asyncHandler(async (req, res) => {
+  await setOrgSluBudget({
+    orgId: req.params.orgId,
+    limit: req.body.limit,
+    windowDays: req.body.windowDays,
+    actorId: req.user.id,
+    reason: req.body.reason || null,
+  });
+  redirectBack(req, res, `/admin/orgs/${req.params.orgId}`);
+}));
+
+router.post('/orgs/:orgId/spend-cap', asyncHandler(async (req, res) => {
+  await setOrgSpendCap({
+    orgId: req.params.orgId,
+    aiSpendCapUsd: req.body.aiSpendCapUsd,
+    actorId: req.user.id,
+    reason: req.body.reason || null,
+  });
+  redirectBack(req, res, `/admin/orgs/${req.params.orgId}`);
+}));
+
+router.get('/product-controls', asyncHandler(async (req, res) => {
+  const controls = await getAdminProductControls();
+  res.render('pages/admin/product-controls', {
+    title: 'Product controls',
+    active: 'product-controls',
+    controls,
+  });
+}));
+
+router.post('/product-controls/feature-flags', asyncHandler(async (req, res) => {
+  await upsertFeatureFlag({
+    key: req.body.key,
+    scope: req.body.scope || 'platform',
+    scopeId: req.body.scopeId || '',
+    tool: req.body.tool || '',
+    enabled: req.body.enabled === 'on',
+    actorId: req.user.id,
+    reason: req.body.reason || null,
+  });
+  redirectBack(req, res, '/admin/product-controls');
+}));
+
+router.post('/product-controls/ai-model-config', asyncHandler(async (req, res) => {
+  await upsertAiModelConfig({
+    callType: req.body.callType,
+    provider: req.body.provider,
+    model: req.body.model,
+    scope: req.body.scope || 'platform',
+    scopeId: req.body.scopeId || '',
+    temperature: req.body.temperature || null,
+    maxTokens: req.body.maxTokens || null,
+    enabled: req.body.enabled === 'on',
+    actorId: req.user.id,
+    reason: req.body.reason || null,
+  });
+  redirectBack(req, res, '/admin/product-controls');
+}));
+
+router.get('/audit-log', asyncHandler(async (req, res) => {
+  const auditLogs = await listAdminAuditLogs();
+  res.render('pages/admin/audit-log', {
+    title: 'Audit log',
+    active: 'audit-log',
+    auditLogs,
   });
 }));
 

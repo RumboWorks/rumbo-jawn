@@ -87,6 +87,29 @@ test('platform admin can view central admin dashboard', async ({ page }) => {
   await page.goto('/admin/orgs');
   await expect(page.locator('h1')).toContainText('Organizations');
   await expect(page.locator('text=SLU budget').first()).toBeVisible();
+  await page.getByRole('link', { name: /Admin User/ }).first().click();
+  await expect(page.locator('h1')).toContainText("Admin User's workspace");
+  await page.selectOption('select[name="tierKey"]', 'team');
+  await page.locator('form[action$="/tier"] input[name="reason"]').fill('QA tier edit');
+  await page.locator('form[action$="/tier"] button[type="submit"]').click();
+  await expect(page.locator('.rj-admin-metric', { hasText: 'Team' })).toBeVisible();
+
+  await page.fill('form[action$="/usage-budget"] input[name="limit"]', '12');
+  await page.fill('form[action$="/usage-budget"] input[name="windowDays"]', '7');
+  await page.locator('form[action$="/usage-budget"] input[name="reason"]').fill('QA budget edit');
+  await page.locator('form[action$="/usage-budget"] button[type="submit"]').click();
+  await expect(page.locator('.rj-admin-metric', { hasText: '0 / 12' })).toBeVisible();
+
+  await page.goto('/admin/product-controls');
+  await expect(page.locator('h1')).toContainText('Product controls');
+  await page.fill('form[action$="/feature-flags"] input[name="key"]', `qa.flag.${Date.now()}`);
+  await page.locator('form[action$="/feature-flags"] input[name="reason"]').fill('QA flag edit');
+  await page.locator('form[action$="/feature-flags"] button[type="submit"]').click();
+  await expect(page.locator('text=QA flag edit')).toBeVisible();
+
+  await page.goto('/admin/audit-log');
+  await expect(page.locator('h1')).toContainText('Audit log');
+  await expect(page.locator('text=QA tier edit')).toBeVisible();
 
   await page.goto('/admin/jobs');
   await expect(page.locator('h1')).toContainText('Jobs');

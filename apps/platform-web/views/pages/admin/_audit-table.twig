@@ -1,0 +1,37 @@
+{% if auditLogs|length == 0 %}
+    <p class="rj-admin-empty">No audit entries yet.</p>
+{% else %}
+    <div class="rj-table-wrap">
+        <table class="rj-table rj-admin-table">
+            <thead>
+                <tr>
+                    <th>Action</th>
+                    <th>Target</th>
+                    <th>Actor</th>
+                    <th>Reason</th>
+                    <th>When</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in auditLogs %}
+                    <tr>
+                        <td>
+                            <strong>{{ log.action }}</strong>
+                            <br><span class="rj-admin-muted rj-admin-mono">{{ log.id }}</span>
+                        </td>
+                        <td>
+                            {{ log.targetType }}
+                            <br><span class="rj-admin-muted rj-admin-mono">{{ log.targetId }}</span>
+                            {% if log.org %}
+                                <br><a href="/admin/orgs/{{ log.org.id }}">{{ log.org.name }}</a>
+                            {% endif %}
+                        </td>
+                        <td>{% if log.actor %}{{ log.actor.email }}{% else %}<span class="rj-admin-muted">System</span>{% endif %}</td>
+                        <td>{% if log.reason %}{{ log.reason }}{% else %}<span class="rj-admin-muted">None</span>{% endif %}</td>
+                        <td class="rj-num">{{ log.createdAt|date("M j, Y g:ia") }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}

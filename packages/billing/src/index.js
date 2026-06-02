@@ -69,6 +69,18 @@ function daysAgo(days) {
   return date;
 }
 
+function parsePositiveInt(value, label) {
+  const number = Number.parseInt(value, 10);
+  if (!Number.isFinite(number) || number < 0) throw new Error(`${label} must be a non-negative integer.`);
+  return number;
+}
+
+function parsePositiveNumber(value, label) {
+  const number = Number.parseFloat(value);
+  if (!Number.isFinite(number) || number < 0) throw new Error(`${label} must be a non-negative number.`);
+  return number;
+}
+
 export async function seedBillingDefaults({ auditActorId = null } = {}) {
   const tiers = [];
   for (const tier of DEFAULT_PRODUCT_TIERS) {
@@ -306,4 +318,202 @@ export async function setOrgTier({ orgId, tierKey, actorId = null, reason = null
   });
 
   return updated;
+}
+
+export async function setOrgBillingResponsible({ orgId, membershipId = null, actorId = null, reason = null }) {
+  const before = await ensureOrgEntitlement(orgId);
+  let membership = null;
+  if (membershipId) {
+    membership = await db.membership.findUnique({
+      where: { id: membershipId },
+      include: { user: true },
+    });
+    if (!membership || membership.orgId !== orgId || membership.role !== 'MANAGER') {
+      throw new Error('Billing responsibility must be assigned to an organization manager.');
+    }
+  }
+
+  const updated = await db.organizationEntitlement.update({
+    where: { orgId },
+    data: {
+      billingResponsibleUserId: membership?.userId ?? null,
+      billingResponsibleMembershipId: membership?.id ?? null,
+    },
+    include: {
+      tier: true,
+      billingResponsibleUser: true,
+      billingResponsibleMembership: { include: { user: true } },
+    },
+  });
+
+  await db.adminAuditLog.create({
+    data: {
+      actorId,
+      action: 'org.entitlement.billing_responsible_changed',
+      targetType: 'organization',
+      targetId: orgId,
+      orgId,
+      oldValue: {
+        billingResponsibleUserId: before.billingResponsibleUserId,
+        billingResponsibleMembershipId: before.billingResponsibleMembershipId,
+      },
+      newValue: {
+        billingResponsibleUserId: updated.billingResponsibleUserId,
+        billingResponsibleMembershipId: updated.billingResponsibleMembershipId,
+      },
+      reason,
+    },
+  });
+
+  return updated;
+}
+
+export async function setOrgSluBudget({ orgId, limit, windowDays, actorId = null, reason = null }) {
+  const parsedLimit = parsePositiveInt(limit, 'Limit');
+  const parsedWindowDays = parsePositiveInt(windowDays, 'Window days');
+  if (parsedWindowDays < 1) throw new Error('Window days must be at least 1.');
+
+  const before = await ensureOrgEntitlement(orgId);
+  const overrides = before.overrides ?? {};
+  const limits = { ...(overrides.limits ?? {}) };
+  limits[UsageKey.SLU_ANALYSIS_ROLLING_7D] = {
+    limit: parsedLimit,
+    windowDays: parsedWindowDays,
+    policy: 'soft',
+  };
+
+  const updated = await db.organizationEntitlement.update({
+    where: { orgId },
+    data: { overrides: { ...overrides, limits } },
+    include: { tier: true },
+  });
+
+  await db.adminAuditLog.create({
+    data: {
+      actorId,
+      action: 'org.entitlement.usage_budget_changed',
+      targetType: 'organization',
+      targetId: orgId,
+      orgId,
+      oldValue: before.overrides?.limits?.[UsageKey.SLU_ANALYSIS_ROLLING_7D] ?? before.tier.limits?.[UsageKey.SLU_ANALYSIS_ROLLING_7D] ?? null,
+      newValue: limits[UsageKey.SLU_ANALYSIS_ROLLING_7D],
+      reason,
+    },
+  });
+
+  return updated;
+}
+
+export async function setOrgSpendCap({ orgId, aiSpendCapUsd, actorId = null, reason = null }) {
+  const parsedCap = parsePositiveNumber(aiSpendCapUsd, 'Spend cap');
+  const before = await ensureOrgEntitlement(orgId);
+
+  const updated = await db.organizationEntitlement.update({
+    where: { orgId },
+    data: { aiSpendCapUsd: parsedCap },
+    include: { tier: true },
+  });
+
+  await db.adminAuditLog.create({
+    data: {
+      actorId,
+      action: 'org.entitlement.spend_cap_changed',
+      targetType: 'organization',
+      targetId: orgId,
+      orgId,
+      oldValue: { aiSpendCapUsd: toNumber(before.aiSpendCapUsd) },
+      newValue: { aiSpendCapUsd: parsedCap },
+      reason,
+    },
+  });
+
+  return updated;
+}
+
+export async function upsertFeatureFlag({ key, enabled, scope = 'platform', scopeId = '', tool = '', config = null, actorId = null, reason = null }) {
+  if (!key || typeof key !== 'string') throw new Error('Feature flag key is required.');
+  const normalizedScopeId = scopeId ?? '';
+  const normalizedTool = tool ?? '';
+  const existing = await db.featureFlag.findUnique({
+    where: { key_scope_scopeId_tool: { key, scope, scopeId: normalizedScopeId, tool: normalizedTool } },
+  });
+  const flag = await db.featureFlag.upsert({
+    where: { key_scope_scopeId_tool: { key, scope, scopeId: normalizedScopeId, tool: normalizedTool } },
+    update: { enabled: Boolean(enabled), config },
+    create: { key, scope, scopeId: normalizedScopeId, tool: normalizedTool, enabled: Boolean(enabled), config },
+  });
+
+  await db.adminAuditLog.create({
+    data: {
+      actorId,
+      action: 'feature_flag.upserted',
+      targetType: 'feature_flag',
+      targetId: flag.id,
+      oldValue: existing ? { enabled: existing.enabled, config: existing.config } : null,
+      newValue: { key: flag.key, scope: flag.scope, scopeId: flag.scopeId, tool: flag.tool, enabled: flag.enabled, config: flag.config },
+      reason,
+    },
+  });
+
+  return flag;
+}
+
+export async function upsertAiModelConfig({ callType, provider, model, scope = 'platform', scopeId = '', temperature = null, maxTokens = null, enabled = true, actorId = null, reason = null }) {
+  if (!callType || !provider || !model) throw new Error('Call type, provider, and model are required.');
+  const normalizedScopeId = scopeId ?? '';
+  const existing = await db.aiModelConfig.findUnique({
+    where: { callType_scope_scopeId: { callType, scope, scopeId: normalizedScopeId } },
+  });
+  const config = await db.aiModelConfig.upsert({
+    where: { callType_scope_scopeId: { callType, scope, scopeId: normalizedScopeId } },
+    update: {
+      provider,
+      model,
+      temperature: temperature === '' || temperature === null ? null : Number.parseFloat(temperature),
+      maxTokens: maxTokens === '' || maxTokens === null ? null : Number.parseInt(maxTokens, 10),
+      enabled: Boolean(enabled),
+    },
+    create: {
+      callType,
+      provider,
+      model,
+      scope,
+      scopeId: normalizedScopeId,
+      temperature: temperature === '' || temperature === null ? null : Number.parseFloat(temperature),
+      maxTokens: maxTokens === '' || maxTokens === null ? null : Number.parseInt(maxTokens, 10),
+      enabled: Boolean(enabled),
+    },
+  });
+
+  await db.adminAuditLog.create({
+    data: {
+      actorId,
+      action: 'ai_model_config.upserted',
+      targetType: 'ai_model_config',
+      targetId: config.id,
+      oldValue: existing ? {
+        callType: existing.callType,
+        provider: existing.provider,
+        model: existing.model,
+        scope: existing.scope,
+        scopeId: existing.scopeId,
+        temperature: existing.temperature,
+        maxTokens: existing.maxTokens,
+        enabled: existing.enabled,
+      } : null,
+      newValue: {
+        callType: config.callType,
+        provider: config.provider,
+        model: config.model,
+        scope: config.scope,
+        scopeId: config.scopeId,
+        temperature: config.temperature,
+        maxTokens: config.maxTokens,
+        enabled: config.enabled,
+      },
+      reason,
+    },
+  });
+
+  return config;
 }

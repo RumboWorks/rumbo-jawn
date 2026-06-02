@@ -493,6 +493,54 @@ Next phase recommendation: Ask the user to approve Phase 07, commit it, then pro
 
 ---
 
+## Phase 07b — Admin UI for Entitlements and Product Controls
+
+Date: 2026-06-02
+
+Outcome:
+- Proceed to Phase 08 — Embeddable Widgets
+
+Completed:
+- Added admin organization detail/edit page
+- Added tier editing for Free, Solo, Team, and Partner
+- Added billing-responsible manager assignment
+- Added SLU usage budget editing
+- Added AI spend-cap editing
+- Added product controls page
+- Added AI model/provider config editing
+- Added feature flag editing
+- Added audit log page and reusable audit table
+- Added audited mutation helpers in `@rumbo/billing`
+- Added Playwright coverage for tier edit, budget edit, feature flag edit, and audit-log visibility
+
+Incomplete:
+- Nothing required for Phase 07b acceptance criteria.
+
+Changed from original plan:
+- The first edit UI focuses on compact operational forms rather than rich inline editing.
+- Feature flag config JSON editing is not exposed yet; flags can be enabled/disabled and scoped.
+
+Deferred:
+- Stripe checkout, webhooks, customer portal, invoices, and partner self-service remain out of scope.
+- Richer product-control editing polish can happen in launch hardening if needed.
+
+Docs updated:
+- `docs/development-phases/phase-07b-admin-ui-for-entitlements-and-product-controls.md`
+- `docs/active-planning/phase-retrospectives.md`
+- `docs/active-planning/roadmap.md`
+- `docs/reference/usage.md`
+
+Checks/tests run:
+- `node --check apps/platform-web/src/routes/admin.js`
+- `node --check packages/billing/src/index.js`
+- `npm run build --workspace=rumbo-web`
+- `npm run pm2:restart`
+- `npm run qa` — 20/20 passed
+
+Next phase recommendation: Proceed to Phase 08 — Embeddable Widgets.
+
+---
+
 ## Template
 
 ```md
