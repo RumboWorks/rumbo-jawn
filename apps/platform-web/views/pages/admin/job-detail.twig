@@ -9,6 +9,7 @@
 {% block content %}
     <div class="rj-page-header rj-admin-title-row">
         <div>
+            {% include "pages/admin/_breadcrumbs.twig" with { sectionLabel: 'jobs', sectionHref: '/admin/jobs' } %}
             <h1>{{ job.type }}</h1>
             <p><span class="rj-admin-mono">{{ job.id }}</span></p>
         </div>

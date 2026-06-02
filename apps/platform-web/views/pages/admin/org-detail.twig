@@ -7,14 +7,10 @@
 {% endblock %}
 
 {% block content %}
-    <div class="rj-page-header rj-admin-title-row">
-        <div>
-            <h1>{{ org.name }}</h1>
-            <p>{{ org.slug }} · <span class="rj-admin-mono">{{ org.publicId }}</span></p>
-        </div>
-        <a class="rj-btn rj-btn--secondary rj-btn--sm" href="/admin/orgs">
-            <i data-lucide="arrow-left"></i> Organizations
-        </a>
+    <div class="rj-page-header">
+        {% include "pages/admin/_breadcrumbs.twig" with { sectionLabel: 'organizations', sectionHref: '/admin/orgs' } %}
+        <h1>{{ org.name }}</h1>
+        <p>{{ org.slug }} · <span class="rj-admin-mono">{{ org.publicId }}</span></p>
     </div>
 
     <section class="rj-admin-metrics rj-admin-metrics--compact">

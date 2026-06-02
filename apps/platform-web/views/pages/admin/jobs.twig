@@ -8,6 +8,7 @@
 
 {% block content %}
     <div class="rj-page-header">
+        {% include "pages/admin/_breadcrumbs.twig" with { sectionLabel: breadcrumbLabel ?? 'jobs', sectionHref: breadcrumbHref ?? '/admin/jobs' } %}
         <h1>{{ pageHeading ?? 'Jobs' }}</h1>
         <p>{{ pageDescription ?? 'Recent platform jobs across tools, organizations, and users.' }}</p>
     </div>

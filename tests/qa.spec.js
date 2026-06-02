@@ -5,6 +5,7 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { registerLocalUser } from '@rumbo/auth';
 import { recordUsageEvent, UsageKey } from '@rumbo/billing';
 import { db } from '@rumbo/db';
 
@@ -66,9 +67,24 @@ test('admin requires platform admin access', async ({ page }) => {
 });
 
 test('platform admin can view central admin dashboard', async ({ page }) => {
-  const email = `admin-${Date.now()}@example.org`;
+  const runId = Date.now();
+  const email = `admin-${runId}@example.org`;
   await registerUser(page, { name: 'Admin User', email, password: 'adminpass99' });
   await db.user.update({ where: { email }, data: { isPlatformAdmin: true } });
+  await registerLocalUser({
+    name: 'Sort Check User',
+    email: `sort-check-${runId}@example.org`,
+    password: 'sortpass99',
+  });
+  await db.user.createMany({
+    data: [
+      { name: `Filter Target User ${runId}`, email: `filter-target-${runId}@example.org` },
+      ...Array.from({ length: 10 }, (_, index) => ({
+        name: `Table Filler User ${runId}-${index}`,
+        email: `table-filler-${runId}-${index}@example.org`,
+      })),
+    ],
+  });
 
   await page.goto('/');
   await expect(page.getByRole('link', { name: 'Admin', exact: true })).toBeVisible();
@@ -77,18 +93,41 @@ test('platform admin can view central admin dashboard', async ({ page }) => {
   await screenshot(page, '04-admin-dashboard');
 
   await expect(page.locator('h1')).toContainText('Admin');
+  await expect(page.locator('.rj-admin-breadcrumbs').first()).toHaveText('admin');
   await expect(page.locator('text=Central platform visibility')).toBeVisible();
   await expect(page.locator('.rj-sidebar__link', { hasText: 'AI calls' })).toBeVisible();
   await expect(page.locator('.rj-admin-metric__label', { hasText: 'Users' })).toBeVisible();
 
   await page.goto('/admin/users');
   await expect(page.locator('h1')).toContainText('Users');
+  await expect(page.locator('.rj-admin-breadcrumbs').first()).toHaveText('admin / users');
+  await expect(page.locator('.rj-table-tools__count').first()).toContainText(/^\d+ of \d+ items\.$/);
+  await page.locator('.rj-table-tools__input').first().fill(`Filter Target User ${runId}`);
+  await expect(page.locator('.rj-admin-table tbody tr:visible')).toHaveCount(1);
+  await expect(page.locator('.rj-admin-table tbody tr:visible')).toContainText(`Filter Target User ${runId}`);
+  await expect(page.locator('.rj-table-tools__count').first()).toContainText(/^1 of \d+ items\.$/);
+  await page.locator('.rj-table-tools__input').first().fill('');
+  const userColumn = page.locator('.rj-admin-table tbody tr td:first-child');
+  const normalizeColumn = async () => (await userColumn.allTextContents())
+    .map(text => text.replace(/\s+/g, ' ').trim());
+  await expect.poll(async () => (await normalizeColumn()).length).toBeGreaterThan(1);
+  await page.locator('th.rj-table__sort-head', { hasText: 'User' }).click();
+  await expect(page.locator('th', { hasText: 'User' })).toHaveAttribute('aria-sort', 'ascending');
+  const ascendingUsers = await normalizeColumn();
+  expect(ascendingUsers).toEqual([...ascendingUsers].sort((a, b) => (
+    a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
+  )));
+  await page.locator('th.rj-table__sort-head', { hasText: 'User' }).click();
+  await expect(page.locator('th', { hasText: 'User' })).toHaveAttribute('aria-sort', 'descending');
+  const descendingUsers = await normalizeColumn();
+  expect(descendingUsers).toEqual([...ascendingUsers].reverse());
 
   await page.goto('/admin/orgs');
   await expect(page.locator('h1')).toContainText('Organizations');
   await expect(page.locator('text=SLU budget').first()).toBeVisible();
   await page.getByRole('link', { name: /Admin User/ }).first().click();
   await expect(page.locator('h1')).toContainText("Admin User's workspace");
+  await expect(page.locator('.rj-admin-breadcrumbs').first()).toHaveText('admin / organizations');
   await page.selectOption('select[name="tierKey"]', 'team');
   await page.locator('form[action$="/tier"] input[name="reason"]').fill('QA tier edit');
   await page.locator('form[action$="/tier"] button[type="submit"]').click();
@@ -102,11 +141,13 @@ test('platform admin can view central admin dashboard', async ({ page }) => {
 
   await page.goto('/admin/product-controls');
   await expect(page.locator('h1')).toContainText('Product controls');
+  await expect(page.locator('.rj-admin-breadcrumbs').first()).toHaveText('admin / product controls');
   await expect(page.locator('th', { hasText: 'Tool' }).first()).toBeVisible();
   await expect(page.locator('td', { hasText: 'slu' }).first()).toBeVisible();
   await expect(page.locator('form[action$="/feature-flags"]')).toHaveCount(0);
   await page.getByRole('link', { name: 'Add' }).nth(1).click();
   await expect(page.locator('h1')).toContainText('New feature flag');
+  await expect(page.locator('.rj-admin-breadcrumbs').first()).toHaveText('admin / product controls');
   await page.fill('form[action$="/feature-flags"] input[name="key"]', `qa.flag.${Date.now()}`);
   await page.locator('form[action$="/feature-flags"] input[name="reason"]').fill('QA flag edit');
   await page.locator('form[action$="/feature-flags"] button[type="submit"]').click();

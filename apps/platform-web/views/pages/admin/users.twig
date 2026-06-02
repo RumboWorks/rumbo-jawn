@@ -8,6 +8,7 @@
 
 {% block content %}
     <div class="rj-page-header">
+        {% include "pages/admin/_breadcrumbs.twig" with { sectionLabel: 'users', sectionHref: '/admin/users' } %}
         <h1>Users</h1>
         <p>Recent platform identities and their organization or partner relationships.</p>
     </div>

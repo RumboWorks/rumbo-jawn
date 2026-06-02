@@ -8,6 +8,7 @@
 
 {% block content %}
     <div class="rj-page-header">
+        {% include "pages/admin/_breadcrumbs.twig" with { sectionLabel: 'product controls', sectionHref: '/admin/product-controls' } %}
         <h1>Product controls</h1>
         <p>Feature flags and AI model/provider settings. Open a row to edit; changes are audit-logged.</p>
     </div>

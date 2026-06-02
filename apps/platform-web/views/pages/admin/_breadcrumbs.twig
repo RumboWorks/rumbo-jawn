@@ -1,0 +1,11 @@
+<nav class="rj-admin-breadcrumbs" aria-label="Admin breadcrumbs">
+    <a href="/admin">admin</a>
+    {% if sectionLabel %}
+        <span aria-hidden="true">/</span>
+        {% if sectionHref %}
+            <a href="{{ sectionHref }}">{{ sectionLabel }}</a>
+        {% else %}
+            <span>{{ sectionLabel }}</span>
+        {% endif %}
+    {% endif %}
+</nav>

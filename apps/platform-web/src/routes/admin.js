@@ -207,6 +207,8 @@ router.get('/jobs', asyncHandler(async (req, res) => {
     active: 'jobs',
     jobs,
     filters: { type, status },
+    breadcrumbLabel: 'jobs',
+    breadcrumbHref: '/admin/jobs',
   });
 }));
 
@@ -219,6 +221,8 @@ router.get('/sounds-like-us', asyncHandler(async (req, res) => {
     filters: { type: 'slu.analysis', status: null },
     pageHeading: 'Sounds Like Us runs',
     pageDescription: 'Recent Sounds Like Us analyses shown through the shared platform job records.',
+    breadcrumbLabel: 'slu runs',
+    breadcrumbHref: '/admin/sounds-like-us',
   });
 }));
 
@@ -240,6 +244,8 @@ router.get('/failures', asyncHandler(async (req, res) => {
     filters: { type: null, status: 'FAILED' },
     pageHeading: 'Failures',
     pageDescription: 'Jobs that ended in a failed state, newest first.',
+    breadcrumbLabel: 'failures',
+    breadcrumbHref: '/admin/failures',
   });
 }));
 

@@ -7,14 +7,10 @@
 {% endblock %}
 
 {% block content %}
-    <div class="rj-page-header rj-admin-title-row">
-        <div>
-            <h1>{% if flag %}{{ flag.key }}{% else %}New feature flag{% endif %}</h1>
-            <p>Feature flags can be scoped by platform, tier, organization, and tool.</p>
-        </div>
-        <a class="rj-btn rj-btn--secondary rj-btn--sm" href="/admin/product-controls">
-            <i data-lucide="arrow-left"></i> Product controls
-        </a>
+    <div class="rj-page-header">
+        {% include "pages/admin/_breadcrumbs.twig" with { sectionLabel: 'product controls', sectionHref: '/admin/product-controls' } %}
+        <h1>{% if flag %}{{ flag.key }}{% else %}New feature flag{% endif %}</h1>
+        <p>Feature flags can be scoped by platform, tier, organization, and tool.</p>
     </div>
 
     <section class="rj-admin-panel">

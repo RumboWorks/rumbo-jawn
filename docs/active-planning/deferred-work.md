@@ -114,3 +114,15 @@ Deferred to: Phase 07b
 Reason: Phase 07 establishes shared entitlement, usage, spend-cap, model-config, and audit foundations with support scripts. Editing workflows need a dedicated admin UI pass.
 Blocking: Phase 07 must be finished, approved, and committed first.
 Must not forget because: Operators will need safe UI controls for tier changes, billing responsibility, usage budgets, spend caps, feature flags, and model/provider config before launch operations become practical.
+
+## Deferred item: Admin UI editing Product controls
+
+Admin UI editing Product controls needs multi-choice option for "tool" field rather than a single type-in.
+
+## Deferred item: Advanced admin table search and filters
+
+Originally identified: Phase 07b admin table polish  
+Deferred to: later admin/search phase or Phase 09 launch hardening if needed before launch  
+Reason: Current admin tables are small, server-rendered, and capped. Lightweight client-side sort/filter/count is enough for the present listings.  
+Blocking: Need clearer operator workflows for relation-aware searches such as users by org, users by role, orgs by partner, usage over budget, and billing responsibility.  
+Must not forget because: Once admin lists need pagination or cross-entity filtering, the implementation should move to whitelisted server-side query params backed by Prisma instead of relying on client-side DOM filtering.

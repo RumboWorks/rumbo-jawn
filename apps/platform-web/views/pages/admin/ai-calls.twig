@@ -8,6 +8,7 @@
 
 {% block content %}
     <div class="rj-page-header">
+        {% include "pages/admin/_breadcrumbs.twig" with { sectionLabel: 'ai calls', sectionHref: '/admin/ai-calls' } %}
         <h1>AI calls</h1>
         <p>Provider, model, token, duration, cache, and cost metadata for recent AI usage.</p>
     </div>
