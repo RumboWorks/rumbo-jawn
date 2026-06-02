@@ -5,6 +5,7 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { recordUsageEvent, UsageKey } from '@rumbo/billing';
 import { db } from '@rumbo/db';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -85,6 +86,7 @@ test('platform admin can view central admin dashboard', async ({ page }) => {
 
   await page.goto('/admin/orgs');
   await expect(page.locator('h1')).toContainText('Organizations');
+  await expect(page.locator('text=SLU budget').first()).toBeVisible();
 
   await page.goto('/admin/jobs');
   await expect(page.locator('h1')).toContainText('Jobs');
@@ -223,6 +225,23 @@ test('SLU page renders with form and privacy notice', async ({ page }) => {
   await expect(page.locator('text=SOUNDS LIKE US')).toBeVisible();
   await expect(page.locator('input[name="url"]')).toBeVisible();
   await expect(page.locator('text=AI providers')).toBeVisible();
+  await expect(page.locator('button[type="submit"]')).toContainText('Analyze');
+});
+
+test('SLU shows soft over-budget indicator after usage budget is exceeded', async ({ page }) => {
+  const email = `slu-budget-${Date.now()}@example.org`;
+  await registerUser(page, { name: 'Budget User', email, password: 'testpass99' });
+  const user = await db.user.findUnique({
+    where: { email },
+    include: { memberships: true },
+  });
+  const orgId = user.memberships[0].orgId;
+  for (let i = 0; i < 10; i++) {
+    await recordUsageEvent({ orgId, tool: 'slu', usageKey: UsageKey.SLU_ANALYSIS_ROLLING_7D });
+  }
+
+  await page.goto('/slu');
+  await expect(page.locator('text=Over budget')).toBeVisible();
   await expect(page.locator('button[type="submit"]')).toContainText('Analyze');
 });
 

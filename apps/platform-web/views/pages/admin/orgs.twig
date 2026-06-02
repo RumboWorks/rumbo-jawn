@@ -18,7 +18,8 @@
                 <tr>
                     <th>Organization</th>
                     <th>Type</th>
-                    <th>Members</th>
+                    <th>Tier / budget</th>
+                    <th>Billing</th>
                     <th>Partner access</th>
                     <th>Jobs</th>
                     <th>Created</th>
@@ -40,7 +41,33 @@
                             {% endif %}
                         </td>
                         <td>
-                            <span class="rj-num">{{ org.memberships|length }}</span>
+                            {% if org.entitlement %}
+                                <strong>{{ org.entitlement.tier.name }}</strong>
+                            {% else %}
+                                <span class="rj-admin-muted">No tier</span>
+                            {% endif %}
+                            {% if org.sluBudgetStatus %}
+                                <br>
+                                {% if org.sluBudgetStatus.overBudget %}
+                                    <span class="rj-badge rj-badge--warning"><span class="rj-dot"></span>Over budget</span>
+                                {% else %}
+                                    <span class="rj-admin-muted">SLU budget</span>
+                                {% endif %}
+                                <br><span class="rj-admin-muted rj-num">{{ org.sluBudgetStatus.used }} / {{ org.sluBudgetStatus.limit }} runs · {{ org.sluBudgetStatus.windowDays }}d</span>
+                            {% endif %}
+                            {% if org.spendStatus %}
+                                <br><span class="rj-admin-muted rj-num">${{ org.spendStatus.spentUsd|number_format(4, '.', ',') }} / ${{ org.spendStatus.capUsd|number_format(2, '.', ',') }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if org.entitlement and org.entitlement.billingResponsibleUser %}
+                                {{ org.entitlement.billingResponsibleUser.email }}
+                            {% elseif org.entitlement and org.entitlement.billingResponsibleMembership %}
+                                {{ org.entitlement.billingResponsibleMembership.user.email }}
+                            {% else %}
+                                <span class="rj-admin-muted">Unassigned</span>
+                            {% endif %}
+                            <br><span class="rj-admin-muted">{{ org.memberships|length }} members</span>
                             {% for membership in org.memberships|slice(0, 3) %}
                                 <br><span class="rj-admin-muted">{{ membership.user.email }} · {{ membership.role|lower }}</span>
                             {% endfor %}
@@ -63,7 +90,7 @@
                         <td class="rj-num">{{ org.createdAt|date("M j, Y") }}</td>
                     </tr>
                 {% else %}
-                    <tr><td colspan="6" class="rj-table__empty">No organizations found.</td></tr>
+                    <tr><td colspan="7" class="rj-table__empty">No organizations found.</td></tr>
                 {% endfor %}
             </tbody>
         </table>

@@ -12,6 +12,12 @@
     </div>
 
     <div class="slu-analyze-card rj-card rj-card--pad">
+        {% if budgetStatus and budgetStatus.overBudget %}
+            <div class="slu-budget-indicator" aria-label="Usage budget status">
+                <span class="rj-badge rj-badge--warning"><span class="rj-dot"></span>Over budget</span>
+                <span class="rj-caption">{{ budgetStatus.used }} of {{ budgetStatus.limit }} runs used in {{ budgetStatus.windowDays }} days. You can still continue.</span>
+            </div>
+        {% endif %}
         <form method="POST" action="/slu/analyze" class="slu-url-form">
             <div class="rj-field">
                 <label class="rj-label rj-label--required" for="url">Organization website URL</label>

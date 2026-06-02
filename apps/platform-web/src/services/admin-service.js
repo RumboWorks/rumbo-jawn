@@ -1,4 +1,5 @@
 import { db } from '@rumbo/db';
+import { getOrgSpendStatus, getUsageBudgetStatus, UsageKey } from '@rumbo/billing';
 
 const RECENT_LIMIT = 10;
 const LIST_LIMIT = 50;
@@ -108,11 +109,18 @@ export async function listAdminUsers() {
 }
 
 export async function listAdminOrganizations() {
-  return db.organization.findMany({
+  const orgs = await db.organization.findMany({
     where: { deletedAt: null },
     orderBy: { createdAt: 'desc' },
     take: LIST_LIMIT,
     include: {
+      entitlement: {
+        include: {
+          tier: true,
+          billingResponsibleUser: true,
+          billingResponsibleMembership: { include: { user: true } },
+        },
+      },
       memberships: { include: { user: true }, orderBy: { createdAt: 'asc' } },
       partnerAccesses: {
         where: { removedAt: null },
@@ -122,6 +130,15 @@ export async function listAdminOrganizations() {
       _count: { select: { jobs: true, approvedDomains: true } },
     },
   });
+
+  return Promise.all(orgs.map(async (org) => ({
+    ...org,
+    sluBudgetStatus: await getUsageBudgetStatus(org.id, {
+      tool: 'slu',
+      usageKey: UsageKey.SLU_ANALYSIS_ROLLING_7D,
+    }),
+    spendStatus: await getOrgSpendStatus(org.id),
+  })));
 }
 
 export async function listAdminJobs({ type = null, status = null } = {}) {

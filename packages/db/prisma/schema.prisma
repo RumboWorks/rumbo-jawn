@@ -25,6 +25,8 @@ model User {
   partnerMemberships        PartnerMembership[]
   organizationsCreated      Organization[]              @relation("OrganizationCreatedBy")
   partnerOrgAccessesCreated PartnerOrganizationAccess[] @relation("PartnerOrgAccessCreatedBy")
+  billingResponsibilities   OrganizationEntitlement[]   @relation("BillingResponsibleUser")
+  adminAuditLogs            AdminAuditLog[]             @relation("AdminAuditActor")
   invitesSent               OrganizationInvite[]        @relation("OrganizationInviteSentBy")
   oauthAccounts             OAuthAccount[]
   jobs                      Job[]
@@ -57,6 +59,9 @@ model Organization {
   memberships      Membership[]
   invites          OrganizationInvite[]
   partnerAccesses  PartnerOrganizationAccess[]
+  entitlement      OrganizationEntitlement?
+  usageEvents      UsageEvent[]
+  adminAuditLogs   AdminAuditLog[]
   approvedDomains  ApprovedDomain[]
   jobs             Job[]
 
@@ -64,13 +69,14 @@ model Organization {
 }
 
 model Membership {
-  id        String       @id @default(cuid())
-  userId    String
-  orgId     String
-  role      MemberRole   @default(MEMBER)
-  createdAt DateTime     @default(now())
-  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  id                  String                    @id @default(cuid())
+  userId              String
+  orgId               String
+  role                MemberRole                @default(MEMBER)
+  createdAt           DateTime                  @default(now())
+  user                User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  org                 Organization              @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  billingEntitlements OrganizationEntitlement[]
 
   @@unique([userId, orgId])
   @@index([orgId])
@@ -168,6 +174,124 @@ enum PartnerRole {
   MANAGER
 }
 
+// ---- Entitlements / billing readiness ----
+
+model ProductTier {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  name        String
+  description String?  @db.Text
+  limits      Json?
+  features    Json?
+  isDefault   Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  entitlements OrganizationEntitlement[]
+}
+
+model OrganizationEntitlement {
+  id                             String    @id @default(cuid())
+  orgId                          String    @unique
+  tierId                         String
+  billingResponsibleUserId       String?
+  billingResponsibleMembershipId String?
+  aiSpendCapUsd                  Decimal   @default(25.000000) @db.Decimal(10, 6)
+  stripeCustomerId               String?
+  stripeSubscriptionId           String?
+  stripePriceId                  String?
+  stripeSubscriptionStatus       String?
+  stripeCurrentPeriodStart       DateTime?
+  stripeCurrentPeriodEnd         DateTime?
+  stripeCancelAtPeriodEnd        Boolean   @default(false)
+  overrides                      Json?
+  createdAt                      DateTime  @default(now())
+  updatedAt                      DateTime  @updatedAt
+
+  org                          Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  tier                         ProductTier  @relation(fields: [tierId], references: [id])
+  billingResponsibleUser       User?        @relation("BillingResponsibleUser", fields: [billingResponsibleUserId], references: [id], onDelete: SetNull)
+  billingResponsibleMembership Membership?  @relation(fields: [billingResponsibleMembershipId], references: [id], onDelete: SetNull)
+
+  @@index([tierId])
+  @@index([billingResponsibleUserId])
+  @@index([billingResponsibleMembershipId])
+  @@index([stripeCustomerId])
+  @@index([stripeSubscriptionId])
+}
+
+model UsageEvent {
+  id        String   @id @default(cuid())
+  orgId     String
+  tool      String
+  usageKey  String
+  quantity  Int      @default(1)
+  jobId     String?
+  meta      Json?
+  createdAt DateTime @default(now())
+
+  org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  job Job?         @relation(fields: [jobId], references: [id], onDelete: SetNull)
+
+  @@index([orgId, tool, usageKey, createdAt])
+  @@index([jobId])
+}
+
+model FeatureFlag {
+  id        String   @id @default(cuid())
+  key       String
+  scope     String   @default("platform")
+  scopeId   String?
+  tool      String?
+  enabled   Boolean  @default(false)
+  config    Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([key, scope, scopeId, tool])
+  @@index([scope, scopeId])
+  @@index([tool])
+}
+
+model AiModelConfig {
+  id          String   @id @default(cuid())
+  callType    String
+  provider    String
+  model       String
+  scope       String   @default("platform")
+  scopeId     String?
+  temperature Float?
+  maxTokens   Int?
+  enabled     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([callType, scope, scopeId])
+  @@index([scope, scopeId])
+}
+
+model AdminAuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  action     String
+  targetType String
+  targetId   String
+  orgId      String?
+  oldValue   Json?
+  newValue   Json?
+  reason     String?  @db.Text
+  createdAt  DateTime @default(now())
+
+  actor User?         @relation("AdminAuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+  org   Organization? @relation(fields: [orgId], references: [id], onDelete: SetNull)
+
+  @@index([actorId])
+  @@index([orgId])
+  @@index([targetType, targetId])
+  @@index([createdAt])
+}
+
 // ---- Sessions ----
 
 model Session {
@@ -198,6 +322,7 @@ model Job {
   org         Organization?      @relation(fields: [orgId], references: [id], onDelete: SetNull)
   aiCalls     AiCall[]
   artifacts   ArtifactManifest[]
+  usageEvents UsageEvent[]
 
   @@index([status, createdAt])
   @@index([userId])

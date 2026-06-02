@@ -196,3 +196,20 @@ Consequences:
 - Org-scoped queries should include explicit organization context and server-side permission checks.
 - Phase 06b admin and observability should be built on this access foundation.
 - If LinkedIn's OAuth proves unreliable, remove the strategy and record the removal.
+
+## 2026-06-01 — Use org-centered product tiers and soft SLU usage budgets
+
+Status: Accepted
+
+Decision:
+Use organization-centered product tiers and entitlements for billing readiness. Initial tiers are Free, Solo, Team, and Partner. Billing responsibility can attach to an eligible owner/manager of an organization. Sounds Like Us starts with a soft budget of 10 runs per 7 days; going over budget shows an "Over budget" indicator but does not block runs in Phase 07. Organization AI spend caps are enforced server-side before AI provider calls.
+
+Rationale:
+Rumbo users operate through organizations, including internal solo organizations. Keeping billing and product controls on organizations avoids user-type drift and supports future partner and Model Eval workflows. A soft SLU budget lets the MVP gather behavior and cost data before hard enforcement. Spend caps still need hard server-side enforcement because AI calls have direct cost exposure.
+
+Consequences:
+- Product tiers, entitlements, usage events, feature flags, AI model config, and audit logs are shared platform data.
+- Sounds Like Us checks shared budget status but does not own billing logic.
+- Admin UI can inspect Phase 07 data, while edit workflows move to Phase 07b.
+- Partner managers do not bypass client organization limits.
+- Model Eval can later add tool-namespaced limits without changing the billing architecture.

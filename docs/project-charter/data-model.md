@@ -11,10 +11,15 @@ Shared platform tables should include, at minimum:
 - partner memberships,
 - partner organization access,
 - subscriptions,
+- product tiers,
+- organization entitlements,
+- usage events,
 - jobs,
 - AI calls,
 - provider/model configuration,
 - usage limits,
+- feature flags,
+- admin audit logs,
 - artifact manifests.
 
 Every account should belong to at least one organization. Solo users operate through an internal solo organization with a manager membership, even when the product UI does not need to emphasize organization language.
@@ -27,6 +32,10 @@ Users are global identities. Access is determined by relationships rather than a
 - partner access to managed organizations.
 
 Organization memberships use manager/member semantics. Organization managers can administer an organization; organization members have standard org access. Partner managers can act with manager-level rights inside organizations their partner account manages.
+
+Billing and product entitlements are organization-centered. Solo organizations use the same entitlement model as other organizations. Billing responsibility may attach to an eligible organization owner/manager, including explicitly attached partner managers for managed organizations. Partner management access alone does not bypass organization limits.
+
+Usage limits should be stored as organization/tool/key/period records so sibling tools can add their own usage keys. User-facing limits should stay simple; internal cost controls can still enforce AI spend caps.
 
 Organization-scoped data must always include organization context and must be queried with server-side permission checks.
 

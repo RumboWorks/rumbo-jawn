@@ -1,3 +1,4 @@
+import { ensureOrgEntitlement } from '@rumbo/billing';
 import { db } from '@rumbo/db';
 
 // Find a user by email, or return null.
@@ -52,6 +53,7 @@ export async function ensureOrgMembership(user) {
     await db.membership.create({
       data: { userId: user.id, orgId: approved.orgId, role: 'MEMBER' },
     });
+    await ensureOrgEntitlement(approved.orgId);
   } else {
     const slug = await uniqueOrgSlug(user.email.split('@')[0]);
     const org = await db.organization.create({
@@ -63,6 +65,7 @@ export async function ensureOrgMembership(user) {
       },
     });
     await db.membership.create({ data: { userId: user.id, orgId: org.id, role: 'MANAGER' } });
+    await ensureOrgEntitlement(org.id);
   }
 }
 

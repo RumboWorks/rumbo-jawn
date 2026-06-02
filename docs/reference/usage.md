@@ -95,6 +95,23 @@ npm run grant-platform-admin --workspace=@rumbo/auth -- user@example.com
 
 This sets `User.isPlatformAdmin = true`. The `/admin` area is server-gated and returns 403 for non-admin users.
 
+## Billing / Entitlements
+
+Seed default product tiers, AI model config, and missing org entitlements:
+
+```sh
+npm run seed-defaults --workspace=@rumbo/billing
+```
+
+Set an organization's tier by ID, public ID, or slug:
+
+```sh
+npm run set-org-tier --workspace=@rumbo/billing -- org-slug free
+npm run set-org-tier --workspace=@rumbo/billing -- org-slug solo admin@example.com
+```
+
+Initial tiers are `free`, `solo`, `team`, and `partner`. Sounds Like Us has a soft usage budget of 10 runs per 7 days. Over-budget organizations show an indicator but are not blocked from starting runs in Phase 07.
+
 Verified admin routes:
 
 - `/admin` — dashboard with platform metrics, recent jobs, failures, AI calls, and Sounds Like Us runs

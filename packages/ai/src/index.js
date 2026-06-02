@@ -1,4 +1,5 @@
 import { db } from '@rumbo/db';
+import { assertOrgSpendAvailable, getAiModelConfig } from '@rumbo/billing';
 import { openaiChat } from './providers/openai.js';
 import { anthropicChat } from './providers/anthropic.js';
 import { deepseekChat } from './providers/deepseek.js';
@@ -16,8 +17,12 @@ const DEFAULT_CALL_CONFIG = {
 // ---- Shared call wrapper ----
 // Dispatches to the right provider, logs cost to DB, returns content string.
 
-export async function aiCall({ callType, messages, systemPrompt, jobId = null, options = {} }) {
-  const cfg = DEFAULT_CALL_CONFIG[callType] ?? DEFAULT_CALL_CONFIG['default'];
+export async function aiCall({ callType, messages, systemPrompt, jobId = null, orgId = null, options = {} }) {
+  const jobOrgId = orgId ?? await resolveOrgIdForJob(jobId);
+  await assertOrgSpendAvailable(jobOrgId);
+
+  const dbConfig = await getAiModelConfig(callType, { orgId: jobOrgId });
+  const cfg = dbConfig ?? DEFAULT_CALL_CONFIG[callType] ?? DEFAULT_CALL_CONFIG['default'];
   const { provider, model } = { ...cfg, ...options };
 
   let result;
@@ -50,6 +55,15 @@ export async function aiCall({ callType, messages, systemPrompt, jobId = null, o
   });
 
   return result.content;
+}
+
+async function resolveOrgIdForJob(jobId) {
+  if (!jobId) return null;
+  const job = await db.job.findUnique({
+    where: { id: jobId },
+    select: { orgId: true },
+  });
+  return job?.orgId ?? null;
 }
 
 function estimateCostUsd({ provider, model, promptTokens, outputTokens }) {

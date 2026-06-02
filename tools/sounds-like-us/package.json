@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@rumbo/ai": "^0.0.1",
+    "@rumbo/billing": "^0.0.1",
     "@rumbo/crawler": "^0.0.1",
     "@rumbo/db": "^0.0.1",
     "@rumbo/jobs": "^0.0.1",

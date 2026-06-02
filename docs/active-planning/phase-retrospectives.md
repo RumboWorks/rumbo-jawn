@@ -434,6 +434,65 @@ Next phase recommendation: Proceed to Phase 07 — Billing, Limits, and Product 
 
 ---
 
+## Phase 07 — Org Entitlements, Usage Limits, and Billing Readiness
+
+Date: 2026-06-01
+
+Outcome:
+- Phase 07 implementation complete pending user approval
+- Proceed to Phase 07b only after Phase 07 is approved and committed
+
+Completed:
+- Revised Phase 07 around org-centered entitlements, usage limits, and billing readiness
+- Created Phase 07b admin UI editing phase before implementation, per user request
+- Added shared `@rumbo/billing` package
+- Added product tiers: Free, Solo, Team, Partner
+- Added organization entitlements with Stripe-ready fields, spend caps, and optional billing-responsible owner/manager fields
+- Added usage events queryable by organization, tool, usage key, and period
+- Added feature flag, AI model config, and admin audit log schema
+- Added default seed script and org-tier support script
+- Added signup entitlement provisioning for new solo and approved-domain organizations
+- Added soft Sounds Like Us usage budget: 10 runs per 7 days
+- Added "Over budget" indicator on Sounds Like Us without blocking job creation
+- Added AI spend-cap enforcement before provider calls
+- Added DB-backed AI model config lookup with existing defaults as fallback
+- Extended admin org visibility with tier, SLU budget, spend, and billing-responsible context
+
+Incomplete:
+- Admin UI editing for tiers, billing responsibility, limits, spend caps, feature flags, and model config is intentionally moved to Phase 07b.
+
+Changed from original plan:
+- Usage limits are soft warnings for Phase 07 rather than hard blocks.
+- Admin/config tuning uses support scripts and DB-backed defaults in Phase 07; UI editing is split into Phase 07b.
+- The development database was reset because current Rumbo data is disposable.
+
+Deferred:
+- Phase 07b — Admin UI for Entitlements and Product Controls.
+
+Docs updated:
+- `docs/development-phases/phase-07-billing-limits-product-controls.md`
+- `docs/development-phases/phase-07b-admin-ui-for-entitlements-and-product-controls.md`
+- `docs/project-charter/architecture.md`
+- `docs/project-charter/data-model.md`
+- `docs/active-planning/decision-log.md`
+- `docs/active-planning/deferred-work.md`
+- `docs/active-planning/roadmap.md`
+- `docs/reference/usage.md`
+
+Checks/tests run:
+- Focused billing service check: new user entitlement, 10-run budget overage, DB-backed model config
+- `npx prisma format --schema packages/db/prisma/schema.prisma`
+- `npx prisma validate --schema packages/db/prisma/schema.prisma`
+- `npx prisma db push --schema packages/db/prisma/schema.prisma --force-reset --accept-data-loss`
+- `npm run seed-defaults --workspace=@rumbo/billing`
+- `npm run build --workspace=rumbo-web`
+- `npm run pm2:restart`
+- `npm run qa` — 20/20 passed
+
+Next phase recommendation: Ask the user to approve Phase 07, commit it, then proceed to Phase 07b.
+
+---
+
 ## Template
 
 ```md

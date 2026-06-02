@@ -13,6 +13,12 @@
             <i data-lucide="globe"></i> {{ job.url }}
         </p>
         {% endif %}
+        {% if job.budgetStatus and job.budgetStatus.overBudget %}
+            <div class="slu-budget-indicator slu-budget-indicator--center" aria-label="Usage budget status">
+                <span class="rj-badge rj-badge--warning"><span class="rj-dot"></span>Over budget</span>
+                <span class="rj-caption">{{ job.budgetStatus.used }} of {{ job.budgetStatus.limit }} runs used in {{ job.budgetStatus.windowDays }} days.</span>
+            </div>
+        {% endif %}
     </div>
 
     <div class="slu-status-card rj-card rj-card--pad" id="slu-status-card"

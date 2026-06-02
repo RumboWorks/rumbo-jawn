@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { getUsageBudgetStatus, recordUsageEvent, UsageKey } from '@rumbo/billing';
 import { createJob, getJob, listJobs } from '@rumbo/jobs';
 import { readArtifactJson, writeArtifact, artifactPath } from '@rumbo/storage';
 import { requireAuth } from '@rumbo/auth';
@@ -9,6 +10,19 @@ import { GENERIC_BLOCKS } from './guidance-blocks.config.js';
 import { getGuidancePackage } from './config/config-loader.js';
 
 const router = Router();
+
+function primaryOrgIdForUser(user) {
+  return user?.memberships?.[0]?.orgId ?? null;
+}
+
+async function getSluBudgetStatusForUser(user) {
+  const orgId = primaryOrgIdForUser(user);
+  if (!orgId) return null;
+  return getUsageBudgetStatus(orgId, {
+    tool: 'slu',
+    usageKey: UsageKey.SLU_ANALYSIS_ROLLING_7D,
+  });
+}
 
 function downloadSelectionsFromRequest(req, savedOptions) {
   const selections = savedOptions ? { ...savedOptions } : {
@@ -44,11 +58,13 @@ function isCurrentGuidanceArtifact(artifact) {
   );
 }
 
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
+  const budgetStatus = req.isAuthenticated() ? await getSluBudgetStatusForUser(req.user) : null;
   res.render('pages/slu/index', {
     tool: 'slu',
     title: 'Sounds Like Us',
     pendingUrl: req.session.pendingAnalysisUrl ?? '',
+    budgetStatus,
   });
 });
 
@@ -63,10 +79,23 @@ router.post('/analyze', (req, res, next) => {
   const url = (req.body.url ?? '').trim();
   if (!url) return res.redirect('/slu');
   delete req.session.pendingAnalysisUrl;
+  const orgId = primaryOrgIdForUser(req.user);
+  const budgetStatus = orgId
+    ? await getUsageBudgetStatus(orgId, { tool: 'slu', usageKey: UsageKey.SLU_ANALYSIS_ROLLING_7D })
+    : null;
   const job = await createJob('slu.analysis', { url }, {
     userId: req.user.id,
-    orgId:  req.user.memberships?.[0]?.orgId ?? null,
+    orgId,
   });
+  if (orgId) {
+    await recordUsageEvent({
+      orgId,
+      tool: 'slu',
+      usageKey: UsageKey.SLU_ANALYSIS_ROLLING_7D,
+      jobId: job.id,
+      meta: { overBudgetAtCreation: Boolean(budgetStatus?.overBudget), sourceUrl: url },
+    });
+  }
   res.redirect(`/slu/jobs/${job.id}`);
 });
 
@@ -78,7 +107,15 @@ router.get('/jobs/:jobId', requireAuth, async (req, res) => {
   res.render('pages/slu/job', {
     tool: 'slu',
     title: 'Analyzing…',
-    job: { id: job.id, status: job.status, url: job.payload?.url, errorMsg: job.errorMsg },
+    job: {
+      id: job.id,
+      status: job.status,
+      url: job.payload?.url,
+      errorMsg: job.errorMsg,
+      budgetStatus: job.orgId
+        ? await getUsageBudgetStatus(job.orgId, { tool: 'slu', usageKey: UsageKey.SLU_ANALYSIS_ROLLING_7D })
+        : null,
+    },
   });
 });
 

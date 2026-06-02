@@ -193,6 +193,16 @@ Support global and per-organization spend caps.
 
 Use cache keys and TTLs for crawl and AI reuse where appropriate.
 
+## Entitlements, limits, and billing readiness
+
+Product tiers, usage limits, billing readiness, feature flags, and AI model/provider configuration belong to shared platform services.
+
+The billable/control unit is the organization, including internal solo organizations. Tools should ask shared services for budget and entitlement status rather than embedding billing logic in tool modules.
+
+Sounds Like Us starts with a soft usage budget of 10 runs per 7 days. Soft usage overages surface to users and admins but do not block runs. AI spend caps remain server-enforced before provider calls.
+
+Admin edit workflows for tiers, billing responsibility, limits, feature flags, and model configuration are separated into Phase 07b.
+
 ## Admin
 
 Use a centralized admin UX shared across tools.

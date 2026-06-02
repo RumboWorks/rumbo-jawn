@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@quixo3/prisma-session-store": "^3.1.19",
+    "@rumbo/billing": "^0.0.1",
     "@rumbo/db": "^0.0.1",
     "bcrypt": "^6.0.0",
     "express-session": "^1.19.0",

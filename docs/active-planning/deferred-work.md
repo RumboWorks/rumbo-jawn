@@ -106,3 +106,11 @@ Deferred to: later worker/admin reliability phase, or Phase 09 launch hardening
 Reason: Phase 06b added admin visibility and raw JSON debug aids. True re-run/retry buttons should wait until retry semantics, idempotency expectations, and cost implications are explicit.  
 Blocking: Need clearer product rules for whether re-runs reuse artifacts, create new jobs, or mutate failed jobs.  
 Must not forget because: Admin debugging will be much more useful once operators can safely retry failed runs without manual database or worker intervention.
+
+## Deferred item: Admin UI editing for entitlements and product controls
+
+Originally identified: Phase 07
+Deferred to: Phase 07b
+Reason: Phase 07 establishes shared entitlement, usage, spend-cap, model-config, and audit foundations with support scripts. Editing workflows need a dedicated admin UI pass.
+Blocking: Phase 07 must be finished, approved, and committed first.
+Must not forget because: Operators will need safe UI controls for tier changes, billing responsibility, usage budgets, spend caps, feature flags, and model/provider config before launch operations become practical.
