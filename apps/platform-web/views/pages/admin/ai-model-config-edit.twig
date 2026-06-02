@@ -1,0 +1,73 @@
+{% extends "layouts/app.twig" %}
+
+{% block title %}{% if config %}{{ config.callType }}{% else %}New AI model config{% endif %} — Rumbo Admin{% endblock %}
+
+{% block sidebar %}
+    {% include "pages/admin/_sidebar.twig" %}
+{% endblock %}
+
+{% block content %}
+    <div class="rj-page-header rj-admin-title-row">
+        <div>
+            <h1>{% if config %}{{ config.callType }}{% else %}New AI model config{% endif %}</h1>
+            <p>Model/provider changes can affect cost and availability.</p>
+        </div>
+        <a class="rj-btn rj-btn--secondary rj-btn--sm" href="/admin/product-controls">
+            <i data-lucide="arrow-left"></i> Product controls
+        </a>
+    </div>
+
+    <section class="rj-admin-panel">
+        <div class="rj-admin-panel__header"><h2>Configuration</h2></div>
+        <form class="rj-admin-form" method="post" action="/admin/product-controls/ai-model-config">
+            {% if config %}<input type="hidden" name="id" value="{{ config.id }}">{% endif %}
+            <label>
+                <span>Call type</span>
+                <input type="text" name="callType" value="{{ config.callType ?? 'guidance.generate' }}" required>
+            </label>
+            <label>
+                <span>Provider</span>
+                <select name="provider">
+                    {% for provider in ['openai', 'anthropic', 'deepseek'] %}
+                        <option value="{{ provider }}"{% if (config.provider ?? 'anthropic') == provider %} selected{% endif %}>{{ provider }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>
+                <span>Model</span>
+                <input type="text" name="model" value="{{ config.model ?? 'claude-haiku-4-5-20251001' }}" required>
+            </label>
+            <label>
+                <span>Scope</span>
+                <select name="scope">
+                    {% for scope in ['platform', 'tier', 'org'] %}
+                        <option value="{{ scope }}"{% if (config.scope ?? 'platform') == scope %} selected{% endif %}>{{ scope }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>
+                <span>Scope ID</span>
+                <input type="text" name="scopeId" value="{{ config.scopeId ?? '' }}" placeholder="Blank for platform">
+            </label>
+            <label>
+                <span>Temperature</span>
+                <input type="number" name="temperature" step="0.1" min="0" max="2" value="{{ config.temperature ?? '' }}" placeholder="Optional">
+            </label>
+            <label>
+                <span>Max tokens</span>
+                <input type="number" name="maxTokens" step="1" min="1" value="{{ config.maxTokens ?? '' }}" placeholder="Optional">
+            </label>
+            <label class="rj-admin-check">
+                <input type="checkbox" name="enabled"{% if config is not defined or config == null or config.enabled %} checked{% endif %}>
+                <span>Enabled</span>
+            </label>
+            <label>
+                <span>Reason</span>
+                <input type="text" name="reason" placeholder="Optional">
+            </label>
+            <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit">
+                <i data-lucide="save"></i> Save model config
+            </button>
+        </form>
+    </section>
+{% endblock %}

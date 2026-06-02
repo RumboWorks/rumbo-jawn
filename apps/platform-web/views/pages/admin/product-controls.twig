@@ -9,104 +9,16 @@
 {% block content %}
     <div class="rj-page-header">
         <h1>Product controls</h1>
-        <p>Feature flags and AI model/provider settings. Changes are audit-logged.</p>
-    </div>
-
-    <div class="rj-admin-detail-grid">
-        <section class="rj-admin-panel">
-            <div class="rj-admin-panel__header"><h2>AI model config</h2></div>
-            <form class="rj-admin-form" method="post" action="/admin/product-controls/ai-model-config">
-                <label>
-                    <span>Call type</span>
-                    <input type="text" name="callType" value="guidance.generate" required>
-                </label>
-                <label>
-                    <span>Provider</span>
-                    <select name="provider">
-                        <option value="openai">openai</option>
-                        <option value="anthropic" selected>anthropic</option>
-                        <option value="deepseek">deepseek</option>
-                    </select>
-                </label>
-                <label>
-                    <span>Model</span>
-                    <input type="text" name="model" value="claude-haiku-4-5-20251001" required>
-                </label>
-                <label>
-                    <span>Scope</span>
-                    <select name="scope">
-                        <option value="platform">platform</option>
-                        <option value="tier">tier</option>
-                        <option value="org">org</option>
-                    </select>
-                </label>
-                <label>
-                    <span>Scope ID</span>
-                    <input type="text" name="scopeId" placeholder="Blank for platform">
-                </label>
-                <label>
-                    <span>Temperature</span>
-                    <input type="number" name="temperature" step="0.1" min="0" max="2" placeholder="Optional">
-                </label>
-                <label>
-                    <span>Max tokens</span>
-                    <input type="number" name="maxTokens" step="1" min="1" placeholder="Optional">
-                </label>
-                <label class="rj-admin-check">
-                    <input type="checkbox" name="enabled" checked>
-                    <span>Enabled</span>
-                </label>
-                <label>
-                    <span>Reason</span>
-                    <input type="text" name="reason" placeholder="Optional">
-                </label>
-                <p class="rj-admin-muted">Model/provider changes can affect cost and availability.</p>
-                <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit">
-                    <i data-lucide="save"></i> Save model config
-                </button>
-            </form>
-        </section>
-
-        <section class="rj-admin-panel">
-            <div class="rj-admin-panel__header"><h2>Feature flag</h2></div>
-            <form class="rj-admin-form" method="post" action="/admin/product-controls/feature-flags">
-                <label>
-                    <span>Key</span>
-                    <input type="text" name="key" value="slu.enabled" required>
-                </label>
-                <label>
-                    <span>Scope</span>
-                    <select name="scope">
-                        <option value="platform">platform</option>
-                        <option value="tier">tier</option>
-                        <option value="org">org</option>
-                    </select>
-                </label>
-                <label>
-                    <span>Scope ID</span>
-                    <input type="text" name="scopeId" placeholder="Blank for platform">
-                </label>
-                <label>
-                    <span>Tool</span>
-                    <input type="text" name="tool" value="slu">
-                </label>
-                <label class="rj-admin-check">
-                    <input type="checkbox" name="enabled" checked>
-                    <span>Enabled</span>
-                </label>
-                <label>
-                    <span>Reason</span>
-                    <input type="text" name="reason" placeholder="Optional">
-                </label>
-                <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit">
-                    <i data-lucide="save"></i> Save flag
-                </button>
-            </form>
-        </section>
+        <p>Feature flags and AI model/provider settings. Open a row to edit; changes are audit-logged.</p>
     </div>
 
     <section class="rj-admin-panel">
-        <div class="rj-admin-panel__header"><h2>Current AI model config</h2></div>
+        <div class="rj-admin-panel__header">
+            <h2>AI model config</h2>
+            <a class="rj-btn rj-btn--secondary rj-btn--sm" href="/admin/product-controls/ai-model-config/new">
+                <i data-lucide="plus"></i> Add
+            </a>
+        </div>
         <div class="rj-table-wrap">
             <table class="rj-table rj-admin-table">
                 <thead>
@@ -115,18 +27,20 @@
                         <th>Provider / model</th>
                         <th>Scope</th>
                         <th>Enabled</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for config in controls.aiModelConfigs %}
                         <tr>
-                            <td>{{ config.callType }}</td>
+                            <td><a href="/admin/product-controls/ai-model-config/{{ config.id }}">{{ config.callType }}</a></td>
                             <td>{{ config.provider }}<br><span class="rj-admin-muted">{{ config.model }}</span></td>
                             <td>{{ config.scope }}{% if config.scopeId %}<br><span class="rj-admin-muted rj-admin-mono">{{ config.scopeId }}</span>{% endif %}</td>
                             <td>{% if config.enabled %}Yes{% else %}No{% endif %}</td>
+                            <td><a class="rj-btn rj-btn--ghost rj-btn--sm" href="/admin/product-controls/ai-model-config/{{ config.id }}">Edit</a></td>
                         </tr>
                     {% else %}
-                        <tr><td colspan="4" class="rj-table__empty">No model config found.</td></tr>
+                        <tr><td colspan="5" class="rj-table__empty">No model config found.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -134,7 +48,12 @@
     </section>
 
     <section class="rj-admin-panel">
-        <div class="rj-admin-panel__header"><h2>Feature flags</h2></div>
+        <div class="rj-admin-panel__header">
+            <h2>Feature flags</h2>
+            <a class="rj-btn rj-btn--secondary rj-btn--sm" href="/admin/product-controls/feature-flags/new">
+                <i data-lucide="plus"></i> Add
+            </a>
+        </div>
         <div class="rj-table-wrap">
             <table class="rj-table rj-admin-table">
                 <thead>
@@ -143,18 +62,20 @@
                         <th>Scope</th>
                         <th>Tool</th>
                         <th>Enabled</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for flag in controls.featureFlags %}
                         <tr>
-                            <td>{{ flag.key }}</td>
+                            <td><a href="/admin/product-controls/feature-flags/{{ flag.id }}">{{ flag.key }}</a></td>
                             <td>{{ flag.scope }}{% if flag.scopeId %}<br><span class="rj-admin-muted rj-admin-mono">{{ flag.scopeId }}</span>{% endif %}</td>
                             <td>{% if flag.tool %}{{ flag.tool }}{% else %}<span class="rj-admin-muted">Any</span>{% endif %}</td>
                             <td>{% if flag.enabled %}Yes{% else %}No{% endif %}</td>
+                            <td><a class="rj-btn rj-btn--ghost rj-btn--sm" href="/admin/product-controls/feature-flags/{{ flag.id }}">Edit</a></td>
                         </tr>
                     {% else %}
-                        <tr><td colspan="4" class="rj-table__empty">No feature flags found.</td></tr>
+                        <tr><td colspan="5" class="rj-table__empty">No feature flags found.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>

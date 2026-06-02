@@ -10,6 +10,8 @@ import {
 } from '@rumbo/billing';
 import {
   getAdminDashboard,
+  getAdminAiModelConfig,
+  getAdminFeatureFlag,
   getAdminJobDetail,
   getAdminOrganizationDetail,
   getAdminProductControls,
@@ -119,8 +121,27 @@ router.get('/product-controls', asyncHandler(async (req, res) => {
   });
 }));
 
+router.get('/product-controls/ai-model-config/new', asyncHandler(async (req, res) => {
+  res.render('pages/admin/ai-model-config-edit', {
+    title: 'New AI model config',
+    active: 'product-controls',
+    config: null,
+  });
+}));
+
+router.get('/product-controls/ai-model-config/:configId', asyncHandler(async (req, res) => {
+  const config = await getAdminAiModelConfig(req.params.configId);
+  if (!config) return res.status(404).render('pages/error', { status: 404, message: 'AI model config not found' });
+  res.render('pages/admin/ai-model-config-edit', {
+    title: `${config.callType} model config`,
+    active: 'product-controls',
+    config,
+  });
+}));
+
 router.post('/product-controls/feature-flags', asyncHandler(async (req, res) => {
-  await upsertFeatureFlag({
+  const flag = await upsertFeatureFlag({
+    id: req.body.id || null,
     key: req.body.key,
     scope: req.body.scope || 'platform',
     scopeId: req.body.scopeId || '',
@@ -129,11 +150,12 @@ router.post('/product-controls/feature-flags', asyncHandler(async (req, res) => 
     actorId: req.user.id,
     reason: req.body.reason || null,
   });
-  redirectBack(req, res, '/admin/product-controls');
+  res.redirect(`/admin/product-controls/feature-flags/${flag.id}`);
 }));
 
 router.post('/product-controls/ai-model-config', asyncHandler(async (req, res) => {
-  await upsertAiModelConfig({
+  const config = await upsertAiModelConfig({
+    id: req.body.id || null,
     callType: req.body.callType,
     provider: req.body.provider,
     model: req.body.model,
@@ -145,7 +167,25 @@ router.post('/product-controls/ai-model-config', asyncHandler(async (req, res) =
     actorId: req.user.id,
     reason: req.body.reason || null,
   });
-  redirectBack(req, res, '/admin/product-controls');
+  res.redirect(`/admin/product-controls/ai-model-config/${config.id}`);
+}));
+
+router.get('/product-controls/feature-flags/new', asyncHandler(async (req, res) => {
+  res.render('pages/admin/feature-flag-edit', {
+    title: 'New feature flag',
+    active: 'product-controls',
+    flag: null,
+  });
+}));
+
+router.get('/product-controls/feature-flags/:flagId', asyncHandler(async (req, res) => {
+  const flag = await getAdminFeatureFlag(req.params.flagId);
+  if (!flag) return res.status(404).render('pages/error', { status: 404, message: 'Feature flag not found' });
+  res.render('pages/admin/feature-flag-edit', {
+    title: `${flag.key} feature flag`,
+    active: 'product-controls',
+    flag,
+  });
 }));
 
 router.get('/audit-log', asyncHandler(async (req, res) => {

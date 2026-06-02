@@ -430,18 +430,23 @@ export async function setOrgSpendCap({ orgId, aiSpendCapUsd, actorId = null, rea
   return updated;
 }
 
-export async function upsertFeatureFlag({ key, enabled, scope = 'platform', scopeId = '', tool = '', config = null, actorId = null, reason = null }) {
+export async function upsertFeatureFlag({ id = null, key, enabled, scope = 'platform', scopeId = '', tool = '', config = null, actorId = null, reason = null }) {
   if (!key || typeof key !== 'string') throw new Error('Feature flag key is required.');
   const normalizedScopeId = scopeId ?? '';
   const normalizedTool = tool ?? '';
-  const existing = await db.featureFlag.findUnique({
-    where: { key_scope_scopeId_tool: { key, scope, scopeId: normalizedScopeId, tool: normalizedTool } },
-  });
-  const flag = await db.featureFlag.upsert({
-    where: { key_scope_scopeId_tool: { key, scope, scopeId: normalizedScopeId, tool: normalizedTool } },
-    update: { enabled: Boolean(enabled), config },
-    create: { key, scope, scopeId: normalizedScopeId, tool: normalizedTool, enabled: Boolean(enabled), config },
-  });
+  const existing = id
+    ? await db.featureFlag.findUnique({ where: { id } })
+    : await db.featureFlag.findUnique({
+        where: { key_scope_scopeId_tool: { key, scope, scopeId: normalizedScopeId, tool: normalizedTool } },
+      });
+  const data = { key, scope, scopeId: normalizedScopeId, tool: normalizedTool, enabled: Boolean(enabled), config };
+  const flag = id && existing
+    ? await db.featureFlag.update({ where: { id }, data })
+    : await db.featureFlag.upsert({
+        where: { key_scope_scopeId_tool: { key, scope, scopeId: normalizedScopeId, tool: normalizedTool } },
+        update: { enabled: Boolean(enabled), config },
+        create: data,
+      });
 
   await db.adminAuditLog.create({
     data: {
@@ -458,32 +463,37 @@ export async function upsertFeatureFlag({ key, enabled, scope = 'platform', scop
   return flag;
 }
 
-export async function upsertAiModelConfig({ callType, provider, model, scope = 'platform', scopeId = '', temperature = null, maxTokens = null, enabled = true, actorId = null, reason = null }) {
+export async function upsertAiModelConfig({ id = null, callType, provider, model, scope = 'platform', scopeId = '', temperature = null, maxTokens = null, enabled = true, actorId = null, reason = null }) {
   if (!callType || !provider || !model) throw new Error('Call type, provider, and model are required.');
   const normalizedScopeId = scopeId ?? '';
-  const existing = await db.aiModelConfig.findUnique({
-    where: { callType_scope_scopeId: { callType, scope, scopeId: normalizedScopeId } },
-  });
-  const config = await db.aiModelConfig.upsert({
-    where: { callType_scope_scopeId: { callType, scope, scopeId: normalizedScopeId } },
-    update: {
-      provider,
-      model,
-      temperature: temperature === '' || temperature === null ? null : Number.parseFloat(temperature),
-      maxTokens: maxTokens === '' || maxTokens === null ? null : Number.parseInt(maxTokens, 10),
-      enabled: Boolean(enabled),
-    },
-    create: {
-      callType,
-      provider,
-      model,
-      scope,
-      scopeId: normalizedScopeId,
-      temperature: temperature === '' || temperature === null ? null : Number.parseFloat(temperature),
-      maxTokens: maxTokens === '' || maxTokens === null ? null : Number.parseInt(maxTokens, 10),
-      enabled: Boolean(enabled),
-    },
-  });
+  const existing = id
+    ? await db.aiModelConfig.findUnique({ where: { id } })
+    : await db.aiModelConfig.findUnique({
+        where: { callType_scope_scopeId: { callType, scope, scopeId: normalizedScopeId } },
+      });
+  const data = {
+    callType,
+    provider,
+    model,
+    scope,
+    scopeId: normalizedScopeId,
+    temperature: temperature === '' || temperature === null ? null : Number.parseFloat(temperature),
+    maxTokens: maxTokens === '' || maxTokens === null ? null : Number.parseInt(maxTokens, 10),
+    enabled: Boolean(enabled),
+  };
+  const config = id && existing
+    ? await db.aiModelConfig.update({ where: { id }, data })
+    : await db.aiModelConfig.upsert({
+        where: { callType_scope_scopeId: { callType, scope, scopeId: normalizedScopeId } },
+        update: {
+          provider,
+          model,
+          temperature: data.temperature,
+          maxTokens: data.maxTokens,
+          enabled: data.enabled,
+        },
+        create: data,
+      });
 
   await db.adminAuditLog.create({
     data: {

@@ -211,6 +211,16 @@ export async function getAdminProductControls() {
   return { tiers, aiModelConfigs, featureFlags, auditLogs };
 }
 
+export async function getAdminAiModelConfig(configId) {
+  if (configId === 'new') return null;
+  return db.aiModelConfig.findUnique({ where: { id: configId } });
+}
+
+export async function getAdminFeatureFlag(flagId) {
+  if (flagId === 'new') return null;
+  return db.featureFlag.findUnique({ where: { id: flagId } });
+}
+
 export async function listAdminAuditLogs() {
   return db.adminAuditLog.findMany({
     orderBy: { createdAt: 'desc' },

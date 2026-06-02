@@ -102,14 +102,18 @@ test('platform admin can view central admin dashboard', async ({ page }) => {
 
   await page.goto('/admin/product-controls');
   await expect(page.locator('h1')).toContainText('Product controls');
+  await expect(page.locator('form[action$="/feature-flags"]')).toHaveCount(0);
+  await page.getByRole('link', { name: 'Add' }).nth(1).click();
+  await expect(page.locator('h1')).toContainText('New feature flag');
   await page.fill('form[action$="/feature-flags"] input[name="key"]', `qa.flag.${Date.now()}`);
   await page.locator('form[action$="/feature-flags"] input[name="reason"]').fill('QA flag edit');
   await page.locator('form[action$="/feature-flags"] button[type="submit"]').click();
-  await expect(page.locator('text=QA flag edit')).toBeVisible();
+  await expect(page.locator('h1')).toContainText('qa.flag.');
 
   await page.goto('/admin/audit-log');
   await expect(page.locator('h1')).toContainText('Audit log');
-  await expect(page.locator('text=QA tier edit')).toBeVisible();
+  await expect(page.locator('text=QA tier edit').first()).toBeVisible();
+  await expect(page.locator('text=QA flag edit').first()).toBeVisible();
 
   await page.goto('/admin/jobs');
   await expect(page.locator('h1')).toContainText('Jobs');
