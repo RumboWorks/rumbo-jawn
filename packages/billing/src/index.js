@@ -52,10 +52,10 @@ export const DEFAULT_PRODUCT_TIERS = [
 ];
 
 export const DEFAULT_AI_MODEL_CONFIG = [
-  { callType: 'default', provider: 'openai', model: 'gpt-4o-mini' },
-  { callType: 'crawl.summarize', provider: 'openai', model: 'gpt-4o-mini' },
-  { callType: 'guidance.generate', provider: 'anthropic', model: 'claude-haiku-4-5-20251001' },
-  { callType: 'eval.score', provider: 'deepseek', model: 'deepseek-chat' },
+  { tool: 'platform', callType: 'default', provider: 'openai', model: 'gpt-4o-mini' },
+  { tool: 'slu', callType: 'crawl.summarize', provider: 'openai', model: 'gpt-4o-mini' },
+  { tool: 'slu', callType: 'guidance.generate', provider: 'anthropic', model: 'claude-haiku-4-5-20251001' },
+  { tool: 'model_eval', callType: 'eval.score', provider: 'deepseek', model: 'deepseek-chat' },
 ];
 
 function toNumber(value) {
@@ -109,7 +109,7 @@ export async function seedBillingDefaults({ auditActorId = null } = {}) {
 
   for (const config of DEFAULT_AI_MODEL_CONFIG) {
     await db.aiModelConfig.upsert({
-      where: { callType_scope_scopeId: { callType: config.callType, scope: 'platform', scopeId: '' } },
+      where: { tool_callType_scope_scopeId: { tool: config.tool, callType: config.callType, scope: 'platform', scopeId: '' } },
       update: { provider: config.provider, model: config.model, enabled: true },
       create: { ...config, scope: 'platform', scopeId: '', enabled: true },
     });
@@ -267,28 +267,42 @@ export async function assertOrgSpendAvailable(orgId) {
   return { checked: true, ...status };
 }
 
-export async function getAiModelConfig(callType, { orgId = null, tierKey = null } = {}) {
+async function resolveTierKeyForOrg(orgId) {
+  if (!orgId) return null;
+  const entitlement = await ensureOrgEntitlement(orgId);
+  return entitlement?.tier?.key ?? null;
+}
+
+export async function getAiModelConfig(callType, { tool = 'platform', orgId = null, tierKey = null } = {}) {
+  const normalizedTool = tool || 'platform';
+  const resolvedTierKey = tierKey ?? await resolveTierKeyForOrg(orgId);
+
   if (orgId) {
     const orgConfig = await db.aiModelConfig.findUnique({
-      where: { callType_scope_scopeId: { callType, scope: 'org', scopeId: orgId } },
+      where: { tool_callType_scope_scopeId: { tool: normalizedTool, callType, scope: 'org', scopeId: orgId } },
     });
     if (orgConfig?.enabled) return orgConfig;
   }
 
-  if (tierKey) {
+  if (resolvedTierKey) {
     const tierConfig = await db.aiModelConfig.findUnique({
-      where: { callType_scope_scopeId: { callType, scope: 'tier', scopeId: tierKey } },
+      where: { tool_callType_scope_scopeId: { tool: normalizedTool, callType, scope: 'tier', scopeId: resolvedTierKey } },
     });
     if (tierConfig?.enabled) return tierConfig;
   }
 
-  const platformConfig = await db.aiModelConfig.findUnique({
-    where: { callType_scope_scopeId: { callType, scope: 'platform', scopeId: '' } },
+  const toolPlatformConfig = await db.aiModelConfig.findUnique({
+    where: { tool_callType_scope_scopeId: { tool: normalizedTool, callType, scope: 'platform', scopeId: '' } },
   });
-  if (platformConfig?.enabled) return platformConfig;
+  if (toolPlatformConfig?.enabled) return toolPlatformConfig;
+
+  const globalCallTypeConfig = await db.aiModelConfig.findUnique({
+    where: { tool_callType_scope_scopeId: { tool: 'platform', callType, scope: 'platform', scopeId: '' } },
+  });
+  if (globalCallTypeConfig?.enabled) return globalCallTypeConfig;
 
   const fallbackConfig = await db.aiModelConfig.findUnique({
-    where: { callType_scope_scopeId: { callType: 'default', scope: 'platform', scopeId: '' } },
+    where: { tool_callType_scope_scopeId: { tool: 'platform', callType: 'default', scope: 'platform', scopeId: '' } },
   });
   return fallbackConfig?.enabled ? fallbackConfig : null;
 }
@@ -463,15 +477,17 @@ export async function upsertFeatureFlag({ id = null, key, enabled, scope = 'plat
   return flag;
 }
 
-export async function upsertAiModelConfig({ id = null, callType, provider, model, scope = 'platform', scopeId = '', temperature = null, maxTokens = null, enabled = true, actorId = null, reason = null }) {
+export async function upsertAiModelConfig({ id = null, tool = 'platform', callType, provider, model, scope = 'platform', scopeId = '', temperature = null, maxTokens = null, enabled = true, actorId = null, reason = null }) {
   if (!callType || !provider || !model) throw new Error('Call type, provider, and model are required.');
+  const normalizedTool = tool || 'platform';
   const normalizedScopeId = scopeId ?? '';
   const existing = id
     ? await db.aiModelConfig.findUnique({ where: { id } })
     : await db.aiModelConfig.findUnique({
-        where: { callType_scope_scopeId: { callType, scope, scopeId: normalizedScopeId } },
+        where: { tool_callType_scope_scopeId: { tool: normalizedTool, callType, scope, scopeId: normalizedScopeId } },
       });
   const data = {
+    tool: normalizedTool,
     callType,
     provider,
     model,
@@ -484,7 +500,7 @@ export async function upsertAiModelConfig({ id = null, callType, provider, model
   const config = id && existing
     ? await db.aiModelConfig.update({ where: { id }, data })
     : await db.aiModelConfig.upsert({
-        where: { callType_scope_scopeId: { callType, scope, scopeId: normalizedScopeId } },
+        where: { tool_callType_scope_scopeId: { tool: normalizedTool, callType, scope, scopeId: normalizedScopeId } },
         update: {
           provider,
           model,
@@ -502,6 +518,7 @@ export async function upsertAiModelConfig({ id = null, callType, provider, model
       targetType: 'ai_model_config',
       targetId: config.id,
       oldValue: existing ? {
+        tool: existing.tool,
         callType: existing.callType,
         provider: existing.provider,
         model: existing.model,
@@ -512,6 +529,7 @@ export async function upsertAiModelConfig({ id = null, callType, provider, model
         enabled: existing.enabled,
       } : null,
       newValue: {
+        tool: config.tool,
         callType: config.callType,
         provider: config.provider,
         model: config.model,

@@ -112,6 +112,8 @@ npm run set-org-tier --workspace=@rumbo/billing -- org-slug solo admin@example.c
 
 Initial tiers are `free`, `solo`, `team`, and `partner`. Sounds Like Us has a soft usage budget of 10 runs per 7 days. Over-budget organizations show an indicator but are not blocked from starting runs in Phase 07.
 
+AI model config is keyed by `tool`, `callType`, `scope`, and `scopeId`, so the same call type can use different providers for different tools.
+
 Verified admin routes:
 
 - `/admin` — dashboard with platform metrics, recent jobs, failures, AI calls, and Sounds Like Us runs
@@ -123,6 +125,6 @@ Verified admin routes:
 - `/admin/jobs/:jobId/debug` — raw JSON debug payload for a job
 - `/admin/sounds-like-us` — Sounds Like Us runs through shared job records
 - `/admin/ai-calls` — recent AI provider/model/token/cost metadata
-- `/admin/product-controls` — feature flag and AI model/provider configuration controls
+- `/admin/product-controls` — feature flag and tool-specific AI model/provider configuration controls
 - `/admin/audit-log` — recent product-control and entitlement audit entries
 - `/admin/failures` — failed jobs

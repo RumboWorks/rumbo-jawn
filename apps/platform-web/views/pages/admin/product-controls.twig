@@ -23,6 +23,7 @@
             <table class="rj-table rj-admin-table">
                 <thead>
                     <tr>
+                        <th>Tool</th>
                         <th>Call type</th>
                         <th>Provider / model</th>
                         <th>Scope</th>
@@ -33,6 +34,7 @@
                 <tbody>
                     {% for config in controls.aiModelConfigs %}
                         <tr>
+                            <td>{{ config.tool }}</td>
                             <td><a href="/admin/product-controls/ai-model-config/{{ config.id }}">{{ config.callType }}</a></td>
                             <td>{{ config.provider }}<br><span class="rj-admin-muted">{{ config.model }}</span></td>
                             <td>{{ config.scope }}{% if config.scopeId %}<br><span class="rj-admin-muted rj-admin-mono">{{ config.scopeId }}</span>{% endif %}</td>
@@ -40,7 +42,7 @@
                             <td><a class="rj-btn rj-btn--ghost rj-btn--sm" href="/admin/product-controls/ai-model-config/{{ config.id }}">Edit</a></td>
                         </tr>
                     {% else %}
-                        <tr><td colspan="5" class="rj-table__empty">No model config found.</td></tr>
+                        <tr><td colspan="6" class="rj-table__empty">No model config found.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>

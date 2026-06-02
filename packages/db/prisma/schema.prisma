@@ -256,6 +256,7 @@ model FeatureFlag {
 
 model AiModelConfig {
   id          String   @id @default(cuid())
+  tool        String   @default("platform")
   callType    String
   provider    String
   model       String
@@ -267,7 +268,8 @@ model AiModelConfig {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  @@unique([callType, scope, scopeId])
+  @@unique([tool, callType, scope, scopeId])
+  @@index([tool])
   @@index([scope, scopeId])
 }
 

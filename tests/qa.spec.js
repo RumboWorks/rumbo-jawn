@@ -102,6 +102,8 @@ test('platform admin can view central admin dashboard', async ({ page }) => {
 
   await page.goto('/admin/product-controls');
   await expect(page.locator('h1')).toContainText('Product controls');
+  await expect(page.locator('th', { hasText: 'Tool' }).first()).toBeVisible();
+  await expect(page.locator('td', { hasText: 'slu' }).first()).toBeVisible();
   await expect(page.locator('form[action$="/feature-flags"]')).toHaveCount(0);
   await page.getByRole('link', { name: 'Add' }).nth(1).click();
   await expect(page.locator('h1')).toContainText('New feature flag');

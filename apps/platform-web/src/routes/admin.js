@@ -156,6 +156,7 @@ router.post('/product-controls/feature-flags', asyncHandler(async (req, res) => 
 router.post('/product-controls/ai-model-config', asyncHandler(async (req, res) => {
   const config = await upsertAiModelConfig({
     id: req.body.id || null,
+    tool: req.body.tool || 'platform',
     callType: req.body.callType,
     provider: req.body.provider,
     model: req.body.model,

@@ -199,6 +199,8 @@ Product tiers, usage limits, billing readiness, feature flags, and AI model/prov
 
 The billable/control unit is the organization, including internal solo organizations. Tools should ask shared services for budget and entitlement status rather than embedding billing logic in tool modules.
 
+AI model/provider configuration is keyed by tool and call type. This allows the same call type, such as `crawl.summarize`, to use different providers or models for Sounds Like Us, Model Eval, or future tools.
+
 Sounds Like Us starts with a soft usage budget of 10 runs per 7 days. Soft usage overages surface to users and admins but do not block runs. AI spend caps remain server-enforced before provider calls.
 
 Admin edit workflows for tiers, billing responsibility, limits, feature flags, and model configuration are separated into Phase 07b.

@@ -158,10 +158,12 @@ export async function runAnalysis(job) {
 
   // ---- 3. AI analysis ----
   const raw = await aiCall({
+    tool: 'slu',
     callType: 'guidance.generate',
     messages: [{ role: 'user', content: userMessage }],
     systemPrompt,
     jobId: job.id,
+    orgId: job.orgId,
   });
 
   let parsed;

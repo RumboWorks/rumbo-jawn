@@ -193,7 +193,7 @@ export async function getAdminOrganizationDetail(orgId) {
 export async function getAdminProductControls() {
   const [tiers, aiModelConfigs, featureFlags, auditLogs] = await Promise.all([
     db.productTier.findMany({ orderBy: { name: 'asc' } }),
-    db.aiModelConfig.findMany({ orderBy: [{ callType: 'asc' }, { scope: 'asc' }] }),
+    db.aiModelConfig.findMany({ orderBy: [{ tool: 'asc' }, { callType: 'asc' }, { scope: 'asc' }] }),
     db.featureFlag.findMany({ orderBy: [{ key: 'asc' }, { scope: 'asc' }] }),
     db.adminAuditLog.findMany({
       where: {

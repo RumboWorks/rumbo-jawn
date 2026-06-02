@@ -17,11 +17,11 @@ const DEFAULT_CALL_CONFIG = {
 // ---- Shared call wrapper ----
 // Dispatches to the right provider, logs cost to DB, returns content string.
 
-export async function aiCall({ callType, messages, systemPrompt, jobId = null, orgId = null, options = {} }) {
+export async function aiCall({ tool = 'platform', callType, messages, systemPrompt, jobId = null, orgId = null, options = {} }) {
   const jobOrgId = orgId ?? await resolveOrgIdForJob(jobId);
   await assertOrgSpendAvailable(jobOrgId);
 
-  const dbConfig = await getAiModelConfig(callType, { orgId: jobOrgId });
+  const dbConfig = await getAiModelConfig(callType, { tool, orgId: jobOrgId });
   const cfg = dbConfig ?? DEFAULT_CALL_CONFIG[callType] ?? DEFAULT_CALL_CONFIG['default'];
   const { provider, model } = { ...cfg, ...options };
 

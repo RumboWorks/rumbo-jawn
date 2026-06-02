@@ -22,6 +22,10 @@
         <form class="rj-admin-form" method="post" action="/admin/product-controls/ai-model-config">
             {% if config %}<input type="hidden" name="id" value="{{ config.id }}">{% endif %}
             <label>
+                <span>Tool</span>
+                <input type="text" name="tool" value="{{ config.tool ?? 'slu' }}" required>
+            </label>
+            <label>
                 <span>Call type</span>
                 <input type="text" name="callType" value="{{ config.callType ?? 'guidance.generate' }}" required>
             </label>

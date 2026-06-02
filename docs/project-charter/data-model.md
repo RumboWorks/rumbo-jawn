@@ -37,6 +37,8 @@ Billing and product entitlements are organization-centered. Solo organizations u
 
 Usage limits should be stored as organization/tool/key/period records so sibling tools can add their own usage keys. User-facing limits should stay simple; internal cost controls can still enforce AI spend caps.
 
+AI provider/model configuration should include both `tool` and `callType`. Do not force tools to encode the tool name into the call type just to select different models.
+
 Organization-scoped data must always include organization context and must be queried with server-side permission checks.
 
 Tool-specific tables should reference shared platform tables rather than duplicating user, org, auth, billing, or job concepts.
