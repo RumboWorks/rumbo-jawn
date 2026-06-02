@@ -213,3 +213,24 @@ Consequences:
 - Admin UI can inspect Phase 07 data, while edit workflows move to Phase 07b.
 - Partner managers do not bypass client organization limits.
 - Model Eval can later add tool-namespaced limits without changing the billing architecture.
+
+## 2026-06-02 — Add user account management with hidden personal workspaces
+
+Status: Accepted
+
+Decision:
+Phase 08b will add self-account management, organization member management, platform-admin user detail/editing, SMTP-backed invites, password recovery, and account suspension/deactivation. Personal solo organizations remain part of the platform data model but should be hidden or minimized in the user-facing account UI until an account is intentionally promoted into organization management.
+
+Platform-admin grants and revocations remain CLI-only for now. Admin UI may display platform-admin status but must not mutate it.
+
+Rationale:
+The platform's shared user/org model is already in place, but user editing was missing from the phase plan. Launch hardening should not proceed while `/account` is still a placeholder and platform admins cannot inspect or manage users. At the same time, ordinary solo users should experience Rumbo as an individual account, not as a team/org admin surface.
+
+Consequences:
+- Add user account status to support suspension/deactivation.
+- Add password-change and password-recovery flows for local-password users.
+- Add environment-driven SMTP email delivery for invites and password recovery.
+- User email editing is in scope and must be handled carefully.
+- Organization managers may invite members by email and manage member roles/removal.
+- Removing the final manager from an organization is allowed; platform admins must be able to recover managerless organizations.
+- Existing solo-account creation may need adjustment so personal workspaces do not expose organization-management UI by default.

@@ -94,8 +94,8 @@ Must not forget because: The no-AI-on-option-change constraint is intentional. A
 ## Deferred item: Embeddable widget use-case selection
 
 Originally identified: Platform planning  
-Deferred to: Phase 08 or earlier if a strong use case appears  
-Reason: Widgets are valuable for brand spread, but the first public widget should be tied to a real product output.  
+Deferred to: post-MVP or earlier if a strong public widget use case appears  
+Reason: Widgets are valuable for brand spread, but there is no current need for embedded widgets and the first public widget should be tied to a real product output.  
 Blocking: Need Sounds Like Us or another tool output worth embedding.  
 Must not forget because: Embeddable widgets are a medium-priority platform capability, not a back-burner idea.
 
