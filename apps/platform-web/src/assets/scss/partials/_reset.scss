@@ -20,5 +20,10 @@ body {
 
 img, svg { display: block; max-width: 100%; }
 button, input, select, textarea { font: inherit; }
+
+// The `hidden` attribute must win over component `display` rules (e.g. a row
+// whose edit form is `display: flex` but starts hidden). Without this, author
+// display rules override the UA `[hidden] { display: none }`.
+[hidden] { display: none !important; }
 p, h1, h2, h3, h4, h5, h6,
 ul, ol, dl, figure, blockquote, pre { margin: 0; }

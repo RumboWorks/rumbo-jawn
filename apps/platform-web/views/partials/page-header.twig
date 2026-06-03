@@ -1,0 +1,19 @@
+{# Shared page header: title, optional subtitle, optional primary action button.
+   Usage:
+   {% include "partials/page-header.twig" with {
+     heading: 'Models',
+     subtitle: 'The models this org evaluates.',
+     action: { label: 'Add model', href: '/eval/settings/models/new', icon: 'plus' }
+   } %}
+#}
+<div class="rj-page-header rj-page-header--with-action">
+    <div class="rj-page-header__text">
+        <h1>{{ heading }}</h1>
+        {% if subtitle %}<p>{{ subtitle }}</p>{% endif %}
+    </div>
+    {% if action %}
+        <a href="{{ action.href }}" class="rj-btn rj-btn--primary rj-btn--sm rj-page-header__action">
+            {% if action.icon %}<i data-lucide="{{ action.icon }}"></i>{% endif %} {{ action.label }}
+        </a>
+    {% endif %}
+</div>

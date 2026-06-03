@@ -1,0 +1,32 @@
+{# One criterion row: read-only display + inline edit form. Re-rendered and
+   returned by the AJAX save so it always comes back in display mode. #}
+<div class="rj-item" data-inline-edit>
+    <div class="rj-item__display" data-edit-display>
+        <div class="rj-item__main">
+            <div class="rj-item__title">{{ c.title }}</div>
+            {% if c.description %}<div class="rj-item__meta">{{ c.description }}</div>{% endif %}
+        </div>
+        <div class="rj-item__actions">
+            <button type="button" class="rj-btn rj-btn--ghost rj-btn--sm" data-edit-start>
+                <i data-lucide="pencil"></i> Edit
+            </button>
+            <form method="post" action="/eval/settings/criteria/{{ c.id }}/archive" data-inline-remove>
+                <button type="submit" class="rj-btn rj-btn--ghost rj-btn--sm">Archive</button>
+            </form>
+        </div>
+    </div>
+    <form class="rj-item__edit" method="post" action="/eval/settings/criteria/{{ c.id }}" data-edit-form hidden>
+        <label>
+            <span>Title</span>
+            <input type="text" name="title" value="{{ c.title }}" required>
+        </label>
+        <label>
+            <span>Description</span>
+            <input type="text" name="description" value="{{ c.description ?? '' }}">
+        </label>
+        <div class="rj-item__edit-actions">
+            <button type="submit" class="rj-btn rj-btn--secondary rj-btn--sm"><i data-lucide="save"></i> Save</button>
+            <button type="button" class="rj-btn rj-btn--ghost rj-btn--sm" data-edit-cancel>Cancel</button>
+        </div>
+    </form>
+</div>

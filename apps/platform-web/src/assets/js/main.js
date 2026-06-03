@@ -1,22 +1,10 @@
 import '../scss/main.scss';
-import {
-  createIcons,
-  Activity, AlertTriangle, Braces, Brain, Building2, CheckCircle2,
-  CircleAlert, CircleX, ClipboardList, Clock, Copy, Cpu, FileText, Globe, Info,
-  Filter, LayoutDashboard, Loader, LogIn, LogOut,
-  Mic2, Pencil, Plus, Save, SlidersHorizontal, Sparkles, Tag, User, Users, XCircle,
-} from 'lucide';
+import { initIcons } from './icons.js';
+import './inline-edit.js';
 
 // Replace all <i data-lucide="icon-name"> elements with inline SVGs.
-// Add named imports above as new icons appear in Twig templates.
-createIcons({
-  icons: {
-    Activity, AlertTriangle, Braces, Brain, Building2, CheckCircle2,
-    CircleAlert, CircleX, ClipboardList, Clock, Copy, Cpu, FileText, Globe, Info,
-    Filter, LayoutDashboard, Loader, LogIn, LogOut,
-    Mic2, Pencil, Plus, Save, SlidersHorizontal, Sparkles, Tag, User, Users, XCircle,
-  },
-});
+// Add new icons to the map in icons.js as they appear in Twig templates.
+initIcons();
 
 function getSortableRows(table) {
   return Array.from(table.tBodies[0]?.rows ?? []).filter((row) => {

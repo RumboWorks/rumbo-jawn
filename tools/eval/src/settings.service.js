@@ -28,6 +28,10 @@ export async function createCriterion(organizationId, { title, description, crea
   });
 }
 
+export async function getCriterion(organizationId, criterionId) {
+  return db.evalCriterion.findFirst({ where: { id: criterionId, organizationId, archivedAt: null } });
+}
+
 export async function updateCriterion(organizationId, criterionId, { title, description }) {
   return db.evalCriterion.updateMany({
     where: { id: criterionId, organizationId },
@@ -77,6 +81,13 @@ export async function createOrgModel(organizationId, {
       notes: notes || null,
       createdByUserId,
     },
+  });
+}
+
+export async function getOrgModel(organizationId, modelId) {
+  return db.evalOrgModel.findFirst({
+    where: { id: modelId, organizationId, deletedAt: null },
+    include: { provider: true, providerModel: true },
   });
 }
 

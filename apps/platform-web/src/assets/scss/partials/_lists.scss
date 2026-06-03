@@ -1,0 +1,110 @@
+// Platform list + inline-edit pattern (rj- prefixed, reusable across tools).
+// Lists are the primary view; rows display read-only until you click Edit,
+// then become an inline form that saves over fetch. See coding-standards.md
+// → Interaction patterns.
+
+.rj-page-header--with-action {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--rj-space-3);
+
+  .rj-page-header__text {
+    min-width: 0;
+  }
+
+  .rj-page-header__action {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+}
+
+.rj-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--rj-border);
+  border-radius: var(--rj-radius-md);
+  overflow: hidden;
+}
+
+.rj-item {
+  border-top: 1px solid var(--rj-border);
+  padding: var(--rj-space-3);
+  transition: opacity var(--rj-dur-fast) var(--rj-ease);
+
+  &:first-child {
+    border-top: none;
+  }
+
+  &.is-removing {
+    opacity: 0;
+  }
+}
+
+.rj-item__display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--rj-space-3);
+}
+
+.rj-item__main {
+  min-width: 0;
+
+  .rj-item__title {
+    font-weight: var(--rj-weight-semibold);
+  }
+
+  .rj-item__meta {
+    color: var(--rj-fg-2);
+    font-size: var(--rj-text-sm);
+  }
+}
+
+.rj-item__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--rj-space-1);
+  flex: 0 0 auto;
+}
+
+.rj-item__edit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--rj-space-2);
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: var(--rj-space-1);
+    font-size: var(--rj-text-sm);
+    flex: 1 1 10rem;
+  }
+
+  .rj-item__edit-actions {
+    display: flex;
+    gap: var(--rj-space-1);
+    flex: 0 0 auto;
+  }
+}
+
+.rj-list__empty {
+  padding: var(--rj-space-4);
+  text-align: center;
+  color: var(--rj-fg-2);
+}
+
+.rj-inline-error {
+  margin-top: var(--rj-space-2);
+  color: var(--rj-danger, #b42318);
+  font-size: var(--rj-text-sm);
+}
+
+// Submit/cancel row on add/edit pages.
+.rj-form-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--rj-space-2);
+  margin-top: var(--rj-space-2);
+}

@@ -7,116 +7,23 @@
 {% endblock %}
 
 {% block content %}
-    <div class="rj-page-header">
-        <h1>Models</h1>
-        <p>The AI models and tools this organization evaluates. Each model is collected by platform API, your own API key, or manual entry.</p>
-    </div>
+    {% include "partials/page-header.twig" with {
+        heading: 'Models',
+        subtitle: 'The AI models and tools this organization evaluates, collected by platform API, your own API key, or manual entry.',
+        action: { label: 'Add model', href: '/eval/settings/models/new', icon: 'plus' }
+    } %}
 
     {% include "pages/eval/_flash.twig" %}
 
-    <section class="rj-admin-panel">
-        <div class="rj-admin-panel__header"><h2>Add model</h2></div>
-        <form class="rj-admin-form" method="post" action="/eval/settings/models">
-            <label>
-                <span>Display name</span>
-                <input type="text" name="displayName" required placeholder="e.g. GPT-4o (marketing)">
-            </label>
-            <label>
-                <span>Access method</span>
-                <select name="accessMethod" required>
-                    {% for m in accessMethods %}
-                        <option value="{{ m }}">{{ m|replace({'_': ' '})|title }}</option>
-                    {% endfor %}
-                </select>
-            </label>
-            <label>
-                <span>Provider</span>
-                <select name="providerId" data-eval-provider-select>
-                    <option value="">— none / manual —</option>
-                    {% for p in providers %}
-                        <option value="{{ p.id }}">{{ p.name }}</option>
-                    {% endfor %}
-                </select>
-            </label>
-            <label>
-                <span>Provider model</span>
-                <select name="providerModelId" data-eval-model-select>
-                    <option value="">— none —</option>
-                    {% for p in providers %}
-                        {% for pm in p.providerModels %}
-                            <option value="{{ pm.id }}" data-provider="{{ p.id }}">{{ pm.name }} ({{ pm.apiIdentifier }})</option>
-                        {% endfor %}
-                    {% endfor %}
-                </select>
-            </label>
-            <label>
-                <span>Notes</span>
-                <input type="text" name="notes" placeholder="Optional">
-            </label>
-            <button class="rj-btn rj-btn--secondary rj-btn--sm" type="submit">
-                <i data-lucide="plus"></i> Add model
-            </button>
-        </form>
-    </section>
-
-    <section class="rj-admin-panel">
-        <div class="rj-admin-panel__header"><h2>Models</h2></div>
-        <div class="rj-table-wrap">
-            <table class="rj-table rj-admin-table">
-                <thead>
-                    <tr><th>Provider</th><th>Model (editable)</th><th></th></tr>
-                </thead>
-                <tbody>
-                    {% for model in models %}
-                        <tr>
-                            <td>
-                                {{ model.provider.name ?? '—' }}
-                                {% if model.providerModel %}<br><span class="rj-admin-muted">{{ model.providerModel.apiIdentifier }}</span>{% endif %}
-                            </td>
-                            <td>
-                                <form class="rj-admin-inline-form eval-model-form" method="post" action="/eval/settings/models/{{ model.id }}">
-                                    <input type="hidden" name="providerId" value="{{ model.providerId ?? '' }}">
-                                    <input type="hidden" name="providerModelId" value="{{ model.providerModelId ?? '' }}">
-                                    <input type="text" name="displayName" value="{{ model.displayName }}" required aria-label="Display name">
-                                    <select name="accessMethod" aria-label="Access method">
-                                        {% for m in accessMethods %}
-                                            <option value="{{ m }}"{% if model.accessMethod == m %} selected{% endif %}>{{ m|replace({'_': ' '})|title }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <input type="text" name="notes" value="{{ model.notes ?? '' }}" placeholder="Notes" aria-label="Notes">
-                                    <button class="rj-btn rj-btn--secondary rj-btn--sm" type="submit">Save</button>
-                                </form>
-                            </td>
-                            <td>
-                                <form method="post" action="/eval/settings/models/{{ model.id }}/archive">
-                                    <button class="rj-btn rj-btn--ghost rj-btn--sm" type="submit">Remove</button>
-                                </form>
-                            </td>
-                        </tr>
-                    {% else %}
-                        <tr><td colspan="3" class="rj-table__empty">No models yet.</td></tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+    {% if models is not empty %}
+        <div class="rj-list">
+            {% for model in models %}
+                {% include "pages/eval/_model-row.twig" %}
+            {% endfor %}
         </div>
-    </section>
-
-    <script>
-        (function () {
-            var provider = document.querySelector('[data-eval-provider-select]');
-            var model = document.querySelector('[data-eval-model-select]');
-            if (!provider || !model) return;
-            function sync() {
-                var pid = provider.value;
-                Array.prototype.forEach.call(model.options, function (opt) {
-                    if (!opt.value) return; // keep the "none" option
-                    var match = !pid || opt.getAttribute('data-provider') === pid;
-                    opt.hidden = !match;
-                    if (!match && opt.selected) model.value = '';
-                });
-            }
-            provider.addEventListener('change', sync);
-            sync();
-        })();
-    </script>
+    {% else %}
+        <div class="rj-list">
+            <p class="rj-list__empty">No models yet. <a href="/eval/settings/models/new">Add your first model</a>.</p>
+        </div>
+    {% endif %}
 {% endblock %}

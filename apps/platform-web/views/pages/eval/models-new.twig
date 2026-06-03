@@ -1,0 +1,77 @@
+{% extends "layouts/app.twig" %}
+
+{% block title %}Add model — Rumbo{% endblock %}
+
+{% block sidebar %}
+    {% include "pages/eval/_sidebar.twig" with { active: 'models', toolRole: toolRole } %}
+{% endblock %}
+
+{% block content %}
+    {% include "partials/page-header.twig" with { heading: 'Add model' } %}
+
+    {% include "pages/eval/_flash.twig" %}
+
+    <section class="rj-admin-panel">
+        <form class="rj-admin-form" method="post" action="/eval/settings/models">
+            <label>
+                <span>Display name</span>
+                <input type="text" name="displayName" required autofocus placeholder="e.g. GPT-4o (marketing)">
+            </label>
+            <label>
+                <span>Access method</span>
+                <select name="accessMethod" required>
+                    {% for m in accessMethods %}
+                        <option value="{{ m }}">{{ m|replace({'_': ' '})|title }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>
+                <span>Provider</span>
+                <select name="providerId" data-eval-provider-select>
+                    <option value="">— none / manual —</option>
+                    {% for p in providers %}
+                        <option value="{{ p.id }}">{{ p.name }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>
+                <span>Provider model</span>
+                <select name="providerModelId" data-eval-model-select>
+                    <option value="">— none —</option>
+                    {% for p in providers %}
+                        {% for pm in p.providerModels %}
+                            <option value="{{ pm.id }}" data-provider="{{ p.id }}">{{ pm.name }} ({{ pm.apiIdentifier }})</option>
+                        {% endfor %}
+                    {% endfor %}
+                </select>
+            </label>
+            <label>
+                <span>Notes</span>
+                <input type="text" name="notes" placeholder="Optional">
+            </label>
+            <div class="rj-form-actions">
+                <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit"><i data-lucide="plus"></i> Add model</button>
+                <a class="rj-btn rj-btn--ghost rj-btn--sm" href="/eval/settings/models">Cancel</a>
+            </div>
+        </form>
+    </section>
+
+    <script>
+        (function () {
+            var provider = document.querySelector('[data-eval-provider-select]');
+            var model = document.querySelector('[data-eval-model-select]');
+            if (!provider || !model) return;
+            function sync() {
+                var pid = provider.value;
+                Array.prototype.forEach.call(model.options, function (opt) {
+                    if (!opt.value) return;
+                    var match = !pid || opt.getAttribute('data-provider') === pid;
+                    opt.hidden = !match;
+                    if (!match && opt.selected) model.value = '';
+                });
+            }
+            provider.addEventListener('change', sync);
+            sync();
+        })();
+    </script>
+{% endblock %}

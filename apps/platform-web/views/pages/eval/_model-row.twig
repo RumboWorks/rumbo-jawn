@@ -1,0 +1,47 @@
+{# One model-catalog row: read-only display + inline edit form. Needs `model`
+   and `accessMethods` in scope (the list page and the AJAX save both provide
+   them). #}
+<div class="rj-item" data-inline-edit>
+    <div class="rj-item__display" data-edit-display>
+        <div class="rj-item__main">
+            <div class="rj-item__title">{{ model.displayName }}</div>
+            <div class="rj-item__meta">
+                {{ model.provider.name ?? 'No provider' }}{% if model.providerModel %} · {{ model.providerModel.apiIdentifier }}{% endif %}
+                · {{ model.accessMethod|replace({'_': ' '})|title }}
+                {% if model.notes %} · {{ model.notes }}{% endif %}
+            </div>
+        </div>
+        <div class="rj-item__actions">
+            <button type="button" class="rj-btn rj-btn--ghost rj-btn--sm" data-edit-start>
+                <i data-lucide="pencil"></i> Edit
+            </button>
+            <form method="post" action="/eval/settings/models/{{ model.id }}/archive" data-inline-remove>
+                <button type="submit" class="rj-btn rj-btn--ghost rj-btn--sm">Remove</button>
+            </form>
+        </div>
+    </div>
+    <form class="rj-item__edit" method="post" action="/eval/settings/models/{{ model.id }}" data-edit-form hidden>
+        <input type="hidden" name="providerId" value="{{ model.providerId ?? '' }}">
+        <input type="hidden" name="providerModelId" value="{{ model.providerModelId ?? '' }}">
+        <label>
+            <span>Display name</span>
+            <input type="text" name="displayName" value="{{ model.displayName }}" required>
+        </label>
+        <label>
+            <span>Access method</span>
+            <select name="accessMethod">
+                {% for m in accessMethods %}
+                    <option value="{{ m }}"{% if model.accessMethod == m %} selected{% endif %}>{{ m|replace({'_': ' '})|title }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>
+            <span>Notes</span>
+            <input type="text" name="notes" value="{{ model.notes ?? '' }}">
+        </label>
+        <div class="rj-item__edit-actions">
+            <button type="submit" class="rj-btn rj-btn--secondary rj-btn--sm"><i data-lucide="save"></i> Save</button>
+            <button type="button" class="rj-btn rj-btn--ghost rj-btn--sm" data-edit-cancel>Cancel</button>
+        </div>
+    </form>
+</div>
