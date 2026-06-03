@@ -1,0 +1,91 @@
+{% extends "layouts/app.twig" %}
+
+{% block title %}Run {{ run.runNumber }} — Rumbo{% endblock %}
+
+{% block sidebar %}
+    {% include "pages/eval/_sidebar.twig" with { active: 'evals', toolRole: toolRole } %}
+{% endblock %}
+
+{% block content %}
+    {% include "partials/page-header.twig" with {
+        heading: 'Run ' ~ run.runNumber,
+        subtitle: run.eval.title
+    } %}
+
+    {% include "pages/eval/_flash.twig" %}
+
+    <p><a href="/eval/evals/{{ run.eval.publicId }}">&larr; Back to {{ run.eval.title }}</a></p>
+
+    <section class="rj-admin-metrics rj-admin-metrics--compact">
+        <div class="rj-admin-metric">
+            <span class="rj-admin-metric__label">Status</span>
+            <strong><span class="eval-status eval-status--{{ run.status|lower }}">{{ run.status|replace({'_': ' '})|lower }}</span></strong>
+        </div>
+        <div class="rj-admin-metric">
+            <span class="rj-admin-metric__label">Responses</span>
+            <strong>{{ progress.collected }} / {{ progress.total }}</strong>
+        </div>
+        <div class="rj-admin-metric">
+            <span class="rj-admin-metric__label">Criteria</span>
+            <strong>{{ run.criterionSnapshots|length }}</strong>
+        </div>
+    </section>
+
+    <section class="rj-admin-panel">
+        <div class="rj-admin-panel__header"><h2>Run controls</h2></div>
+        <div class="rj-form-actions">
+            {% if run.status == 'COLLECTING_RESPONSES' %}
+                <form method="post" action="/eval/runs/{{ run.publicId }}/status">
+                    <input type="hidden" name="status" value="READY_FOR_REVIEWS">
+                    <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit"{% if progress.missing > 0 %} disabled title="Collect all responses first"{% endif %}>
+                        <i data-lucide="check-circle-2"></i> Mark ready for reviews
+                    </button>
+                </form>
+            {% elseif run.status == 'READY_FOR_REVIEWS' %}
+                <form method="post" action="/eval/runs/{{ run.publicId }}/status">
+                    <input type="hidden" name="status" value="COLLECTING_RESPONSES">
+                    <button class="rj-btn rj-btn--secondary rj-btn--sm" type="submit">Reopen collection</button>
+                </form>
+            {% endif %}
+        </div>
+        {% if budget and budget.overLimit %}
+            <p class="rj-admin-muted">Response-collection budget reached for this period; API collection may be blocked.</p>
+        {% endif %}
+    </section>
+
+    <section class="rj-admin-panel">
+        <div class="rj-admin-panel__header"><h2>Responses</h2></div>
+        <div class="rj-table-wrap">
+            <table class="rj-table rj-admin-table">
+                <thead>
+                    <tr><th>Model</th><th>Source</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                    {% for r in run.responses %}
+                        <tr>
+                            <td>{{ r.modelSnapshot.displayName }}{% if r.modelSnapshot.providerModelName %}<br><span class="rj-admin-muted">{{ r.modelSnapshot.providerModelName }}</span>{% endif %}</td>
+                            <td>{{ r.responseSource|replace({'_': ' '})|lower }}</td>
+                            <td>{% if r.collected %}<span class="eval-status eval-status--ready_for_reviews">collected</span>{% else %}<span class="eval-status eval-status--collecting_responses">pending</span>{% endif %}</td>
+                            <td>
+                                <div class="rj-item__actions">
+                                    {% if r.liveCollectable %}
+                                        <form method="post" action="/eval/responses/{{ r.publicId }}/collect">
+                                            <button class="rj-btn rj-btn--secondary rj-btn--sm" type="submit"><i data-lucide="sparkles"></i> {{ r.collected ? 'Re-collect' : 'Collect via API' }}</button>
+                                        </form>
+                                    {% endif %}
+                                    <a href="/eval/responses/{{ r.publicId }}/manual" class="rj-btn rj-btn--ghost rj-btn--sm">{{ r.collected ? 'Edit' : 'Enter manually' }}</a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <p class="rj-admin-muted">API responses are collected in the background — refresh to see results.</p>
+    </section>
+
+    <section class="rj-admin-panel">
+        <div class="rj-admin-panel__header"><h2>Prompt</h2></div>
+        <pre class="eval-prompt">{{ run.promptSnapshot.promptText }}</pre>
+    </section>
+{% endblock %}

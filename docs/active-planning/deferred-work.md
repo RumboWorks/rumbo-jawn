@@ -198,3 +198,32 @@ Deferred to: a later platform-hardening phase
 Reason: The session-backed flash mechanism (set on POST, read+delete on the following GET) is eventually-consistent because the Prisma session store persists asynchronously. Under back-to-back requests (e.g. the Playwright `account page supports profile and password edits` test) the GET can read a stale or lost flash, making that test intermittently fail. This predates Phase 10 — it reproduces with Phase 10's nav middleware disabled (≈2/8 failures). Phase 10's tool-nav lookup was deliberately made non-blocking (cached, no awaited DB on the page-load hot path) so it does not add to this sensitivity.
 Blocking: Need a robust flash approach (e.g. explicit `req.session.save()` before redirect on flash-setting routes, or a non-session flash channel) and confirmation it doesn't regress account/admin/org flows.
 Must not forget because: It surfaces as flaky QA today and as occasional missing/stale confirmation banners for real users.
+
+## Deferred item: Eval live collection for Google/other providers + org API keys
+
+Originally identified: Phase 12
+Deferred to: a later Eval enhancement phase
+Reason: Live API response collection maps Eval models to @rumbo/ai, which implements OpenAI and Anthropic. Google/Gemini and other providers fall back to manual entry. Org-supplied API keys (ORGANIZATION_API access method) are also not yet wired — platform keys are used for live collection.
+Blocking: Need a Google provider in @rumbo/ai and a secure per-org API key store.
+Must not forget because: Manual-only collection for Google models and no BYO-key support limit the tool for orgs standardized on those.
+
+## Deferred item: Editable draft runs before launch
+
+Originally identified: Phase 12
+Deferred to: a later Eval polish phase
+Reason: The schema supports an EvalRun DRAFT status, but the MVP launches a run directly into COLLECTING_RESPONSES from the run-new form. There is no save-as-draft / edit-before-launch flow.
+Blocking: Need product clarity on whether draft editing (re-selecting models/criteria, editing the prompt) is worth the extra surface before reviewers are involved.
+Must not forget because: Managers may want to stage a run before committing snapshots.
+
+## Deferred item: Eval authoring UX refinement (wizard + flows + polish)
+
+Originally identified: Phase 12 review
+Deferred to: a dedicated Eval UX pass (preferably after Phase 14, once the tool is functional end-to-end)
+Reason: Phase 12 built the authoring flow as plain pages so the data/features land first. The authoring UX needs refinement and sits entirely on top of the stable launchRun/snapshot model, so it can be reworked without touching the data layer or blocking Phases 13–14.
+Scope to address:
+- Replace the single run-new form with a multi-step wizard (port model_eval's eval-wizard.service.js: prompt → models → criteria → reviewers → review; reviewers step depends on Phase 13).
+- Seamless create-eval → create-run handoff (partially done: create-eval now redirects into the run form).
+- Optional save-as-draft / edit-before-launch (EvalRun DRAFT) — see related deferred item.
+- General polish pass across all eval screens (evals list, detail, run status, manual response).
+Blocking: Phase 13 introduces reviewer assignment, which is a wizard step in the original — build the wizard after that exists so the step is real.
+Must not forget because: The run-authoring flow is the heart of the tool and the current plain-page version is a deliberate placeholder.

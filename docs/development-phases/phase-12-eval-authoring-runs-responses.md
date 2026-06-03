@@ -97,16 +97,25 @@ Use `.agent/phase-review.agent.md` for closeout.
 
 ### Completion checklist
 
-- [ ] All acceptance criteria pass.
-- [ ] Relevant commands/checks were run.
-- [ ] Manual QA notes are recorded.
-- [ ] New commands are documented in `docs/reference/usage.md`, if commands exist.
-- [ ] New architectural decisions are recorded in `docs/active-planning/decision-log.md`.
-- [ ] Roadmap items are checked off, added, or moved.
-- [ ] Deferred work is listed explicitly in `docs/active-planning/deferred-work.md`.
-- [ ] Working notes created during this phase were promoted, linked, archived, or deleted.
-- [ ] No unplanned files were added directly under `docs/`.
-- [ ] The next phase still makes sense or has been revised.
+- [x] All acceptance criteria pass.
+- [x] Relevant commands/checks were run.
+- [x] Manual QA notes are recorded.
+- [x] New commands are documented in `docs/reference/usage.md`, if commands exist. (No new commands.)
+- [x] New architectural decisions are recorded in `docs/active-planning/decision-log.md`. (Covered by the Eval-migration decision; no new decisions.)
+- [x] Roadmap items are checked off, added, or moved.
+- [x] Deferred work is listed explicitly in `docs/active-planning/deferred-work.md`.
+- [x] Working notes created during this phase were promoted, linked, archived, or deleted. (None.)
+- [x] No unplanned files were added directly under `docs/`.
+- [x] The next phase still makes sense or has been revised.
+
+### Closeout notes
+
+- Eval CRUD: evaluations list (list-first + inline edit per the platform convention), add page, and a detail page with run history. `evals.service.js` holds all db access (shared with the worker).
+- Run creation: a single `run-new` page (prompt + criteria/model checkboxes + options) instead of a multi-step session wizard — simpler and fits the "page-worth → dedicated page" convention. On launch, `launchRun` creates the immutable prompt/criteria/model snapshots and one response slot per model in a single transaction, status `COLLECTING_RESPONSES`.
+- Response collection: manual paste page (sets `MANUAL`); live API via `createJob('eval.collectResponse', …)` → new `apps/worker` handler `collectResponse` (exported from `@rumbo/eval/worker`) that calls the model under test through `@rumbo/ai` (cost logged to `AiCall`, org AI spend cap enforced inside `aiCall`) and records a `UsageEvent` (`eval.response_collection`). Provider mapping supports OpenAI/Anthropic; Google/other fall back to manual (noted in deferred-work).
+- Run status page: progress, per-response collect/manual actions, prompt/criteria snapshots, and lifecycle (`COLLECTING_RESPONSES` ⇄ `READY_FOR_REVIEWS`, with `mark ready` gated until all responses are collected).
+- Scope notes: reviewer assignment, tasks, and notifications are deferred to Phases 13–14; an editable `DRAFT` pre-launch state was not built (runs launch directly into collection).
+- Verification: `npm run build`; `npm run qa` (22 passing; the one failure is the pre-existing flaky account/session test). Full live end-to-end with real keys: as a manager, created models (one OpenAI platform-API, one manual) + a criterion + an eval, launched a run (snapshots + 2 response slots created), saved a manual response, and triggered live API collection — the worker called gpt-4o-mini, populated the response (`PLATFORM_API`), logged an `AiCall` (16 tokens, ~$0.000003) and a `UsageEvent`; status then moved to `READY_FOR_REVIEWS`. Test data cleaned up afterward.
 
 ### Valid outcomes
 

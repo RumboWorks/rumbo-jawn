@@ -4,3 +4,57 @@
 .eval-empty {
   color: var(--rj-fg-2);
 }
+
+// Status pills for runs/responses.
+.eval-status {
+  display: inline-block;
+  padding: 0.1em 0.6em;
+  border-radius: var(--rj-radius-pill, 999px);
+  font-size: var(--rj-text-xs);
+  font-weight: var(--rj-weight-semibold);
+  text-transform: capitalize;
+  background: var(--rj-bg-sunken);
+  color: var(--rj-fg-2);
+
+  &--ready_for_reviews,
+  &--completed { background: var(--rj-pine-100, #e6f4ea); color: var(--rj-pine-600, #1e7d4f); }
+
+  &--collecting_responses { background: var(--rj-amber-100, #fdf0d5); color: var(--rj-amber-700, #9a6700); }
+
+  &--cancelled,
+  &--archived { background: var(--rj-bg-sunken); color: var(--rj-fg-3, var(--rj-fg-2)); }
+}
+
+// Checkbox groups on the run form.
+.eval-fieldset {
+  border: 1px solid var(--rj-border);
+  border-radius: var(--rj-radius-md);
+  padding: var(--rj-space-3);
+  margin: 0;
+
+  legend {
+    font-weight: var(--rj-weight-semibold);
+    padding: 0 var(--rj-space-1);
+  }
+}
+
+.eval-check {
+  display: flex;
+  align-items: baseline;
+  gap: var(--rj-space-2);
+  padding: var(--rj-space-1) 0;
+
+  input { flex: 0 0 auto; }
+}
+
+// Snapshotted prompt / response text.
+.eval-prompt {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: var(--rj-font-mono, monospace);
+  font-size: var(--rj-text-sm);
+  background: var(--rj-bg-sunken);
+  border-radius: var(--rj-radius-md);
+  padding: var(--rj-space-3);
+  margin: 0;
+}

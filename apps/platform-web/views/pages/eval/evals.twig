@@ -1,0 +1,29 @@
+{% extends "layouts/app.twig" %}
+
+{% block title %}Evaluations — Rumbo{% endblock %}
+
+{% block sidebar %}
+    {% include "pages/eval/_sidebar.twig" with { active: 'evals', toolRole: toolRole } %}
+{% endblock %}
+
+{% block content %}
+    {% include "partials/page-header.twig" with {
+        heading: 'Evaluations',
+        subtitle: 'Each evaluation holds a prompt and a history of runs against your models and criteria.',
+        action: { label: 'New evaluation', href: '/eval/evals/new', icon: 'plus' }
+    } %}
+
+    {% include "pages/eval/_flash.twig" %}
+
+    {% if evals is not empty %}
+        <div class="rj-list">
+            {% for ev in evals %}
+                {% include "pages/eval/_eval-row.twig" %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="rj-list">
+            <p class="rj-list__empty">No evaluations yet. <a href="/eval/evals/new">Create your first evaluation</a>.</p>
+        </div>
+    {% endif %}
+{% endblock %}

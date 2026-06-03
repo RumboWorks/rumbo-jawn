@@ -1,0 +1,37 @@
+{% extends "layouts/app.twig" %}
+
+{% block title %}Enter response — Rumbo{% endblock %}
+
+{% block sidebar %}
+    {% include "pages/eval/_sidebar.twig" with { active: 'evals', toolRole: toolRole } %}
+{% endblock %}
+
+{% block content %}
+    {% include "partials/page-header.twig" with {
+        heading: 'Response: ' ~ response.modelSnapshot.displayName,
+        subtitle: response.evalRun.eval.title ~ ' · run ' ~ response.evalRun.runNumber
+    } %}
+
+    {% include "pages/eval/_flash.twig" %}
+
+    <p><a href="/eval/runs/{{ response.evalRun.publicId }}">&larr; Back to run</a></p>
+
+    <section class="rj-admin-panel">
+        <div class="rj-admin-panel__header"><h2>Prompt</h2></div>
+        <pre class="eval-prompt">{{ response.evalRun.promptSnapshot.promptText }}</pre>
+    </section>
+
+    <section class="rj-admin-panel">
+        <div class="rj-admin-panel__header"><h2>Model output</h2></div>
+        <form class="rj-admin-form" method="post" action="/eval/responses/{{ response.publicId }}/manual">
+            <label>
+                <span>Paste the model's response</span>
+                <textarea name="responseText" rows="12" required autofocus>{{ response.responseText ?? '' }}</textarea>
+            </label>
+            <div class="rj-form-actions">
+                <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit"><i data-lucide="save"></i> Save response</button>
+                <a class="rj-btn rj-btn--ghost rj-btn--sm" href="/eval/runs/{{ response.evalRun.publicId }}">Cancel</a>
+            </div>
+        </form>
+    </section>
+{% endblock %}

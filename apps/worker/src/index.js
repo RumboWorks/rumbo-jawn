@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { claimNextJob, completeJob, failJob } from '@rumbo/jobs';
 import { runAnalysis } from '@rumbo/sounds-like-us/analysis';
+import { collectResponse } from '@rumbo/eval/worker';
 
 const POLL_INTERVAL_MS = parseInt(process.env.WORKER_POLL_MS ?? '3000', 10);
 
@@ -8,6 +9,7 @@ const POLL_INTERVAL_MS = parseInt(process.env.WORKER_POLL_MS ?? '3000', 10);
 
 const HANDLERS = {
   'slu.analysis': runAnalysis,
+  'eval.collectResponse': collectResponse,
 };
 
 // ---- Polling loop ----

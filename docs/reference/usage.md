@@ -168,8 +168,14 @@ Seed the Eval provider/model catalog (idempotent):
 node tools/eval/src/seed.js
 ```
 
-Eval routes (require an `eval` tool grant; settings are manager-only):
+Eval routes (require an `eval` tool grant; authoring/settings are manager-only):
 
 - `/eval` — overview/dashboard for the active organization
 - `/eval/settings/criteria` — reusable evaluation criteria (manager)
 - `/eval/settings/models` — model catalog: provider, provider model, access method (manager)
+- `/eval/evals` — evaluations list; `/eval/evals/new`; `/eval/evals/:publicId` detail + run history (manager)
+- `/eval/evals/:publicId/runs/new` — launch a run (prompt + criteria + models + options); creates immutable snapshots (manager)
+- `/eval/runs/:publicId` — run status: collection progress, per-response actions, lifecycle (manager)
+- `/eval/responses/:publicId/manual` — paste a model response; `POST /eval/responses/:publicId/collect` enqueues live API collection (manager)
+
+Live API collection runs as an `eval.collectResponse` job handled by `apps/worker` via `@rumbo/eval/worker`, calling the model under test through `@rumbo/ai` (cost logged to `AiCall`, org AI spend cap enforced, `eval.response_collection` usage recorded). Requires `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` in the environment.

@@ -1,9 +1,16 @@
 import { Router } from 'express';
+import { createJob } from '@rumbo/jobs';
+import { getUsageBudgetStatus, UsageKey } from '@rumbo/billing';
 import {
   listCriteria, getCriterion, createCriterion, updateCriterion, archiveCriterion,
   listProviders, listOrgModels, getOrgModel, createOrgModel, updateOrgModel, archiveOrgModel,
   getDashboardSummary,
 } from './settings.service.js';
+import {
+  listEvals, getEvalRow, getEvalByPublicId, createEval, updateEval, archiveEval,
+  launchRun, getRunByPublicId, getResponseByPublicId, saveManualResponse,
+  setRunStatus, summarizeResponses, isLiveCollectable,
+} from './evals.service.js';
 
 const router = Router();
 
@@ -185,6 +192,202 @@ router.post('/settings/models/:id/archive', requireManager, asyncHandler(async (
   if (isAjax(req)) return res.json({ ok: true, removed: true });
   req.session.flash_success = 'Model removed.';
   res.redirect('/eval/settings/models');
+}));
+
+// ---- Evaluations ----
+
+router.get('/evals', requireManager, asyncHandler(async (req, res) => {
+  const evals = await listEvals(req.toolOrgId);
+  res.render('pages/eval/evals', {
+    tool: 'eval',
+    title: 'Evaluations',
+    toolRole: req.toolRole,
+    evals,
+    flash: takeFlash(req),
+  });
+}));
+
+router.get('/evals/new', requireManager, (req, res) => {
+  res.render('pages/eval/eval-new', {
+    tool: 'eval',
+    title: 'New evaluation',
+    toolRole: req.toolRole,
+    flash: takeFlash(req),
+  });
+});
+
+router.post('/evals', requireManager, asyncHandler(async (req, res) => {
+  const title = (req.body.title ?? '').trim();
+  if (!title) {
+    req.session.flash_error = 'An evaluation needs a title.';
+    return res.redirect('/eval/evals/new');
+  }
+  const ev = await createEval(req.toolOrgId, {
+    title,
+    description: (req.body.description ?? '').trim(),
+    createdByUserId: req.user.id,
+  });
+  // Flow straight into launching the first run rather than dropping back to the
+  // listing. (Authoring UX, incl. the multi-step wizard, is a tracked refinement.)
+  req.session.flash_success = 'Evaluation created. Set up its first run.';
+  res.redirect(`/eval/evals/${ev.publicId}/runs/new`);
+}));
+
+router.post('/evals/:publicId', requireManager, asyncHandler(async (req, res) => {
+  const title = (req.body.title ?? '').trim();
+  if (!title) {
+    if (isAjax(req)) return res.status(422).json({ ok: false, error: 'An evaluation needs a title.' });
+    req.session.flash_error = 'An evaluation needs a title.';
+    return res.redirect('/eval/evals');
+  }
+  await updateEval(req.toolOrgId, req.params.publicId, { title, description: (req.body.description ?? '').trim() });
+  if (isAjax(req)) {
+    const ev = await getEvalRow(req.toolOrgId, req.params.publicId);
+    const rowHtml = await renderRow(res, 'pages/eval/_eval-row', { ev });
+    return res.json({ ok: true, rowHtml });
+  }
+  req.session.flash_success = 'Evaluation updated.';
+  res.redirect('/eval/evals');
+}));
+
+router.post('/evals/:publicId/archive', requireManager, asyncHandler(async (req, res) => {
+  await archiveEval(req.toolOrgId, req.params.publicId);
+  if (isAjax(req)) return res.json({ ok: true, removed: true });
+  req.session.flash_success = 'Evaluation archived.';
+  res.redirect('/eval/evals');
+}));
+
+router.get('/evals/:publicId', requireManager, asyncHandler(async (req, res) => {
+  const ev = await getEvalByPublicId(req.toolOrgId, req.params.publicId);
+  if (!ev) return res.status(404).render('pages/error', { status: 404, message: 'Evaluation not found.' });
+  res.render('pages/eval/eval-detail', {
+    tool: 'eval',
+    title: ev.title,
+    toolRole: req.toolRole,
+    eval: ev,
+    flash: takeFlash(req),
+  });
+}));
+
+// ---- Run creation ----
+
+router.get('/evals/:publicId/runs/new', requireManager, asyncHandler(async (req, res) => {
+  const ev = await getEvalByPublicId(req.toolOrgId, req.params.publicId);
+  if (!ev) return res.status(404).render('pages/error', { status: 404, message: 'Evaluation not found.' });
+  const [criteria, models] = await Promise.all([
+    listCriteria(req.toolOrgId),
+    listOrgModels(req.toolOrgId),
+  ]);
+  res.render('pages/eval/run-new', {
+    tool: 'eval',
+    title: `New run · ${ev.title}`,
+    toolRole: req.toolRole,
+    eval: ev,
+    criteria,
+    models,
+    flash: takeFlash(req),
+  });
+}));
+
+router.post('/evals/:publicId/runs', requireManager, asyncHandler(async (req, res) => {
+  const ev = await getEvalByPublicId(req.toolOrgId, req.params.publicId);
+  if (!ev) return res.status(404).render('pages/error', { status: 404, message: 'Evaluation not found.' });
+
+  const promptText = (req.body.promptText ?? '').trim();
+  const criterionIds = [].concat(req.body.criterionIds ?? []).filter(Boolean);
+  const modelIds = [].concat(req.body.modelIds ?? []).filter(Boolean);
+
+  if (!promptText || criterionIds.length === 0 || modelIds.length === 0) {
+    req.session.flash_error = 'A run needs a prompt, at least one criterion, and at least one model.';
+    return res.redirect(`/eval/evals/${ev.publicId}/runs/new`);
+  }
+
+  const run = await launchRun(req.toolOrgId, ev.id, {
+    promptText,
+    criterionIds,
+    modelIds,
+    hideModelNames: req.body.hideModelNames === 'on',
+    hidePeerReviews: req.body.hidePeerReviews === 'on',
+    reviewClosesAt: (req.body.reviewClosesAt ?? '').trim() || null,
+    launchedByUserId: req.user.id,
+  });
+  req.session.flash_success = `Run ${run.runNumber} launched. Collect responses below.`;
+  res.redirect(`/eval/runs/${run.publicId}`);
+}));
+
+// ---- Run status & lifecycle ----
+
+router.get('/runs/:publicId', requireManager, asyncHandler(async (req, res) => {
+  const run = await getRunByPublicId(req.toolOrgId, req.params.publicId);
+  if (!run) return res.status(404).render('pages/error', { status: 404, message: 'Run not found.' });
+  const budget = await getUsageBudgetStatus(req.toolOrgId, { tool: 'eval', usageKey: UsageKey.EVAL_RESPONSE_COLLECTION });
+  // Annotate each response with whether it can be collected via API (Twig can't
+  // call helper functions on the snapshot directly).
+  run.responses = run.responses.map(r => ({
+    ...r,
+    collected: r.responseText != null && r.responseText !== '',
+    liveCollectable: isLiveCollectable(r.modelSnapshot),
+  }));
+  res.render('pages/eval/run-status', {
+    tool: 'eval',
+    title: `Run ${run.runNumber} · ${run.eval.title}`,
+    toolRole: req.toolRole,
+    run,
+    progress: summarizeResponses(run),
+    budget,
+    flash: takeFlash(req),
+  });
+}));
+
+router.post('/runs/:publicId/status', requireManager, asyncHandler(async (req, res) => {
+  const run = await getRunByPublicId(req.toolOrgId, req.params.publicId);
+  if (!run) return res.status(404).render('pages/error', { status: 404, message: 'Run not found.' });
+  try {
+    await setRunStatus(req.toolOrgId, run.id, req.body.status);
+    req.session.flash_success = 'Run status updated.';
+  } catch (err) {
+    req.session.flash_error = err.message;
+  }
+  res.redirect(`/eval/runs/${run.publicId}`);
+}));
+
+// ---- Response collection ----
+
+router.get('/responses/:publicId/manual', requireManager, asyncHandler(async (req, res) => {
+  const response = await getResponseByPublicId(req.toolOrgId, req.params.publicId);
+  if (!response) return res.status(404).render('pages/error', { status: 404, message: 'Response not found.' });
+  res.render('pages/eval/response-manual', {
+    tool: 'eval',
+    title: 'Enter response',
+    toolRole: req.toolRole,
+    response,
+    flash: takeFlash(req),
+  });
+}));
+
+router.post('/responses/:publicId/manual', requireManager, asyncHandler(async (req, res) => {
+  const response = await getResponseByPublicId(req.toolOrgId, req.params.publicId);
+  if (!response) return res.status(404).render('pages/error', { status: 404, message: 'Response not found.' });
+  const text = (req.body.responseText ?? '').trim();
+  if (!text) {
+    req.session.flash_error = 'Response text is required.';
+    return res.redirect(`/eval/responses/${response.publicId}/manual`);
+  }
+  await saveManualResponse(req.toolOrgId, response.id, { text, userId: req.user.id });
+  req.session.flash_success = 'Response saved.';
+  res.redirect(`/eval/runs/${response.evalRun.publicId}`);
+}));
+
+router.post('/responses/:publicId/collect', requireManager, asyncHandler(async (req, res) => {
+  const response = await getResponseByPublicId(req.toolOrgId, req.params.publicId);
+  if (!response) return res.status(404).render('pages/error', { status: 404, message: 'Response not found.' });
+  if (!isLiveCollectable(response.modelSnapshot)) {
+    req.session.flash_error = `${response.modelSnapshot.displayName} cannot be collected via API; enter it manually.`;
+    return res.redirect(`/eval/runs/${response.evalRun.publicId}`);
+  }
+  await createJob('eval.collectResponse', { responseId: response.id }, { userId: req.user.id, orgId: req.toolOrgId });
+  req.session.flash_success = `Collecting ${response.modelSnapshot.displayName} via API…`;
+  res.redirect(`/eval/runs/${response.evalRun.publicId}`);
 }));
 
 export default router;

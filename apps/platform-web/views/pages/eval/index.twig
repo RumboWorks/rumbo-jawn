@@ -44,7 +44,7 @@
                     <tbody>
                         {% for ev in summary.recentEvals %}
                             <tr>
-                                <td>{{ ev.title }}</td>
+                                <td>{% if toolRole == 'MANAGER' %}<a href="/eval/evals/{{ ev.publicId }}">{{ ev.title }}</a>{% else %}{{ ev.title }}{% endif %}</td>
                                 <td class="rj-num">{{ ev._count.runs }}</td>
                                 <td class="rj-num">{{ ev.updatedAt|date("M j, Y") }}</td>
                             </tr>
@@ -55,7 +55,7 @@
         {% else %}
             <p class="eval-empty">No evaluations yet.
                 {% if toolRole == 'MANAGER' %}
-                    Set up your <a href="/eval/settings/models">models</a> and <a href="/eval/settings/criteria">criteria</a> to get started. Authoring evaluations arrives in the next phase.
+                    Set up your <a href="/eval/settings/models">models</a> and <a href="/eval/settings/criteria">criteria</a>, then <a href="/eval/evals/new">create an evaluation</a>.
                 {% else %}
                     A manager can set up evaluations for your team.
                 {% endif %}

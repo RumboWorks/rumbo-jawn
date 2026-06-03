@@ -3,6 +3,11 @@
     <a href="/eval" class="rj-sidebar__link{% if active == 'overview' %} is-active{% endif %}">
         <i data-lucide="layout-dashboard"></i> Overview
     </a>
+    {% if toolRole == 'MANAGER' %}
+        <a href="/eval/evals" class="rj-sidebar__link{% if active == 'evals' %} is-active{% endif %}">
+            <i data-lucide="clipboard-check"></i> Evaluations
+        </a>
+    {% endif %}
 </div>
 {% if toolRole == 'MANAGER' %}
     <span class="rj-sidebar__label">Settings</span>

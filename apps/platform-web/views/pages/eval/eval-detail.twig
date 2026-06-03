@@ -1,0 +1,45 @@
+{% extends "layouts/app.twig" %}
+
+{% block title %}{{ eval.title }} — Rumbo{% endblock %}
+
+{% block sidebar %}
+    {% include "pages/eval/_sidebar.twig" with { active: 'evals', toolRole: toolRole } %}
+{% endblock %}
+
+{% block content %}
+    {% include "partials/page-header.twig" with {
+        heading: eval.title,
+        subtitle: eval.description,
+        action: { label: 'New run', href: '/eval/evals/' ~ eval.publicId ~ '/runs/new', icon: 'plus' }
+    } %}
+
+    {% include "pages/eval/_flash.twig" %}
+
+    <p><a href="/eval/evals">&larr; All evaluations</a></p>
+
+    <section class="rj-admin-panel">
+        <div class="rj-admin-panel__header"><h2>Runs</h2></div>
+        {% if eval.runs is not empty %}
+            <div class="rj-table-wrap">
+                <table class="rj-table rj-admin-table">
+                    <thead>
+                        <tr><th>Run</th><th>Status</th><th>Models</th><th>Launched</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                        {% for run in eval.runs %}
+                            <tr>
+                                <td>#{{ run.runNumber }}</td>
+                                <td><span class="eval-status eval-status--{{ run.status|lower }}">{{ run.status|replace({'_': ' '})|lower }}</span></td>
+                                <td class="rj-num">{{ run._count.modelSnapshots }}</td>
+                                <td class="rj-num">{{ run.createdAt|date("M j, Y") }}</td>
+                                <td><a href="/eval/runs/{{ run.publicId }}" class="rj-btn rj-btn--secondary rj-btn--sm">Open</a></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="eval-empty">No runs yet. <a href="/eval/evals/{{ eval.publicId }}/runs/new">Launch the first run</a> to start collecting responses.</p>
+        {% endif %}
+    </section>
+{% endblock %}

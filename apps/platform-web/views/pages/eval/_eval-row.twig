@@ -1,0 +1,34 @@
+{# One evaluation row: read-only display (with Open link) + inline edit form.
+   Needs `ev` in scope. #}
+<div class="rj-item" data-inline-edit>
+    <div class="rj-item__display" data-edit-display>
+        <div class="rj-item__main">
+            <div class="rj-item__title"><a href="/eval/evals/{{ ev.publicId }}">{{ ev.title }}</a></div>
+            <div class="rj-item__meta">
+                {{ ev._count.runs }} run{{ ev._count.runs == 1 ? '' : 's' }}
+                {% if ev.description %} · {{ ev.description }}{% endif %}
+            </div>
+        </div>
+        <div class="rj-item__actions">
+            <a href="/eval/evals/{{ ev.publicId }}" class="rj-btn rj-btn--secondary rj-btn--sm">Open</a>
+            <button type="button" class="rj-btn rj-btn--ghost rj-btn--sm" data-edit-start><i data-lucide="pencil"></i> Edit</button>
+            <form method="post" action="/eval/evals/{{ ev.publicId }}/archive" data-inline-remove>
+                <button type="submit" class="rj-btn rj-btn--ghost rj-btn--sm">Archive</button>
+            </form>
+        </div>
+    </div>
+    <form class="rj-item__edit" method="post" action="/eval/evals/{{ ev.publicId }}" data-edit-form hidden>
+        <label>
+            <span>Title</span>
+            <input type="text" name="title" value="{{ ev.title }}" required>
+        </label>
+        <label>
+            <span>Description</span>
+            <input type="text" name="description" value="{{ ev.description ?? '' }}">
+        </label>
+        <div class="rj-item__edit-actions">
+            <button type="submit" class="rj-btn rj-btn--secondary rj-btn--sm"><i data-lucide="save"></i> Save</button>
+            <button type="button" class="rj-btn rj-btn--ghost rj-btn--sm" data-edit-cancel>Cancel</button>
+        </div>
+    </form>
+</div>
