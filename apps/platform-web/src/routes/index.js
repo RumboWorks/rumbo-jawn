@@ -4,7 +4,7 @@ import adminRoutes from './admin.js';
 import accountRoutes from './account.js';
 import authRoutes from './auth.js';
 import { sluRouter } from '@rumbo/sounds-like-us';
-import { evalRouter } from '@rumbo/eval';
+import { evalRouter, evalShareRouter } from '@rumbo/eval';
 
 const router = Router();
 
@@ -22,6 +22,8 @@ router.get('/', async (req, res, next) => {
 // Sounds Like Us is orgOpen and keeps a public marketing funnel, so anonymous
 // visitors pass through; authenticated users are still access-checked.
 router.use('/slu', requireToolAccess('slu', { allowAnonymous: true }), sluRouter);
+// Public tokenized report share — mounted before the gated /eval router.
+router.use('/eval/share', evalShareRouter);
 router.use('/eval', requireToolAccess('eval'), evalRouter);
 router.use('/admin', adminRoutes);
 router.use('/account', accountRoutes);

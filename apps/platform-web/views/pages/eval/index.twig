@@ -33,6 +33,27 @@
         </div>
     </section>
 
+    {% if myReviews is not empty %}
+        <section class="rj-admin-panel">
+            <div class="rj-admin-panel__header"><h2>Your reviews</h2></div>
+            <div class="rj-list">
+                {% for run in myReviews %}
+                    <div class="rj-item">
+                        <div class="rj-item__display">
+                            <div class="rj-item__main">
+                                <div class="rj-item__title">{{ run.eval.title }}</div>
+                                <div class="rj-item__meta">Run {{ run.runNumber }} · awaiting your review</div>
+                            </div>
+                            <div class="rj-item__actions">
+                                <a href="/eval/runs/{{ run.publicId }}/review" class="rj-btn rj-btn--primary rj-btn--sm">Review</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+
     <section class="rj-admin-panel">
         <div class="rj-admin-panel__header"><h2>Recent evaluations</h2></div>
         {% if summary.recentEvals is not empty %}

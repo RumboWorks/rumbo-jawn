@@ -43,13 +43,55 @@
                 </form>
             {% elseif run.status == 'READY_FOR_REVIEWS' %}
                 <form method="post" action="/eval/runs/{{ run.publicId }}/status">
+                    <input type="hidden" name="status" value="IN_REVIEW">
+                    <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit"{% if assignments is empty %} disabled title="Assign at least one reviewer"{% endif %}>
+                        <i data-lucide="sparkles"></i> Open for review
+                    </button>
+                </form>
+                <form method="post" action="/eval/runs/{{ run.publicId }}/status">
                     <input type="hidden" name="status" value="COLLECTING_RESPONSES">
-                    <button class="rj-btn rj-btn--secondary rj-btn--sm" type="submit">Reopen collection</button>
+                    <button class="rj-btn rj-btn--ghost rj-btn--sm" type="submit">Reopen collection</button>
+                </form>
+            {% elseif run.status == 'IN_REVIEW' %}
+                <span class="rj-admin-muted">{{ completedCount }} of {{ assignments|length }} reviewer{{ assignments|length == 1 ? '' : 's' }} submitted.</span>
+                <form method="post" action="/eval/runs/{{ run.publicId }}/status">
+                    <input type="hidden" name="status" value="COMPLETED">
+                    <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit"><i data-lucide="check-circle-2"></i> Close review &amp; build report</button>
+                </form>
+            {% elseif run.status == 'COMPLETED' %}
+                <a href="/eval/runs/{{ run.publicId }}/report" class="rj-btn rj-btn--primary rj-btn--sm"><i data-lucide="clipboard-check"></i> View report</a>
+                <form method="post" action="/eval/runs/{{ run.publicId }}/status">
+                    <input type="hidden" name="status" value="IN_REVIEW">
+                    <button class="rj-btn rj-btn--ghost rj-btn--sm" type="submit">Reopen review</button>
                 </form>
             {% endif %}
         </div>
         {% if budget and budget.overLimit %}
             <p class="rj-admin-muted">Response-collection budget reached for this period; API collection may be blocked.</p>
+        {% endif %}
+    </section>
+
+    <section class="rj-admin-panel">
+        <div class="rj-admin-panel__header"><h2>Reviewers</h2></div>
+        {% if reviewers is empty %}
+            <p class="eval-empty">No one in this organization has Eval access yet. A platform admin grants per-tool access on the user's admin page.</p>
+        {% else %}
+            <form method="post" action="/eval/runs/{{ run.publicId }}/reviewers">
+                {% for rv in reviewers %}
+                    {% set done = false %}
+                    {% for a in assignments %}{% if a.userId == rv.id and a.completedAt %}{% set done = true %}{% endif %}{% endfor %}
+                    <label class="eval-check">
+                        <input type="checkbox" name="reviewerIds" value="{{ rv.id }}"{% if rv.assigned %} checked{% endif %}{% if done %} disabled{% endif %}>
+                        <span>{{ rv.name ?? rv.email }} <span class="rj-admin-muted">· {{ rv.role|lower }}</span>
+                            {% if done %}<span class="eval-status eval-status--completed">submitted</span>{% endif %}
+                        </span>
+                    </label>
+                    {% if done %}<input type="hidden" name="reviewerIds" value="{{ rv.id }}">{% endif %}
+                {% endfor %}
+                <div class="rj-form-actions">
+                    <button class="rj-btn rj-btn--secondary rj-btn--sm" type="submit">Save reviewers</button>
+                </div>
+            </form>
         {% endif %}
     </section>
 

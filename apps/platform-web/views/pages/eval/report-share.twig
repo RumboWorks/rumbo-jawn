@@ -1,0 +1,25 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}Shared report — Rumbo{% endblock %}
+
+{% block content %}
+<div class="rj-container" data-tool="eval">
+    <div class="rj-page-header">
+        <h1>{{ run.eval.title }} — report</h1>
+        <p>Run {{ run.runNumber }} · shared, read-only</p>
+    </div>
+
+    <section class="rj-admin-panel">
+        <div class="rj-admin-panel__header"><h2>Scores</h2></div>
+        {% include "pages/eval/_report-matrix.twig" %}
+    </section>
+
+    {% if report and (report.summaryText or report.recommendationText) %}
+        <section class="rj-admin-panel">
+            <div class="rj-admin-panel__header"><h2>Summary &amp; recommendation</h2></div>
+            {% if report.summaryText %}<p><strong>Summary.</strong> {{ report.summaryText }}</p>{% endif %}
+            {% if report.recommendationText %}<p><strong>Recommendation.</strong> {{ report.recommendationText }}</p>{% endif %}
+        </section>
+    {% endif %}
+</div>
+{% endblock %}

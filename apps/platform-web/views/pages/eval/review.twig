@@ -1,0 +1,94 @@
+{% extends "layouts/app.twig" %}
+
+{% block title %}Review — Rumbo{% endblock %}
+
+{% block sidebar %}
+    {% include "pages/eval/_sidebar.twig" with { active: 'overview', toolRole: toolRole } %}
+{% endblock %}
+
+{% block content %}
+<div id="eval-review"
+     data-ratings-url="/eval/runs/{{ run.publicId }}/review/ratings"
+     data-comments-url="/eval/runs/{{ run.publicId }}/review/comments"
+     data-total-expected="{{ totalExpected }}">
+
+    <div class="rj-page-header rj-page-header--with-action">
+        <div class="rj-page-header__text">
+            <h1>{{ run.eval.title }}</h1>
+            <p>Run {{ run.runNumber }}
+                {% if isComplete %}· <span class="eval-status eval-status--completed">review submitted</span>
+                {% else %}· <span id="review-progress">{{ totalGiven }} / {{ totalExpected }} scores given</span>{% endif %}
+            </p>
+        </div>
+        {% if editable %}
+            <div class="rj-page-header__action eval-review__header-actions">
+                <span class="eval-autosave" id="eval-autosave" aria-live="polite"></span>
+                <button class="rj-btn rj-btn--primary rj-btn--sm" id="review-submit" type="button">Submit review</button>
+            </div>
+        {% endif %}
+    </div>
+
+    {% include "pages/eval/_flash.twig" %}
+
+    {% if not editable and not isComplete %}
+        <div class="rj-alert rj-alert--danger"><i data-lucide="circle-alert"></i><div class="rj-alert__body">This run is not open for review right now.</div></div>
+    {% endif %}
+
+    {% if submittedResponses is empty %}
+        <p class="eval-empty">No responses are available to review yet.</p>
+    {% else %}
+        <details class="eval-prompt-toggle">
+            <summary>Show prompt</summary>
+            <pre class="eval-prompt">{{ run.promptSnapshot.promptText }}</pre>
+        </details>
+
+        <nav class="eval-tabs" role="tablist" aria-label="Responses">
+            {% for r in submittedResponses %}
+                <button class="eval-tabs__tab{% if loop.first %} is-active{% endif %}" type="button"
+                        role="tab" data-response-tab="{{ r.id }}" aria-selected="{{ loop.first ? 'true' : 'false' }}">
+                    {{ labels[r.id] }} <span class="eval-tabs__check" data-check-for="{{ r.id }}" data-criteria="{{ criteria|length }}"></span>
+                </button>
+            {% endfor %}
+        </nav>
+
+        <div class="eval-panels">
+            {% for r in submittedResponses %}
+                <div class="eval-panel{% if loop.first %} is-active{% endif %}" data-response-panel="{{ r.id }}"{% if not loop.first %} hidden{% endif %}>
+                    <div class="rj-admin-panel">
+                        <div class="rj-admin-panel__header"><h2>{{ labels[r.id] }}</h2></div>
+                        <pre class="eval-prompt eval-response-text">{{ r.responseText }}</pre>
+                    </div>
+
+                    <div class="rj-admin-panel">
+                        <div class="rj-admin-panel__header"><h2>Score this response</h2></div>
+                        {% for c in criteria %}
+                            {% set saved = ratings[r.id][c.id] ?? 0 %}
+                            <div class="eval-criterion" data-response-id="{{ r.id }}" data-criterion-id="{{ c.id }}">
+                                <div class="eval-criterion__title">{{ c.title }}{% if c.description %} <span class="rj-admin-muted">— {{ c.description }}</span>{% endif %}</div>
+                                <div class="eval-scores" role="radiogroup" aria-label="Score for {{ c.title }}">
+                                    {% for n in 1..5 %}
+                                        <label class="eval-scores__option">
+                                            <input type="radio" name="score-{{ r.id }}-{{ c.id }}" value="{{ n }}"
+                                                   data-response-id="{{ r.id }}" data-criterion-id="{{ c.id }}"
+                                                   {% if saved == n %}checked{% endif %}{% if not editable %} disabled{% endif %}>
+                                            <span class="eval-scores__label">{{ n }}</span>
+                                        </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                        <label class="eval-comment">
+                            <span>Comment <span class="rj-admin-muted">(optional)</span></span>
+                            <textarea rows="3" data-comment-for="{{ r.id }}"{% if not editable %} disabled{% endif %} placeholder="Notes on this response…">{{ comments[r.id] ?? '' }}</textarea>
+                        </label>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        {% if editable %}
+            <form id="review-submit-form" method="post" action="/eval/runs/{{ run.publicId }}/review/submit" hidden></form>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

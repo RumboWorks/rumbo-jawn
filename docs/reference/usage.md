@@ -177,5 +177,8 @@ Eval routes (require an `eval` tool grant; authoring/settings are manager-only):
 - `/eval/evals/:publicId/runs/new` — launch a run (prompt + criteria + models + options); creates immutable snapshots (manager)
 - `/eval/runs/:publicId` — run status: collection progress, per-response actions, lifecycle (manager)
 - `/eval/responses/:publicId/manual` — paste a model response; `POST /eval/responses/:publicId/collect` enqueues live API collection (manager)
+- `/eval/runs/:publicId/review` — tabbed review screen for assigned reviewers (autosave ratings/comments → JSON; submit finalizes)
+- `/eval/runs/:publicId/report` — completed-run report: models×criteria heatmap, editable summary/recommendation, secure share toggle (manager)
+- `/eval/share/:token` — public, read-only shared report (no auth; model names hidden); mounted outside the eval access gate
 
 Live API collection runs as an `eval.collectResponse` job handled by `apps/worker` via `@rumbo/eval/worker`, calling the model under test through `@rumbo/ai` (cost logged to `AiCall`, org AI spend cap enforced, `eval.response_collection` usage recorded). Requires `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` in the environment.

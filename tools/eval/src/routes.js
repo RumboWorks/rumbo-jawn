@@ -11,6 +11,11 @@ import {
   launchRun, getRunByPublicId, getResponseByPublicId, saveManualResponse,
   setRunStatus, summarizeResponses, isLiveCollectable,
 } from './evals.service.js';
+import {
+  listAssignableReviewers, listRunAssignments, setRunReviewers, isAssigned,
+  getReviewData, upsertRating, upsertComment, submitReview, listMyOpenReviews,
+  getReportData, completeRunAndReport, updateReportText, setReportShare,
+} from './review.service.js';
 
 const router = Router();
 
@@ -49,12 +54,16 @@ function renderRow(res, view, locals) {
 // ---- Landing / dashboard ----
 
 router.get('/', asyncHandler(async (req, res) => {
-  const summary = await getDashboardSummary(req.toolOrgId);
+  const [summary, myReviews] = await Promise.all([
+    getDashboardSummary(req.toolOrgId),
+    listMyOpenReviews(req.toolOrgId, req.user.id),
+  ]);
   res.render('pages/eval/index', {
     tool: 'eval',
     title: 'Eval',
     toolRole: req.toolRole,
     summary,
+    myReviews,
     flash: takeFlash(req),
   });
 }));
@@ -320,7 +329,12 @@ router.post('/evals/:publicId/runs', requireManager, asyncHandler(async (req, re
 router.get('/runs/:publicId', requireManager, asyncHandler(async (req, res) => {
   const run = await getRunByPublicId(req.toolOrgId, req.params.publicId);
   if (!run) return res.status(404).render('pages/error', { status: 404, message: 'Run not found.' });
-  const budget = await getUsageBudgetStatus(req.toolOrgId, { tool: 'eval', usageKey: UsageKey.EVAL_RESPONSE_COLLECTION });
+  const [budget, assignments, assignable] = await Promise.all([
+    getUsageBudgetStatus(req.toolOrgId, { tool: 'eval', usageKey: UsageKey.EVAL_RESPONSE_COLLECTION }),
+    listRunAssignments(req.toolOrgId, run.id),
+    listAssignableReviewers(req.toolOrgId),
+  ]);
+  const assignedIds = new Set(assignments.map(a => a.userId));
   // Annotate each response with whether it can be collected via API (Twig can't
   // call helper functions on the snapshot directly).
   run.responses = run.responses.map(r => ({
@@ -335,6 +349,9 @@ router.get('/runs/:publicId', requireManager, asyncHandler(async (req, res) => {
     run,
     progress: summarizeResponses(run),
     budget,
+    assignments,
+    reviewers: assignable.map(u => ({ ...u, assigned: assignedIds.has(u.id) })),
+    completedCount: assignments.filter(a => a.completedAt != null).length,
     flash: takeFlash(req),
   });
 }));
@@ -342,13 +359,138 @@ router.get('/runs/:publicId', requireManager, asyncHandler(async (req, res) => {
 router.post('/runs/:publicId/status', requireManager, asyncHandler(async (req, res) => {
   const run = await getRunByPublicId(req.toolOrgId, req.params.publicId);
   if (!run) return res.status(404).render('pages/error', { status: 404, message: 'Run not found.' });
+  const next = req.body.status;
   try {
-    await setRunStatus(req.toolOrgId, run.id, req.body.status);
-    req.session.flash_success = 'Run status updated.';
+    if (next === 'IN_REVIEW') {
+      const assignments = await listRunAssignments(req.toolOrgId, run.id);
+      if (assignments.length === 0) throw new Error('Assign at least one reviewer before opening for review.');
+      await setRunStatus(req.toolOrgId, run.id, 'IN_REVIEW');
+      req.session.flash_success = 'Run opened for review.';
+    } else if (next === 'COMPLETED') {
+      if (run.status !== 'IN_REVIEW') throw new Error('Only a run in review can be completed.');
+      await completeRunAndReport(req.toolOrgId, run.id, req.user.id);
+      req.session.flash_success = 'Review closed. Report is ready.';
+    } else {
+      await setRunStatus(req.toolOrgId, run.id, next);
+      req.session.flash_success = 'Run status updated.';
+    }
   } catch (err) {
     req.session.flash_error = err.message;
   }
   res.redirect(`/eval/runs/${run.publicId}`);
+}));
+
+router.post('/runs/:publicId/reviewers', requireManager, asyncHandler(async (req, res) => {
+  const run = await getRunByPublicId(req.toolOrgId, req.params.publicId);
+  if (!run) return res.status(404).render('pages/error', { status: 404, message: 'Run not found.' });
+  const userIds = [].concat(req.body.reviewerIds ?? []).filter(Boolean);
+  await setRunReviewers(req.toolOrgId, run.id, userIds, req.user.id);
+  req.session.flash_success = 'Reviewers updated.';
+  res.redirect(`/eval/runs/${run.publicId}`);
+}));
+
+// ---- Review (assigned reviewers; not manager-only) ----
+
+router.get('/runs/:publicId/review', asyncHandler(async (req, res) => {
+  const run = await getRunByPublicId(req.toolOrgId, req.params.publicId);
+  if (!run) return res.status(404).render('pages/error', { status: 404, message: 'Run not found.' });
+  const assignment = await isAssigned(req.toolOrgId, run.id, req.user.id);
+  if (!assignment) return res.status(403).render('pages/error', { status: 403, message: 'You are not assigned to review this run.' });
+
+  const data = await getReviewData(req.toolOrgId, req.params.publicId, req.user.id);
+  const editable = run.status === 'IN_REVIEW' && assignment.completedAt == null;
+  res.render('pages/eval/review', {
+    tool: 'eval',
+    title: `Review · ${run.eval.title}`,
+    toolRole: req.toolRole,
+    ...data,
+    editable,
+    isComplete: assignment.completedAt != null,
+    flash: takeFlash(req),
+  });
+}));
+
+async function reviewGuard(req, res) {
+  const run = await getRunByPublicId(req.toolOrgId, req.params.publicId);
+  if (!run) { res.status(404).json({ ok: false, error: 'Run not found.' }); return null; }
+  const assignment = await isAssigned(req.toolOrgId, run.id, req.user.id);
+  if (!assignment || assignment.completedAt != null || run.status !== 'IN_REVIEW') {
+    res.status(403).json({ ok: false, error: 'Review is not open for you.' });
+    return null;
+  }
+  return run;
+}
+
+router.post('/runs/:publicId/review/ratings', asyncHandler(async (req, res) => {
+  const run = await reviewGuard(req, res);
+  if (!run) return;
+  const score = parseInt(req.body.score, 10);
+  const { responseId, criterionSnapshotId } = req.body;
+  if (!responseId || !criterionSnapshotId || isNaN(score) || score < 1 || score > 5) {
+    return res.status(400).json({ ok: false, error: 'Invalid payload.' });
+  }
+  await upsertRating(req.toolOrgId, run.id, { responseId, criterionSnapshotId, reviewerUserId: req.user.id, score });
+  res.json({ ok: true });
+}));
+
+router.post('/runs/:publicId/review/comments', asyncHandler(async (req, res) => {
+  const run = await reviewGuard(req, res);
+  if (!run) return;
+  if (!req.body.responseId) return res.status(400).json({ ok: false, error: 'Missing responseId.' });
+  await upsertComment(req.toolOrgId, run.id, {
+    responseId: req.body.responseId,
+    reviewerUserId: req.user.id,
+    commentText: req.body.commentText ?? '',
+  });
+  res.json({ ok: true });
+}));
+
+router.post('/runs/:publicId/review/submit', asyncHandler(async (req, res) => {
+  const run = await getRunByPublicId(req.toolOrgId, req.params.publicId);
+  if (!run) return res.status(404).render('pages/error', { status: 404, message: 'Run not found.' });
+  const assignment = await isAssigned(req.toolOrgId, run.id, req.user.id);
+  if (!assignment) return res.status(403).render('pages/error', { status: 403, message: 'Not assigned.' });
+  await submitReview(req.toolOrgId, run.id, req.user.id);
+  req.session.flash_success = 'Review submitted. Thank you!';
+  res.redirect('/eval');
+}));
+
+// ---- Report (manager) ----
+
+router.get('/runs/:publicId/report', requireManager, asyncHandler(async (req, res) => {
+  const data = await getReportData(req.toolOrgId, req.params.publicId, { reveal: true });
+  if (!data) return res.status(404).render('pages/error', { status: 404, message: 'Run not found.' });
+  res.render('pages/eval/report', {
+    tool: 'eval',
+    title: `Report · ${data.run.eval.title}`,
+    toolRole: req.toolRole,
+    ...data,
+    shareBase: `${req.protocol}://${req.get('host')}/eval/share/`,
+    flash: takeFlash(req),
+  });
+}));
+
+router.post('/runs/:publicId/report', requireManager, asyncHandler(async (req, res) => {
+  const run = await getRunByPublicId(req.toolOrgId, req.params.publicId);
+  if (!run) return res.status(404).render('pages/error', { status: 404, message: 'Run not found.' });
+  await updateReportText(req.toolOrgId, run.id, {
+    summaryText: (req.body.summaryText ?? '').trim(),
+    recommendationText: (req.body.recommendationText ?? '').trim(),
+  });
+  req.session.flash_success = 'Report saved.';
+  res.redirect(`/eval/runs/${run.publicId}/report`);
+}));
+
+router.post('/runs/:publicId/report/share', requireManager, asyncHandler(async (req, res) => {
+  const run = await getRunByPublicId(req.toolOrgId, req.params.publicId);
+  if (!run) return res.status(404).render('pages/error', { status: 404, message: 'Run not found.' });
+  try {
+    await setReportShare(req.toolOrgId, run.id, req.body.enabled === 'on');
+    req.session.flash_success = 'Share settings updated.';
+  } catch (err) {
+    req.session.flash_error = err.message;
+  }
+  res.redirect(`/eval/runs/${run.publicId}/report`);
 }));
 
 // ---- Response collection ----

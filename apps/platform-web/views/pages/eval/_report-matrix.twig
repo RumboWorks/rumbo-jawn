@@ -1,0 +1,35 @@
+{# Report heatmap: models (rows) × criteria (columns). Needs `matrix`,
+   `criteria`, `criterionAverages`, `overall`, `overallHeatClass` in scope. #}
+<div class="rj-table-wrap">
+    <table class="rj-table eval-matrix">
+        <thead>
+            <tr>
+                <th>Model</th>
+                {% for c in criteria %}<th>{{ c.title }}</th>{% endfor %}
+                <th>Average</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in matrix %}
+                <tr>
+                    <td class="eval-matrix__model">{{ row.modelName }}</td>
+                    {% for cell in row.cells %}
+                        <td class="eval-heat {{ cell.heatClass }}" title="{{ cell.count }} rating{{ cell.count == 1 ? '' : 's' }}">
+                            {{ cell.average is null ? '—' : cell.average }}
+                        </td>
+                    {% endfor %}
+                    <td class="eval-heat {{ row.modelAvgHeatClass }}"><strong>{{ row.modelAvg is null ? '—' : row.modelAvg }}</strong></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td>Average</td>
+                {% for ca in criterionAverages %}
+                    <td class="eval-heat {{ ca.heatClass }}">{{ ca.average is null ? '—' : ca.average }}</td>
+                {% endfor %}
+                <td class="eval-heat {{ overallHeatClass }}"><strong>{{ overall is null ? '—' : overall }}</strong></td>
+            </tr>
+        </tfoot>
+    </table>
+</div>

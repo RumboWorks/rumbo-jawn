@@ -93,16 +93,24 @@ Use `.agent/phase-review.agent.md` for closeout.
 
 ### Completion checklist
 
-- [ ] All acceptance criteria pass.
-- [ ] Relevant commands/checks were run.
-- [ ] Manual QA notes are recorded.
-- [ ] New commands are documented in `docs/reference/usage.md`, if commands exist.
-- [ ] New architectural decisions are recorded in `docs/active-planning/decision-log.md`.
-- [ ] Roadmap items are checked off, added, or moved.
-- [ ] Deferred work is listed explicitly in `docs/active-planning/deferred-work.md`.
-- [ ] Working notes created during this phase were promoted, linked, archived, or deleted.
-- [ ] No unplanned files were added directly under `docs/`.
-- [ ] The next phase still makes sense or has been revised.
+- [x] All acceptance criteria pass.
+- [x] Relevant commands/checks were run.
+- [x] Manual QA notes are recorded.
+- [x] New commands are documented in `docs/reference/usage.md`, if commands exist.
+- [x] New architectural decisions are recorded in `docs/active-planning/decision-log.md`. (Review screen stays vanilla JS — no new decision beyond existing frontend standards.)
+- [x] Roadmap items are checked off, added, or moved.
+- [x] Deferred work is listed explicitly in `docs/active-planning/deferred-work.md`. (No new deferrals.)
+- [x] Working notes created during this phase were promoted, linked, archived, or deleted. (None.)
+- [x] No unplanned files were added directly under `docs/`.
+- [x] The next phase still makes sense or has been revised.
+
+### Closeout notes
+
+- Frontend decision (confirmed with the user): the review screen stays **server-rendered Twig + vanilla JS**, not a React island — the interaction (save-on-change ratings/comments) mirrors the existing autosave pattern and doesn't warrant a second framework surface. The review UX matches model-eval's: **tabs to flip between responses**, scoring one at a time, rather than a large grid.
+- Reviewer assignment: managers assign/unassign org members who hold an eval grant (`listAssignableReviewers`); run lifecycle extended to `READY_FOR_REVIEWS → IN_REVIEW → COMPLETED` (with reopen), gated so opening requires ≥1 reviewer and completing requires the run to be in review.
+- Review screen (`review.js`, loaded by `main.js`, no-op without `#eval-review`): tabbed responses, 1–5 score selectors and a comment per response, autosaving over fetch to JSON endpoints (`upsertRating` on a compound unique; comment via find-then-upsert). Submit confirms then finalizes the assignment. `hideModelNames` renders neutral "Response A/B/C" labels. Reviewers reach their work from a "Your reviews" list on the Eval overview.
+- Completion + report: closing review sets `COMPLETED` and ensures an `EvalReport`. The report aggregates all reviewers' ratings into a models×criteria **heatmap** (`getReportData`), with editable summary/recommendation and a **secure share link** — a tokenized, public, read-only route mounted *outside* `requireToolAccess` (`evalShareRouter` at `/eval/share/:token`) that always hides model names.
+- Verification: `npm run build`; `npm run qa` (23/23). Full HTTP end-to-end with two accounts: manager assigned a member reviewer and opened the run; the reviewer scored 2 responses × 2 criteria (autosave `{ok:true}`) plus a comment and submitted; manager closed review → report rendered the heatmap; saved summary/recommendation; enabled the share link and fetched it **unauthenticated** — matrix shown with model names hidden ("Response A/B"). Test data cleaned up afterward.
 
 ### Valid outcomes
 

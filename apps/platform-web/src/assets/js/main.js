@@ -1,10 +1,14 @@
 import '../scss/main.scss';
 import { initIcons } from './icons.js';
 import './inline-edit.js';
+import { initReview } from './review.js';
 
 // Replace all <i data-lucide="icon-name"> elements with inline SVGs.
 // Add new icons to the map in icons.js as they appear in Twig templates.
 initIcons();
+
+// Eval review screen (no-op unless its root is present).
+initReview();
 
 function getSortableRows(table) {
   return Array.from(table.tBodies[0]?.rows ?? []).filter((row) => {

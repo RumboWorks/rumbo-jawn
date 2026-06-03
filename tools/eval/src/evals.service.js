@@ -209,7 +209,9 @@ export function applyCollectedResponse(responseId, { text, source }) {
 
 const STATUS_TRANSITIONS = {
   COLLECTING_RESPONSES: ['READY_FOR_REVIEWS', 'CANCELLED'],
-  READY_FOR_REVIEWS: ['COLLECTING_RESPONSES', 'CANCELLED'],
+  READY_FOR_REVIEWS: ['COLLECTING_RESPONSES', 'IN_REVIEW', 'CANCELLED'],
+  IN_REVIEW: ['READY_FOR_REVIEWS', 'COMPLETED', 'CANCELLED'],
+  COMPLETED: ['IN_REVIEW'],
 };
 
 export async function setRunStatus(organizationId, runId, nextStatus) {
