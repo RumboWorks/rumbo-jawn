@@ -11,6 +11,10 @@ tests/report/
 *.log
 .DS_Store
 
+# Standalone Model Eval source — local read-only mirror used as a migration
+# reference for phases 11–14; not part of the Rumbo product, do not commit.
+model-eval-dev/
+
 # Prisma generated client
 packages/db/node_modules/.prisma/
 

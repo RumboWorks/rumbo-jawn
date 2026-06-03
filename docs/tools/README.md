@@ -34,4 +34,4 @@ Tools must not depend on each other's internals.
 ## Current tools
 
 - `sounds-like-us.md` — first MVP tool.
-- `model-eval.md` — planned sibling tool, out of scope for initial MVP implementation.
+- `eval.md` — Eval (formerly Model Eval), the second tool; migration planned in `docs/development-phases/phase-10`–`phase-14`.

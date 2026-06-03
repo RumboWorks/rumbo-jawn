@@ -27,6 +27,16 @@
             {% block header_nav %}
             <nav class="rj-header__nav">
                 {% if currentUser %}
+                    {% if navTools is not empty %}
+                        <details class="rj-tools-menu">
+                            <summary class="rj-header__nav-link">Tools</summary>
+                            <div class="rj-tools-menu__list">
+                                {% for t in navTools %}
+                                    <a href="{{ t.path }}" class="rj-tools-menu__item">{{ t.name }}</a>
+                                {% endfor %}
+                            </div>
+                        </details>
+                    {% endif %}
                     <span class="rj-header__nav-link" style="cursor:default;">{{ currentUser.name ?? currentUser.email }}</span>
                     {% if currentUser.isPlatformAdmin %}
                         <a href="/admin" class="rj-header__nav-link">Admin</a>

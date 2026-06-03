@@ -1,1 +1,3 @@
-// @rumbo/config — Phase 00 placeholder.
+// @rumbo/config — shared platform configuration.
+
+export { TOOLS, listTools, getTool, isToolKey } from './tools.js';

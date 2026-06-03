@@ -5,9 +5,20 @@
 {% block content %}
 <div class="rj-container">
     <h1>{{ title }}</h1>
-    <p>Platform scaffold — Phase 00.</p>
-    <ul>
-        <li><a href="/slu">Sounds Like Us (placeholder)</a></li>
-    </ul>
+    {% if currentUser %}
+        {% if tools is not empty %}
+            <p>Your tools</p>
+            <ul class="rj-tool-list">
+                {% for t in tools %}
+                    <li><a href="{{ t.path }}">{{ t.name }}</a> <span class="rj-tool-list__role">{{ t.role|lower }}</span></li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>You don't have access to any tools yet. An administrator can grant you access.</p>
+        {% endif %}
+    {% else %}
+        <p>Welcome to Rumbo. Log in to access your tools.</p>
+        <p><a href="/login">Log in</a> &middot; <a href="/register">Get started</a></p>
+    {% endif %}
 </div>
 {% endblock %}

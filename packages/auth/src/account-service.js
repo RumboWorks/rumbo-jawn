@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 import { db } from '@rumbo/db';
+import { isToolKey } from '@rumbo/config';
 import { can, Permission, Role } from './permissions.js';
 import { buildAbsoluteUrl, sendEmail } from './email-service.js';
 import { findUserByEmail, ensureOrgMembership } from './user-service.js';
@@ -389,4 +390,59 @@ export async function adminRemoveUserMembership({ membershipId, actorId, reason 
   });
 
   return membership;
+}
+
+// ---- Per-tool access grants (Phase 10) ----
+
+// Grant or update a user's role for a tool within an org. Validates that the
+// tool key is registered and the user belongs to the org. Audit-logged.
+export async function adminUpsertToolGrant({ userId, orgId, tool, role, actorId, reason = null }) {
+  if (!isToolKey(tool)) throw new Error('Unknown tool.');
+  if (!['MANAGER', 'MEMBER'].includes(role)) throw new Error('Invalid tool role.');
+
+  const membership = await db.membership.findFirst({ where: { userId, orgId }, select: { id: true } });
+  if (!membership) throw new Error('User is not a member of this organization.');
+
+  const existing = await db.toolGrant.findUnique({
+    where: { userId_orgId_tool: { userId, orgId, tool } },
+    select: { role: true },
+  });
+
+  const grant = await db.toolGrant.upsert({
+    where: { userId_orgId_tool: { userId, orgId, tool } },
+    update: { role },
+    create: { userId, orgId, tool, role },
+  });
+
+  await audit({
+    actorId,
+    action: 'user.tool_grant_upserted',
+    targetType: 'tool_grant',
+    targetId: grant.id,
+    orgId,
+    oldValue: existing ? { userId, tool, role: existing.role } : null,
+    newValue: { userId, tool, role },
+    reason,
+  });
+
+  return grant;
+}
+
+// Revoke a user's tool grant. Audit-logged.
+export async function adminRemoveToolGrant({ grantId, actorId, reason = null }) {
+  const grant = await db.toolGrant.findUnique({ where: { id: grantId } });
+  if (!grant) throw new Error('Tool grant not found.');
+  await db.toolGrant.delete({ where: { id: grantId } });
+
+  await audit({
+    actorId,
+    action: 'user.tool_grant_removed',
+    targetType: 'tool_grant',
+    targetId: grantId,
+    orgId: grant.orgId,
+    oldValue: { userId: grant.userId, tool: grant.tool, role: grant.role },
+    reason,
+  });
+
+  return grant;
 }

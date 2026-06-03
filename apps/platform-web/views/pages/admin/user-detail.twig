@@ -132,6 +132,88 @@
     </section>
 
     <section class="rj-admin-panel">
+        <div class="rj-admin-panel__header"><h2>Grant tool access</h2></div>
+        <form class="rj-admin-form" method="post" action="/admin/users/{{ userDetail.id }}/tool-grants">
+            <label>
+                <span>Organization</span>
+                <select name="orgId">
+                    {% for membership in userDetail.memberships %}
+                        <option value="{{ membership.org.id }}">{{ membership.org.name }} · {{ membership.org.organizationType|lower }}</option>
+                    {% else %}
+                        <option value="" disabled>User has no organization memberships</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>
+                <span>Tool</span>
+                <select name="tool">
+                    {% for t in userDetail.tools %}
+                        <option value="{{ t.key }}">{{ t.name }}{% if t.orgOpen %} (org-open){% endif %}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>
+                <span>Role</span>
+                <select name="role">
+                    <option value="MEMBER">Member</option>
+                    <option value="MANAGER">Manager</option>
+                </select>
+            </label>
+            <label>
+                <span>Reason</span>
+                <input type="text" name="reason" placeholder="Optional audit note">
+            </label>
+            <button class="rj-btn rj-btn--secondary rj-btn--sm" type="submit">
+                <i data-lucide="key-round"></i> Grant access
+            </button>
+        </form>
+    </section>
+
+    <section class="rj-admin-panel">
+        <div class="rj-admin-panel__header"><h2>Tool access</h2></div>
+        <div class="rj-table-wrap">
+            <table class="rj-table rj-admin-table">
+                <thead>
+                    <tr>
+                        <th>Tool</th>
+                        <th>Organization</th>
+                        <th>Role</th>
+                        <th>Granted</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for grant in userDetail.toolGrants %}
+                        <tr>
+                            <td>{{ grant.toolName }}<br><span class="rj-admin-muted rj-admin-mono">{{ grant.tool }}</span></td>
+                            <td><a href="/admin/orgs/{{ grant.org.id }}">{{ grant.org.name }}</a></td>
+                            <td>
+                                <form class="rj-admin-inline-form" method="post" action="/admin/users/{{ userDetail.id }}/tool-grants">
+                                    <input type="hidden" name="orgId" value="{{ grant.org.id }}">
+                                    <input type="hidden" name="tool" value="{{ grant.tool }}">
+                                    <select name="role">
+                                        <option value="MEMBER"{% if grant.role == 'MEMBER' %} selected{% endif %}>Member</option>
+                                        <option value="MANAGER"{% if grant.role == 'MANAGER' %} selected{% endif %}>Manager</option>
+                                    </select>
+                                    <button class="rj-btn rj-btn--secondary rj-btn--sm" type="submit">Update</button>
+                                </form>
+                            </td>
+                            <td class="rj-num">{{ grant.createdAt|date("M j, Y") }}</td>
+                            <td>
+                                <form method="post" action="/admin/users/{{ userDetail.id }}/tool-grants/{{ grant.id }}/remove">
+                                    <button class="rj-btn rj-btn--ghost rj-btn--sm" type="submit">Revoke</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="5" class="rj-table__empty">No explicit tool grants. Access comes from org-open tools or platform-admin.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="rj-admin-panel">
         <div class="rj-admin-panel__header"><h2>Recent jobs</h2></div>
         {% include "pages/admin/_jobs-table.twig" with { jobs: userDetail.recentJobs, compact: true } %}
     </section>

@@ -4,6 +4,7 @@ import {
   getUsageBudgetStatus,
   UsageKey,
 } from '@rumbo/billing';
+import { listTools } from '@rumbo/config';
 
 const RECENT_LIMIT = 10;
 const LIST_LIMIT = 50;
@@ -113,7 +114,7 @@ export async function listAdminUsers() {
 }
 
 export async function getAdminUserDetail(userId) {
-  const [user, organizations, auditLogs] = await Promise.all([
+  const [user, organizations, auditLogs, toolGrants] = await Promise.all([
     db.user.findUnique({
       where: { id: userId },
       include: {
@@ -135,14 +136,25 @@ export async function getAdminUserDetail(userId) {
       take: 20,
       include: { actor: true, org: true },
     }),
+    db.toolGrant.findMany({
+      where: { userId },
+      include: { org: true },
+      orderBy: [{ orgId: 'asc' }, { tool: 'asc' }],
+    }),
   ]);
 
   if (!user) return null;
+
+  const tools = listTools();
+  const toolNameByKey = Object.fromEntries(tools.map(t => [t.key, t.name]));
+
   return {
     ...user,
     recentJobs: user.jobs.map(compactJob),
     organizations,
     auditLogs,
+    tools,
+    toolGrants: toolGrants.map(g => ({ ...g, toolName: toolNameByKey[g.tool] ?? g.tool })),
   };
 }
 

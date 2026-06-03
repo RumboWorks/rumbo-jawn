@@ -234,3 +234,37 @@ Consequences:
 - Organization managers may invite members by email and manage member roles/removal.
 - Removing the final manager from an organization is allowed; platform admins must be able to recover managerless organizations.
 - Existing solo-account creation may need adjustment so personal workspaces do not expose organization-management UI by default.
+
+## 2026-06-02 — Per-tool access layer (ToolGrant) for a multi-tool platform
+
+Status: Accepted
+
+Decision:
+Add a per-user, per-tool access layer so the platform can host many tools (target 5–25) with independent access tiers per tool (no-access / member / manager), while platform-admin stays universal. Access has two axes: an org axis (does the organization get the tool, via `getEffectiveEntitlement(orgId).features[tool]`) and a new user axis (a `ToolGrant(userId, orgId, tool, role)` table; absence means no access). A `resolveToolRole(user, orgId, tool)` helper unifies grants with platform-admin (universal) and partner-manager, and a `requireToolAccess` middleware gates tool routers. A code-level tool registry is the single source of truth for tool keys/paths/nav order. Tools may opt into an `orgOpen` fallback so a tool is usable at org-membership role without explicit grants; Sounds Like Us is `orgOpen: true` (grandfathered), Eval is `orgOpen: false`.
+
+Rationale:
+The existing model is org-wide: `Membership.role` and `permissions.js` give a user one role across everything the org can reach, so "manager in tool A, no access to tool B" was impossible. Per-tool config/usage seams already existed (`tool` on `UsageEvent`/`FeatureFlag`/`AiModelConfig`) and org-level tool entitlement existed via `ProductTier.features`, but the per-user role dimension was missing. This is platform functionality and should land before a second tool, not inside it.
+
+Consequences:
+- New `ToolGrant` table reusing the existing `MemberRole` enum.
+- New tool registry module; navigation renders from accessible tools, scaling to many tools.
+- SLU mounts behind `requireToolAccess('slu')` non-breaking via `orgOpen`.
+- Platform-admin gains UI to assign per-tool roles (audit-logged); org-manager self-serve grants and dedicated per-tool billing tiers are deferred.
+- Planned in Phase 10.
+
+## 2026-06-02 — Migrate Model Eval into Rumbo as the `eval` tool
+
+Status: Accepted
+
+Decision:
+Rebuild the standalone Model Eval app as a Rumbo tool (`@rumbo/eval`, URL `/eval`, key `eval`, display name "Eval"), reusing the platform's shared identity, org, partner, jobs, AI, billing, storage, and admin infrastructure instead of its duplicates. Eval-domain tables are added to the single platform Prisma schema, re-cast to platform conventions (String `cuid` IDs, `Eval`-prefixed names, UPPERCASE enums) referencing platform `User`/`Organization`. No data migration (all test) and no backwards compatibility; the schema/APIs are re-optimized for the MVP and unused pieces dropped. MVP scope is the core eval→review→report loop plus live API response collection, notifications & email, and a tasks inbox. Report exports (PDF/PNG/PPTX), partner-account UI, custom roles, and analytics events are deferred. Frontend stays server-rendered Twig + vanilla JS. Eval is the first consumer of the Phase 10 per-tool access model (`orgOpen: false`).
+
+Rationale:
+Keeping Model Eval standalone would fork identity, billing, AI, and admin. The platform was designed with tool seams (router-per-package, shared packages, single schema, single worker) precisely so a second tool can be added without a rewrite.
+
+Consequences:
+- Rename the empty `tools/model-eval` stub to `tools/eval` / `@rumbo/eval`.
+- Drop Model Eval's duplicate identity/org/partner/session tables, its own auth/permissions, email service, ad-hoc AI calls, and analytics/audit tables.
+- Add `eval` to product-tier `features` and AI model config; add `UsageKey.EVAL_RESPONSE_COLLECTION`.
+- Live API response collection runs through `@rumbo/jobs` + `apps/worker` + `@rumbo/ai`, cost-logged and spend-capped.
+- Planned in Phases 11–14.

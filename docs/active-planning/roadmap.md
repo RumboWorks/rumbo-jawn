@@ -25,15 +25,20 @@ Do not mark work complete unless it can be verified in the repository.
 - [x] Phase 08b — User account management
 - [ ] Phase 09 — Finish-line discipline and launch hardening
 
-### Future sibling tools
+### Multi-tool platform + second tool: Eval
 
-#### Model Eval
+The platform's destination is 5–25 tools with per-user, per-tool access tiers (no-access / member / manager), platform-admin universal. Eval (formerly Model Eval) is migrated from its standalone implementation as the first real consumer of per-tool access.
 
-Status: Planned, out of scope for initial MVP implementation.
+- [x] Phase 10 — Multi-tool access foundation (`ToolGrant`, `resolveToolRole`, `requireToolAccess`, tool registry, access-driven nav, platform-admin grant UI)
+- [ ] Phase 11 — Eval tool foundation (scaffold, Eval-domain schema, permission mapping, model catalog + criteria settings)
+- [ ] Phase 12 — Eval authoring, runs, and response collection (snapshots, manual + live API)
+- [ ] Phase 13 — Eval review workflow and report (assignment, autosave ratings/comments, report matrix, secure share)
+- [ ] Phase 14 — Eval tasks and notifications (tasks inbox, in-app + email, reminders)
 
-Model Eval should influence shared platform decisions but should not be implemented during initial Sounds Like Us MVP work unless the roadmap is explicitly revised.
+Eval deferrals: report exports (PDF/PNG/PPTX), partner-account UI, org-manager self-serve per-tool grants, custom roles.
 
 ## Next up
 
-1. Continue to Phase 09 finish-line discipline and launch hardening.
-2. Continue to treat Model Eval as planned sibling-tool work until the roadmap explicitly adds its implementation.
+1. Phase 11 — Eval tool foundation (scaffold + schema + settings).
+2. Then Phases 12–14 to complete the Eval migration.
+3. Phase 09 finish-line discipline and launch hardening remains open and can interleave.

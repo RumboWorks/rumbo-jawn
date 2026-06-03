@@ -34,6 +34,7 @@ model User {
   oauthAccounts             OAuthAccount[]
   passwordResetTokens       PasswordResetToken[]
   jobs                      Job[]
+  toolGrants                ToolGrant[]
 }
 
 enum UserStatus {
@@ -74,6 +75,7 @@ model Organization {
   adminAuditLogs   AdminAuditLog[]
   approvedDomains  ApprovedDomain[]
   jobs             Job[]
+  toolGrants       ToolGrant[]
 
   @@index([createdByUserId])
 }
@@ -95,6 +97,26 @@ model Membership {
 enum MemberRole {
   MANAGER
   MEMBER
+}
+
+// Per-user, per-tool access grant. Layers on top of org Membership.
+// Absence of a row for (userId, orgId, tool) means NO ACCESS to that tool.
+// Tool keys come from @rumbo/config tool registry.
+model ToolGrant {
+  id        String     @id @default(cuid())
+  userId    String
+  orgId     String
+  tool      String
+  role      MemberRole @default(MEMBER)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  user User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  org  Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, orgId, tool])
+  @@index([userId])
+  @@index([orgId, tool])
 }
 
 enum OrgType {

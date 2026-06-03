@@ -3,7 +3,7 @@ import express from 'express';
 import Twig from 'twig';
 import { fileURLToPath } from 'url';
 import path from 'path';
-import { buildSessionMiddleware, configurePassport } from '@rumbo/auth';
+import { buildSessionMiddleware, configurePassport, listAccessibleTools, primaryOrgIdForUser } from '@rumbo/auth';
 import routes from './routes/index.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -29,9 +29,31 @@ const passport = configurePassport();
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Expose current user to all Twig templates
+// Cosmetic nav list cache. The header tool list is purely presentational — the
+// authoritative access check lives in requireToolAccess, which is never cached.
+// The lookup is non-blocking: a cache miss returns what we have (possibly empty)
+// and refreshes in the background, so no awaited DB work sits on the page-load
+// hot path. The header menu therefore appears from the second page load; the
+// home route fetches its own launcher list directly, so the launcher is always
+// complete. Staleness of up to ~30s in the header menu is acceptable.
+const navCache = new Map(); // userId -> { tools, expires }
+const NAV_TTL_MS = 30_000;
+
+function getNavToolsCached(user, orgId) {
+  const cached = navCache.get(user.id);
+  if (cached && cached.expires > Date.now()) return cached.tools;
+  listAccessibleTools(user, orgId)
+    .then(tools => navCache.set(user.id, { tools, expires: Date.now() + NAV_TTL_MS }))
+    .catch(() => {});
+  return cached?.tools ?? [];
+}
+
+// Expose current user and accessible tool nav to all Twig templates.
 app.use((req, res, next) => {
   res.locals.currentUser = req.user ?? null;
+  res.locals.navTools = (req.method === 'GET' && req.isAuthenticated())
+    ? getNavToolsCached(req.user, primaryOrgIdForUser(req.user))
+    : [];
   next();
 });
 

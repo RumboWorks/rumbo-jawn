@@ -150,3 +150,51 @@ Deferred to: later auth polish phase
 Reason: Phase 08b displays auth method indicators and supports local-password recovery but does not let users connect or disconnect OAuth providers.
 Blocking: Need provider-specific safety rules so users do not remove their only usable sign-in method.
 Must not forget because: OAuth account recovery and provider changes are common account-management needs.
+
+## Deferred item: Org-manager self-serve per-tool grants
+
+Originally identified: Phase 10
+Deferred to: a later access-delegation phase
+Reason: Phase 10 adds per-tool access (`ToolGrant`) and a platform-admin UI to assign per-tool roles, but not org-manager (or partner-manager) self-serve UI to grant tool roles to their own members.
+Blocking: Need delegation rules — which roles may grant which tools, and how this interacts with org entitlement and partner access.
+Must not forget because: At 5–25 tools, platform admins should not be the only people who can grant tool access; org managers will need to manage their teams' tool access.
+
+## Deferred item: Dedicated per-tool tiers and limits
+
+Originally identified: Phase 10
+Deferred to: a later billing phase
+Reason: Per-tool org entitlement currently lives in `ProductTier.features`/limits JSON. A dedicated `OrganizationToolEntitlement` table (per-tool tier/limits) was considered but deferred.
+Blocking: Need clearer per-tool pricing/packaging before formalizing the schema.
+Must not forget because: Distinct per-tool plans and limits will eventually outgrow the shared `features`/limits JSON.
+
+## Deferred item: Navigation UX for many tools
+
+Originally identified: Phase 10
+Deferred to: a later UX phase
+Reason: Phase 10 renders accessible tools from a registry, which is correct but flat. Grouping, search, and favorites for large tool counts are out of scope.
+Blocking: Need real tool count and categories before designing the dense navigation.
+Must not forget because: A flat list does not scale gracefully toward 25 tools.
+
+## Deferred item: Eval report exports (PDF/PNG/PPTX)
+
+Originally identified: Eval migration planning (Phases 11–14)
+Deferred to: a later Eval enhancement phase
+Reason: The Eval MVP ships on-screen reports plus a secure share link; the standalone `Export`/`ExportFormat` model and PDF/PNG/PPTX generation are dropped from the MVP.
+Blocking: Need export format priorities and a rendering approach consistent with platform storage/artifacts.
+Must not forget because: Exportable reports were a feature of the standalone tool and will likely be requested.
+
+## Deferred item: Cross-tool platform notification center
+
+Originally identified: Eval migration planning (Phase 14)
+Deferred to: a later platform phase
+Reason: Phase 14 delivers Eval-scoped in-app + email notifications. A shared, cross-tool notification system was not generalized.
+Blocking: Need a second tool with notifications to define the shared abstraction.
+Must not forget because: As tools multiply, per-tool notification surfaces should consolidate into one platform notification center.
+
+## Deferred item: Flash-message session race under rapid requests
+
+Originally identified: Phase 10 (observed during access-foundation QA)
+Deferred to: a later platform-hardening phase
+Reason: The session-backed flash mechanism (set on POST, read+delete on the following GET) is eventually-consistent because the Prisma session store persists asynchronously. Under back-to-back requests (e.g. the Playwright `account page supports profile and password edits` test) the GET can read a stale or lost flash, making that test intermittently fail. This predates Phase 10 — it reproduces with Phase 10's nav middleware disabled (≈2/8 failures). Phase 10's tool-nav lookup was deliberately made non-blocking (cached, no awaited DB on the page-load hot path) so it does not add to this sensitivity.
+Blocking: Need a robust flash approach (e.g. explicit `req.session.save()` before redirect on flash-setting routes, or a non-session flash channel) and confirmation it doesn't regress account/admin/org flows.
+Must not forget because: It surfaces as flaky QA today and as occasional missing/stale confirmation banners for real users.

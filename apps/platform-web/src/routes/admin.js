@@ -1,8 +1,10 @@
 import { Router } from 'express';
 import {
   adminAddUserMembership,
+  adminRemoveToolGrant,
   adminRemoveUserMembership,
   adminUpdateUser,
+  adminUpsertToolGrant,
   createOrgInvite,
   removeMembership,
   requirePlatformAdmin,
@@ -99,6 +101,27 @@ router.post('/users/:userId/memberships', asyncHandler(async (req, res) => {
 router.post('/users/:userId/memberships/:membershipId/remove', asyncHandler(async (req, res) => {
   await adminRemoveUserMembership({
     membershipId: req.params.membershipId,
+    actorId: req.user.id,
+    reason: req.body.reason || null,
+  });
+  redirectBack(req, res, `/admin/users/${req.params.userId}`);
+}));
+
+router.post('/users/:userId/tool-grants', asyncHandler(async (req, res) => {
+  await adminUpsertToolGrant({
+    userId: req.params.userId,
+    orgId: req.body.orgId,
+    tool: req.body.tool,
+    role: req.body.role || 'MEMBER',
+    actorId: req.user.id,
+    reason: req.body.reason || null,
+  });
+  redirectBack(req, res, `/admin/users/${req.params.userId}`);
+}));
+
+router.post('/users/:userId/tool-grants/:grantId/remove', asyncHandler(async (req, res) => {
+  await adminRemoveToolGrant({
+    grantId: req.params.grantId,
     actorId: req.user.id,
     reason: req.body.reason || null,
   });

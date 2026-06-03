@@ -6,3 +6,10 @@ export { findUserByEmail, loadUser, ensureOrgMembership } from './user-service.j
 export * from './account-service.js';
 export { Role, Permission, can } from './permissions.js';
 export { resolveRole, listAccessibleOrganizations } from './org-access-service.js';
+export {
+  resolveToolRole,
+  listAccessibleTools,
+  requireToolAccess,
+  toolRoleAtLeast,
+  primaryOrgIdForUser,
+} from './tool-access-service.js';

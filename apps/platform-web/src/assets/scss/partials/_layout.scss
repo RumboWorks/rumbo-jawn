@@ -73,6 +73,61 @@ body { display: flex; flex-direction: column; min-height: 100vh; }
   &.is-active { color: var(--rj-pine-600); font-weight: var(--rj-weight-semibold); }
 }
 
+// Tool switcher dropdown (header)
+.rj-tools-menu {
+  position: relative;
+
+  > summary {
+    cursor: pointer;
+    list-style: none;
+    &::-webkit-details-marker { display: none; }
+  }
+
+  &__list {
+    position: absolute;
+    right: 0;
+    top: calc(100% + var(--rj-space-1));
+    z-index: 50;
+    min-width: 12rem;
+    display: flex;
+    flex-direction: column;
+    padding: var(--rj-space-1);
+    background: var(--rj-bg);
+    border: 1px solid var(--rj-border);
+    border-radius: var(--rj-radius-md);
+    box-shadow: var(--rj-shadow-md, 0 6px 24px rgba(0, 0, 0, 0.12));
+  }
+
+  &__item {
+    font-size: var(--rj-text-sm);
+    color: var(--rj-fg-2);
+    text-decoration: none;
+    padding: var(--rj-space-1) var(--rj-space-2);
+    border-radius: var(--rj-radius-sm);
+
+    &:hover { color: var(--rj-fg); background: var(--rj-bg-sunken); }
+  }
+}
+
+// Tool launcher list (home page)
+.rj-tool-list {
+  list-style: none;
+  padding: 0;
+  margin: var(--rj-space-3) 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--rj-space-2);
+
+  li { display: flex; align-items: baseline; gap: var(--rj-space-2); }
+
+  &__role {
+    font-size: var(--rj-text-xs);
+    color: var(--rj-fg-3, var(--rj-fg-2));
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+}
+
 // Theme switcher
 .rj-theme-switcher {
   select {
