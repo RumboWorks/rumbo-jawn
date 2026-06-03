@@ -1,0 +1,26 @@
+// Eval tool styles (eval- prefix). Reuses platform rj- components; only adds
+// tool-specific tweaks.
+
+.eval-empty {
+  color: var(--rj-fg-2);
+}
+
+// Inline edit rows in settings tables: lay multiple fields out in a row that
+// wraps gracefully on narrow viewports.
+.eval-criterion-form,
+.eval-model-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--rj-space-2);
+
+  input[type="text"],
+  select {
+    min-width: 8rem;
+  }
+
+  input[name="displayName"],
+  input[name="title"] {
+    flex: 1 1 10rem;
+  }
+}

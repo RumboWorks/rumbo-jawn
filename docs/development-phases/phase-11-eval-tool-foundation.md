@@ -106,16 +106,27 @@ Use `.agent/phase-review.agent.md` for closeout.
 
 ### Completion checklist
 
-- [ ] All acceptance criteria pass.
-- [ ] Relevant commands/checks were run.
-- [ ] Manual QA notes are recorded.
-- [ ] New commands are documented in `docs/reference/usage.md`, if commands exist.
-- [ ] New architectural decisions are recorded in `docs/active-planning/decision-log.md`.
-- [ ] Roadmap items are checked off, added, or moved.
-- [ ] Deferred work is listed explicitly in `docs/active-planning/deferred-work.md`.
-- [ ] Working notes created during this phase were promoted, linked, archived, or deleted.
-- [ ] No unplanned files were added directly under `docs/`.
-- [ ] The next phase still makes sense or has been revised.
+- [x] All acceptance criteria pass.
+- [x] Relevant commands/checks were run.
+- [x] Manual QA notes are recorded.
+- [x] New commands are documented in `docs/reference/usage.md`, if commands exist.
+- [x] New architectural decisions are recorded in `docs/active-planning/decision-log.md`. (Eval-migration decision recorded in Phase 10 closeout; no new decisions this phase.)
+- [x] Roadmap items are checked off, added, or moved.
+- [x] Deferred work is listed explicitly in `docs/active-planning/deferred-work.md`. (No new deferrals beyond those recorded for the migration.)
+- [x] Working notes created during this phase were promoted, linked, archived, or deleted. (None created.)
+- [x] No unplanned files were added directly under `docs/`.
+- [x] The next phase still makes sense or has been revised.
+
+### Closeout notes
+
+- Renamed the empty `tools/model-eval` stub to `tools/eval` (`@rumbo/eval`), exporting `evalRouter` (router-only) and `seedEvalProviders`.
+- Mounted at `/eval` behind `requireToolAccess('eval')` (Phase 10), with a `requireManager` guard (uses `req.toolRole`) on settings routes.
+- Added the full Eval-domain schema to `packages/db/prisma/schema.prisma` (16 tables, 8 enums) in platform conventions: String `cuid` IDs, `Eval`-prefixed names, UPPERCASE enums, and **scalar** FKs to platform `User`/`Organization` (matching `SluFeedback`, so the shared models stay free of tool back-relations); relations declared only among Eval tables. Dropped `Export`/`ExportFormat` (PDF deferred).
+- Applied the schema additively: because the existing dev DB has pre-existing FK drift that blocks a full `prisma db push`, the new tables were applied via Prisma-generated DDL extracted for `Eval*` only (`prisma migrate diff --from-empty` → filter → `prisma db execute`), preserving existing data.
+- Wired `eval` into billing: `features.eval` on all product tiers, `UsageKey.EVAL_RESPONSE_COLLECTION` with a default soft limit, and a default `eval` `AiModelConfig` row (replacing the stale `model_eval` placeholder). Reseeded defaults.
+- Built settings surfaces (manager-only): evaluation criteria CRUD and the model catalog CRUD (provider/provider-model/access-method) with a seeded provider catalog (OpenAI, Anthropic, Google, Manual, Other). Server-rendered Twig + a small vanilla-JS provider→model filter.
+- Added the Eval landing/dashboard shell (org-scoped counts + recent evals) and an `eval-` SCSS partial.
+- Verification: `npm run db:generate`; Eval DDL applied (16 tables) and confirmed via the Prisma client; `npm run seed-defaults` (billing) and `node tools/eval/src/seed.js` (catalog); `npm run build`; `npm run qa` (22 passing; the single failure is the pre-existing flaky account/session test). End-to-end over HTTP: anon `/eval` → login redirect; **manager** grant → `/eval` + settings render 200 and a posted criterion persists; **member** grant → `/eval` 200 but settings 403; **no grant** → `/eval` 403. Settings-service CRUD (criteria + model catalog, tenant-scoped) verified directly; test data cleaned up afterward.
 
 ### Valid outcomes
 

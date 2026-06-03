@@ -1,0 +1,12 @@
+{% if flash.error %}
+    <div class="rj-alert rj-alert--danger">
+        <i data-lucide="circle-x"></i>
+        <div class="rj-alert__body">{{ flash.error }}</div>
+    </div>
+{% endif %}
+{% if flash.success %}
+    <div class="rj-alert rj-alert--success">
+        <i data-lucide="check-circle-2"></i>
+        <div class="rj-alert__body">{{ flash.success }}</div>
+    </div>
+{% endif %}

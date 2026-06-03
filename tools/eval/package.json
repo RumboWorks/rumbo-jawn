@@ -1,0 +1,19 @@
+{
+  "name": "@rumbo/eval",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "dependencies": {
+    "@rumbo/ai": "^0.0.1",
+    "@rumbo/auth": "^0.0.1",
+    "@rumbo/billing": "^0.0.1",
+    "@rumbo/config": "^0.0.1",
+    "@rumbo/db": "^0.0.1",
+    "@rumbo/jobs": "^0.0.1",
+    "@rumbo/storage": "^0.0.1"
+  }
+}

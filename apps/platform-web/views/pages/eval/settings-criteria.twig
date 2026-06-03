@@ -1,0 +1,64 @@
+{% extends "layouts/app.twig" %}
+
+{% block title %}Eval criteria — Rumbo{% endblock %}
+
+{% block sidebar %}
+    {% include "pages/eval/_sidebar.twig" with { active: 'criteria', toolRole: toolRole } %}
+{% endblock %}
+
+{% block content %}
+    <div class="rj-page-header">
+        <h1>Evaluation criteria</h1>
+        <p>Reusable criteria reviewers score responses against. These are snapshotted into a run when it launches.</p>
+    </div>
+
+    {% include "pages/eval/_flash.twig" %}
+
+    <section class="rj-admin-panel">
+        <div class="rj-admin-panel__header"><h2>Add criterion</h2></div>
+        <form class="rj-admin-form" method="post" action="/eval/settings/criteria">
+            <label>
+                <span>Title</span>
+                <input type="text" name="title" required placeholder="e.g. Clarity">
+            </label>
+            <label>
+                <span>Description</span>
+                <input type="text" name="description" placeholder="What reviewers should look for">
+            </label>
+            <button class="rj-btn rj-btn--secondary rj-btn--sm" type="submit">
+                <i data-lucide="plus"></i> Add criterion
+            </button>
+        </form>
+    </section>
+
+    <section class="rj-admin-panel">
+        <div class="rj-admin-panel__header"><h2>Criteria</h2></div>
+        <div class="rj-table-wrap">
+            <table class="rj-table rj-admin-table">
+                <thead>
+                    <tr><th>Criterion</th><th></th></tr>
+                </thead>
+                <tbody>
+                    {% for c in criteria %}
+                        <tr>
+                            <td>
+                                <form class="rj-admin-inline-form eval-criterion-form" method="post" action="/eval/settings/criteria/{{ c.id }}">
+                                    <input type="text" name="title" value="{{ c.title }}" required aria-label="Title">
+                                    <input type="text" name="description" value="{{ c.description ?? '' }}" aria-label="Description" placeholder="Description">
+                                    <button class="rj-btn rj-btn--secondary rj-btn--sm" type="submit">Save</button>
+                                </form>
+                            </td>
+                            <td>
+                                <form method="post" action="/eval/settings/criteria/{{ c.id }}/archive">
+                                    <button class="rj-btn rj-btn--ghost rj-btn--sm" type="submit">Archive</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="2" class="rj-table__empty">No criteria yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+{% endblock %}

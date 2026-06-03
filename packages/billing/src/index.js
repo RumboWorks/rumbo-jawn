@@ -9,6 +9,7 @@ export const TierKey = Object.freeze({
 
 export const UsageKey = Object.freeze({
   SLU_ANALYSIS_ROLLING_7D: 'slu.analysis.rolling_7d',
+  EVAL_RESPONSE_COLLECTION: 'eval.response_collection',
 });
 
 export const DEFAULT_PRODUCT_TIERS = [
@@ -19,8 +20,9 @@ export const DEFAULT_PRODUCT_TIERS = [
     isDefault: true,
     limits: {
       [UsageKey.SLU_ANALYSIS_ROLLING_7D]: { limit: 10, windowDays: 7, policy: 'soft' },
+      [UsageKey.EVAL_RESPONSE_COLLECTION]: { limit: 50, windowDays: 7, policy: 'soft' },
     },
-    features: { slu: true },
+    features: { slu: true, eval: true },
   },
   {
     key: TierKey.SOLO,
@@ -28,8 +30,9 @@ export const DEFAULT_PRODUCT_TIERS = [
     description: 'Individual paid tier.',
     limits: {
       [UsageKey.SLU_ANALYSIS_ROLLING_7D]: { limit: 10, windowDays: 7, policy: 'soft' },
+      [UsageKey.EVAL_RESPONSE_COLLECTION]: { limit: 50, windowDays: 7, policy: 'soft' },
     },
-    features: { slu: true },
+    features: { slu: true, eval: true },
   },
   {
     key: TierKey.TEAM,
@@ -37,8 +40,9 @@ export const DEFAULT_PRODUCT_TIERS = [
     description: 'Team tier for organizations.',
     limits: {
       [UsageKey.SLU_ANALYSIS_ROLLING_7D]: { limit: 10, windowDays: 7, policy: 'soft' },
+      [UsageKey.EVAL_RESPONSE_COLLECTION]: { limit: 50, windowDays: 7, policy: 'soft' },
     },
-    features: { slu: true },
+    features: { slu: true, eval: true },
   },
   {
     key: TierKey.PARTNER,
@@ -46,8 +50,9 @@ export const DEFAULT_PRODUCT_TIERS = [
     description: 'Partner tier for managed organization work.',
     limits: {
       [UsageKey.SLU_ANALYSIS_ROLLING_7D]: { limit: 10, windowDays: 7, policy: 'soft' },
+      [UsageKey.EVAL_RESPONSE_COLLECTION]: { limit: 50, windowDays: 7, policy: 'soft' },
     },
-    features: { slu: true, partnerManagement: true },
+    features: { slu: true, eval: true, partnerManagement: true },
   },
 ];
 
@@ -55,7 +60,7 @@ export const DEFAULT_AI_MODEL_CONFIG = [
   { tool: 'platform', callType: 'default', provider: 'openai', model: 'gpt-4o-mini' },
   { tool: 'slu', callType: 'crawl.summarize', provider: 'openai', model: 'gpt-4o-mini' },
   { tool: 'slu', callType: 'guidance.generate', provider: 'anthropic', model: 'claude-haiku-4-5-20251001' },
-  { tool: 'model_eval', callType: 'eval.score', provider: 'deepseek', model: 'deepseek-chat' },
+  { tool: 'eval', callType: 'response.collect', provider: 'openai', model: 'gpt-4o-mini' },
 ];
 
 function toNumber(value) {

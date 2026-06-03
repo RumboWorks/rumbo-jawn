@@ -30,7 +30,7 @@ Do not mark work complete unless it can be verified in the repository.
 The platform's destination is 5–25 tools with per-user, per-tool access tiers (no-access / member / manager), platform-admin universal. Eval (formerly Model Eval) is migrated from its standalone implementation as the first real consumer of per-tool access.
 
 - [x] Phase 10 — Multi-tool access foundation (`ToolGrant`, `resolveToolRole`, `requireToolAccess`, tool registry, access-driven nav, platform-admin grant UI)
-- [ ] Phase 11 — Eval tool foundation (scaffold, Eval-domain schema, permission mapping, model catalog + criteria settings)
+- [x] Phase 11 — Eval tool foundation (scaffold, Eval-domain schema, permission mapping, model catalog + criteria settings)
 - [ ] Phase 12 — Eval authoring, runs, and response collection (snapshots, manual + live API)
 - [ ] Phase 13 — Eval review workflow and report (assignment, autosave ratings/comments, report matrix, secure share)
 - [ ] Phase 14 — Eval tasks and notifications (tasks inbox, in-app + email, reminders)
@@ -39,6 +39,6 @@ Eval deferrals: report exports (PDF/PNG/PPTX), partner-account UI, org-manager s
 
 ## Next up
 
-1. Phase 11 — Eval tool foundation (scaffold + schema + settings).
-2. Then Phases 12–14 to complete the Eval migration.
+1. Phase 12 — Eval authoring, runs, and response collection (snapshots, manual + live API).
+2. Then Phases 13–14 to complete the Eval migration.
 3. Phase 09 finish-line discipline and launch hardening remains open and can interleave.

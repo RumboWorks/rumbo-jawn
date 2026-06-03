@@ -1,0 +1,65 @@
+{% extends "layouts/app.twig" %}
+
+{% block title %}Eval — Rumbo{% endblock %}
+
+{% block sidebar %}
+    {% include "pages/eval/_sidebar.twig" with { active: 'overview', toolRole: toolRole } %}
+{% endblock %}
+
+{% block content %}
+    <div class="rj-page-header">
+        <h1>Eval</h1>
+        <p>Evaluate AI model and tool outputs against your criteria.</p>
+    </div>
+
+    {% include "pages/eval/_flash.twig" %}
+
+    <section class="rj-admin-metrics rj-admin-metrics--compact">
+        <div class="rj-admin-metric">
+            <span class="rj-admin-metric__label">Evaluations</span>
+            <strong>{{ summary.evalCount }}</strong>
+        </div>
+        <div class="rj-admin-metric">
+            <span class="rj-admin-metric__label">Runs</span>
+            <strong>{{ summary.runCount }}</strong>
+        </div>
+        <div class="rj-admin-metric">
+            <span class="rj-admin-metric__label">Criteria</span>
+            <strong>{{ summary.criteriaCount }}</strong>
+        </div>
+        <div class="rj-admin-metric">
+            <span class="rj-admin-metric__label">Models</span>
+            <strong>{{ summary.modelCount }}</strong>
+        </div>
+    </section>
+
+    <section class="rj-admin-panel">
+        <div class="rj-admin-panel__header"><h2>Recent evaluations</h2></div>
+        {% if summary.recentEvals is not empty %}
+            <div class="rj-table-wrap">
+                <table class="rj-table rj-admin-table">
+                    <thead>
+                        <tr><th>Title</th><th>Runs</th><th>Updated</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for ev in summary.recentEvals %}
+                            <tr>
+                                <td>{{ ev.title }}</td>
+                                <td class="rj-num">{{ ev._count.runs }}</td>
+                                <td class="rj-num">{{ ev.updatedAt|date("M j, Y") }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="eval-empty">No evaluations yet.
+                {% if toolRole == 'MANAGER' %}
+                    Set up your <a href="/eval/settings/models">models</a> and <a href="/eval/settings/criteria">criteria</a> to get started. Authoring evaluations arrives in the next phase.
+                {% else %}
+                    A manager can set up evaluations for your team.
+                {% endif %}
+            </p>
+        {% endif %}
+    </section>
+{% endblock %}

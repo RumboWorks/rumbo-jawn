@@ -438,3 +438,387 @@ model SluFeedback {
   @@index([jobId])
   @@index([userId])
 }
+
+// ============================================================================
+// Eval (formerly Model Eval) — second tool.
+//
+// Conventions: String cuid IDs; UPPERCASE enums; tables prefixed `Eval`.
+// References to platform User/Organization are scalar FKs (userId/organizationId)
+// with indexes but no Prisma relation (matching SluFeedback), so the shared
+// User/Organization models stay free of tool back-relations. Relations are
+// declared only among Eval tables.
+// ============================================================================
+
+// ---- Eval: model catalog ----
+
+model EvalProvider {
+  id           String           @id @default(cuid())
+  name         String           @unique
+  providerType EvalProviderType
+  createdAt    DateTime         @default(now())
+
+  providerModels EvalProviderModel[]
+  orgModels      EvalOrgModel[]
+}
+
+model EvalProviderModel {
+  id            String   @id @default(cuid())
+  providerId    String
+  name          String
+  apiIdentifier String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  provider  EvalProvider   @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  orgModels EvalOrgModel[]
+
+  @@unique([providerId, apiIdentifier])
+  @@index([providerId])
+}
+
+model EvalOrgModel {
+  id              String           @id @default(cuid())
+  organizationId  String
+  providerId      String?
+  providerModelId String?
+  displayName     String
+  notes           String?          @db.Text
+  accessMethod    EvalAccessMethod
+  createdByUserId String
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  deletedAt       DateTime?
+
+  provider       EvalProvider?       @relation(fields: [providerId], references: [id], onDelete: SetNull)
+  providerModel  EvalProviderModel?  @relation(fields: [providerModelId], references: [id], onDelete: SetNull)
+  modelSnapshots EvalModelSnapshot[]
+
+  @@index([organizationId])
+  @@index([providerId])
+  @@index([providerModelId])
+}
+
+// ---- Eval: criteria ----
+
+model EvalCriterion {
+  id              String    @id @default(cuid())
+  organizationId  String
+  title           String
+  description     String?   @db.Text
+  displayOrder    Int       @default(0)
+  createdByUserId String
+  archivedAt      DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([organizationId])
+}
+
+// ---- Eval: evaluations & runs ----
+
+model Eval {
+  id              String    @id @default(cuid())
+  publicId        String    @unique @default(cuid())
+  organizationId  String
+  title           String
+  description     String?   @db.Text
+  createdByUserId String
+  archivedAt      DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  runs EvalRun[]
+
+  @@index([organizationId])
+}
+
+model EvalRun {
+  id                String        @id @default(cuid())
+  publicId          String        @unique @default(cuid())
+  organizationId    String
+  evalId            String
+  runNumber         Int
+  status            EvalRunStatus @default(DRAFT)
+  hideModelNames    Boolean       @default(false)
+  hidePeerReviews   Boolean       @default(false)
+  reviewClosesAt    DateTime?
+  launchedByUserId  String?
+  completedByUserId String?
+  archivedByUserId  String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  completedAt       DateTime?
+  archivedAt        DateTime?
+
+  eval               Eval                    @relation(fields: [evalId], references: [id], onDelete: Cascade)
+  promptSnapshot     EvalPromptSnapshot?
+  criterionSnapshots EvalCriterionSnapshot[]
+  modelSnapshots     EvalModelSnapshot[]
+  responses          EvalResponse[]
+  reviewAssignments  EvalReviewAssignment[]
+  ratings            EvalRating[]
+  comments           EvalReviewComment[]
+  report             EvalReport?
+  tasks              EvalTask[]
+
+  @@index([organizationId])
+  @@index([evalId])
+  @@index([status])
+}
+
+// ---- Eval: immutable snapshots captured at run launch ----
+
+model EvalPromptSnapshot {
+  id         String   @id @default(cuid())
+  evalRunId  String   @unique
+  promptText String   @db.Text
+  createdAt  DateTime @default(now())
+
+  evalRun EvalRun @relation(fields: [evalRunId], references: [id], onDelete: Cascade)
+}
+
+model EvalCriterionSnapshot {
+  id                String   @id @default(cuid())
+  evalRunId         String
+  sourceCriterionId String?
+  title             String
+  description       String?  @db.Text
+  displayOrder      Int      @default(0)
+  createdAt         DateTime @default(now())
+
+  evalRun EvalRun      @relation(fields: [evalRunId], references: [id], onDelete: Cascade)
+  ratings EvalRating[]
+
+  @@index([evalRunId])
+}
+
+model EvalModelSnapshot {
+  id                String   @id @default(cuid())
+  evalRunId         String
+  orgModelId        String
+  displayName       String
+  providerName      String?
+  providerModelName String?
+  isManual          Boolean  @default(false)
+  isApiPending      Boolean  @default(false)
+  displayOrder      Int      @default(0)
+  createdAt         DateTime @default(now())
+
+  evalRun   EvalRun        @relation(fields: [evalRunId], references: [id], onDelete: Cascade)
+  orgModel  EvalOrgModel   @relation(fields: [orgModelId], references: [id])
+  responses EvalResponse[]
+
+  @@index([evalRunId])
+  @@index([orgModelId])
+}
+
+// ---- Eval: responses ----
+
+model EvalResponse {
+  id              String             @id @default(cuid())
+  publicId        String             @unique @default(cuid())
+  organizationId  String
+  evalRunId       String
+  modelSnapshotId String
+  responseSource  EvalResponseSource
+  responseText    String?            @db.LongText
+  submittedByUserId String?
+  submittedAt     DateTime?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  evalRun       EvalRun             @relation(fields: [evalRunId], references: [id], onDelete: Cascade)
+  modelSnapshot EvalModelSnapshot   @relation(fields: [modelSnapshotId], references: [id], onDelete: Cascade)
+  ratings       EvalRating[]
+  comments      EvalReviewComment[]
+  tasks         EvalTask[]
+
+  @@index([organizationId])
+  @@index([evalRunId])
+  @@index([modelSnapshotId])
+}
+
+// ---- Eval: review workflow ----
+
+model EvalReviewAssignment {
+  id               String    @id @default(cuid())
+  organizationId   String
+  evalRunId        String
+  userId           String
+  assignedByUserId String
+  assignedAt       DateTime  @default(now())
+  completedAt      DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  evalRun EvalRun @relation(fields: [evalRunId], references: [id], onDelete: Cascade)
+
+  @@unique([evalRunId, userId])
+  @@index([organizationId])
+  @@index([userId])
+}
+
+model EvalRating {
+  id                  String    @id @default(cuid())
+  organizationId      String
+  evalRunId           String
+  responseId          String
+  criterionSnapshotId String
+  reviewerUserId      String
+  score               Int
+  submittedAt         DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  evalRun           EvalRun               @relation(fields: [evalRunId], references: [id], onDelete: Cascade)
+  response          EvalResponse          @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  criterionSnapshot EvalCriterionSnapshot @relation(fields: [criterionSnapshotId], references: [id], onDelete: Cascade)
+
+  @@unique([evalRunId, responseId, criterionSnapshotId, reviewerUserId])
+  @@index([organizationId])
+  @@index([evalRunId])
+  @@index([responseId])
+  @@index([criterionSnapshotId])
+}
+
+model EvalReviewComment {
+  id             String   @id @default(cuid())
+  organizationId String
+  evalRunId      String
+  responseId     String?
+  reviewerUserId String
+  commentText    String   @db.Text
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  evalRun  EvalRun       @relation(fields: [evalRunId], references: [id], onDelete: Cascade)
+  response EvalResponse? @relation(fields: [responseId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([evalRunId])
+  @@index([responseId])
+}
+
+// ---- Eval: report ----
+
+model EvalReport {
+  id                 String   @id @default(cuid())
+  organizationId     String
+  evalRunId          String   @unique
+  summaryText        String?  @db.Text
+  recommendationText String?  @db.Text
+  secureShareEnabled Boolean  @default(false)
+  secureShareToken   String?  @unique
+  createdByUserId    String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  evalRun EvalRun @relation(fields: [evalRunId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+}
+
+// ---- Eval: tasks & notifications ----
+
+model EvalTask {
+  id             String         @id @default(cuid())
+  organizationId String
+  assignedUserId String
+  evalRunId      String?
+  responseId     String?
+  taskType       EvalTaskType
+  status         EvalTaskStatus @default(OPEN)
+  dueAt          DateTime?
+  completedAt    DateTime?
+  cancelledAt    DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  evalRun       EvalRun?           @relation(fields: [evalRunId], references: [id], onDelete: Cascade)
+  response      EvalResponse?      @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  notifications EvalNotification[]
+
+  @@index([organizationId])
+  @@index([assignedUserId])
+  @@index([status])
+}
+
+model EvalNotification {
+  id               String                  @id @default(cuid())
+  recipientUserId  String
+  organizationId   String
+  evalRunId        String?
+  taskId           String?
+  notificationType EvalNotificationType
+  channel          EvalNotificationChannel
+  readAt           DateTime?
+  sentAt           DateTime?
+  createdAt        DateTime                @default(now())
+
+  task EvalTask? @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([recipientUserId])
+  @@index([organizationId])
+  @@index([taskId])
+}
+
+// ---- Eval: enums ----
+
+enum EvalProviderType {
+  OPENAI
+  ANTHROPIC
+  GOOGLE
+  MANUAL
+  OTHER
+}
+
+enum EvalAccessMethod {
+  PLATFORM_API
+  PLATFORM_API_PENDING
+  ORGANIZATION_API
+  MANUAL
+}
+
+enum EvalRunStatus {
+  DRAFT
+  COLLECTING_RESPONSES
+  READY_FOR_REVIEWS
+  IN_REVIEW
+  COMPLETED
+  ARCHIVED
+  CANCELLED
+}
+
+enum EvalResponseSource {
+  PLATFORM_API
+  ORGANIZATION_API
+  MANUAL
+  SEED_DATA
+}
+
+enum EvalTaskType {
+  REVIEW_RESPONSES
+  COLLECT_MANUAL_RESPONSE
+  ACCEPT_INVITE
+  COMPLETE_SETUP
+}
+
+enum EvalTaskStatus {
+  OPEN
+  COMPLETED
+  CANCELLED
+  OVERDUE
+}
+
+enum EvalNotificationType {
+  REVIEW_ASSIGNED
+  REVIEW_REMINDER
+  EVAL_COMPLETED
+  INVITE_RECEIVED
+  MANUAL_RESPONSE_NEEDED
+}
+
+enum EvalNotificationChannel {
+  EMAIL
+  IN_APP
+}

@@ -155,3 +155,21 @@ Verified admin routes:
 - `/admin/product-controls` — feature flag and tool-specific AI model/provider configuration controls
 - `/admin/audit-log` — recent product-control and entitlement audit entries
 - `/admin/failures` — failed jobs
+
+## Tools and per-tool access
+
+Tools are registered in `@rumbo/config` (`packages/config/src/tools.js`). Access has two axes: org entitlement (`features[tool]` on the product tier) and a per-user `ToolGrant`. Platform admins assign per-tool roles on `/admin/users/:userId` (Tool access section). `slu` is `orgOpen` (any org member with the org entitled); `eval` requires an explicit grant.
+
+## Eval
+
+Seed the Eval provider/model catalog (idempotent):
+
+```sh
+node tools/eval/src/seed.js
+```
+
+Eval routes (require an `eval` tool grant; settings are manager-only):
+
+- `/eval` — overview/dashboard for the active organization
+- `/eval/settings/criteria` — reusable evaluation criteria (manager)
+- `/eval/settings/models` — model catalog: provider, provider model, access method (manager)

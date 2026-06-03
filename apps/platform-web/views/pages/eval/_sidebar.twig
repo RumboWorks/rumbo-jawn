@@ -1,0 +1,17 @@
+<span class="rj-sidebar__label">Eval</span>
+<div class="rj-sidebar__section">
+    <a href="/eval" class="rj-sidebar__link{% if active == 'overview' %} is-active{% endif %}">
+        <i data-lucide="layout-dashboard"></i> Overview
+    </a>
+</div>
+{% if toolRole == 'MANAGER' %}
+    <span class="rj-sidebar__label">Settings</span>
+    <div class="rj-sidebar__section">
+        <a href="/eval/settings/models" class="rj-sidebar__link{% if active == 'models' %} is-active{% endif %}">
+            <i data-lucide="boxes"></i> Models
+        </a>
+        <a href="/eval/settings/criteria" class="rj-sidebar__link{% if active == 'criteria' %} is-active{% endif %}">
+            <i data-lucide="list-checks"></i> Criteria
+        </a>
+    </div>
+{% endif %}
