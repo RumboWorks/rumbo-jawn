@@ -29,6 +29,23 @@ const passport = configurePassport();
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Reliable flash: flash messages live in the session, which the Prisma store
+// persists asynchronously. Without this, a POST that sets a flash and redirects
+// can race the following GET (the store write may not be durable yet), so the
+// banner is missed or stale. Persist the session before any redirect that has a
+// flash pending, so the next request always reads the latest value.
+app.use((req, res, next) => {
+  const originalRedirect = res.redirect.bind(res);
+  res.redirect = (...args) => {
+    if (req.session && (req.session.flash_success || req.session.flash_error)) {
+      req.session.save(() => originalRedirect(...args));
+    } else {
+      originalRedirect(...args);
+    }
+  };
+  next();
+});
+
 // Cosmetic nav list cache. The header tool list is purely presentational — the
 // authoritative access check lives in requireToolAccess, which is never cached.
 // The lookup is non-blocking: a cache miss returns what we have (possibly empty)
