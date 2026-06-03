@@ -16,6 +16,11 @@ import {
   getReviewData, upsertRating, upsertComment, submitReview, listMyOpenReviews,
   getReportData, completeRunAndReport, updateReportText, setReportShare,
 } from './review.service.js';
+import {
+  onReviewersAdded, onRunLaunched, onRunCompleted, completeReviewTask, completeManualTask,
+  cancelRunTasks, sendReviewReminders, listMyTasks, countMyTasks,
+  listMyNotifications, countUnreadNotifications, markNotificationsRead,
+} from './notify.service.js';
 
 const router = Router();
 
@@ -54,9 +59,11 @@ function renderRow(res, view, locals) {
 // ---- Landing / dashboard ----
 
 router.get('/', asyncHandler(async (req, res) => {
-  const [summary, myReviews] = await Promise.all([
+  const [summary, myReviews, notifications, unread] = await Promise.all([
     getDashboardSummary(req.toolOrgId),
     listMyOpenReviews(req.toolOrgId, req.user.id),
+    listMyNotifications(req.toolOrgId, req.user.id, { limit: 8 }),
+    countUnreadNotifications(req.toolOrgId, req.user.id),
   ]);
   res.render('pages/eval/index', {
     tool: 'eval',
@@ -64,8 +71,26 @@ router.get('/', asyncHandler(async (req, res) => {
     toolRole: req.toolRole,
     summary,
     myReviews,
+    notifications,
+    unread,
     flash: takeFlash(req),
   });
+}));
+
+router.get('/tasks', asyncHandler(async (req, res) => {
+  const tasks = await listMyTasks(req.toolOrgId, req.user.id);
+  res.render('pages/eval/tasks', {
+    tool: 'eval',
+    title: 'Your tasks',
+    toolRole: req.toolRole,
+    tasks,
+    flash: takeFlash(req),
+  });
+}));
+
+router.post('/notifications/read', asyncHandler(async (req, res) => {
+  await markNotificationsRead(req.toolOrgId, req.user.id);
+  res.redirect('/eval');
 }));
 
 // ---- Settings: evaluation criteria ----
@@ -320,6 +345,10 @@ router.post('/evals/:publicId/runs', requireManager, asyncHandler(async (req, re
     reviewClosesAt: (req.body.reviewClosesAt ?? '').trim() || null,
     launchedByUserId: req.user.id,
   });
+  // Open a manual-collection task for each manual response.
+  const fullRun = await getRunByPublicId(req.toolOrgId, run.publicId);
+  const manualResponses = fullRun.responses.filter(r => r.modelSnapshot?.isManual);
+  if (manualResponses.length) await onRunLaunched(req.toolOrgId, { ...run, eval: ev }, manualResponses, req.user.id);
   req.session.flash_success = `Run ${run.runNumber} launched. Collect responses below.`;
   res.redirect(`/eval/runs/${run.publicId}`);
 }));
@@ -369,9 +398,11 @@ router.post('/runs/:publicId/status', requireManager, asyncHandler(async (req, r
     } else if (next === 'COMPLETED') {
       if (run.status !== 'IN_REVIEW') throw new Error('Only a run in review can be completed.');
       await completeRunAndReport(req.toolOrgId, run.id, req.user.id);
+      await onRunCompleted(req.toolOrgId, run);
       req.session.flash_success = 'Review closed. Report is ready.';
     } else {
       await setRunStatus(req.toolOrgId, run.id, next);
+      if (next === 'CANCELLED') await cancelRunTasks(req.toolOrgId, run.id);
       req.session.flash_success = 'Run status updated.';
     }
   } catch (err) {
@@ -384,8 +415,17 @@ router.post('/runs/:publicId/reviewers', requireManager, asyncHandler(async (req
   const run = await getRunByPublicId(req.toolOrgId, req.params.publicId);
   if (!run) return res.status(404).render('pages/error', { status: 404, message: 'Run not found.' });
   const userIds = [].concat(req.body.reviewerIds ?? []).filter(Boolean);
-  await setRunReviewers(req.toolOrgId, run.id, userIds, req.user.id);
+  const { added } = await setRunReviewers(req.toolOrgId, run.id, userIds, req.user.id);
+  if (added.length) await onReviewersAdded(req.toolOrgId, run, added);
   req.session.flash_success = 'Reviewers updated.';
+  res.redirect(`/eval/runs/${run.publicId}`);
+}));
+
+router.post('/runs/:publicId/remind', requireManager, asyncHandler(async (req, res) => {
+  const run = await getRunByPublicId(req.toolOrgId, req.params.publicId);
+  if (!run) return res.status(404).render('pages/error', { status: 404, message: 'Run not found.' });
+  const sent = await sendReviewReminders(req.toolOrgId, run);
+  req.session.flash_success = sent ? `Reminder sent to ${sent} reviewer${sent === 1 ? '' : 's'}.` : 'No reminders needed.';
   res.redirect(`/eval/runs/${run.publicId}`);
 }));
 
@@ -451,6 +491,7 @@ router.post('/runs/:publicId/review/submit', asyncHandler(async (req, res) => {
   const assignment = await isAssigned(req.toolOrgId, run.id, req.user.id);
   if (!assignment) return res.status(403).render('pages/error', { status: 403, message: 'Not assigned.' });
   await submitReview(req.toolOrgId, run.id, req.user.id);
+  await completeReviewTask(req.toolOrgId, run.id, req.user.id);
   req.session.flash_success = 'Review submitted. Thank you!';
   res.redirect('/eval');
 }));
@@ -516,6 +557,7 @@ router.post('/responses/:publicId/manual', requireManager, asyncHandler(async (r
     return res.redirect(`/eval/responses/${response.publicId}/manual`);
   }
   await saveManualResponse(req.toolOrgId, response.id, { text, userId: req.user.id });
+  await completeManualTask(req.toolOrgId, response.id);
   req.session.flash_success = 'Response saved.';
   res.redirect(`/eval/runs/${response.evalRun.publicId}`);
 }));

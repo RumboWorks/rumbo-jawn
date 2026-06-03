@@ -180,5 +180,7 @@ Eval routes (require an `eval` tool grant; authoring/settings are manager-only):
 - `/eval/runs/:publicId/review` — tabbed review screen for assigned reviewers (autosave ratings/comments → JSON; submit finalizes)
 - `/eval/runs/:publicId/report` — completed-run report: models×criteria heatmap, editable summary/recommendation, secure share toggle (manager)
 - `/eval/share/:token` — public, read-only shared report (no auth; model names hidden); mounted outside the eval access gate
+- `/eval/tasks` — your open tasks (reviews to complete, responses to collect)
+- Eval overview shows in-app notifications (review assigned/reminder, eval completed, manual-response needed); managers can send review reminders from the run-status page. Emails use the shared SMTP sender and require `EMAIL_SMTP_*` configured (otherwise logged).
 
 Live API collection runs as an `eval.collectResponse` job handled by `apps/worker` via `@rumbo/eval/worker`, calling the model under test through `@rumbo/ai` (cost logged to `AiCall`, org AI spend cap enforced, `eval.response_collection` usage recorded). Requires `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` in the environment.

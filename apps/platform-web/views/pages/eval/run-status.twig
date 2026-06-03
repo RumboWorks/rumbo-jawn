@@ -54,6 +54,9 @@
                 </form>
             {% elseif run.status == 'IN_REVIEW' %}
                 <span class="rj-admin-muted">{{ completedCount }} of {{ assignments|length }} reviewer{{ assignments|length == 1 ? '' : 's' }} submitted.</span>
+                <form method="post" action="/eval/runs/{{ run.publicId }}/remind">
+                    <button class="rj-btn rj-btn--secondary rj-btn--sm" type="submit"><i data-lucide="clock"></i> Send reminders</button>
+                </form>
                 <form method="post" action="/eval/runs/{{ run.publicId }}/status">
                     <input type="hidden" name="status" value="COMPLETED">
                     <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit"><i data-lucide="check-circle-2"></i> Close review &amp; build report</button>

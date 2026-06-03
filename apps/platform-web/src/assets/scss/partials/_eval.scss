@@ -5,6 +5,21 @@
   color: var(--rj-fg-2);
 }
 
+.eval-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.4em;
+  padding: 0 0.4em;
+  border-radius: var(--rj-radius-pill, 999px);
+  background: var(--rj-pine-600, #1e7d4f);
+  color: #fff;
+  font-size: var(--rj-text-xs);
+  font-weight: var(--rj-weight-bold);
+}
+
+.eval-unread { background: var(--rj-pine-50, #f0f8f3); }
+
 // Status pills for runs/responses.
 .eval-status {
   display: inline-block;

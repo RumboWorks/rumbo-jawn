@@ -1,0 +1,37 @@
+{% extends "layouts/app.twig" %}
+
+{% block title %}Your tasks — Rumbo{% endblock %}
+
+{% block sidebar %}
+    {% include "pages/eval/_sidebar.twig" with { active: 'tasks', toolRole: toolRole } %}
+{% endblock %}
+
+{% block content %}
+    {% include "partials/page-header.twig" with { heading: 'Your tasks', subtitle: 'Reviews to complete and responses to collect.' } %}
+
+    {% include "pages/eval/_flash.twig" %}
+
+    {% if tasks is not empty %}
+        <div class="rj-list">
+            {% for t in tasks %}
+                <div class="rj-item">
+                    <div class="rj-item__display">
+                        <div class="rj-item__main">
+                            <div class="rj-item__title">
+                                {% if t.taskType == 'REVIEW_RESPONSES' %}Review responses
+                                {% elseif t.taskType == 'COLLECT_MANUAL_RESPONSE' %}Collect a response{% if t.response %}: {{ t.response.modelSnapshot.displayName }}{% endif %}
+                                {% else %}{{ t.taskType|replace({'_': ' '})|lower }}{% endif %}
+                            </div>
+                            <div class="rj-item__meta">{{ t.evalRun.eval.title }} · run {{ t.evalRun.runNumber }}</div>
+                        </div>
+                        <div class="rj-item__actions">
+                            <a href="{{ t.href }}" class="rj-btn rj-btn--primary rj-btn--sm">Open</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="rj-list"><p class="rj-list__empty">No open tasks. You're all caught up.</p></div>
+    {% endif %}
+{% endblock %}

@@ -4,6 +4,7 @@ export { requireAuth, requireAdmin, requirePlatformAdmin } from './middleware.js
 export { registerLocalUser } from './strategies/local.js';
 export { findUserByEmail, loadUser, ensureOrgMembership } from './user-service.js';
 export * from './account-service.js';
+export { sendEmail, buildAbsoluteUrl } from './email-service.js';
 export { Role, Permission, can } from './permissions.js';
 export { resolveRole, listAccessibleOrganizations } from './org-access-service.js';
 export {

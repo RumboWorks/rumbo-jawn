@@ -80,16 +80,28 @@ Use `.agent/phase-review.agent.md` for closeout.
 
 ### Completion checklist
 
-- [ ] All acceptance criteria pass.
-- [ ] Relevant commands/checks were run.
-- [ ] Manual QA notes are recorded.
-- [ ] New commands are documented in `docs/reference/usage.md`, if commands exist.
-- [ ] New architectural decisions are recorded in `docs/active-planning/decision-log.md`.
-- [ ] Roadmap items are checked off, added, or moved.
-- [ ] Deferred work is listed explicitly in `docs/active-planning/deferred-work.md`.
-- [ ] Working notes created during this phase were promoted, linked, archived, or deleted.
-- [ ] No unplanned files were added directly under `docs/`.
-- [ ] The Eval migration is complete or remaining work is explicitly phased.
+- [x] All acceptance criteria pass.
+- [x] Relevant commands/checks were run.
+- [x] Manual QA notes are recorded.
+- [x] New commands are documented in `docs/reference/usage.md`, if commands exist.
+- [x] New architectural decisions are recorded in `docs/active-planning/decision-log.md`. (No new decisions; reuses Phase 08b email + existing notification model.)
+- [x] Roadmap items are checked off, added, or moved.
+- [x] Deferred work is listed explicitly in `docs/active-planning/deferred-work.md`.
+- [x] Working notes created during this phase were promoted, linked, archived, or deleted. (None.)
+- [x] No unplanned files were added directly under `docs/`.
+- [x] The Eval migration is complete or remaining work is explicitly phased.
+
+### Closeout notes
+
+- Tasks (`EvalTask`) are created from the owning transitions: assigning a reviewer opens a `REVIEW_RESPONSES` task; launching a run opens a `COLLECT_MANUAL_RESPONSE` task per manual response. They auto-complete when the work is done (review submitted / manual response saved) and are cancelled when the run is cancelled. A **tasks inbox** (`/eval/tasks`, in the sidebar) lists each user's open tasks with deep links.
+- Notifications (`EvalNotification`, `notify.service.js`): one in-app row per event drives the dashboard **Notifications** panel (unread badge + mark-all-read); the same events also send a **best-effort email** via the shared Phase 08b sender. Events: review assigned, review reminder, eval completed, manual-response needed. `EvalNotification` references the run by scalar id (no Prisma relation), so run/eval titles are resolved with a follow-up query.
+- Reminders: a manager action on the run-status page (`POST /runs/:publicId/remind`) notifies + emails reviewers with incomplete reviews, rate-limited to once per hour per reviewer.
+- Email is safe in dev: with no SMTP configured, `sendEmail` logs (`[email:…]`) and returns `{ delivered:false }` — no real sends — and failures never break the triggering action.
+- Verification: `npm run build`; `npm run qa` (23/23). Full HTTP end-to-end with a manager + reviewer: launch (manual task opened → completed on manual save), assign (review task + in-app notification + email logged), reviewer saw the task in the inbox and the notification on the dashboard, manager sent reminders (reminder notification + email), reviewer submitted (review task completed), manager completed the run (eval-completed notifications), mark-all-read cleared the unread badge. Test data cleaned up afterward.
+
+### Eval migration complete
+
+Phases 10–14 deliver the platform multi-tool access foundation and the full Eval tool (foundation → authoring/runs/collection → review/report → tasks/notifications). Remaining Eval work is the dedicated **authoring UX pass** (wizard + polish) tracked in `docs/active-planning/deferred-work.md`, plus the smaller deferred items (Google/org-key live collection, draft runs, exports).
 
 ### Valid outcomes
 

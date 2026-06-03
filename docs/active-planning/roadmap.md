@@ -33,12 +33,15 @@ The platform's destination is 5–25 tools with per-user, per-tool access tiers 
 - [x] Phase 11 — Eval tool foundation (scaffold, Eval-domain schema, permission mapping, model catalog + criteria settings)
 - [x] Phase 12 — Eval authoring, runs, and response collection (snapshots, manual + live API)
 - [x] Phase 13 — Eval review workflow and report (assignment, autosave ratings/comments, report matrix, secure share)
-- [ ] Phase 14 — Eval tasks and notifications (tasks inbox, in-app + email, reminders)
+- [x] Phase 14 — Eval tasks and notifications (tasks inbox, in-app + email, reminders)
 
 Eval deferrals: report exports (PDF/PNG/PPTX), partner-account UI, org-manager self-serve per-tool grants, custom roles.
 
 ## Next up
 
-1. Phase 14 — Eval tasks and notifications (tasks inbox, in-app + email, reminders) to complete the Eval migration.
-2. Then the dedicated Eval authoring UX pass (wizard + polish) tracked in deferred-work.
-3. Phase 09 finish-line discipline and launch hardening remains open and can interleave.
+The Eval migration (phases 10–14) is complete. Remaining Eval work and platform items:
+
+1. Dedicated Eval authoring UX pass (multi-step wizard + polish across eval screens) — tracked in deferred-work.
+2. Smaller Eval deferrals: Google/org-key live collection, draft runs, report exports.
+3. Phase 09 finish-line discipline and launch hardening (open; can interleave).
+4. Platform UX-polish pass to retrofit older admin/account/SLU pages to the list-first / inline-edit convention.

@@ -3,6 +3,9 @@
     <a href="/eval" class="rj-sidebar__link{% if active == 'overview' %} is-active{% endif %}">
         <i data-lucide="layout-dashboard"></i> Overview
     </a>
+    <a href="/eval/tasks" class="rj-sidebar__link{% if active == 'tasks' %} is-active{% endif %}">
+        <i data-lucide="check-circle-2"></i> Tasks
+    </a>
     {% if toolRole == 'MANAGER' %}
         <a href="/eval/evals" class="rj-sidebar__link{% if active == 'evals' %} is-active{% endif %}">
             <i data-lucide="clipboard-check"></i> Evaluations

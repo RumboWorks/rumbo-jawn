@@ -44,6 +44,8 @@ export async function setRunReviewers(organizationId, evalRunId, userIds, assign
     })),
     ...toRemove.map(a => db.evalReviewAssignment.delete({ where: { id: a.id } })),
   ]);
+
+  return { added: toAdd, removed: toRemove.map(a => a.userId) };
 }
 
 export async function isAssigned(organizationId, evalRunId, userId) {

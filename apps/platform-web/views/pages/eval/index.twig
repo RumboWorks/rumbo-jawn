@@ -33,6 +33,38 @@
         </div>
     </section>
 
+    {% if notifications is not empty %}
+        <section class="rj-admin-panel">
+            <div class="rj-admin-panel__header">
+                <h2>Notifications{% if unread > 0 %} <span class="eval-badge">{{ unread }}</span>{% endif %}</h2>
+                {% if unread > 0 %}
+                    <form method="post" action="/eval/notifications/read"><button class="rj-btn rj-btn--ghost rj-btn--sm" type="submit">Mark all read</button></form>
+                {% endif %}
+            </div>
+            <div class="rj-list">
+                {% for n in notifications %}
+                    <div class="rj-item{% if not n.readAt %} eval-unread{% endif %}">
+                        <div class="rj-item__display">
+                            <div class="rj-item__main">
+                                <div class="rj-item__title">
+                                    {% if n.notificationType == 'REVIEW_ASSIGNED' %}You were assigned a review
+                                    {% elseif n.notificationType == 'REVIEW_REMINDER' %}Reminder: a review is waiting
+                                    {% elseif n.notificationType == 'EVAL_COMPLETED' %}A review you took part in is complete
+                                    {% elseif n.notificationType == 'MANUAL_RESPONSE_NEEDED' %}A response needs manual collection
+                                    {% else %}{{ n.notificationType|replace({'_': ' '})|lower }}{% endif %}
+                                </div>
+                                <div class="rj-item__meta">{% if n.evalRun %}{{ n.evalRun.eval.title }} · run {{ n.evalRun.runNumber }} · {% endif %}{{ n.createdAt|date("M j, g:ia") }}</div>
+                            </div>
+                            {% if n.evalRun %}
+                                <div class="rj-item__actions"><a href="/eval/runs/{{ n.evalRun.publicId }}/review" class="rj-btn rj-btn--ghost rj-btn--sm">View</a></div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+
     {% if myReviews is not empty %}
         <section class="rj-admin-panel">
             <div class="rj-admin-panel__header"><h2>Your reviews</h2></div>
