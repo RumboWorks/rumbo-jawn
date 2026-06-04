@@ -16,7 +16,10 @@
     "pm2:restart": "pm2 restart ecosystem.config.cjs",
     "pm2:logs": "pm2 logs",
     "qa": "npx playwright test",
-    "qa:headed": "npx playwright test --headed"
+    "qa:headed": "npx playwright test --headed",
+    "seed:eval": "node scripts/seed-eval.js",
+    "seed:eval:clear": "node scripts/clear-eval.js",
+    "seed:eval:reload": "node scripts/clear-eval.js && node scripts/seed-eval.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.60.0"

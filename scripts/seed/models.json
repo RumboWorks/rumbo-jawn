@@ -1,0 +1,37 @@
+[
+  {
+    "key":              "model-gpt4o",
+    "organizationKey":  "org-acme-nonprofit",
+    "providerKey":      "provider-openai",
+    "providerModelKey": "provider-model-gpt4o",
+    "displayName":      "GPT-5.5",
+    "accessMethod":     "PLATFORM_API_PENDING",
+    "createdByUserKey": "user-org-manager"
+  },
+  {
+    "key":              "model-claude35",
+    "organizationKey":  "org-acme-nonprofit",
+    "providerKey":      "provider-anthropic",
+    "providerModelKey": "provider-model-claude35",
+    "displayName":      "Claude Sonnet 4.6",
+    "accessMethod":     "PLATFORM_API_PENDING",
+    "createdByUserKey": "user-org-manager"
+  },
+  {
+    "key":              "model-gemini15",
+    "organizationKey":  "org-acme-nonprofit",
+    "providerKey":      "provider-google",
+    "providerModelKey": "provider-model-gemini15",
+    "displayName":      "Gemini 3.5 Flash",
+    "accessMethod":     "PLATFORM_API_PENDING",
+    "createdByUserKey": "user-org-manager"
+  },
+  {
+    "key":              "model-internal-tool",
+    "organizationKey":  "org-acme-nonprofit",
+    "displayName":      "Internal Writing Tool v2",
+    "notes":            "In-house AI writing assistant for nonprofit communications. Access via the staff portal — paste the prompt, copy the response.",
+    "accessMethod":     "MANUAL",
+    "createdByUserKey": "user-org-manager"
+  }
+]

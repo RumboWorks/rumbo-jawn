@@ -1,0 +1,45 @@
+[
+  {
+    "key": "user-platform-admin",
+    "email": "admin@example.test",
+    "name": "Alex Rivera",
+    "passwordPlaintext": "DevPassword1!",
+    "isPlatformAdmin": true
+  },
+  {
+    "key": "user-partner-manager",
+    "email": "jordan@example.test",
+    "name": "Jordan Chen",
+    "passwordPlaintext": "DevPassword1!"
+  },
+  {
+    "key": "user-org-manager",
+    "email": "morgan@example.test",
+    "name": "Morgan Taylor",
+    "passwordPlaintext": "DevPassword1!"
+  },
+  {
+    "key": "user-reviewer-1",
+    "email": "sam@example.test",
+    "name": "Sam Okafor",
+    "passwordPlaintext": "DevPassword1!"
+  },
+  {
+    "key": "user-reviewer-2",
+    "email": "casey@example.test",
+    "name": "Casey Flores",
+    "passwordPlaintext": "DevPassword1!"
+  },
+  {
+    "key": "user-reviewer-3",
+    "email": "quinn@example.test",
+    "name": "Quinn Park",
+    "passwordPlaintext": "DevPassword1!"
+  },
+  {
+    "key": "user-solo",
+    "email": "drew@example.test",
+    "name": "Drew Nakamura",
+    "passwordPlaintext": "DevPassword1!"
+  }
+]

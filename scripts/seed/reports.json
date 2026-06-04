@@ -1,0 +1,32 @@
+[
+  {
+    "evalRunKey":          "run-spring-fundraising-1",
+    "createdByUserKey":    "user-org-manager",
+    "summaryText":         "Claude Sonnet 4.6 produced the strongest fundraising email across all criteria, earning top scores for tone, brand fit, and call to action. GPT-5.5 delivered a competitive second-place result with a compelling narrative structure. The Internal Writing Tool v2 produced usable copy but the bullet-point format was noted as inappropriate for donor communications. Gemini 3.5 Flash's response was rated the weakest — reviewers consistently cited generic voice and lack of storytelling.",
+    "recommendationText":  "Recommend Claude Sonnet 4.6 as the primary tool for donor email drafting. GPT-5.5 is a strong alternative when a more structured narrative is needed. The Internal Writing Tool should not be used for fundraising emails in its current configuration. Consider excluding Gemini 3.5 Flash from future fundraising email evaluations unless the prompt is significantly refined."
+  },
+  {
+    "evalRunKey":          "run-spring-fundraising-2",
+    "createdByUserKey":    "user-org-manager",
+    "summaryText":         "The updated prompt — leading with an impact number and requesting a P.S. — improved results across all models. Claude Sonnet 4.6 remained the top performer. Notably, GPT-5.5 improved significantly and is now competitive with Claude for this content type. The Internal Writing Tool also improved and produced its strongest result to date. Gemini 3.5 Flash's voice remains a concern despite the stronger prompt.",
+    "recommendationText":  "The updated prompt structure is an improvement — recommend using it going forward. Claude Sonnet 4.6 and GPT-5.5 are both strong options for spring fundraising. The Internal Writing Tool is viable as a backup but needs voice coaching for donor content. Gemini 3.5 Flash continues to underperform on emotional appeal despite good factual accuracy."
+  },
+  {
+    "evalRunKey":          "run-spring-fundraising-3",
+    "createdByUserKey":    "user-org-manager",
+    "summaryText":         "Run 3 showed clear improvement from the more specific learner-moment prompt. GPT-5.5 and Claude Sonnet 4.6 both produced publishable drafts with strong concrete openings and clear $50 asks. The Internal Writing Tool became more usable when given explicit donor-centered constraints. Gemini 3.5 Flash improved in accuracy and structure but continued to read as informational rather than emotionally compelling.",
+    "recommendationText":  "Continue refining around concrete daily-life learner moments. Keep Claude Sonnet 4.6 and GPT-5.5 as primary candidates. Maintain the Internal Writing Tool as a backup for simple drafts, but continue prompting it away from generic nonprofit phrasing. Gemini should remain a baseline rather than a recommended production model for this campaign."
+  },
+  {
+    "evalRunKey":          "run-spring-fundraising-4",
+    "createdByUserKey":    "user-org-manager",
+    "summaryText":         "Run 4 produced the strongest overall set of drafts so far. The added instruction to use plain language and avoid abstractions improved all models, especially the Internal Writing Tool. Claude Sonnet 4.6 delivered the cleanest and most brand-aligned email, while GPT-5.5 remained highly competitive with a strong opening example and clear call to action. Gemini 3.5 Flash stayed accurate but comparatively flat.",
+    "recommendationText":  "Use the Run 4 prompt structure as the preferred fundraising prompt. Claude Sonnet 4.6 is still the best single recommendation, with GPT-5.5 close behind. The Internal Writing Tool is now acceptable for backup drafts with human editing. Do not rely on Gemini 3.5 Flash for donor-facing emotional copy."
+  },
+  {
+    "evalRunKey":          "run-spring-fundraising-5",
+    "createdByUserKey":    "user-org-manager",
+    "summaryText":         "Run 5 confirmed the previous trend: Claude Sonnet 4.6 and GPT-5.5 consistently produce strong, usable fundraising emails when the prompt requires a learner-centered opening, a concise length, and a practical $50 ask. Claude had the slight edge for brand voice and emotional specificity, while GPT-5.5 produced a polished draft with excellent clarity. The Internal Writing Tool remained usable but plain. Gemini 3.5 Flash continued to underperform on warmth and specificity.",
+    "recommendationText":  "Recommend selecting Claude Sonnet 4.6 as the primary model for the spring fundraising campaign and GPT-5.5 as the alternate. Preserve the Run 5 prompt as the production-ready prompt template. Keep the Internal Writing Tool only for low-stakes backup drafting, and exclude Gemini 3.5 Flash from future fundraising email rounds unless prompt experiments specifically target voice improvement."
+  }
+]

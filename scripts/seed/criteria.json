@@ -1,0 +1,50 @@
+[
+  {
+    "key":              "criterion-tone-alignment",
+    "organizationKey":  "org-acme-nonprofit",
+    "title":            "Tone Alignment",
+    "description":      "Does the response match our voice — warm, mission-driven, and authentic? Score 1 if it sounds corporate or cold; score 5 if it sounds like us.",
+    "displayOrder":     1,
+    "createdByUserKey": "user-org-manager"
+  },
+  {
+    "key":              "criterion-clarity",
+    "organizationKey":  "org-acme-nonprofit",
+    "title":            "Clarity",
+    "description":      "Is the message clear and easy to understand for our intended audience? Score 1 if confusing or jargon-heavy; score 5 if effortlessly readable.",
+    "displayOrder":     2,
+    "createdByUserKey": "user-org-manager"
+  },
+  {
+    "key":              "criterion-usefulness",
+    "organizationKey":  "org-acme-nonprofit",
+    "title":            "Usefulness",
+    "description":      "Would we actually use this, with minimal edits? Score 1 if it needs a full rewrite; score 5 if it's nearly ready to publish.",
+    "displayOrder":     3,
+    "createdByUserKey": "user-org-manager"
+  },
+  {
+    "key":              "criterion-brand-fit",
+    "organizationKey":  "org-acme-nonprofit",
+    "title":            "Brand Fit",
+    "description":      "Does it reflect who we are and what we stand for? Score 1 if it feels generic or off-brand; score 5 if it feels unmistakably like Acme Nonprofit.",
+    "displayOrder":     4,
+    "createdByUserKey": "user-org-manager"
+  },
+  {
+    "key":              "criterion-cta",
+    "organizationKey":  "org-acme-nonprofit",
+    "title":            "Call to Action",
+    "description":      "Is the call to action specific, compelling, and easy to act on? Score 1 if buried or weak; score 5 if clear, urgent, and motivating.",
+    "displayOrder":     5,
+    "createdByUserKey": "user-org-manager"
+  },
+  {
+    "key":              "criterion-risk",
+    "organizationKey":  "org-acme-nonprofit",
+    "title":            "Risk / Appropriateness",
+    "description":      "Any statements that could be misleading, harmful, or create reputational risk? Score 1 if there are serious concerns; score 5 if completely safe.",
+    "displayOrder":     6,
+    "createdByUserKey": "user-org-manager"
+  }
+]

@@ -1,0 +1,272 @@
+[
+  {
+    "evalRunKey":  "run-spring-fundraising-1",
+    "reviewerKey": "user-reviewer-1",
+    "responseKey": "response-sf1-claude35",
+    "commentText": "This one really sounds like us. The Robert story is perfect — specific, emotional, and not overwrought. The P.S. about 94% going to programs is a great trust signal. This is the closest to ready-to-publish."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-1",
+    "reviewerKey": "user-reviewer-1",
+    "responseKey": "response-sf1-gemini15",
+    "commentText": "Feels generic and corporate. 'We hope this message finds you well' is a red flag. No story, no personality. I don't think our donors would feel moved by this."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-1",
+    "reviewerKey": "user-reviewer-2",
+    "responseKey": "response-sf1-gpt4o",
+    "commentText": "Good effort — the Maria story works well. The ask is clear. Loses some warmth in the middle paragraph. The closing feels slightly rushed but it's usable with light edits."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-1",
+    "reviewerKey": "user-reviewer-2",
+    "responseKey": "response-sf1-internal",
+    "commentText": "The bullet list format doesn't feel right for a fundraising email — too transactional. The tone is okay but the structure makes it feel like a product page, not a donor letter."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-1",
+    "reviewerKey": "user-reviewer-3",
+    "responseKey": "response-sf1-claude35",
+    "commentText": "Best of the four by far. The quote opening is exactly how we'd write this ourselves. I'd use this with minimal changes."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-1",
+    "reviewerKey": "user-reviewer-3",
+    "responseKey": null,
+    "commentText": "Overall: Claude is clearly the strongest. GPT-5.5 is a solid second. Internal tool needs to stop using bullet lists in donor emails. Gemini needs more personality."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-1",
+    "reviewerKey": "user-reviewer-3",
+    "responseKey": "response-sf1-gpt4o",
+    "commentText": "The Maria story is relatable but the ask feels buried. Would move the CTA earlier. Solid writing — second best of this batch."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-1",
+    "reviewerKey": "user-reviewer-2",
+    "responseKey": "response-sf1-gemini15",
+    "commentText": "Concise, but in a clinical way. Hits the required info without any warmth. If I were a donor I wouldn't feel invited into the mission here."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-1",
+    "reviewerKey": "user-reviewer-1",
+    "responseKey": "response-sf1-internal",
+    "commentText": "The opening line is fine but it falls apart in the middle. Too many facts stacked without a narrative spine. Would need a significant rewrite before sending."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-2",
+    "reviewerKey": "user-reviewer-1",
+    "responseKey": "response-sf2-gpt4o",
+    "commentText": "Big improvement over Run 1. The impact number lede is compelling. The P.S. reinforces the impact well. This is now competitive with Claude."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-2",
+    "reviewerKey": "user-reviewer-1",
+    "responseKey": "response-sf2-claude35",
+    "commentText": "Still the best. The waiting list framing is urgent without being guilt-inducing. Exactly the right tone."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-2",
+    "reviewerKey": "user-reviewer-2",
+    "responseKey": "response-sf2-gemini15",
+    "commentText": "Still feels like a form letter. Even with the impact number, the voice is flat. Not sure Gemini is the right fit for this type of content."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-2",
+    "reviewerKey": "user-reviewer-2",
+    "responseKey": "response-sf2-gpt4o",
+    "commentText": "The revision shows. Impact number up front is a smart change, and the children's section story works well. I'd edit the last paragraph but the bones are good."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-2",
+    "reviewerKey": "user-reviewer-2",
+    "responseKey": "response-sf2-claude35",
+    "commentText": "Consistently strong. The waiting list angle creates urgency without being alarmist. Feels genuine and donor-first."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-2",
+    "reviewerKey": "user-reviewer-1",
+    "responseKey": "response-sf2-gemini15",
+    "commentText": "Still missing a human story. Reads like an annual report excerpt. Even adding one specific person or moment would help considerably."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-2",
+    "reviewerKey": "user-reviewer-1",
+    "responseKey": "response-sf2-internal",
+    "commentText": "Better than run 1 but still too structured for donor email. The bullet points might work internally but not for a fundraising appeal."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-2",
+    "reviewerKey": "user-reviewer-2",
+    "responseKey": "response-sf2-internal",
+    "commentText": "Passable first draft. Formatting is a little stiff but the core message is there. Can see the tool improving with better prompting."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-3",
+    "reviewerKey": "user-reviewer-1",
+    "responseKey": "response-sf3-gpt4o",
+    "commentText": "This is a strong step forward. The Denise example is concrete, the ask is clean, and the donor feels connected without being pressured. Very usable."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-3",
+    "reviewerKey": "user-reviewer-2",
+    "responseKey": "response-sf3-claude35",
+    "commentText": "Best of the run again. The library card detail feels specific and true to Acme. It is concise, warm, and clear about what $50 funds."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-3",
+    "reviewerKey": "user-reviewer-3",
+    "responseKey": "response-sf3-gemini15",
+    "commentText": "Improved from Run 2, but still more informational than moving. It technically follows the prompt but the voice does not feel donor-centered enough."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-3",
+    "reviewerKey": "user-reviewer-3",
+    "responseKey": null,
+    "commentText": "Overall: GPT-5.5 and Claude are now both publishable with light edits. Internal is serviceable. Gemini is safer but still too flat for fundraising."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-3",
+    "reviewerKey": "user-reviewer-2",
+    "responseKey": "response-sf3-gpt4o",
+    "commentText": "Strong improvement. The Denise example grounds the email in something real and the handoff to the ask feels natural rather than forced."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-3",
+    "reviewerKey": "user-reviewer-3",
+    "responseKey": "response-sf3-claude35",
+    "commentText": "The library card framing is clever — specific without being sentimental. This earns a 'ready to send' with almost no edits."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-3",
+    "reviewerKey": "user-reviewer-1",
+    "responseKey": "response-sf3-gemini15",
+    "commentText": "Getting more polished but still cautious. Each sentence is technically fine; there's just no voice stitching them together. Feels assembled rather than written."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-3",
+    "reviewerKey": "user-reviewer-1",
+    "responseKey": "response-sf3-internal",
+    "commentText": "Better than before — no bullet lists this time, which is progress. The middle paragraph is flat but the tone is closer to where we need it."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-3",
+    "reviewerKey": "user-reviewer-2",
+    "responseKey": "response-sf3-internal",
+    "commentText": "Structure finally feels like an actual letter. Needs a stronger opener but I could work with this."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-4",
+    "reviewerKey": "user-reviewer-1",
+    "responseKey": "response-sf4-gpt4o",
+    "commentText": "Excellent opening. The medication instruction example is exactly the kind of daily-life detail we wanted. The P.S. is a little poetic but still on brand."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-4",
+    "reviewerKey": "user-reviewer-2",
+    "responseKey": "response-sf4-claude35",
+    "commentText": "This is probably the cleanest version so far. Plain language, specific example, no guilt. I would use this as the base draft."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-4",
+    "reviewerKey": "user-reviewer-2",
+    "responseKey": "response-sf4-internal",
+    "commentText": "The internal tool has improved a lot now that the prompt discourages abstractions. Still slightly plain, but the structure finally feels like an email rather than notes."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-4",
+    "reviewerKey": "user-reviewer-2",
+    "responseKey": "response-sf4-gpt4o",
+    "commentText": "Very strong. The medication instruction detail is exactly the right kind of specific. Neck and neck with Claude this round."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-4",
+    "reviewerKey": "user-reviewer-1",
+    "responseKey": "response-sf4-claude35",
+    "commentText": "Clean and direct. The specific example lands well and the donor never feels guilted. A few minor word choice tweaks and this is ready to go."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-4",
+    "reviewerKey": "user-reviewer-1",
+    "responseKey": "response-sf4-gemini15",
+    "commentText": "Noticeably better voice this round. Still more informational than emotionally resonant, but I'd call it acceptable for a conservative send."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-4",
+    "reviewerKey": "user-reviewer-2",
+    "responseKey": "response-sf4-gemini15",
+    "commentText": "Language is cleaner than previous runs. Not as warm as GPT-5.5 or Claude but could work for donors who prefer a more professional tone."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-4",
+    "reviewerKey": "user-reviewer-1",
+    "responseKey": "response-sf4-internal",
+    "commentText": "The internal tool has turned a corner. It's not going to win any awards but it no longer feels like it was generated by a spreadsheet."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-5",
+    "reviewerKey": "user-reviewer-1",
+    "responseKey": "response-sf5-claude35",
+    "commentText": "Strongest final candidate. Rosa's detail is vivid without feeling invented for drama, and the donor partnership language lands well."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-5",
+    "reviewerKey": "user-reviewer-2",
+    "responseKey": "response-sf5-gpt4o",
+    "commentText": "Very close to Claude. The work schedule example is practical and the ask is direct. I might trim one sentence, but otherwise this is ready."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-5",
+    "reviewerKey": "user-reviewer-3",
+    "responseKey": "response-sf5-gemini15",
+    "commentText": "Still sounds like a template. Accurate and low risk, but it does not carry enough emotional specificity for donor email copy."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-5",
+    "reviewerKey": "user-reviewer-3",
+    "responseKey": null,
+    "commentText": "Overall: by Run 5, Claude and GPT-5.5 are effectively tied for usable first drafts. Recommend retiring Gemini from this eval unless we need a conservative baseline."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-5",
+    "reviewerKey": "user-reviewer-2",
+    "responseKey": "response-sf5-claude35",
+    "commentText": "Rosa's story works. Clear purpose, emotionally honest without manipulation, and the partnership language doesn't feel like a cliché this time. My top pick this run."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-5",
+    "reviewerKey": "user-reviewer-3",
+    "responseKey": "response-sf5-gpt4o",
+    "commentText": "Excellent. The work schedule framing gives donors something concrete to imagine, which is exactly right. Would use this almost verbatim."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-5",
+    "reviewerKey": "user-reviewer-1",
+    "responseKey": "response-sf5-gemini15",
+    "commentText": "Solid structure, no obvious errors, but it still reads like it was produced by committee. The individual voice just isn't there."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-5",
+    "reviewerKey": "user-reviewer-1",
+    "responseKey": "response-sf5-internal",
+    "commentText": "Major improvement. The story is simpler than Claude and GPT-5.5 but it's coherent and honest. Would send this if the others weren't available."
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-5",
+    "reviewerKey": "user-reviewer-2",
+    "responseKey": "response-sf5-internal",
+    "commentText": "Came a long way from run 1. The voice is warmer and the ask is clean. Still third behind Claude and GPT-5.5, but genuinely usable now."
+  },
+  {
+    "evalRunKey":  "run-social-media-1",
+    "reviewerKey": "user-reviewer-1",
+    "responseKey": "response-sm1-claude35",
+    "commentText": "The library magic line is a standout. 'You never know who in your network has been quietly waiting for this' — that's share-worthy copy. Would use the Facebook and Instagram versions almost as-is."
+  },
+  {
+    "evalRunKey":  "run-social-media-1",
+    "reviewerKey": "user-reviewer-1",
+    "responseKey": "response-sm1-gemini15",
+    "commentText": "Too listy and announcement-style. The bullet point format works for some content but social media needs more personality than this."
+  }
+]

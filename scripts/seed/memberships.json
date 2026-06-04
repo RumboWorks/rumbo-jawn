@@ -1,0 +1,20 @@
+{
+  "organizationMemberships": [
+    { "userKey": "user-org-manager",     "organizationKey": "org-acme-nonprofit",       "role": "MANAGER" },
+    { "userKey": "user-reviewer-1",      "organizationKey": "org-acme-nonprofit",       "role": "MEMBER"  },
+    { "userKey": "user-reviewer-2",      "organizationKey": "org-acme-nonprofit",       "role": "MEMBER"  },
+    { "userKey": "user-reviewer-3",      "organizationKey": "org-acme-nonprofit",       "role": "MEMBER"  },
+    { "userKey": "user-partner-manager", "organizationKey": "org-brightside-consulting", "role": "MANAGER" },
+    { "userKey": "user-solo",            "organizationKey": "org-solo-workspace",        "role": "MANAGER" }
+  ],
+  "partnerMemberships": [
+    { "userKey": "user-partner-manager", "partnerKey": "partner-brightside", "role": "MANAGER" }
+  ],
+  "partnerOrgAccesses": [
+    {
+      "partnerKey":       "partner-brightside",
+      "organizationKey":  "org-acme-nonprofit",
+      "createdByUserKey": "user-platform-admin"
+    }
+  ]
+}

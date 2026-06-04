@@ -1,0 +1,181 @@
+[
+  {
+    "key":                "run-spring-fundraising-1",
+    "evalKey":            "eval-spring-fundraising",
+    "organizationKey":    "org-acme-nonprofit",
+    "runNumber":          1,
+    "status":             "COMPLETED",
+    "launchedByUserKey":  "user-org-manager",
+    "completedByUserKey": "user-org-manager",
+    "reviewClosesAt":     "2026-03-10T23:59:59.000Z",
+    "completedAt":        "2026-03-15T14:23:00.000Z",
+    "createdAt":          "2026-02-28T10:00:00.000Z",
+    "promptText": "Write a spring fundraising email for Acme Nonprofit, a community organization providing adult literacy programs in urban neighborhoods.\n\nRequirements:\n- Length: 250–350 words\n- Open with a story or specific detail that connects to our mission\n- The theme is spring as a season of growth and renewal\n- Include a clear ask: $50 donation\n- Audience: existing donors who have given in the past 2 years\n- Tone: warm, personal, hopeful — not corporate or transactional\n- Close with gratitude and mission reinforcement\n- Include a clear donation button/link placeholder",
+    "criterionKeys": [
+      "criterion-tone-alignment",
+      "criterion-clarity",
+      "criterion-usefulness",
+      "criterion-brand-fit",
+      "criterion-cta",
+      "criterion-risk"
+    ],
+    "modelKeys": [
+      "model-gpt4o",
+      "model-claude35",
+      "model-gemini15",
+      "model-internal-tool"
+    ]
+  },
+  {
+    "key":                "run-spring-fundraising-2",
+    "evalKey":            "eval-spring-fundraising",
+    "organizationKey":    "org-acme-nonprofit",
+    "runNumber":          2,
+    "status":             "COMPLETED",
+    "launchedByUserKey":  "user-org-manager",
+    "completedByUserKey": "user-org-manager",
+    "reviewClosesAt":     "2026-04-22T23:59:59.000Z",
+    "completedAt":        "2026-04-27T10:15:00.000Z",
+    "createdAt":          "2026-04-14T09:30:00.000Z",
+    "promptText": "Write a spring fundraising email for Acme Nonprofit, a community organization providing adult literacy programs in urban neighborhoods.\n\nUpdated requirements from Run 1 feedback:\n- Length: 200–280 words (shorter than before)\n- Lead with a concrete impact number (e.g., \"Last year, 217 adults...\")\n- The theme is spring as a season of growth and renewal\n- Include a clear ask: $50 donation, with context of what it funds\n- Audience: existing donors who have given in the past 2 years\n- Tone: warm, personal, confident — lead with impact, not need\n- Add a P.S. with a secondary reinforcement\n- Include a clear donation button/link placeholder",
+    "criterionKeys": [
+      "criterion-tone-alignment",
+      "criterion-clarity",
+      "criterion-usefulness",
+      "criterion-brand-fit",
+      "criterion-cta",
+      "criterion-risk"
+    ],
+    "modelKeys": [
+      "model-gpt4o",
+      "model-claude35",
+      "model-gemini15",
+      "model-internal-tool"
+    ]
+  },
+  {
+    "key":                "run-spring-fundraising-3",
+    "evalKey":            "eval-spring-fundraising",
+    "organizationKey":    "org-acme-nonprofit",
+    "runNumber":          3,
+    "status":             "COMPLETED",
+    "launchedByUserKey":  "user-org-manager",
+    "completedByUserKey": "user-org-manager",
+    "reviewClosesAt":     "2026-05-20T23:59:59.000Z",
+    "completedAt":        "2026-05-24T15:40:00.000Z",
+    "createdAt":          "2026-05-12T09:15:00.000Z",
+    "promptText": "Write a spring fundraising email for Acme Nonprofit, a community organization providing adult literacy programs in urban neighborhoods.\n\nUpdated requirements from Run 2 feedback:\n- Length: 200-260 words\n- Lead with a concrete learner moment and include the impact number: 217 adults served last year\n- Explain that a $50 donation funds one month of coaching and materials\n- Audience: existing donors who have given in the past 2 years\n- Tone: warm, personal, confident, and donor-centered\n- Avoid generic nonprofit language and avoid sounding urgent in a guilt-driven way\n- Add one short P.S. reinforcing the donor's role\n- Include a clear donation button/link placeholder",
+    "criterionKeys": [
+      "criterion-tone-alignment",
+      "criterion-clarity",
+      "criterion-usefulness",
+      "criterion-brand-fit",
+      "criterion-cta",
+      "criterion-risk"
+    ],
+    "modelKeys": [
+      "model-gpt4o",
+      "model-claude35",
+      "model-gemini15",
+      "model-internal-tool"
+    ]
+  },
+  {
+    "key":                "run-spring-fundraising-4",
+    "evalKey":            "eval-spring-fundraising",
+    "organizationKey":    "org-acme-nonprofit",
+    "runNumber":          4,
+    "status":             "COMPLETED",
+    "launchedByUserKey":  "user-org-manager",
+    "completedByUserKey": "user-org-manager",
+    "reviewClosesAt":     "2026-06-17T23:59:59.000Z",
+    "completedAt":        "2026-06-21T12:10:00.000Z",
+    "createdAt":          "2026-06-09T09:20:00.000Z",
+    "promptText": "Write a spring fundraising email for Acme Nonprofit, a community organization providing adult literacy programs in urban neighborhoods.\n\nUpdated requirements from Run 3 feedback:\n- Length: 180-240 words\n- Open with one vivid sentence about an adult learner using literacy in daily life\n- Include the impact number: 217 adults served last year\n- Include a clear ask: $50 donation funds one month of coaching and materials\n- Audience: existing donors who have given in the past 2 years\n- Tone: warm, direct, hopeful, and mission-specific\n- Use plain language; avoid abstractions like empowerment, transformation, and community impact unless grounded in a concrete example\n- Include a donation button/link placeholder and a concise P.S.",
+    "criterionKeys": [
+      "criterion-tone-alignment",
+      "criterion-clarity",
+      "criterion-usefulness",
+      "criterion-brand-fit",
+      "criterion-cta",
+      "criterion-risk"
+    ],
+    "modelKeys": [
+      "model-gpt4o",
+      "model-claude35",
+      "model-gemini15",
+      "model-internal-tool"
+    ]
+  },
+  {
+    "key":                "run-spring-fundraising-5",
+    "evalKey":            "eval-spring-fundraising",
+    "organizationKey":    "org-acme-nonprofit",
+    "runNumber":          5,
+    "status":             "COMPLETED",
+    "launchedByUserKey":  "user-org-manager",
+    "completedByUserKey": "user-org-manager",
+    "reviewClosesAt":     "2026-07-15T23:59:59.000Z",
+    "completedAt":        "2026-07-19T16:05:00.000Z",
+    "createdAt":          "2026-07-07T09:10:00.000Z",
+    "promptText": "Write a spring fundraising email for Acme Nonprofit, a community organization providing adult literacy programs in urban neighborhoods.\n\nUpdated requirements from Run 4 feedback:\n- Length: 175-225 words\n- Start with a learner-centered detail in the first sentence\n- Include the impact number: 217 adults served last year\n- Include a clear $50 ask and explain it funds one month of coaching and materials\n- Audience: existing donors who have given in the past 2 years\n- Tone: warm, concise, confident, and unmistakably Acme\n- Make the donor feel like a continuing partner, not a first-time prospect\n- Include a donation button/link placeholder and one short P.S.",
+    "criterionKeys": [
+      "criterion-tone-alignment",
+      "criterion-clarity",
+      "criterion-usefulness",
+      "criterion-brand-fit",
+      "criterion-cta",
+      "criterion-risk"
+    ],
+    "modelKeys": [
+      "model-gpt4o",
+      "model-claude35",
+      "model-gemini15",
+      "model-internal-tool"
+    ]
+  },
+  {
+    "key":               "run-social-media-1",
+    "evalKey":           "eval-social-media",
+    "organizationKey":   "org-acme-nonprofit",
+    "runNumber":         1,
+    "status":            "IN_REVIEW",
+    "launchedByUserKey": "user-org-manager",
+    "reviewClosesAt":    "2026-05-25T23:59:59.000Z",
+    "createdAt":         "2026-04-29T09:00:00.000Z",
+    "promptText": "Write social media posts announcing the launch of our new Community Learning Circles program — free, small-group literacy sessions held at local libraries.\n\nInclude:\n1. Facebook/LinkedIn post (150–200 words, professional yet warm)\n2. Instagram caption (100–130 words, energetic and visual)\n3. X/Twitter post (under 280 characters)\n\nHighlight:\n- Free and open to all adults\n- Held at community libraries\n- Led by trained volunteer coaches\n- Starting June 2026\n\nUse relevant hashtags. Tone: enthusiastic and welcoming. Organization: Acme Nonprofit.",
+    "criterionKeys": [
+      "criterion-tone-alignment",
+      "criterion-clarity",
+      "criterion-brand-fit",
+      "criterion-cta"
+    ],
+    "modelKeys": [
+      "model-gpt4o",
+      "model-claude35",
+      "model-gemini15",
+      "model-internal-tool"
+    ]
+  },
+  {
+    "key":               "run-job-description-1",
+    "evalKey":           "eval-job-description",
+    "organizationKey":   "org-acme-nonprofit",
+    "runNumber":         1,
+    "status":            "COLLECTING_RESPONSES",
+    "launchedByUserKey": "user-org-manager",
+    "createdAt":         "2026-05-12T10:00:00.000Z",
+    "promptText": "Rewrite the following job description to be more inclusive, engaging, and focused on impact. Remove unnecessarily restrictive requirements. Add inclusive language. Focus on what someone will accomplish, not just what credentials they must have.\n\nOriginal job description:\n\nPosition: Program Coordinator\nOrganization: Acme Nonprofit\n\nRequirements:\n- Bachelor's degree required\n- 3+ years nonprofit experience\n- Strong Microsoft Office skills\n- Must be able to work independently\n- Background check required\n\nResponsibilities:\n- Coordinate program activities\n- Maintain participant records\n- Communicate with volunteers\n- Support program manager\n- Other duties as assigned\n\nSalary: Competitive. Benefits included.",
+    "criterionKeys": [
+      "criterion-clarity",
+      "criterion-usefulness",
+      "criterion-brand-fit"
+    ],
+    "modelKeys": [
+      "model-gpt4o",
+      "model-claude35",
+      "model-gemini15",
+      "model-internal-tool"
+    ]
+  }
+]

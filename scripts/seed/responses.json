@@ -1,0 +1,226 @@
+[
+  {
+    "key":            "response-sf1-gpt4o",
+    "evalRunKey":     "run-spring-fundraising-1",
+    "modelKey":       "model-gpt4o",
+    "responseSource": "SEED_DATA",
+    "submittedAt":    "2026-03-01T08:14:00.000Z",
+    "responseText": "Subject: Spring is Here — And So is Our Chance to Grow Together\n\nDear [First Name],\n\nWhen Maria walked into our downtown learning center last March, she hadn't read a full sentence aloud in fifteen years. By June, she was reading bedtime stories to her grandchildren.\n\nSpring is a season of renewal — and for Acme Nonprofit, it's a reminder of why we do this work. Every day, adults in our community take the courageous step of returning to learning. But they can't do it without you.\n\nThis spring, would you consider a gift of $50 to help a neighbor like Maria find their voice?\n\nYour support funds small-group sessions, trained volunteer coaches, and the materials our participants need to succeed. A $50 gift provides one month of resources for a learner like Maria.\n\nTogether, we're not just teaching reading. We're restoring confidence, opening doors, and strengthening families — one word at a time.\n\nWill you join us this spring?\n\n[Donate $50 Today]\n\nWith gratitude,\nThe Acme Nonprofit Team"
+  },
+  {
+    "key":            "response-sf1-claude35",
+    "evalRunKey":     "run-spring-fundraising-1",
+    "modelKey":       "model-claude35",
+    "responseSource": "SEED_DATA",
+    "submittedAt":    "2026-03-01T08:15:00.000Z",
+    "responseText": "Subject: The Words That Changed Everything\n\nDear [First Name],\n\n\"I never thought I'd be able to read the mail myself.\"\n\nThat's what Robert told us last month, after completing his third session at Acme Nonprofit. At 62, he'd spent decades asking neighbors for help with paperwork, menus, and his children's schoolwork. Not anymore.\n\nSpring is the season when seeds take root — and at Acme Nonprofit, we're watching people like Robert bloom in ways that humble us every single day.\n\nBut seeds need care. And that's where you come in.\n\nThis spring, a gift of just $50 provides one adult learner with a full month of personalized coaching, learning materials, and a space to grow without judgment.\n\nLast year, more than 200 adults in our community made their first confident steps toward literacy with your support. This year, 40 more are on the waiting list.\n\nWill you help us welcome them?\n\n[Make a Gift of $50 Today]\n\nThank you for believing — as we do — that it's never too late to learn.\n\nWith deep appreciation,\nThe Acme Nonprofit Team\n\nP.S. 94% of your donation goes directly to programs. Your $50 really does matter."
+  },
+  {
+    "key":            "response-sf1-gemini15",
+    "evalRunKey":     "run-spring-fundraising-1",
+    "modelKey":       "model-gemini15",
+    "responseSource": "SEED_DATA",
+    "submittedAt":    "2026-03-01T08:17:00.000Z",
+    "responseText": "Subject: Spring Fundraising Appeal from Acme Nonprofit\n\nDear Supporter,\n\nSpring is a wonderful time of year, and we hope this message finds you well.\n\nAt Acme Nonprofit, we work hard throughout the year to provide adult literacy programs to members of our community. Our programs help adults improve their reading and writing skills so they can participate more fully in daily life and the workforce.\n\nAs we head into the spring season, we're reaching out to ask for your continued generosity. A donation of $50 helps us continue this important work.\n\nThis year, we've helped hundreds of people develop their literacy skills. We have seen great results and hope to continue expanding our services to reach more adults in need.\n\nIf you are able to make a gift this spring, we would be very grateful for your support. You can donate online through our website or by mailing a check to our office.\n\nThank you for your continued support of our important mission.\n\nWarm regards,\nThe Acme Nonprofit Fundraising Team"
+  },
+  {
+    "key":            "response-sf1-internal",
+    "evalRunKey":     "run-spring-fundraising-1",
+    "modelKey":       "model-internal-tool",
+    "responseSource": "MANUAL",
+    "submittedAt":    "2026-03-02T11:30:00.000Z",
+    "responseText": "Subject: Acme Nonprofit Spring Campaign — Your Support Makes It Possible\n\nHi there,\n\nSpring is a time of growth and new beginnings, and Acme Nonprofit is continuing our important work in adult literacy.\n\nWe rely on supporters like you to keep our programs running. Right now, we're asking our community to consider a $50 donation this spring.\n\nHere's what your donation does:\n- Funds group literacy coaching sessions\n- Provides learning materials to participants\n- Supports training for volunteer coaches\n- Helps us reach more adults in our community\n\nWe've had a strong year so far, and with your help, we can serve even more families.\n\nPlease visit our website to make a donation, or reply to this email if you have any questions.\n\nThank you so much for your ongoing support.\n\nAcme Nonprofit\n\nP.S. Every dollar counts toward our mission. We hope to hear from you soon."
+  },
+  {
+    "key":            "response-sf2-gpt4o",
+    "evalRunKey":     "run-spring-fundraising-2",
+    "modelKey":       "model-gpt4o",
+    "responseSource": "SEED_DATA",
+    "submittedAt":    "2026-04-14T09:45:00.000Z",
+    "responseText": "Subject: 217 Adults Found Their Voice Last Year. Help Us Welcome 40 More.\n\nDear [First Name],\n\nLast spring, 217 adults in our neighborhood completed their first literacy sessions at Acme Nonprofit. Each one arrived nervous. Every single one left with something they hadn't expected: confidence.\n\nThis spring, 40 more adults are waiting for that same chance. Your $50 can help open that door.\n\nHere's what your gift funds: one month of small-group coaching, all learning materials, and the steady presence of a trained volunteer coach who has time to listen. That's it. That's enough to change someone's life.\n\nSpring is the season for growth. At Acme Nonprofit, we've learned it's never too late for that growth to begin.\n\n[Give $50 This Spring]\n\nWith gratitude,\nThe Acme Nonprofit Team\n\nP.S. Last year's donors helped us reduce our waiting list by 30%. Thank you — and please give again."
+  },
+  {
+    "key":            "response-sf2-claude35",
+    "evalRunKey":     "run-spring-fundraising-2",
+    "modelKey":       "model-claude35",
+    "responseSource": "SEED_DATA",
+    "submittedAt":    "2026-04-14T09:46:00.000Z",
+    "responseText": "Subject: 40 People Are Waiting. You Can Change That Today.\n\nDear [First Name],\n\nLast year, 217 adults in our community walked through our doors for the first time. Many hadn't held a book in years. By year's end, they were reading to their children, filling out their own job applications, and calling their own doctors.\n\nThis spring, 40 more are on our waiting list.\n\nA gift of $50 moves one person off that list. It funds a full month of small-group coaching, learning materials, and access to a volunteer coach who shows up every week — no matter what.\n\nSpring is the season when everything that has been waiting begins to grow. For our learners, that growth sometimes takes a lifetime to arrive. When it does, it's everything.\n\n[Give $50 — Move Someone Off the Waiting List]\n\nWith deep gratitude,\nThe Acme Nonprofit Team\n\nP.S. 94 cents of every dollar you give goes directly to our programs. Your gift matters more than you know."
+  },
+  {
+    "key":            "response-sf2-gemini15",
+    "evalRunKey":     "run-spring-fundraising-2",
+    "modelKey":       "model-gemini15",
+    "responseSource": "SEED_DATA",
+    "submittedAt":    "2026-04-14T09:48:00.000Z",
+    "responseText": "Subject: Spring Update from Acme Nonprofit — Please Consider Giving\n\nDear Supporter,\n\nWe are writing with a spring update from Acme Nonprofit and a request for your support.\n\nLast year, 217 adults participated in our literacy programs. We are proud of this achievement and are working to serve even more people this year. Currently, 40 adults are on our waiting list for program openings.\n\nThis spring, we are asking donors like you to consider a $50 gift to help us serve more community members. Your donation supports our coaching programs, learning materials, and volunteer infrastructure.\n\nWe appreciate your ongoing commitment to adult literacy in our community. If you'd like to donate, please visit our website.\n\nThank you for your continued support.\n\nSincerely,\nThe Acme Nonprofit Team\n\nP.S. We would be grateful for any amount you are able to give."
+  },
+  {
+    "key":            "response-sf2-internal",
+    "evalRunKey":     "run-spring-fundraising-2",
+    "modelKey":       "model-internal-tool",
+    "responseSource": "MANUAL",
+    "submittedAt":    "2026-04-15T13:00:00.000Z",
+    "responseText": "Subject: 217 Lives Changed — Help Us Reach 40 More This Spring\n\nHi [First Name],\n\nLast year, 217 adults in our community completed literacy programming through Acme Nonprofit. That's 217 people who can now read a lease, help their kids with homework, or apply for a better job.\n\nThis spring, 40 more adults are on our waiting list. Your $50 donation can help us get them started.\n\nHere's what $50 provides:\n- One month of small-group coaching\n- All learning materials included\n- Access to a trained volunteer coach\n\nWe're growing every season — and so are the people we serve. Thank you for being part of that.\n\n[Donate $50 Today]\n\nWith thanks,\nAcme Nonprofit\n\nP.S. Your gift from last year helped make those 217 success stories possible. A gift this spring helps us write 40 more."
+  },
+  {
+    "key":            "response-sf3-gpt4o",
+    "evalRunKey":     "run-spring-fundraising-3",
+    "modelKey":       "model-gpt4o",
+    "responseSource": "SEED_DATA",
+    "submittedAt":    "2026-05-12T09:42:00.000Z",
+    "responseText": "Subject: Because Reading a Note Should Feel Possible\n\nDear [First Name],\n\nWhen Denise read a note from her son's teacher without asking anyone for help, she called it a small thing. We know it was anything but.\n\nLast year, 217 adults came to Acme Nonprofit to build moments like that: reading a bus schedule, filling out a form, helping with homework, or opening mail without worry. This spring, more neighbors are ready to begin.\n\nYour gift of $50 provides one month of coaching, learning materials, and steady encouragement from a trained volunteer. It is a practical gift with a deeply personal result.\n\nWill you renew your support this spring and help another adult take that next step?\n\n[Give $50 Today]\n\nWith gratitude,\nThe Acme Nonprofit Team\n\nP.S. You have already helped learners grow. A $50 gift helps keep that growth going."
+  },
+  {
+    "key":            "response-sf3-claude35",
+    "evalRunKey":     "run-spring-fundraising-3",
+    "modelKey":       "model-claude35",
+    "responseSource": "SEED_DATA",
+    "submittedAt":    "2026-05-12T09:43:00.000Z",
+    "responseText": "Subject: One Month of Coaching. One More Door Opened.\n\nDear [First Name],\n\nThe first form Malik filled out by himself was a library card application. He smiled when he handed it over, then told his coach, \"I want to do the next one too.\"\n\nThat is what your support makes possible at Acme Nonprofit: not just reading practice, but confidence that follows people into everyday life. Last year, 217 adults began that journey with us. This spring, more are waiting for a place to start.\n\nA $50 gift funds one month of small-group coaching and the materials a learner needs to keep moving forward. It is simple, concrete, and powerful.\n\nWill you give $50 today to help one more adult grow with Acme?\n\n[Donate $50 This Spring]\n\nWith deep appreciation,\nThe Acme Nonprofit Team\n\nP.S. Your past generosity helped build this program. Your gift today helps another learner step into it."
+  },
+  {
+    "key":            "response-sf3-gemini15",
+    "evalRunKey":     "run-spring-fundraising-3",
+    "modelKey":       "model-gemini15",
+    "responseSource": "SEED_DATA",
+    "submittedAt":    "2026-05-12T09:45:00.000Z",
+    "responseText": "Subject: Help Acme Nonprofit Continue Adult Literacy Programs\n\nDear [First Name],\n\nAt Acme Nonprofit, we are proud to support adult learners in our community. Last year, 217 adults received literacy coaching through our programs, and we are continuing this work throughout the spring season.\n\nYour donation of $50 can help provide one month of coaching and educational materials for an adult learner. This support helps participants improve their reading skills and gain confidence in daily tasks.\n\nWe appreciate donors like you who have supported our mission in the past two years. If you are able, please consider making another gift this spring so we can continue serving more adults in our neighborhoods.\n\n[Donate $50]\n\nThank you for your continued generosity.\n\nSincerely,\nThe Acme Nonprofit Team\n\nP.S. Your support helps adult learners continue making progress."
+  },
+  {
+    "key":            "response-sf3-internal",
+    "evalRunKey":     "run-spring-fundraising-3",
+    "modelKey":       "model-internal-tool",
+    "responseSource": "MANUAL",
+    "submittedAt":    "2026-05-13T12:25:00.000Z",
+    "responseText": "Subject: Your $50 Gift Helps an Adult Learner Grow\n\nHi [First Name],\n\nLast year, 217 adults learned with Acme Nonprofit. They practiced reading, writing, and everyday skills that help at home, at work, and across the community.\n\nThis spring, you can help another learner begin. A $50 donation provides one month of coaching and materials for someone working toward stronger literacy skills.\n\nBecause you have supported Acme before, you know how important this work is. We hope you will continue standing with our learners this season.\n\n[Give $50 Today]\n\nThank you,\nAcme Nonprofit\n\nP.S. Your past gifts helped make last year's progress possible."
+  },
+  {
+    "key":            "response-sf4-gpt4o",
+    "evalRunKey":     "run-spring-fundraising-4",
+    "modelKey":       "model-gpt4o",
+    "responseSource": "SEED_DATA",
+    "submittedAt":    "2026-06-09T09:49:00.000Z",
+    "responseText": "Subject: The Next Page Starts With You\n\nDear [First Name],\n\nAngela read the medication instructions twice, then put the bottle down with a grin: \"I understand it now.\"\n\nThat is the kind of spring growth we see every week at Acme Nonprofit. Last year, 217 adults built reading skills they could use immediately: at the pharmacy, at work, on the bus, and around the kitchen table.\n\nA $50 gift from you funds one month of coaching and materials for an adult learner. It keeps sessions small, personal, and steady enough for real progress.\n\nWill you give $50 today and help another neighbor turn practice into confidence?\n\n[Give $50 This Spring]\n\nWith gratitude,\nThe Acme Nonprofit Team\n\nP.S. You are part of every next page our learners are brave enough to turn."
+  },
+  {
+    "key":            "response-sf4-claude35",
+    "evalRunKey":     "run-spring-fundraising-4",
+    "modelKey":       "model-claude35",
+    "responseSource": "SEED_DATA",
+    "submittedAt":    "2026-06-09T09:50:00.000Z",
+    "responseText": "Subject: She Read the Letter Herself\n\nDear [First Name],\n\nFor the first time, Nina read a letter from her landlord without waiting for her daughter to come over.\n\nMoments like that are why Acme Nonprofit exists. Last year, 217 adults worked with our volunteer coaches to strengthen the reading and writing skills they use every day. This spring, more learners are ready for that same steady support.\n\nYour $50 gift provides one month of small-group coaching and learning materials for one adult learner. It is direct, practical help from someone who already believes in this work.\n\nWill you make a $50 spring gift today?\n\n[Donate $50 Today]\n\nWith appreciation,\nThe Acme Nonprofit Team\n\nP.S. Thank you for staying with our learners as they build confidence one week at a time."
+  },
+  {
+    "key":            "response-sf4-gemini15",
+    "evalRunKey":     "run-spring-fundraising-4",
+    "modelKey":       "model-gemini15",
+    "responseSource": "SEED_DATA",
+    "submittedAt":    "2026-06-09T09:52:00.000Z",
+    "responseText": "Subject: Support Adult Literacy This Spring\n\nDear [First Name],\n\nAn adult learner recently used new reading skills to complete a form independently. This is one example of the progress made through Acme Nonprofit's literacy programs.\n\nLast year, 217 adults participated in our coaching sessions. With donor support, we can continue providing small-group instruction, learning materials, and encouragement to adults who want to improve their literacy skills.\n\nA $50 donation funds one month of coaching and materials for one learner. We invite you, as a past donor, to make a spring gift and help us continue this important work.\n\n[Donate $50]\n\nThank you for supporting Acme Nonprofit.\n\nP.S. Your gift helps adult learners make measurable progress."
+  },
+  {
+    "key":            "response-sf4-internal",
+    "evalRunKey":     "run-spring-fundraising-4",
+    "modelKey":       "model-internal-tool",
+    "responseSource": "MANUAL",
+    "submittedAt":    "2026-06-10T13:10:00.000Z",
+    "responseText": "Subject: Keep Adult Learners Moving Forward\n\nHi [First Name],\n\nWhen a learner reads a bus schedule without help, the whole day changes.\n\nLast year, 217 adults built reading and writing skills at Acme Nonprofit. They practiced in small groups, worked with trained volunteer coaches, and used those skills in real life.\n\nYour $50 gift this spring funds one month of coaching and materials for one adult learner. Because you have given before, you are already part of this progress.\n\nWill you help the next learner get started?\n\n[Donate $50]\n\nWith thanks,\nAcme Nonprofit\n\nP.S. Every month of coaching gives a learner more chances to practice."
+  },
+  {
+    "key":            "response-sf5-gpt4o",
+    "evalRunKey":     "run-spring-fundraising-5",
+    "modelKey":       "model-gpt4o",
+    "responseSource": "SEED_DATA",
+    "submittedAt":    "2026-07-07T09:38:00.000Z",
+    "responseText": "Subject: Help One More Learner Keep Going\n\nDear [First Name],\n\nJames read his work schedule without guessing, then wrote the week down for himself.\n\nThat is the quiet, lasting progress your support makes possible at Acme Nonprofit. Last year, 217 adults strengthened reading and writing skills they use at home, at work, and with their families.\n\nThis spring, your $50 gift funds one month of coaching and materials for one adult learner. It keeps a seat open, a coach prepared, and a learner moving forward.\n\nYou have helped Acme learners before. Will you continue that partnership with a $50 gift today?\n\n[Give $50 Today]\n\nWith gratitude,\nThe Acme Nonprofit Team\n\nP.S. Thank you for helping adults build confidence one practical step at a time."
+  },
+  {
+    "key":            "response-sf5-claude35",
+    "evalRunKey":     "run-spring-fundraising-5",
+    "modelKey":       "model-claude35",
+    "responseSource": "SEED_DATA",
+    "submittedAt":    "2026-07-07T09:39:00.000Z",
+    "responseText": "Subject: Your Spring Gift Has a Name and a Seat\n\nDear [First Name],\n\nThis week, a learner named Rosa sounded out the first page of a book she chose herself.\n\nAt Acme Nonprofit, progress often looks simple from the outside. But for the 217 adults we served last year, every page, form, and message read independently can change a day. Sometimes it changes much more.\n\nA $50 gift provides one month of coaching and materials for one adult learner. Because you have given before, you know this work is patient, personal, and worth sustaining.\n\nWill you make a $50 spring gift and keep a learner's seat open?\n\n[Donate $50 This Spring]\n\nWith deep thanks,\nThe Acme Nonprofit Team\n\nP.S. Your continued support tells our learners their growth matters."
+  },
+  {
+    "key":            "response-sf5-gemini15",
+    "evalRunKey":     "run-spring-fundraising-5",
+    "modelKey":       "model-gemini15",
+    "responseSource": "SEED_DATA",
+    "submittedAt":    "2026-07-07T09:41:00.000Z",
+    "responseText": "Subject: Continue Supporting Acme Nonprofit Learners\n\nDear [First Name],\n\nA learner recently completed a reading activity that helped them feel more confident in daily life. This is the kind of progress Acme Nonprofit supports through adult literacy coaching.\n\nLast year, 217 adults participated in our programs. Your $50 donation this spring can fund one month of coaching and materials for one learner.\n\nAs someone who has supported Acme before, you are an important partner in this work. Please consider making a gift today to help us continue providing literacy services to adults in our community.\n\n[Donate $50]\n\nThank you for your continued support.\n\nP.S. Your gift helps provide practical literacy support."
+  },
+  {
+    "key":            "response-sf5-internal",
+    "evalRunKey":     "run-spring-fundraising-5",
+    "modelKey":       "model-internal-tool",
+    "responseSource": "MANUAL",
+    "submittedAt":    "2026-07-08T11:55:00.000Z",
+    "responseText": "Subject: Stay With Acme Learners This Spring\n\nHi [First Name],\n\nToday, one of our learners read a school message aloud and knew exactly what came next.\n\nLast year, 217 adults built skills like that with Acme Nonprofit. Your past support helped make those sessions possible.\n\nA $50 gift funds one month of coaching and materials for one adult learner. It is a clear, practical way to keep someone learning, practicing, and growing.\n\nWill you renew your support with a $50 gift today?\n\n[Give $50]\n\nThank you,\nAcme Nonprofit\n\nP.S. Your partnership keeps this work steady for the people counting on it."
+  },
+  {
+    "key":            "response-sm1-gpt4o",
+    "evalRunKey":     "run-social-media-1",
+    "modelKey":       "model-gpt4o",
+    "responseSource": "SEED_DATA",
+    "submittedAt":    "2026-04-29T10:00:00.000Z",
+    "responseText": "**Facebook/LinkedIn:**\nWe're thrilled to announce the launch of Community Learning Circles — a new program from Acme Nonprofit bringing free, small-group literacy sessions to local libraries this June!\n\nWhether you're looking to sharpen your reading skills, build confidence in writing, or simply take a step you've been putting off — Community Learning Circles is for you. Sessions are free, welcoming to all adults, and led by our trained volunteer coaches.\n\n📍 At libraries near you | 📅 Starting June 2026 | 💛 Free for all adults\n\nSpots are limited. Learn more and register at [link]. Share this post with anyone who might benefit — you might change someone's life today.\n\n#CommunityLearning #AdultLiteracy #AcmeNonprofit #FreePrograms\n\n---\n**Instagram:**\nNew program alert! 🌱 Community Learning Circles are coming to your local library this June — and they're completely free.\n\nSmall groups. Trained coaches. Zero judgment. Just growth.\n\nIf you or someone you know has been waiting for the right moment to take that first step — this is it. Register at the link in our bio.\n\n#AcmeNonprofit #CommunityLearningCircles #AdultLiteracy #YouCanDoThis #FreeProgram\n\n---\n**X/Twitter:**\nNew from @AcmeNonprofit: Community Learning Circles — free, small-group literacy sessions at local libraries, starting June 2026. All adults welcome. Register at [link] 📚 #AdultLiteracy"
+  },
+  {
+    "key":            "response-sm1-claude35",
+    "evalRunKey":     "run-social-media-1",
+    "modelKey":       "model-claude35",
+    "responseSource": "SEED_DATA",
+    "submittedAt":    "2026-04-29T10:01:00.000Z",
+    "responseText": "**Facebook/LinkedIn:**\nSomething new is coming to your neighborhood library this June — and we couldn't be more excited to share it.\n\nAcme Nonprofit is launching Community Learning Circles: free, small-group literacy sessions led by trained volunteer coaches, held right in your local library.\n\nThese sessions are open to all adults. They're free. They're built around your schedule and your goals. And they're rooted in the belief that it's never too late to learn.\n\nIf you've been waiting for the right moment, this is it. 📚\n\nRegistration opens now — link in the first comment. Please share widely. You never know who in your network has been quietly waiting for something exactly like this.\n\n#CommunityLearningCircles #AdultLiteracy #AcmeNonprofit #FreeForAll\n\n---\n**Instagram:**\nYour library just got a little more magical. ✨\n\nCommunity Learning Circles are coming in June — free, small-group literacy sessions at local libraries, led by people who genuinely want to see you grow.\n\nAll adults welcome. No experience needed. Just you and a willingness to take the next step.\n\nRegister at the link in our bio. And if you know someone who's been waiting for this kind of opportunity — share this post. 💛\n\n#AcmeNonprofit #CommunityLearningCircles #AdultLiteracy #NeverTooLate\n\n---\n**X/Twitter:**\nBig news: Acme Nonprofit is launching Community Learning Circles — free, small-group literacy sessions at local libraries starting June 2026. All adults welcome. Register now → [link] 📚 #AdultLiteracy #FreeProgram"
+  },
+  {
+    "key":            "response-sm1-gemini15",
+    "evalRunKey":     "run-social-media-1",
+    "modelKey":       "model-gemini15",
+    "responseSource": "SEED_DATA",
+    "submittedAt":    "2026-04-29T10:03:00.000Z",
+    "responseText": "**Facebook/LinkedIn:**\nAcme Nonprofit is excited to announce our new Community Learning Circles program, launching in June 2026!\n\nCommunity Learning Circles offer free, small-group literacy sessions held at local libraries across our community. These sessions are designed for adults who want to improve their reading and writing skills in a supportive environment.\n\nKey details:\n• Free for all adult participants\n• Small group format\n• Held at local library branches\n• Led by trained volunteer coaches\n• Starting June 2026\n\nTo learn more or register, visit our website. We encourage you to share this announcement with friends, family, or colleagues who may be interested.\n\n#AdultLiteracy #CommunityLearning #AcmeNonprofit #Libraries\n\n---\n**Instagram:**\nExciting news! 📚 Acme Nonprofit is launching Community Learning Circles in June 2026 — free literacy sessions at your local library.\n\nOpen to all adults. Small groups. Supportive environment. Volunteer coaches.\n\nHead to our website to register or learn more. Tell your friends!\n\n#AcmeNonprofit #CommunityLearning #AdultLiteracy #Free\n\n---\n**X/Twitter:**\nAcme Nonprofit is launching Community Learning Circles in June 2026 — free, small-group adult literacy sessions at local libraries. All welcome! Visit our website to register. #AdultLiteracy #AcmeNonprofit"
+  },
+  {
+    "key":            "response-sm1-internal",
+    "evalRunKey":     "run-social-media-1",
+    "modelKey":       "model-internal-tool",
+    "responseSource": "MANUAL",
+    "submittedAt":    "2026-05-01T14:00:00.000Z",
+    "responseText": "**Facebook/LinkedIn:**\nBig news from Acme Nonprofit! 🎉 We're launching Community Learning Circles — free small-group literacy sessions at local libraries, starting June 2026!\n\nThese sessions are:\n✅ Free for all adults\n✅ Small groups with personal attention\n✅ At convenient library locations\n✅ Led by trained volunteer coaches\n\nThis is a great opportunity for anyone looking to build their literacy skills in a welcoming, judgment-free environment. Registration is now open — visit the link below to sign up or learn more.\n\nPlease share with your networks! Together we can connect more community members with this free resource. 💛\n\n#CommunityLearningCircles #AcmeNonprofit #AdultLiteracy #FreeProgram #Libraries\n\n---\n**Instagram:**\nFree literacy sessions are coming to your local library! 📚✨\n\nAcme Nonprofit's Community Learning Circles launch in June 2026 — small groups, trained coaches, totally free for adults.\n\nLink in bio to register. Share this with someone who needs it!\n\n#AcmeNonprofit #CommunityLearningCircles #AdultLiteracy #FreeLearning #Libraries\n\n---\n**X/Twitter:**\nAcme Nonprofit is launching Community Learning Circles! Free small-group literacy sessions at local libraries starting June 2026. All adults welcome — register now: [link] #AdultLiteracy #CommunityLearning"
+  },
+  {
+    "key":            "response-jd1-gpt4o",
+    "evalRunKey":     "run-job-description-1",
+    "modelKey":       "model-gpt4o",
+    "responseSource": "SEED_DATA",
+    "submittedAt":    "2026-05-12T10:30:00.000Z",
+    "responseText": "**Program Coordinator — Acme Nonprofit**\n\nAre you someone who loves connecting people to resources, keeping things organized, and contributing to work that genuinely matters?\n\nAcme Nonprofit is looking for a Program Coordinator who wants to help adults build literacy skills and change the trajectory of their lives. You'll be at the center of our daily operations — coordinating sessions, supporting volunteers, and making sure our participants have everything they need to succeed.\n\n**What you'll do:**\n- Coordinate scheduling and logistics for literacy program sessions\n- Build relationships with volunteer coaches and participants\n- Maintain accurate records to help us track and communicate our impact\n- Support the Program Manager with day-to-day operations\n- Contribute ideas and energy to a small, mission-driven team\n\n**What we're looking for:**\n- Experience coordinating programs, events, or community services (nonprofit, education, or related fields)\n- Strong organizational skills and attention to detail\n- A warm, professional communication style — in person and in writing\n- Comfort working independently and as part of a small team\n- A genuine commitment to adult literacy and equity\n\n**What we offer:**\nCompetitive salary, full benefits, and meaningful work in a values-driven organization.\n\n*We welcome applicants from all backgrounds. No specific degree required.*"
+  },
+  {
+    "key":            "response-jd1-claude35",
+    "evalRunKey":     "run-job-description-1",
+    "modelKey":       "model-claude35",
+    "responseSource": "SEED_DATA",
+    "submittedAt":    "2026-05-12T10:31:00.000Z",
+    "responseText": "**Program Coordinator**\nAcme Nonprofit · Full-Time\n\n**About the role**\nYou'll be the connective tissue of our programs team — keeping sessions running, volunteers supported, and participants connected to everything they need. This is a role for someone who finds deep satisfaction in organized systems, genuine relationships, and work that matters in the world.\n\n**What you'll be doing**\n- Coordinating weekly literacy session schedules across multiple library locations\n- Supporting and communicating with our volunteer coach network\n- Maintaining participant records and preparing impact reports\n- Collaborating with the Program Manager on ongoing operations and improvements\n- Helping create a participant experience that feels welcoming and dignified\n\n**Who you are**\nYou've coordinated people, programs, or logistics in some form — we care more about the skill than the title. You communicate clearly and warmly, handle details without losing the big picture, and you're drawn to work where equity and community are central values.\n\n**You don't need:**\n- A specific degree\n- Years of formal nonprofit experience\n- Technical certifications\n\n**You do need:**\n- The ability to manage multiple moving parts without dropping balls\n- Genuine warmth with participants from all walks of life\n- Reliable follow-through\n\n**Compensation**\nCompetitive salary + full benefits. We'll discuss specifics early in the process.\n\n*Acme Nonprofit is committed to building a team that reflects the communities we serve. We strongly encourage applicants from underrepresented backgrounds to apply.*"
+  },
+  {
+    "key":            "response-jd1-gemini15",
+    "evalRunKey":     "run-job-description-1",
+    "modelKey":       "model-gemini15",
+    "responseSource": "SEED_DATA",
+    "submittedAt":    "2026-05-12T10:33:00.000Z",
+    "responseText": "**Program Coordinator**\nAcme Nonprofit\n\n**About Acme Nonprofit**\nAcme Nonprofit is a community organization dedicated to improving adult literacy outcomes in urban communities. We provide group-based coaching programs at local libraries and community centers.\n\n**Position Summary**\nThe Program Coordinator supports the delivery of Acme Nonprofit's literacy programs by coordinating activities, maintaining records, and communicating with volunteers and participants.\n\n**Responsibilities**\n- Coordinate program scheduling and logistics\n- Maintain accurate and up-to-date participant records\n- Support volunteer coach recruitment and communication\n- Assist the Program Manager with administrative tasks\n- Perform other duties as assigned\n\n**Qualifications**\n- Experience in program coordination, administration, or a related field is preferred\n- Strong communication skills, both written and verbal\n- Proficiency with common office software\n- Ability to work independently and meet deadlines\n- Commitment to Acme Nonprofit's mission\n- Background check required for this position\n\n**What We Offer**\n- Competitive compensation and benefits\n- Opportunity to make a meaningful impact\n- Supportive work environment\n\nAcme Nonprofit is an equal opportunity employer and values diversity in its workforce.\n\n*To apply, please submit your resume and a cover letter describing your interest in the role.*"
+  },
+  {
+    "key":            "response-jd1-internal",
+    "evalRunKey":     "run-job-description-1",
+    "modelKey":       "model-internal-tool",
+    "responseSource": "MANUAL",
+    "responseText":   null,
+    "submittedAt":    null
+  }
+]

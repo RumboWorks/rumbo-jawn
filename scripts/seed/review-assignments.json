@@ -1,0 +1,54 @@
+[
+  {
+    "evalRunKey":    "run-spring-fundraising-1",
+    "assignedByKey": "user-org-manager",
+    "assignments": [
+      { "reviewerKey": "user-reviewer-1", "completedAt": "2026-03-09T18:45:00.000Z" },
+      { "reviewerKey": "user-reviewer-2", "completedAt": "2026-03-10T11:20:00.000Z" },
+      { "reviewerKey": "user-reviewer-3", "completedAt": "2026-03-10T22:55:00.000Z" }
+    ]
+  },
+  {
+    "evalRunKey":    "run-spring-fundraising-2",
+    "assignedByKey": "user-org-manager",
+    "assignments": [
+      { "reviewerKey": "user-reviewer-1", "completedAt": "2026-04-21T16:10:00.000Z" },
+      { "reviewerKey": "user-reviewer-2", "completedAt": "2026-04-22T09:30:00.000Z" }
+    ]
+  },
+  {
+    "evalRunKey":    "run-spring-fundraising-3",
+    "assignedByKey": "user-org-manager",
+    "assignments": [
+      { "reviewerKey": "user-reviewer-1", "completedAt": "2026-05-19T17:35:00.000Z" },
+      { "reviewerKey": "user-reviewer-2", "completedAt": "2026-05-20T10:05:00.000Z" },
+      { "reviewerKey": "user-reviewer-3", "completedAt": "2026-05-20T21:10:00.000Z" }
+    ]
+  },
+  {
+    "evalRunKey":    "run-spring-fundraising-4",
+    "assignedByKey": "user-org-manager",
+    "assignments": [
+      { "reviewerKey": "user-reviewer-1", "completedAt": "2026-06-16T15:30:00.000Z" },
+      { "reviewerKey": "user-reviewer-2", "completedAt": "2026-06-17T09:45:00.000Z" }
+    ]
+  },
+  {
+    "evalRunKey":    "run-spring-fundraising-5",
+    "assignedByKey": "user-org-manager",
+    "assignments": [
+      { "reviewerKey": "user-reviewer-1", "completedAt": "2026-07-14T16:20:00.000Z" },
+      { "reviewerKey": "user-reviewer-2", "completedAt": "2026-07-15T11:10:00.000Z" },
+      { "reviewerKey": "user-reviewer-3", "completedAt": "2026-07-15T18:45:00.000Z" }
+    ]
+  },
+  {
+    "evalRunKey":    "run-social-media-1",
+    "assignedByKey": "user-org-manager",
+    "assignments": [
+      { "reviewerKey": "user-reviewer-1", "completedAt": "2026-05-12T14:00:00.000Z" },
+      { "reviewerKey": "user-reviewer-2", "completedAt": null },
+      { "reviewerKey": "user-reviewer-3", "completedAt": null }
+    ]
+  }
+]

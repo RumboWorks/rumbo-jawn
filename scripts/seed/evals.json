@@ -1,0 +1,43 @@
+[
+  {
+    "key":              "eval-spring-fundraising",
+    "organizationKey":  "org-acme-nonprofit",
+    "title":            "Spring Fundraising Email",
+    "description":      "Evaluate AI-generated spring fundraising email copy for tone, clarity, and effectiveness. We ran this twice — once in February and again in April after updating the prompt.",
+    "createdByUserKey": "user-org-manager",
+    "createdAt":        "2026-02-25T09:00:00.000Z"
+  },
+  {
+    "key":              "eval-social-media",
+    "organizationKey":  "org-acme-nonprofit",
+    "title":            "Community Program Launch — Social Media",
+    "description":      "Evaluate AI-generated social media posts for the Community Learning Circles program launch.",
+    "createdByUserKey": "user-org-manager",
+    "createdAt":        "2026-04-28T14:00:00.000Z"
+  },
+  {
+    "key":              "eval-job-description",
+    "organizationKey":  "org-acme-nonprofit",
+    "title":            "Program Coordinator Job Description Rewrite",
+    "description":      "Rewrite our program coordinator JD to be more inclusive, welcoming, and focused on impact rather than credentials.",
+    "createdByUserKey": "user-org-manager",
+    "createdAt":        "2026-05-10T11:00:00.000Z"
+  },
+  {
+    "key":              "eval-annual-appeal",
+    "organizationKey":  "org-acme-nonprofit",
+    "title":            "Annual Appeal Letter",
+    "description":      "Year-end major donor appeal letter. Draft in progress — still deciding on models to include.",
+    "createdByUserKey": "user-org-manager",
+    "createdAt":        "2026-05-15T16:00:00.000Z"
+  },
+  {
+    "key":              "eval-gala-promo",
+    "organizationKey":  "org-acme-nonprofit",
+    "title":            "10th Anniversary Gala Promotional Copy",
+    "description":      "Promotional copy for the 10th anniversary gala. Event has passed — archiving for reference.",
+    "createdByUserKey": "user-org-manager",
+    "archivedAt":       "2026-03-05T00:00:00.000Z",
+    "createdAt":        "2026-01-10T09:00:00.000Z"
+  }
+]

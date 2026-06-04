@@ -1,0 +1,27 @@
+{
+  "providers": [
+    { "key": "provider-openai",    "name": "OpenAI",    "providerType": "OPENAI"    },
+    { "key": "provider-anthropic", "name": "Anthropic", "providerType": "ANTHROPIC" },
+    { "key": "provider-google",    "name": "Google",    "providerType": "GOOGLE"    }
+  ],
+  "providerModels": [
+    {
+      "key":           "provider-model-gpt4o",
+      "providerKey":   "provider-openai",
+      "name":          "GPT-5.5",
+      "apiIdentifier": "gpt-4o"
+    },
+    {
+      "key":           "provider-model-claude35",
+      "providerKey":   "provider-anthropic",
+      "name":          "Claude Sonnet 4.6",
+      "apiIdentifier": "claude-3-5-sonnet-20241022"
+    },
+    {
+      "key":           "provider-model-gemini15",
+      "providerKey":   "provider-google",
+      "name":          "Gemini 3.5 Flash",
+      "apiIdentifier": "gemini-1.5-pro"
+    }
+  ]
+}

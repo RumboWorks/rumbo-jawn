@@ -1,0 +1,30 @@
+[
+  {
+    "key":              "task-collect-jd1-internal",
+    "organizationKey":  "org-acme-nonprofit",
+    "assignedUserKey":  "user-org-manager",
+    "evalRunKey":       "run-job-description-1",
+    "responseKey":      "response-jd1-internal",
+    "taskType":         "COLLECT_MANUAL_RESPONSE",
+    "status":           "OPEN",
+    "dueAt":            "2026-05-22T23:59:59.000Z"
+  },
+  {
+    "key":              "task-review-sm1-reviewer2",
+    "organizationKey":  "org-acme-nonprofit",
+    "assignedUserKey":  "user-reviewer-2",
+    "evalRunKey":       "run-social-media-1",
+    "taskType":         "REVIEW_RESPONSES",
+    "status":           "OPEN",
+    "dueAt":            "2026-05-25T23:59:59.000Z"
+  },
+  {
+    "key":              "task-review-sm1-reviewer3",
+    "organizationKey":  "org-acme-nonprofit",
+    "assignedUserKey":  "user-reviewer-3",
+    "evalRunKey":       "run-social-media-1",
+    "taskType":         "REVIEW_RESPONSES",
+    "status":           "OVERDUE",
+    "dueAt":            "2026-05-15T23:59:59.000Z"
+  }
+]

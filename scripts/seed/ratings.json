@@ -1,0 +1,564 @@
+[
+  {
+    "evalRunKey":  "run-spring-fundraising-1",
+    "reviewerKey": "user-reviewer-1",
+    "submittedAt": "2026-03-09T18:45:00.000Z",
+    "scores": {
+      "response-sf1-gpt4o": {
+        "criterion-tone-alignment": 5,
+        "criterion-clarity":        5,
+        "criterion-usefulness":     5,
+        "criterion-brand-fit":      5,
+        "criterion-cta":            5,
+        "criterion-risk":           4
+      },
+      "response-sf1-gemini15": {
+        "criterion-tone-alignment": 4,
+        "criterion-clarity":        5,
+        "criterion-usefulness":     4,
+        "criterion-brand-fit":      4,
+        "criterion-cta":            4,
+        "criterion-risk":           5
+      },
+      "response-sf1-claude35": {
+        "criterion-tone-alignment": 4,
+        "criterion-clarity":        3,
+        "criterion-usefulness":     4,
+        "criterion-brand-fit":      3,
+        "criterion-cta":            4,
+        "criterion-risk":           5
+      },
+      "response-sf1-internal": {
+        "criterion-tone-alignment": 3,
+        "criterion-clarity":        3,
+        "criterion-usefulness":     3,
+        "criterion-brand-fit":      3,
+        "criterion-cta":            3,
+        "criterion-risk":           5
+      }
+    }
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-1",
+    "reviewerKey": "user-reviewer-2",
+    "submittedAt": "2026-03-10T11:20:00.000Z",
+    "scores": {
+      "response-sf1-gpt4o": {
+        "criterion-tone-alignment": 5,
+        "criterion-clarity":        5,
+        "criterion-usefulness":     5,
+        "criterion-brand-fit":      4,
+        "criterion-cta":            5,
+        "criterion-risk":           5
+      },
+      "response-sf1-gemini15": {
+        "criterion-tone-alignment": 4,
+        "criterion-clarity":        4,
+        "criterion-usefulness":     4,
+        "criterion-brand-fit":      4,
+        "criterion-cta":            4,
+        "criterion-risk":           5
+      },
+      "response-sf1-claude35": {
+        "criterion-tone-alignment": 4,
+        "criterion-clarity":        4,
+        "criterion-usefulness":     3,
+        "criterion-brand-fit":      4,
+        "criterion-cta":            4,
+        "criterion-risk":           5
+      },
+      "response-sf1-internal": {
+        "criterion-tone-alignment": 3,
+        "criterion-clarity":        3,
+        "criterion-usefulness":     3,
+        "criterion-brand-fit":      3,
+        "criterion-cta":            3,
+        "criterion-risk":           5
+      }
+    }
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-1",
+    "reviewerKey": "user-reviewer-3",
+    "submittedAt": "2026-03-10T22:55:00.000Z",
+    "scores": {
+      "response-sf1-gpt4o": {
+        "criterion-tone-alignment": 5,
+        "criterion-clarity":        4,
+        "criterion-usefulness":     5,
+        "criterion-brand-fit":      5,
+        "criterion-cta":            5,
+        "criterion-risk":           5
+      },
+      "response-sf1-gemini15": {
+        "criterion-tone-alignment": 4,
+        "criterion-clarity":        4,
+        "criterion-usefulness":     4,
+        "criterion-brand-fit":      4,
+        "criterion-cta":            4,
+        "criterion-risk":           5
+      },
+      "response-sf1-claude35": {
+        "criterion-tone-alignment": 3,
+        "criterion-clarity":        4,
+        "criterion-usefulness":     4,
+        "criterion-brand-fit":      3,
+        "criterion-cta":            4,
+        "criterion-risk":           5
+      },
+      "response-sf1-internal": {
+        "criterion-tone-alignment": 3,
+        "criterion-clarity":        3,
+        "criterion-usefulness":     3,
+        "criterion-brand-fit":      3,
+        "criterion-cta":            3,
+        "criterion-risk":           5
+      }
+    }
+  },
+
+  {
+    "evalRunKey":  "run-spring-fundraising-2",
+    "reviewerKey": "user-reviewer-1",
+    "submittedAt": "2026-04-20T16:30:00.000Z",
+    "scores": {
+      "response-sf2-gpt4o": {
+        "criterion-tone-alignment": 5,
+        "criterion-clarity":        5,
+        "criterion-usefulness":     5,
+        "criterion-brand-fit":      4,
+        "criterion-cta":            5,
+        "criterion-risk":           5
+      },
+      "response-sf2-gemini15": {
+        "criterion-tone-alignment": 4,
+        "criterion-clarity":        5,
+        "criterion-usefulness":     4,
+        "criterion-brand-fit":      4,
+        "criterion-cta":            4,
+        "criterion-risk":           5
+      },
+      "response-sf2-claude35": {
+        "criterion-tone-alignment": 4,
+        "criterion-clarity":        4,
+        "criterion-usefulness":     4,
+        "criterion-brand-fit":      4,
+        "criterion-cta":            4,
+        "criterion-risk":           5
+      },
+      "response-sf2-internal": {
+        "criterion-tone-alignment": 3,
+        "criterion-clarity":        4,
+        "criterion-usefulness":     3,
+        "criterion-brand-fit":      3,
+        "criterion-cta":            3,
+        "criterion-risk":           5
+      }
+    }
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-2",
+    "reviewerKey": "user-reviewer-2",
+    "submittedAt": "2026-04-22T09:15:00.000Z",
+    "scores": {
+      "response-sf2-gpt4o": {
+        "criterion-tone-alignment": 5,
+        "criterion-clarity":        5,
+        "criterion-usefulness":     5,
+        "criterion-brand-fit":      5,
+        "criterion-cta":            5,
+        "criterion-risk":           4
+      },
+      "response-sf2-gemini15": {
+        "criterion-tone-alignment": 4,
+        "criterion-clarity":        4,
+        "criterion-usefulness":     4,
+        "criterion-brand-fit":      4,
+        "criterion-cta":            4,
+        "criterion-risk":           5
+      },
+      "response-sf2-claude35": {
+        "criterion-tone-alignment": 4,
+        "criterion-clarity":        4,
+        "criterion-usefulness":     4,
+        "criterion-brand-fit":      3,
+        "criterion-cta":            4,
+        "criterion-risk":           5
+      },
+      "response-sf2-internal": {
+        "criterion-tone-alignment": 3,
+        "criterion-clarity":        3,
+        "criterion-usefulness":     4,
+        "criterion-brand-fit":      3,
+        "criterion-cta":            3,
+        "criterion-risk":           5
+      }
+    }
+  },
+
+  {
+    "evalRunKey":  "run-spring-fundraising-3",
+    "reviewerKey": "user-reviewer-1",
+    "submittedAt": "2026-05-18T14:10:00.000Z",
+    "scores": {
+      "response-sf3-gemini15": {
+        "criterion-tone-alignment": 5,
+        "criterion-clarity":        5,
+        "criterion-usefulness":     4,
+        "criterion-brand-fit":      5,
+        "criterion-cta":            4,
+        "criterion-risk":           5
+      },
+      "response-sf3-claude35": {
+        "criterion-tone-alignment": 5,
+        "criterion-clarity":        4,
+        "criterion-usefulness":     5,
+        "criterion-brand-fit":      4,
+        "criterion-cta":            4,
+        "criterion-risk":           5
+      },
+      "response-sf3-gpt4o": {
+        "criterion-tone-alignment": 4,
+        "criterion-clarity":        4,
+        "criterion-usefulness":     4,
+        "criterion-brand-fit":      4,
+        "criterion-cta":            4,
+        "criterion-risk":           5
+      },
+      "response-sf3-internal": {
+        "criterion-tone-alignment": 4,
+        "criterion-clarity":        3,
+        "criterion-usefulness":     3,
+        "criterion-brand-fit":      3,
+        "criterion-cta":            4,
+        "criterion-risk":           5
+      }
+    }
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-3",
+    "reviewerKey": "user-reviewer-2",
+    "submittedAt": "2026-05-19T10:45:00.000Z",
+    "scores": {
+      "response-sf3-gemini15": {
+        "criterion-tone-alignment": 5,
+        "criterion-clarity":        5,
+        "criterion-usefulness":     4,
+        "criterion-brand-fit":      4,
+        "criterion-cta":            5,
+        "criterion-risk":           5
+      },
+      "response-sf3-claude35": {
+        "criterion-tone-alignment": 4,
+        "criterion-clarity":        4,
+        "criterion-usefulness":     4,
+        "criterion-brand-fit":      4,
+        "criterion-cta":            5,
+        "criterion-risk":           5
+      },
+      "response-sf3-gpt4o": {
+        "criterion-tone-alignment": 4,
+        "criterion-clarity":        4,
+        "criterion-usefulness":     4,
+        "criterion-brand-fit":      4,
+        "criterion-cta":            4,
+        "criterion-risk":           5
+      },
+      "response-sf3-internal": {
+        "criterion-tone-alignment": 3,
+        "criterion-clarity":        4,
+        "criterion-usefulness":     4,
+        "criterion-brand-fit":      3,
+        "criterion-cta":            3,
+        "criterion-risk":           5
+      }
+    }
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-3",
+    "reviewerKey": "user-reviewer-3",
+    "submittedAt": "2026-05-20T20:30:00.000Z",
+    "scores": {
+      "response-sf3-gemini15": {
+        "criterion-tone-alignment": 4,
+        "criterion-clarity":        5,
+        "criterion-usefulness":     5,
+        "criterion-brand-fit":      4,
+        "criterion-cta":            4,
+        "criterion-risk":           5
+      },
+      "response-sf3-claude35": {
+        "criterion-tone-alignment": 4,
+        "criterion-clarity":        5,
+        "criterion-usefulness":     4,
+        "criterion-brand-fit":      4,
+        "criterion-cta":            4,
+        "criterion-risk":           5
+      },
+      "response-sf3-gpt4o": {
+        "criterion-tone-alignment": 4,
+        "criterion-clarity":        4,
+        "criterion-usefulness":     3,
+        "criterion-brand-fit":      4,
+        "criterion-cta":            4,
+        "criterion-risk":           5
+      },
+      "response-sf3-internal": {
+        "criterion-tone-alignment": 3,
+        "criterion-clarity":        4,
+        "criterion-usefulness":     3,
+        "criterion-brand-fit":      3,
+        "criterion-cta":            4,
+        "criterion-risk":           5
+      }
+    }
+  },
+
+  {
+    "evalRunKey":  "run-spring-fundraising-4",
+    "reviewerKey": "user-reviewer-1",
+    "submittedAt": "2026-06-16T17:20:00.000Z",
+    "scores": {
+      "response-sf4-claude35": {
+        "criterion-tone-alignment": 5,
+        "criterion-clarity":        5,
+        "criterion-usefulness":     5,
+        "criterion-brand-fit":      4,
+        "criterion-cta":            5,
+        "criterion-risk":           5
+      },
+      "response-sf4-gpt4o": {
+        "criterion-tone-alignment": 4,
+        "criterion-clarity":        5,
+        "criterion-usefulness":     4,
+        "criterion-brand-fit":      4,
+        "criterion-cta":            4,
+        "criterion-risk":           5
+      },
+      "response-sf4-internal": {
+        "criterion-tone-alignment": 4,
+        "criterion-clarity":        4,
+        "criterion-usefulness":     4,
+        "criterion-brand-fit":      4,
+        "criterion-cta":            3,
+        "criterion-risk":           5
+      },
+      "response-sf4-gemini15": {
+        "criterion-tone-alignment": 3,
+        "criterion-clarity":        3,
+        "criterion-usefulness":     3,
+        "criterion-brand-fit":      3,
+        "criterion-cta":            3,
+        "criterion-risk":           5
+      }
+    }
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-4",
+    "reviewerKey": "user-reviewer-2",
+    "submittedAt": "2026-06-17T11:05:00.000Z",
+    "scores": {
+      "response-sf4-claude35": {
+        "criterion-tone-alignment": 5,
+        "criterion-clarity":        4,
+        "criterion-usefulness":     5,
+        "criterion-brand-fit":      5,
+        "criterion-cta":            5,
+        "criterion-risk":           5
+      },
+      "response-sf4-gpt4o": {
+        "criterion-tone-alignment": 4,
+        "criterion-clarity":        4,
+        "criterion-usefulness":     4,
+        "criterion-brand-fit":      4,
+        "criterion-cta":            4,
+        "criterion-risk":           5
+      },
+      "response-sf4-internal": {
+        "criterion-tone-alignment": 4,
+        "criterion-clarity":        4,
+        "criterion-usefulness":     4,
+        "criterion-brand-fit":      4,
+        "criterion-cta":            3,
+        "criterion-risk":           5
+      },
+      "response-sf4-gemini15": {
+        "criterion-tone-alignment": 3,
+        "criterion-clarity":        3,
+        "criterion-usefulness":     3,
+        "criterion-brand-fit":      3,
+        "criterion-cta":            3,
+        "criterion-risk":           4
+      }
+    }
+  },
+
+  {
+    "evalRunKey":  "run-spring-fundraising-5",
+    "reviewerKey": "user-reviewer-1",
+    "submittedAt": "2026-07-14T15:55:00.000Z",
+    "scores": {
+      "response-sf5-claude35": {
+        "criterion-tone-alignment": 5,
+        "criterion-clarity":        5,
+        "criterion-usefulness":     5,
+        "criterion-brand-fit":      5,
+        "criterion-cta":            5,
+        "criterion-risk":           5
+      },
+      "response-sf5-internal": {
+        "criterion-tone-alignment": 4,
+        "criterion-clarity":        5,
+        "criterion-usefulness":     4,
+        "criterion-brand-fit":      4,
+        "criterion-cta":            4,
+        "criterion-risk":           5
+      },
+      "response-sf5-gpt4o": {
+        "criterion-tone-alignment": 4,
+        "criterion-clarity":        4,
+        "criterion-usefulness":     4,
+        "criterion-brand-fit":      4,
+        "criterion-cta":            4,
+        "criterion-risk":           5
+      },
+      "response-sf5-gemini15": {
+        "criterion-tone-alignment": 3,
+        "criterion-clarity":        3,
+        "criterion-usefulness":     3,
+        "criterion-brand-fit":      3,
+        "criterion-cta":            3,
+        "criterion-risk":           4
+      }
+    }
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-5",
+    "reviewerKey": "user-reviewer-2",
+    "submittedAt": "2026-07-15T09:40:00.000Z",
+    "scores": {
+      "response-sf5-claude35": {
+        "criterion-tone-alignment": 5,
+        "criterion-clarity":        5,
+        "criterion-usefulness":     5,
+        "criterion-brand-fit":      5,
+        "criterion-cta":            5,
+        "criterion-risk":           4
+      },
+      "response-sf5-internal": {
+        "criterion-tone-alignment": 4,
+        "criterion-clarity":        5,
+        "criterion-usefulness":     4,
+        "criterion-brand-fit":      4,
+        "criterion-cta":            4,
+        "criterion-risk":           5
+      },
+      "response-sf5-gpt4o": {
+        "criterion-tone-alignment": 4,
+        "criterion-clarity":        4,
+        "criterion-usefulness":     4,
+        "criterion-brand-fit":      4,
+        "criterion-cta":            3,
+        "criterion-risk":           5
+      },
+      "response-sf5-gemini15": {
+        "criterion-tone-alignment": 3,
+        "criterion-clarity":        3,
+        "criterion-usefulness":     3,
+        "criterion-brand-fit":      3,
+        "criterion-cta":            3,
+        "criterion-risk":           5
+      }
+    }
+  },
+  {
+    "evalRunKey":  "run-spring-fundraising-5",
+    "reviewerKey": "user-reviewer-3",
+    "submittedAt": "2026-07-15T22:10:00.000Z",
+    "scores": {
+      "response-sf5-claude35": {
+        "criterion-tone-alignment": 5,
+        "criterion-clarity":        5,
+        "criterion-usefulness":     5,
+        "criterion-brand-fit":      4,
+        "criterion-cta":            5,
+        "criterion-risk":           5
+      },
+      "response-sf5-internal": {
+        "criterion-tone-alignment": 4,
+        "criterion-clarity":        4,
+        "criterion-usefulness":     4,
+        "criterion-brand-fit":      4,
+        "criterion-cta":            5,
+        "criterion-risk":           5
+      },
+      "response-sf5-gpt4o": {
+        "criterion-tone-alignment": 4,
+        "criterion-clarity":        4,
+        "criterion-usefulness":     3,
+        "criterion-brand-fit":      4,
+        "criterion-cta":            4,
+        "criterion-risk":           5
+      },
+      "response-sf5-gemini15": {
+        "criterion-tone-alignment": 3,
+        "criterion-clarity":        3,
+        "criterion-usefulness":     3,
+        "criterion-brand-fit":      2,
+        "criterion-cta":            3,
+        "criterion-risk":           5
+      }
+    }
+  },
+
+  {
+    "evalRunKey":  "run-social-media-1",
+    "reviewerKey": "user-reviewer-1",
+    "submittedAt": "2026-05-12T14:00:00.000Z",
+    "scores": {
+      "response-sm1-gpt4o": {
+        "criterion-tone-alignment": 4,
+        "criterion-clarity":        5,
+        "criterion-brand-fit":      4,
+        "criterion-cta":            4
+      },
+      "response-sm1-claude35": {
+        "criterion-tone-alignment": 5,
+        "criterion-clarity":        5,
+        "criterion-brand-fit":      5,
+        "criterion-cta":            5
+      },
+      "response-sm1-gemini15": {
+        "criterion-tone-alignment": 3,
+        "criterion-clarity":        4,
+        "criterion-brand-fit":      3,
+        "criterion-cta":            3
+      },
+      "response-sm1-internal": {
+        "criterion-tone-alignment": 4,
+        "criterion-clarity":        4,
+        "criterion-brand-fit":      4,
+        "criterion-cta":            4
+      }
+    }
+  },
+  {
+    "evalRunKey":  "run-social-media-1",
+    "reviewerKey": "user-reviewer-2",
+    "submittedAt": null,
+    "scores": {
+      "response-sm1-gpt4o": {
+        "criterion-tone-alignment": 4,
+        "criterion-clarity":        4,
+        "criterion-brand-fit":      4,
+        "criterion-cta":            4
+      },
+      "response-sm1-claude35": {
+        "criterion-tone-alignment": 5,
+        "criterion-clarity":        5,
+        "criterion-brand-fit":      5,
+        "criterion-cta":            4
+      }
+    }
+  }
+]

@@ -1,0 +1,23 @@
+[
+  {
+    "key": "org-acme-nonprofit",
+    "name": "Parkside Housing Collaborative",
+    "slug": "parkside-housing-collaborative",
+    "organizationType": "NONPROFIT",
+    "createdByUserKey": "user-org-manager"
+  },
+  {
+    "key": "org-brightside-consulting",
+    "name": "Brightside Consulting",
+    "slug": "brightside-consulting",
+    "organizationType": "AGENCY",
+    "createdByUserKey": "user-partner-manager"
+  },
+  {
+    "key": "org-solo-workspace",
+    "name": "Drew's Workspace",
+    "slug": "drew-s-workspace",
+    "organizationType": "SOLO",
+    "createdByUserKey": "user-solo"
+  }
+]
