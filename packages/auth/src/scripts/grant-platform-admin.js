@@ -7,12 +7,21 @@ if (!email) {
   process.exit(1);
 }
 
-const user = await db.user.update({
-  where: { email },
-  data: { isPlatformAdmin: true },
-  select: { id: true, email: true, isPlatformAdmin: true },
-});
+try {
+  const existing = await db.user.findUnique({ where: { email }, select: { id: true } });
+  if (!existing) throw new Error(`No user with email: ${email}`);
 
-console.log(`Granted platform admin access to ${user.email} (${user.id}).`);
-await db.$disconnect();
+  const user = await db.user.update({
+    where: { email },
+    data: { isPlatformAdmin: true },
+    select: { id: true, email: true, isPlatformAdmin: true },
+  });
+
+  console.log(`Granted platform admin access to ${user.email} (${user.id}).`);
+} catch (err) {
+  console.error(err.message);
+  process.exitCode = 1;
+} finally {
+  await db.$disconnect();
+}
 
