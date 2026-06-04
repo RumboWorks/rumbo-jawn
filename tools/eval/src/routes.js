@@ -241,14 +241,23 @@ router.get('/evals', requireManager, asyncHandler(async (req, res) => {
   });
 }));
 
-router.get('/evals/new', requireManager, (req, res) => {
-  res.render('pages/eval/eval-new', {
+router.get('/evals/new', requireManager, asyncHandler(async (req, res) => {
+  // The new-eval wizard creates the evaluation and launches its first run in one
+  // pass, so it needs the model/criteria catalogs for its picker steps.
+  const [criteria, models] = await Promise.all([
+    listCriteria(req.toolOrgId),
+    listOrgModels(req.toolOrgId),
+  ]);
+  res.render('pages/eval/wizard', {
     tool: 'eval',
     title: 'New evaluation',
     toolRole: req.toolRole,
+    mode: 'new-eval',
+    criteria,
+    models,
     flash: takeFlash(req),
   });
-});
+}));
 
 router.post('/evals', requireManager, asyncHandler(async (req, res) => {
   const title = (req.body.title ?? '').trim();
@@ -256,13 +265,41 @@ router.post('/evals', requireManager, asyncHandler(async (req, res) => {
     req.session.flash_error = 'An evaluation needs a title.';
     return res.redirect('/eval/evals/new');
   }
-  const ev = await createEval(req.toolOrgId, {
-    title,
-    description: (req.body.description ?? '').trim(),
-    createdByUserId: req.user.id,
-  });
-  // Flow straight into launching the first run rather than dropping back to the
-  // listing. (Authoring UX, incl. the multi-step wizard, is a tracked refinement.)
+
+  const description = (req.body.description ?? '').trim();
+
+  // The wizard submits the whole run alongside the eval. When run fields are
+  // present, validate them *before* creating the eval so a rejected submit can't
+  // leave an orphan evaluation, then create the eval and launch its first run.
+  if (req.body.promptText !== undefined) {
+    const promptText = (req.body.promptText ?? '').trim();
+    const criterionIds = [].concat(req.body.criterionIds ?? []).filter(Boolean);
+    const modelIds = [].concat(req.body.modelIds ?? []).filter(Boolean);
+    if (!promptText || criterionIds.length === 0 || modelIds.length === 0) {
+      req.session.flash_error = 'A run needs a prompt, at least one criterion, and at least one model.';
+      return res.redirect('/eval/evals/new');
+    }
+
+    const ev = await createEval(req.toolOrgId, { title, description, createdByUserId: req.user.id });
+    const run = await launchRun(req.toolOrgId, ev.id, {
+      promptText,
+      criterionIds,
+      modelIds,
+      hideModelNames: req.body.hideModelNames === 'on',
+      hidePeerReviews: req.body.hidePeerReviews === 'on',
+      reviewClosesAt: (req.body.reviewClosesAt ?? '').trim() || null,
+      launchedByUserId: req.user.id,
+    });
+    const fullRun = await getRunByPublicId(req.toolOrgId, run.publicId);
+    const manualResponses = fullRun.responses.filter(r => r.modelSnapshot?.isManual);
+    if (manualResponses.length) await onRunLaunched(req.toolOrgId, { ...run, eval: ev }, manualResponses, req.user.id);
+    req.session.flash_success = `Evaluation created. Run ${run.runNumber} launched — collect responses below.`;
+    return res.redirect(`/eval/runs/${run.publicId}`);
+  }
+
+  // No run fields (defensive / no-wizard path): create the eval and flow into the
+  // run wizard rather than dropping back to the listing.
+  const ev = await createEval(req.toolOrgId, { title, description, createdByUserId: req.user.id });
   req.session.flash_success = 'Evaluation created. Set up its first run.';
   res.redirect(`/eval/evals/${ev.publicId}/runs/new`);
 }));
@@ -312,10 +349,11 @@ router.get('/evals/:publicId/runs/new', requireManager, asyncHandler(async (req,
     listCriteria(req.toolOrgId),
     listOrgModels(req.toolOrgId),
   ]);
-  res.render('pages/eval/run-new', {
+  res.render('pages/eval/wizard', {
     tool: 'eval',
     title: `New run · ${ev.title}`,
     toolRole: req.toolRole,
+    mode: 'new-run',
     eval: ev,
     criteria,
     models,

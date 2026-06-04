@@ -1,0 +1,127 @@
+{% extends "layouts/app.twig" %}
+
+{# Single-page stepped run-creation wizard. Two modes:
+   - 'new-eval': starts with the About step (creates the eval + first run in one POST to /eval/evals)
+   - 'new-run':  About step omitted; configures another run on an existing eval (POST to its /runs)
+   All steps live in one <form>; wizard.js reveals them one at a time and drives the stepper. With
+   JS off, every step renders stacked and the single Launch button submits it all. #}
+
+{% set isNewEval = mode == 'new-eval' %}
+{% set formAction = isNewEval ? '/eval/evals' : '/eval/evals/' ~ eval.publicId ~ '/runs' %}
+
+{% block title %}{{ isNewEval ? 'New evaluation' : 'New run' }} — Rumbo{% endblock %}
+
+{% block sidebar %}
+    {% include "pages/eval/_sidebar.twig" with { active: 'evals', toolRole: toolRole } %}
+{% endblock %}
+
+{% block content %}
+    {% include "partials/page-header.twig" with {
+        heading: isNewEval ? 'New evaluation' : 'New run',
+        subtitle: isNewEval ? 'Set up an evaluation and launch its first run.' : eval.title
+    } %}
+
+    {% include "pages/eval/_flash.twig" %}
+
+    {% if not isNewEval %}
+        <p><a href="/eval/evals/{{ eval.publicId }}">&larr; Back to {{ eval.title }}</a></p>
+    {% endif %}
+
+    <section class="rj-wizard" data-wizard>
+        {# Stepper — hidden until JS enhances. #}
+        <ol class="rj-wizard__nav" data-wizard-nav>
+            {% if isNewEval %}<li class="rj-wizard__nav-step" data-wizard-indicator="about"><span class="rj-wizard__nav-num">1</span><span>About</span></li>{% endif %}
+            <li class="rj-wizard__nav-step" data-wizard-indicator="prompt"><span class="rj-wizard__nav-num">{{ isNewEval ? 2 : 1 }}</span><span>Prompt</span></li>
+            <li class="rj-wizard__nav-step" data-wizard-indicator="models"><span class="rj-wizard__nav-num">{{ isNewEval ? 3 : 2 }}</span><span>Models</span></li>
+            <li class="rj-wizard__nav-step" data-wizard-indicator="criteria"><span class="rj-wizard__nav-num">{{ isNewEval ? 4 : 3 }}</span><span>Criteria</span></li>
+            <li class="rj-wizard__nav-step" data-wizard-indicator="review"><span class="rj-wizard__nav-num">{{ isNewEval ? 5 : 4 }}</span><span>Review</span></li>
+        </ol>
+
+        <form class="rj-wizard__form" method="post" action="{{ formAction }}">
+
+            {% if isNewEval %}
+                <fieldset class="rj-wizard__step" data-wizard-step="about">
+                    <legend class="rj-wizard__step-title">About this evaluation</legend>
+                    <p class="rj-wizard__step-desc">Give it a clear title so your team knows what's being evaluated.</p>
+                    <label>
+                        <span>Title</span>
+                        <input type="text" name="title" required autofocus placeholder="e.g. Newsletter intro lines">
+                    </label>
+                    <label>
+                        <span>Description</span>
+                        <input type="text" name="description" placeholder="What this evaluation is for (optional)">
+                    </label>
+                </fieldset>
+            {% endif %}
+
+            <fieldset class="rj-wizard__step" data-wizard-step="prompt">
+                <legend class="rj-wizard__step-title">Enter the prompt</legend>
+                <p class="rj-wizard__step-desc">This exact prompt is sent to every model and shown to reviewers alongside each response.</p>
+                <label>
+                    <span>Prompt</span>
+                    <textarea name="promptText" rows="8" required placeholder="The prompt sent to each model under test."></textarea>
+                </label>
+            </fieldset>
+
+            <fieldset class="rj-wizard__step" data-wizard-step="models" data-wizard-require-checked="Select at least one model.">
+                <legend class="rj-wizard__step-title">Select models</legend>
+                <p class="rj-wizard__step-desc">Which models or tools to include in this run.</p>
+                {% if models is empty %}
+                    <p class="rj-list__empty">No models configured yet. <a href="/eval/settings/models/new">Add a model in Settings</a> first.</p>
+                {% else %}
+                    {% for m in models %}
+                        <label class="eval-check">
+                            <input type="checkbox" name="modelIds" value="{{ m.id }}" data-label="{{ m.displayName }}">
+                            <span>{{ m.displayName }}
+                                <span class="rj-admin-muted">· {{ m.accessMethod|replace({'_': ' '})|title }}{% if m.provider %} · {{ m.provider.name }}{% endif %}</span>
+                            </span>
+                        </label>
+                    {% endfor %}
+                {% endif %}
+            </fieldset>
+
+            <fieldset class="rj-wizard__step" data-wizard-step="criteria" data-wizard-require-checked="Select at least one criterion.">
+                <legend class="rj-wizard__step-title">Select criteria</legend>
+                <p class="rj-wizard__step-desc">What reviewers score each response against. All criteria use a 1–5 scale.</p>
+                {% if criteria is empty %}
+                    <p class="rj-list__empty">No criteria configured yet. <a href="/eval/settings/criteria/new">Add a criterion in Settings</a> first.</p>
+                {% else %}
+                    {% for c in criteria %}
+                        <label class="eval-check">
+                            <input type="checkbox" name="criterionIds" value="{{ c.id }}" data-label="{{ c.title }}">
+                            <span>{{ c.title }}{% if c.description %} <span class="rj-admin-muted">· {{ c.description }}</span>{% endif %}</span>
+                        </label>
+                    {% endfor %}
+                {% endif %}
+            </fieldset>
+
+            <fieldset class="rj-wizard__step" data-wizard-step="review">
+                <legend class="rj-wizard__step-title">Review &amp; launch</legend>
+                <p class="rj-wizard__step-desc">Confirm your setup. Launching creates response and review tasks and may trigger API calls.</p>
+
+                <dl class="rj-wizard__summary" data-wizard-summary>
+                    <div><dt>Prompt</dt><dd><span data-wizard-summary-text="promptText">—</span> <button type="button" class="rj-wizard__edit" data-wizard-goto="prompt">Edit</button></dd></div>
+                    <div><dt>Models</dt><dd><span data-wizard-summary-list="modelIds">—</span> <button type="button" class="rj-wizard__edit" data-wizard-goto="models">Edit</button></dd></div>
+                    <div><dt>Criteria</dt><dd><span data-wizard-summary-list="criterionIds">—</span> <button type="button" class="rj-wizard__edit" data-wizard-goto="criteria">Edit</button></dd></div>
+                </dl>
+
+                <fieldset class="eval-fieldset">
+                    <legend>Options</legend>
+                    <label class="eval-check"><input type="checkbox" name="hideModelNames"> <span>Hide model names from reviewers</span></label>
+                    <label class="eval-check"><input type="checkbox" name="hidePeerReviews"> <span>Hide other reviewers' input</span></label>
+                    <label>
+                        <span>Review closes (optional)</span>
+                        <input type="datetime-local" name="reviewClosesAt">
+                    </label>
+                </fieldset>
+            </fieldset>
+
+            <div class="rj-wizard__footer">
+                <a class="rj-btn rj-btn--ghost rj-btn--sm" href="{{ isNewEval ? '/eval/evals' : '/eval/evals/' ~ eval.publicId }}">Cancel</a>
+                <button type="button" class="rj-btn rj-btn--secondary rj-btn--sm" data-wizard-back hidden><i data-lucide="arrow-left"></i> Back</button>
+                <button type="button" class="rj-btn rj-btn--primary rj-btn--sm" data-wizard-next>Next <i data-lucide="arrow-right"></i></button>
+                <button type="submit" class="rj-btn rj-btn--primary rj-btn--sm" data-wizard-submit><i data-lucide="sparkles"></i> Launch run</button>
+            </div>
+        </form>
+    </section>
+{% endblock %}

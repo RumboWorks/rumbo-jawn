@@ -1,0 +1,187 @@
+// Platform stepped-form (wizard) pattern (rj- prefixed, reusable across tools).
+// All steps live in one form; wizard.js reveals them one at a time and adds
+// .is-enhanced. Without JS the steps render stacked and submit in one POST.
+// See docs/project-charter/coding-standards.md → Interaction patterns and
+// docs/working-notes/eval-authoring-ux.md.
+
+.rj-wizard {
+  border: 1px solid var(--rj-border);
+  border-radius: var(--rj-radius-lg);
+  background: var(--rj-bg);
+  overflow: hidden;
+}
+
+// ---- Stepper ----
+// Hidden until JS enhances (it only makes sense when steps are revealed singly).
+.rj-wizard__nav {
+  display: none;
+}
+
+.rj-wizard.is-enhanced .rj-wizard__nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--rj-space-4);
+  list-style: none;
+  margin: 0;
+  padding: var(--rj-space-4) var(--rj-space-5);
+  border-bottom: 1px solid var(--rj-border);
+  background: var(--rj-bg-sunken);
+}
+
+.rj-wizard__nav-step {
+  display: flex;
+  align-items: center;
+  gap: var(--rj-space-2);
+  white-space: nowrap;
+  color: var(--rj-fg-2);
+  font-size: var(--rj-text-sm);
+
+  &.is-active {
+    color: var(--rj-fg);
+    font-weight: var(--rj-weight-semibold);
+  }
+
+  &.is-done {
+    color: var(--rj-pine-600);
+  }
+}
+
+.rj-wizard__nav-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: var(--rj-radius-pill);
+  border: 2px solid currentColor;
+  font-size: var(--rj-text-sm);
+  font-weight: var(--rj-weight-semibold);
+  flex: 0 0 auto;
+}
+
+.rj-wizard__nav-step.is-active .rj-wizard__nav-num {
+  background: var(--rj-pine-600);
+  border-color: var(--rj-pine-600);
+  color: var(--rj-fg-on-dark, #fff);
+}
+
+.rj-wizard__nav-step.is-done .rj-wizard__nav-num {
+  background: var(--rj-pine-600);
+  border-color: var(--rj-pine-600);
+  color: var(--rj-fg-on-dark, #fff);
+}
+
+// ---- Steps ----
+.rj-wizard__step {
+  border: none;
+  margin: 0;
+  padding: var(--rj-space-6) var(--rj-space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--rj-space-3);
+
+  // Multiple stacked steps (no-JS) read as separated sections.
+  & + .rj-wizard__step {
+    border-top: 1px solid var(--rj-border);
+  }
+}
+
+// Once enhanced, only the active step shows.
+.rj-wizard.is-enhanced .rj-wizard__step {
+  display: none;
+
+  &.is-active {
+    display: flex;
+  }
+
+  & + .rj-wizard__step {
+    border-top: none;
+  }
+}
+
+.rj-wizard__step-title {
+  font-size: var(--rj-text-lg);
+  font-weight: var(--rj-weight-semibold);
+  padding: 0;
+  margin: 0;
+}
+
+.rj-wizard__step-desc {
+  color: var(--rj-fg-2);
+  font-size: var(--rj-text-sm);
+  margin: 0 0 var(--rj-space-1);
+}
+
+// Stacked field labels (title/description/prompt/options) — the admin-form look,
+// owned here so the form can keep `.eval-check` rows as flex (the shared
+// rj-admin-form `label { display: grid }` would otherwise break them).
+.rj-wizard__step label:not(.eval-check) {
+  display: grid;
+  gap: var(--rj-space-1);
+
+  > span {
+    font-size: var(--rj-text-micro);
+    font-weight: var(--rj-weight-bold);
+    letter-spacing: var(--rj-tracking-caps);
+    text-transform: uppercase;
+    color: var(--rj-fg-3);
+  }
+}
+
+// ---- Review summary ----
+.rj-wizard__summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rj-space-2);
+  margin: 0;
+  padding: var(--rj-space-3);
+  border: 1px solid var(--rj-border);
+  border-radius: var(--rj-radius-md);
+  background: var(--rj-bg-sunken);
+
+  > div {
+    display: grid;
+    grid-template-columns: 8rem 1fr;
+    gap: var(--rj-space-3);
+    align-items: baseline;
+  }
+
+  dt {
+    color: var(--rj-fg-2);
+    font-size: var(--rj-text-sm);
+    font-weight: var(--rj-weight-semibold);
+  }
+
+  dd {
+    margin: 0;
+    min-width: 0;
+    word-break: break-word;
+  }
+}
+
+.rj-wizard__edit {
+  border: none;
+  background: none;
+  padding: 0;
+  margin-left: var(--rj-space-2);
+  cursor: pointer;
+  color: var(--rj-pine-600);
+  font-size: var(--rj-text-sm);
+  text-decoration: underline;
+}
+
+// ---- Footer ----
+.rj-wizard__footer {
+  display: flex;
+  align-items: center;
+  gap: var(--rj-space-2);
+  padding: var(--rj-space-4) var(--rj-space-5);
+  border-top: 1px solid var(--rj-border);
+  background: var(--rj-bg-sunken);
+
+  // Push the Back/Next/Launch cluster to the right; Cancel stays left.
+  > :first-child {
+    margin-right: auto;
+  }
+}
