@@ -212,3 +212,5 @@ When finishing a task, summarize:
 - any guidance files used.
 
 If something could not be completed, say so clearly and record where the remaining work lives.
+
+
