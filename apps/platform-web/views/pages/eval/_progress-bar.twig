@@ -1,0 +1,46 @@
+{% set responseProgress = progress.responses %}
+{% set reviewProgress = progress.reviews %}
+{% set responseState = responseProgress.percent >= 100 ? 'done' : (responseProgress.percent > 0 ? 'active' : 'future') %}
+{% set reviewState = reviewProgress.percent >= 100 ? 'done' : (reviewProgress.percent > 0 ? 'active' : 'future') %}
+
+<div class="eval-progress__headers" aria-hidden="true">
+    <span class="eval-progress__header eval-progress__header--edge">Setup</span>
+    <span class="eval-progress__header">AI Responses</span>
+    <span class="eval-progress__header">Human Reviews</span>
+    <span class="eval-progress__header eval-progress__header--edge">Done</span>
+</div>
+<div class="eval-progress" aria-label="Evaluation progress">
+    <div class="eval-progress__segment eval-progress__edge eval-progress__edge--{{ progress.setupDone ? 'done' : 'future' }}"
+         title="Setup: {{ progress.setupDone ? 'complete' : 'not started' }}"></div>
+
+    <div class="eval-progress__segment eval-progress__meter eval-progress__meter--responses eval-progress__meter--{{ responseState }}"
+         style="--eval-progress-pct: {{ responseProgress.percent }}%"
+         role="progressbar"
+         aria-label="AI Responses"
+         aria-valuemin="0"
+         aria-valuemax="{{ responseProgress.total > 0 ? responseProgress.total : 1 }}"
+         aria-valuenow="{{ responseProgress.done }}"
+         aria-valuetext="{{ responseProgress.label }}"
+         title="AI Responses: {{ responseProgress.label }}">
+        <span class="eval-progress__fill" aria-hidden="true"></span>
+        <span class="eval-progress__label eval-progress__label--dark">{{ responseProgress.label }}</span>
+        <span class="eval-progress__label eval-progress__label--light">{{ responseProgress.label }}</span>
+    </div>
+
+    <div class="eval-progress__segment eval-progress__meter eval-progress__meter--reviews eval-progress__meter--{{ reviewState }}"
+         style="--eval-progress-pct: {{ reviewProgress.percent }}%"
+         role="progressbar"
+         aria-label="Human Reviews"
+         aria-valuemin="0"
+         aria-valuemax="{{ reviewProgress.total > 0 ? reviewProgress.total : 1 }}"
+         aria-valuenow="{{ reviewProgress.done }}"
+         aria-valuetext="{{ reviewProgress.label }}"
+         title="Human Reviews: {{ reviewProgress.label }}">
+        <span class="eval-progress__fill" aria-hidden="true"></span>
+        <span class="eval-progress__label eval-progress__label--dark">{{ reviewProgress.label }}</span>
+        <span class="eval-progress__label eval-progress__label--light">{{ reviewProgress.label }}</span>
+    </div>
+
+    <div class="eval-progress__segment eval-progress__edge eval-progress__edge--{{ progress.allDone ? 'done' : 'future' }}"
+         title="Done: {{ progress.allDone ? 'complete' : 'not yet' }}"></div>
+</div>

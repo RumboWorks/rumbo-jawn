@@ -2,6 +2,7 @@
 // Every query is scoped by organizationId for tenant isolation.
 
 import { db } from '@rumbo/db';
+import { decorateEvalProgress, latestRunProgressInclude } from './evals.service.js';
 
 // ---- Criteria ----
 
@@ -124,9 +125,18 @@ export async function getDashboardSummary(organizationId) {
     db.eval.findMany({
       where: { organizationId, archivedAt: null },
       orderBy: { updatedAt: 'desc' },
-      take: 5,
-      include: { _count: { select: { runs: true } } },
+      take: 10,
+      include: {
+        _count: { select: { runs: true } },
+        runs: { orderBy: { runNumber: 'desc' }, take: 1, include: latestRunProgressInclude },
+      },
     }),
   ]);
-  return { evalCount, runCount, criteriaCount, modelCount, recentEvals };
+  return {
+    evalCount,
+    runCount,
+    criteriaCount,
+    modelCount,
+    recentEvals: recentEvals.map(decorateEvalProgress),
+  };
 }

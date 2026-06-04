@@ -3,7 +3,15 @@ import express from 'express';
 import Twig from 'twig';
 import { fileURLToPath } from 'url';
 import path from 'path';
-import { buildSessionMiddleware, configurePassport, listAccessibleTools, primaryOrgIdForUser } from '@rumbo/auth';
+import {
+  buildSessionMiddleware,
+  configurePassport,
+  listAccessibleOrganizations,
+  listAccessibleTools,
+  loadActiveOrganization,
+  displayNameForUser,
+  firstNameForUser,
+} from '@rumbo/auth';
 import routes from './routes/index.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -57,21 +65,36 @@ const navCache = new Map(); // userId -> { tools, expires }
 const NAV_TTL_MS = 30_000;
 
 function getNavToolsCached(user, orgId) {
-  const cached = navCache.get(user.id);
+  const key = `${user.id}:${orgId ?? ''}`;
+  const cached = navCache.get(key);
   if (cached && cached.expires > Date.now()) return cached.tools;
   listAccessibleTools(user, orgId)
-    .then(tools => navCache.set(user.id, { tools, expires: Date.now() + NAV_TTL_MS }))
+    .then(tools => navCache.set(key, { tools, expires: Date.now() + NAV_TTL_MS }))
     .catch(() => {});
   return cached?.tools ?? [];
 }
 
 // Expose current user and accessible tool nav to all Twig templates.
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
+  try {
   res.locals.currentUser = req.user ?? null;
-  res.locals.navTools = (req.method === 'GET' && req.isAuthenticated())
-    ? getNavToolsCached(req.user, primaryOrgIdForUser(req.user))
-    : [];
-  next();
+    res.locals.currentUserDisplayName = req.user ? displayNameForUser(req.user) : null;
+    res.locals.currentUserFirstName = req.user ? firstNameForUser(req.user) : null;
+    res.locals.currentPath = req.originalUrl;
+    res.locals.navTools = [];
+    res.locals.organizations = [];
+    res.locals.activeOrganization = null;
+    res.locals.navOrientation = (req.user?.navOrientation ?? 'HORIZONTAL').toLowerCase();
+    if (req.method === 'GET' && req.isAuthenticated()) {
+      const organization = await loadActiveOrganization(req);
+      res.locals.activeOrganization = organization;
+      res.locals.organizations = await listAccessibleOrganizations(req.user);
+      res.locals.navTools = getNavToolsCached(req.user, organization?.id);
+    }
+    next();
+  } catch (err) {
+    next(err);
+  }
 });
 
 // Routes

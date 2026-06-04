@@ -9,6 +9,8 @@
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
+    "db:generate": "npm run db:generate --workspace=@rumbo/db",
+    "db:push": "npm run db:push --workspace=@rumbo/db",
     "dev:web": "node apps/platform-web/src/index.js",
     "dev:worker": "node apps/worker/src/index.js",
     "pm2:start": "pm2 start ecosystem.config.cjs",

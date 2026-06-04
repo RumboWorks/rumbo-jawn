@@ -1,5 +1,6 @@
 import { ensureOrgEntitlement } from '@rumbo/billing';
 import { db } from '@rumbo/db';
+import { displayNameForUser, normalizePersonName } from './names.js';
 
 function isActiveUser(user) {
   return !user.status || user.status === 'ACTIVE';
@@ -21,18 +22,27 @@ export async function findUserByOAuth(provider, providerId) {
 
 // Find or create a user from an OAuth profile.
 // Looks up by providerId first, then by email, then creates new.
-export async function findOrCreateOAuthUser({ provider, providerId, email, name, avatarUrl }) {
+export async function findOrCreateOAuthUser({ provider, providerId, email, name, firstName, lastName, avatarUrl }) {
   const existing = await findUserByOAuth(provider, providerId);
   if (existing) {
     if (!isActiveUser(existing)) throw new Error('Account is not active.');
-    await db.user.update({ where: { id: existing.id }, data: { lastLoginAt: new Date() } });
+    const personName = normalizePersonName({ name, firstName, lastName });
+    await db.user.update({
+      where: { id: existing.id },
+      data: {
+        lastLoginAt: new Date(),
+        firstName: existing.firstName ?? personName.firstName,
+        lastName: existing.lastName ?? personName.lastName,
+        name: existing.name ?? personName.name,
+      },
+    });
     return existing;
   }
 
   let user = await findUserByEmail(email);
   if (user && !isActiveUser(user)) throw new Error('Account is not active.');
   if (!user) {
-    user = await db.user.create({ data: { email, name, avatarUrl } });
+    user = await db.user.create({ data: { email, ...normalizePersonName({ name, firstName, lastName }), avatarUrl } });
     await ensureOrgMembership(user);
   }
 
@@ -64,7 +74,7 @@ export async function ensureOrgMembership(user) {
     const slug = await uniqueOrgSlug(user.email.split('@')[0]);
     const org = await db.organization.create({
       data: {
-        name: `${user.name ?? user.email}'s workspace`,
+        name: `${displayNameForUser(user)}'s workspace`,
         slug,
         organizationType: 'SOLO',
         createdByUserId: user.id,

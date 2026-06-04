@@ -12,6 +12,7 @@
     "@rumbo/auth": "^0.0.1",
     "@rumbo/billing": "^0.0.1",
     "@rumbo/config": "^0.0.1",
+    "@rumbo/design-system": "^0.0.1",
     "@rumbo/eval": "^0.0.1",
     "@rumbo/jobs": "^0.0.1",
     "@rumbo/sounds-like-us": "^0.0.1",

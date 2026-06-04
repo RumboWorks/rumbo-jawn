@@ -20,7 +20,7 @@
 
 {% block content %}
     <div class="rj-page-header">
-        <h1>Account</h1>
+        <h1>{{ currentUserFirstName }}'s account</h1>
         <p>Manage your profile, password, and access.</p>
     </div>
 
@@ -42,8 +42,12 @@
             <div class="rj-admin-panel__header"><h2>Profile</h2></div>
             <form class="rj-admin-form" method="post" action="/account/profile">
                 <label>
-                    <span>Name</span>
-                    <input type="text" name="name" value="{{ account.name ?? '' }}" required>
+                    <span>First name</span>
+                    <input type="text" name="firstName" value="{{ account.firstName ?? '' }}" required autocomplete="given-name">
+                </label>
+                <label>
+                    <span>Last name</span>
+                    <input type="text" name="lastName" value="{{ account.lastName ?? '' }}" required autocomplete="family-name">
                 </label>
                 <label>
                     <span>Email</span>

@@ -15,13 +15,9 @@
 import { db } from '@rumbo/db';
 import { getEffectiveEntitlement } from '@rumbo/billing';
 import { getTool, listTools } from '@rumbo/config';
+import { loadActiveOrganization, primaryOrgIdForUser } from './org-context-service.js';
 
 const ROLE_RANK = { MEMBER: 1, MANAGER: 2 };
-
-// The organization a tool request acts within: the user's primary membership.
-export function primaryOrgIdForUser(user) {
-  return user?.memberships?.[0]?.orgId ?? null;
-}
 
 // True if `role` meets or exceeds `minRole`.
 export function toolRoleAtLeast(role, minRole) {
@@ -117,7 +113,8 @@ export function requireToolAccess(toolKey, { minRole = 'MEMBER', allowAnonymous 
         return res.redirect('/login');
       }
 
-      const orgId = primaryOrgIdForUser(req.user);
+      const organization = await loadActiveOrganization(req);
+      const orgId = organization?.id ?? primaryOrgIdForUser(req.user);
       const role = await resolveToolRole(req.user, orgId, toolKey);
 
       if (!toolRoleAtLeast(role, minRole)) {
@@ -129,6 +126,7 @@ export function requireToolAccess(toolKey, { minRole = 'MEMBER', allowAnonymous 
 
       req.toolRole = role;
       req.toolOrgId = orgId;
+      req.activeOrganization = organization;
       next();
     } catch (err) {
       next(err);

@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import { createUserFromInviteIfNeeded, isActiveUser } from '../account-service.js';
 import { findUserByEmail } from '../user-service.js';
 import { db } from '@rumbo/db';
+import { normalizePersonName } from '../names.js';
 
 export function buildLocalStrategy() {
   return new LocalStrategy(
@@ -30,12 +31,14 @@ export function buildLocalStrategy() {
 }
 
 // Register a new user with email + password.
-export async function registerLocalUser({ email, name, password, inviteToken = null }) {
+export async function registerLocalUser({ email, name, firstName, lastName, password, inviteToken = null }) {
   const existing = await findUserByEmail(email.toLowerCase().trim());
   if (existing) throw new Error('An account with this email already exists.');
   const passwordHash = await bcrypt.hash(password, 12);
+  const personName = normalizePersonName({ name, firstName, lastName });
+  if (!personName.firstName || !personName.lastName) throw new Error('First and last name are required.');
   const user = await db.user.create({
-    data: { email: email.toLowerCase().trim(), name, passwordHash },
+    data: { email: email.toLowerCase().trim(), ...personName, passwordHash },
   });
   await createUserFromInviteIfNeeded(user, inviteToken);
   return user;

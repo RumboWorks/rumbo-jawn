@@ -35,9 +35,14 @@
                 <input type="hidden" name="inviteToken" value="{{ inviteToken }}">
             {% endif %}
             <div class="rj-form-group">
-                <label class="rj-label" for="name">Name</label>
-                <input class="rj-input" type="text" id="name" name="name"
-                       autocomplete="name" required placeholder="Your name">
+                <label class="rj-label" for="firstName">First name</label>
+                <input class="rj-input" type="text" id="firstName" name="firstName"
+                       autocomplete="given-name" required placeholder="Morgan">
+            </div>
+            <div class="rj-form-group">
+                <label class="rj-label" for="lastName">Last name</label>
+                <input class="rj-input" type="text" id="lastName" name="lastName"
+                       autocomplete="family-name" required placeholder="Rivera">
             </div>
             <div class="rj-form-group">
                 <label class="rj-label" for="email">Work email</label>

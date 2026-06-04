@@ -15,12 +15,15 @@ model User {
   id                        String                      @id @default(cuid())
   email                     String                      @unique
   name                      String?
+  firstName                 String?
+  lastName                  String?
   avatarUrl                 String?
   passwordHash              String?
   status                    UserStatus                  @default(ACTIVE)
   statusReason              String?                     @db.Text
   statusChangedAt           DateTime?
   isPlatformAdmin           Boolean                     @default(false)
+  navOrientation            NavOrientation?
   createdAt                 DateTime                    @default(now())
   updatedAt                 DateTime                    @updatedAt
   lastLoginAt               DateTime?
@@ -41,6 +44,11 @@ enum UserStatus {
   ACTIVE
   SUSPENDED
   DEACTIVATED
+}
+
+enum NavOrientation {
+  HORIZONTAL
+  VERTICAL
 }
 
 model OAuthAccount {

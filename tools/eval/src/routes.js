@@ -15,6 +15,8 @@ import {
   listAssignableReviewers, listRunAssignments, setRunReviewers, isAssigned,
   getReviewData, upsertRating, upsertComment, submitReview, listMyOpenReviews,
   getReportData, completeRunAndReport, updateReportText, setReportShare,
+  listReports,
+  getEvalDetailReports,
 } from './review.service.js';
 import {
   onReviewersAdded, onRunLaunched, onRunCompleted, completeReviewTask, completeManualTask,
@@ -241,12 +243,24 @@ router.get('/evals', requireManager, asyncHandler(async (req, res) => {
   });
 }));
 
+router.get('/reports', requireManager, asyncHandler(async (req, res) => {
+  const reports = await listReports(req.toolOrgId);
+  res.render('pages/eval/reports', {
+    tool: 'eval',
+    title: 'Reports',
+    toolRole: req.toolRole,
+    reports,
+    flash: takeFlash(req),
+  });
+}));
+
 router.get('/evals/new', requireManager, asyncHandler(async (req, res) => {
   // The new-eval wizard creates the evaluation and launches its first run in one
   // pass, so it needs the model/criteria catalogs for its picker steps.
-  const [criteria, models] = await Promise.all([
+  const [criteria, models, reviewers] = await Promise.all([
     listCriteria(req.toolOrgId),
     listOrgModels(req.toolOrgId),
+    listAssignableReviewers(req.toolOrgId),
   ]);
   res.render('pages/eval/wizard', {
     tool: 'eval',
@@ -255,6 +269,7 @@ router.get('/evals/new', requireManager, asyncHandler(async (req, res) => {
     mode: 'new-eval',
     criteria,
     models,
+    reviewers,
     flash: takeFlash(req),
   });
 }));
@@ -290,6 +305,11 @@ router.post('/evals', requireManager, asyncHandler(async (req, res) => {
       reviewClosesAt: (req.body.reviewClosesAt ?? '').trim() || null,
       launchedByUserId: req.user.id,
     });
+    const reviewerIds = [].concat(req.body.reviewerIds ?? []).filter(Boolean);
+    if (reviewerIds.length) {
+      const { added } = await setRunReviewers(req.toolOrgId, run.id, reviewerIds, req.user.id);
+      if (added.length) await onReviewersAdded(req.toolOrgId, { ...run, eval: ev }, added);
+    }
     const fullRun = await getRunByPublicId(req.toolOrgId, run.publicId);
     const manualResponses = fullRun.responses.filter(r => r.modelSnapshot?.isManual);
     if (manualResponses.length) await onRunLaunched(req.toolOrgId, { ...run, eval: ev }, manualResponses, req.user.id);
@@ -331,11 +351,13 @@ router.post('/evals/:publicId/archive', requireManager, asyncHandler(async (req,
 router.get('/evals/:publicId', requireManager, asyncHandler(async (req, res) => {
   const ev = await getEvalByPublicId(req.toolOrgId, req.params.publicId);
   if (!ev) return res.status(404).render('pages/error', { status: 404, message: 'Evaluation not found.' });
+  const detailReports = await getEvalDetailReports(req.toolOrgId, ev);
   res.render('pages/eval/eval-detail', {
     tool: 'eval',
     title: ev.title,
     toolRole: req.toolRole,
     eval: ev,
+    detailReports,
     flash: takeFlash(req),
   });
 }));
@@ -345,9 +367,10 @@ router.get('/evals/:publicId', requireManager, asyncHandler(async (req, res) => 
 router.get('/evals/:publicId/runs/new', requireManager, asyncHandler(async (req, res) => {
   const ev = await getEvalByPublicId(req.toolOrgId, req.params.publicId);
   if (!ev) return res.status(404).render('pages/error', { status: 404, message: 'Evaluation not found.' });
-  const [criteria, models] = await Promise.all([
+  const [criteria, models, reviewers] = await Promise.all([
     listCriteria(req.toolOrgId),
     listOrgModels(req.toolOrgId),
+    listAssignableReviewers(req.toolOrgId),
   ]);
   res.render('pages/eval/wizard', {
     tool: 'eval',
@@ -357,6 +380,7 @@ router.get('/evals/:publicId/runs/new', requireManager, asyncHandler(async (req,
     eval: ev,
     criteria,
     models,
+    reviewers,
     flash: takeFlash(req),
   });
 }));
@@ -383,6 +407,11 @@ router.post('/evals/:publicId/runs', requireManager, asyncHandler(async (req, re
     reviewClosesAt: (req.body.reviewClosesAt ?? '').trim() || null,
     launchedByUserId: req.user.id,
   });
+  const reviewerIds = [].concat(req.body.reviewerIds ?? []).filter(Boolean);
+  if (reviewerIds.length) {
+    const { added } = await setRunReviewers(req.toolOrgId, run.id, reviewerIds, req.user.id);
+    if (added.length) await onReviewersAdded(req.toolOrgId, { ...run, eval: ev }, added);
+  }
   // Open a manual-collection task for each manual response.
   const fullRun = await getRunByPublicId(req.toolOrgId, run.publicId);
   const manualResponses = fullRun.responses.filter(r => r.modelSnapshot?.isManual);

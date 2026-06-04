@@ -14,7 +14,7 @@ body { display: flex; flex-direction: column; min-height: 100vh; }
 .rj-header {
   height: var(--rj-header-height);
   border-bottom: 1px solid var(--rj-border);
-  background: var(--rj-bg-raised);
+  background: #0f172a;
   display: flex;
   align-items: center;
   flex-shrink: 0;
@@ -38,7 +38,7 @@ body { display: flex; flex-direction: column; min-height: 100vh; }
   font-family: var(--rj-font-brand);
   font-weight: 700;
   letter-spacing: -0.035em;
-  color: var(--rj-pine-800);
+  color: #fff;
   line-height: 1;
   font-size: var(--rj-text-lg);
   &--light { color: var(--rj-stone-50); }
@@ -63,14 +63,14 @@ body { display: flex; flex-direction: column; min-height: 100vh; }
 .rj-header__nav-link {
   font-size: var(--rj-text-sm);
   font-weight: var(--rj-weight-medium);
-  color: var(--rj-fg-2);
+  color: #cbd5e1;
   text-decoration: none;
   padding: var(--rj-space-1) var(--rj-space-2);
   border-radius: var(--rj-radius-sm);
   transition: color var(--rj-dur-fast) var(--rj-ease), background var(--rj-dur-fast) var(--rj-ease);
 
-  &:hover { color: var(--rj-fg); background: var(--rj-bg-sunken); }
-  &.is-active { color: var(--rj-pine-600); font-weight: var(--rj-weight-semibold); }
+  &:hover { color: #fff; background: #1e293b; }
+  &.is-active { color: #fff; font-weight: var(--rj-weight-semibold); }
 }
 
 // Tool switcher dropdown (header)
@@ -168,7 +168,7 @@ body { display: flex; flex-direction: column; min-height: 100vh; }
 
 // ---- App shell (logged-in, with sidebar) ----
 
-.rj-app-shell { display: flex; flex: 1; overflow: hidden; }
+.rj-app-shell { display: flex; flex: 1; overflow: hidden; min-height: 0; }
 
 .rj-sidebar {
   width: var(--rj-sidebar-width);
@@ -214,7 +214,107 @@ body { display: flex; flex-direction: column; min-height: 100vh; }
   }
 }
 
-.rj-app-content { flex: 1; overflow-y: auto; padding: var(--rj-space-8); min-width: 0; }
+.rj-app-content {
+  flex: 1;
+  width: 100%;
+  max-width: var(--rj-max-width);
+  margin-inline: auto;
+  overflow-y: auto;
+  padding: var(--rj-space-8);
+  min-width: 0;
+}
+
+.rj-app-content--fluid { max-width: none; }
+
+.rj-org-switcher select,
+.rj-account-menu select {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 1px solid rgb(255 255 255 / 0.18);
+  border-radius: var(--rj-radius-sm);
+  padding: 5px 24px 5px 8px;
+}
+
+.rj-org-switcher option,
+.rj-account-menu option { color: #0f172a; }
+
+.rj-nav-orientation-toggle {
+  color: #cbd5e1;
+  background: transparent;
+  border: 0;
+  border-radius: var(--rj-radius-sm);
+  padding: 6px;
+  cursor: pointer;
+  &:hover { color: #fff; background: #1e293b; }
+  svg { width: 16px; height: 16px; }
+}
+
+.rj-account-menu {
+  position: relative;
+  > summary { cursor: pointer; list-style: none; }
+  > summary::-webkit-details-marker { display: none; }
+}
+
+.rj-account-menu__panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + var(--rj-space-2));
+  z-index: 100;
+  width: 220px;
+  padding: var(--rj-space-2);
+  background: var(--rj-bg-raised);
+  color: var(--rj-fg);
+  border: 1px solid var(--rj-border);
+  border-radius: var(--rj-radius-md);
+  box-shadow: var(--rj-shadow-md);
+  a, label { display: block; padding: var(--rj-space-2); color: var(--rj-fg); text-decoration: none; }
+  a:hover { background: var(--rj-bg-sunken); }
+  select { width: 100%; margin-top: 4px; color: var(--rj-fg); border-color: var(--rj-border); }
+}
+
+.rj-ui-options {
+  border-block: 1px solid var(--rj-border);
+  margin-block: var(--rj-space-1);
+  font-size: var(--rj-text-sm);
+}
+
+// Horizontal is the default authenticated shell. The same contextual-nav markup
+// moves into a left rail when the account preference is vertical.
+[data-nav-orientation="horizontal"] {
+  .rj-app-shell { flex-direction: column; overflow: visible; }
+  .rj-sidebar {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--rj-space-2);
+    padding: 0 var(--rj-space-8);
+    border-right: 0;
+    border-bottom: 1px solid var(--rj-border);
+    overflow-x: auto;
+  }
+  .rj-sidebar__label { padding: var(--rj-space-3) var(--rj-space-2); }
+  .rj-sidebar__section { display: flex; padding: 0; }
+  .rj-sidebar__link { border-radius: 0; padding: var(--rj-space-3); border-bottom: 2px solid transparent; }
+  .rj-sidebar__link.is-active { background: transparent; border-bottom-color: var(--rj-pine-600); }
+  .rj-app-content { overflow: visible; }
+}
+
+@media (max-width: 1023px) {
+  .rj-org-switcher { display: none; }
+  [data-nav-orientation] .rj-app-shell { flex-direction: column; overflow: visible; }
+  [data-nav-orientation] .rj-sidebar {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    padding: 0 var(--rj-space-4);
+    border-right: 0;
+    border-bottom: 1px solid var(--rj-border);
+    overflow-x: auto;
+  }
+  [data-nav-orientation] .rj-sidebar__section { display: flex; }
+}
 
 .rj-page-header {
   margin-bottom: var(--rj-space-6);

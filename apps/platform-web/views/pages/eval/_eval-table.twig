@@ -1,0 +1,62 @@
+<section class="eval-list-section">
+    <h2 class="eval-list-section__title">{{ heading }} <span class="eval-list-section__count">{{ items|length }}</span></h2>
+    {% if items is not empty %}
+        <div class="rj-table-wrap eval-table-wrap">
+            <table class="rj-table eval-table">
+                <colgroup>
+                    <col class="eval-table__col--title">
+                    <col class="eval-table__col--progress">
+                    <col class="eval-table__col--activity">
+                    <col class="eval-table__col--actions">
+                </colgroup>
+                <thead><tr><th class="eval-table__col--title">Title</th><th class="eval-table__col--progress"></th><th class="eval-table__col--activity">Updated</th><th class="eval-table__col--actions"></th></tr></thead>
+                <tbody>
+                    {% for ev in items %}
+                        <tr class="eval-table__row">
+                            <td><a class="eval-table__title-link" href="/eval/evals/{{ ev.publicId }}">{{ ev.title }}</a>{% if ev.description %}<span class="eval-table__description">{{ ev.description }}</span>{% endif %}</td>
+                            <td class="eval-table__cell--progress">
+                                {% if ev.completedSummary %}
+                                    {% set s = ev.completedSummary %}
+                                    <div class="eval-summary">
+                                        <div class="eval-summary__stat eval-summary__stat--dates">
+                                            <span class="eval-summary__date-value">
+                                                {% if s.firstRunDate|date('Y') == s.lastRunDate|date('Y') %}
+                                                    {{ s.firstRunDate|date('M j') }} – {{ s.lastRunDate|date('M j, Y') }}
+                                                {% else %}
+                                                    {{ s.firstRunDate|date('M j, Y') }} – {{ s.lastRunDate|date('M j, Y') }}
+                                                {% endif %}
+                                            </span>
+                                            <span class="eval-summary__label">date range</span>
+                                        </div>
+                                        <div class="eval-summary__stat">
+                                            <span class="eval-summary__value">{{ s.runCount }}</span>
+                                            <span class="eval-summary__label">runs</span>
+                                        </div>
+                                        <div class="eval-summary__stat">
+                                            <span class="eval-summary__value">{{ s.modelCount }}</span>
+                                            <span class="eval-summary__label">models</span>
+                                        </div>
+                                        <div class="eval-summary__stat">
+                                            <span class="eval-summary__value">{{ s.reviewerCount }}</span>
+                                            <span class="eval-summary__label">reviewers</span>
+                                        </div>
+                                        {% if s.topModelName %}
+                                            <div class="eval-summary__stat eval-summary__topmodel">
+                                                <span class="eval-summary__model-name">{{ s.topModelName }}</span>
+                                                <span class="eval-summary__label">top score</span>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% else %}
+                                    {% include "pages/eval/_progress-bar.twig" with { progress: ev.progress } %}
+                                {% endif %}
+                            </td>
+                            <td class="eval-table__cell--activity">{{ ev.updatedAt|date("M j, Y") }}</td>
+                            <td class="eval-table__cell--actions"><a class="rj-btn rj-btn--secondary rj-btn--sm" href="/eval/evals/{{ ev.publicId }}">Open</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+</section>

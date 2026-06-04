@@ -4,6 +4,7 @@
 import { randomBytes } from 'node:crypto';
 import { db } from '@rumbo/db';
 import { getRunByPublicId } from './evals.service.js';
+import { formatResponseText } from './markdown.js';
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
@@ -96,7 +97,10 @@ export async function getReviewData(organizationId, runPublicId, reviewerUserId)
 
   return {
     run,
-    submittedResponses,
+    submittedResponses: submittedResponses.map(response => ({
+      ...response,
+      responseDisplay: formatResponseText(response.responseText),
+    })),
     criteria: run.criterionSnapshots,
     ratings: ratingMap,
     comments: commentMap,
@@ -176,8 +180,9 @@ export async function getReportData(organizationId, runPublicId, { reveal = true
 }
 
 async function buildReport(run, { reveal }) {
-  const [ratings, report] = await Promise.all([
+  const [ratings, comments, report] = await Promise.all([
     db.evalRating.findMany({ where: { evalRunId: run.id } }),
+    db.evalReviewComment.findMany({ where: { evalRunId: run.id } }),
     db.evalReport.findFirst({ where: { evalRunId: run.id } }),
   ]);
 
@@ -219,7 +224,40 @@ async function buildReport(run, { reveal }) {
   });
   const overall = round1(avg(ratings.map(r => r.score)));
 
-  return { run, matrix, criteria, criterionAverages, overall, overallHeatClass: heatClass(overall), report, showNames };
+  const drilldowns = {};
+  for (const response of run.responses) {
+    const model = models.find(m => m.id === response.modelSnapshotId);
+    if (!model) continue;
+    drilldowns[model.id] = {
+      responseText: response.responseText,
+      responseDisplay: formatResponseText(response.responseText),
+      scores: ratings.filter(r => r.responseId === response.id),
+      comments: comments.filter(c => c.responseId === response.id),
+    };
+  }
+
+  return { run, matrix, criteria, criterionAverages, overall, overallHeatClass: heatClass(overall), report, showNames, drilldowns };
+}
+
+export async function listReports(organizationId) {
+  return db.evalReport.findMany({
+    where: { organizationId },
+    include: { evalRun: { include: { eval: true } } },
+    orderBy: { createdAt: 'desc' },
+  });
+}
+
+export async function getEvalDetailReports(organizationId, evalRecord) {
+  const completedRuns = (evalRecord?.runs ?? []).filter(run => run.status === 'COMPLETED');
+  const reports = (await Promise.all(completedRuns.map(run => getReportData(organizationId, run.publicId, { reveal: true }))))
+    .filter(Boolean);
+  const trendData = reports.flatMap((data, runIndex) => data.matrix.map(row => ({
+    runIndex,
+    runNumber: data.run.runNumber,
+    modelName: row.modelName,
+    average: row.modelAvg,
+  })));
+  return { reports, trendData };
 }
 
 // ---- Report text + sharing ----

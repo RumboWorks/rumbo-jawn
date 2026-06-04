@@ -1,7 +1,7 @@
 {# Report heatmap: models (rows) × criteria (columns). Needs `matrix`,
    `criteria`, `criterionAverages`, `overall`, `overallHeatClass` in scope. #}
 <div class="rj-table-wrap">
-    <table class="rj-table eval-matrix">
+    <table class="rj-table eval-matrix" data-eval-matrix>
         <thead>
             <tr>
                 <th>Model</th>
@@ -14,7 +14,9 @@
                 <tr>
                     <td class="eval-matrix__model">{{ row.modelName }}</td>
                     {% for cell in row.cells %}
-                        <td class="eval-heat {{ cell.heatClass }}" title="{{ cell.count }} rating{{ cell.count == 1 ? '' : 's' }}">
+                        <td class="eval-heat {{ cell.heatClass }}{% if cell.average is not null %} eval-heat--clickable{% endif %}"
+                            data-score="{{ cell.average ?? '' }}" data-model-id="{{ row.modelId }}" data-criterion-id="{{ cell.criterionId }}"
+                            title="{{ cell.count }} rating{{ cell.count == 1 ? '' : 's' }}">
                             {{ cell.average is null ? '—' : cell.average }}
                         </td>
                     {% endfor %}
@@ -32,4 +34,11 @@
             </tr>
         </tfoot>
     </table>
+</div>
+<div class="eval-matrix-footer">
+    <span class="rj-admin-muted">Score: low 1 → 5 high</span>
+    <div class="eval-score-mode" role="group" aria-label="Matrix display mode">
+        <button class="rj-btn rj-btn--secondary rj-btn--sm is-active" type="button" data-score-mode="score">Score</button>
+        <button class="rj-btn rj-btn--ghost rj-btn--sm" type="button" data-score-mode="rank">Rank</button>
+    </div>
 </div>

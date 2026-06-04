@@ -4,6 +4,52 @@ This is the actual project decision log.
 
 Use `.agent/decision-log.agent.md` when maintaining this file.
 
+## 2026-06-04 — Adopt Align Desk UI language as Rumbo design system
+
+Status: Accepted
+
+Decision:
+Rebrand the implemented standalone Align Desk visual language as Rumbo's shared design system. Ship light, dark, paper, and pink themes plus comfortable and compact density. Use Paper when a browser has no saved theme preference, and use the standalone Eval `1200px` fixed-width content layout by default.
+
+Rationale:
+The standalone Eval app established a more mature operational UI after Rumbo's initial neutral design foundation. Rumbo now has enough real workflows to make that system the cross-tool standard.
+
+Consequences:
+- `@rumbo/design-system` is the shared frontend source of truth.
+- Shared primitives use `rj-`; tools retain isolated workflow-specific styles.
+- Current platform, Eval, and Sounds Like Us surfaces migrate onto the shared tokens and shell.
+- Individual pages may opt into fluid content when their workflow requires it.
+
+## 2026-06-04 — Use validated active organization context
+
+Status: Accepted
+
+Decision:
+Use a session-backed active organization context validated against direct membership, partner-managed organization access, or platform-admin status.
+
+Rationale:
+A multi-tool platform cannot safely assume the first membership is always the organization a user intends to act within.
+
+Consequences:
+- Tool access and organization-scoped work resolve through the active organization.
+- Invalid or stale session context falls back to an accessible organization.
+- The global header exposes organization switching.
+
+## 2026-06-04 — Store navigation orientation on the user account
+
+Status: Accepted
+
+Decision:
+Allow authenticated users to choose horizontal or vertical contextual navigation, with a single sitewide preference stored on `User.navOrientation`. Horizontal is the default.
+
+Rationale:
+Horizontal navigation matches the adopted Align Desk language, while vertical navigation remains useful for dense operational work and existing Rumbo users.
+
+Consequences:
+- The same contextual navigation markup supports both layouts.
+- The preference follows users across devices and login sessions.
+- Theme and density remain browser-local preferences.
+
 ## 2026-05-30 — Use guided iterative phases
 
 Status: Accepted

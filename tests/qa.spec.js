@@ -20,8 +20,10 @@ async function screenshot(page, name) {
 }
 
 async function registerUser(page, { name, email, password }) {
+  const [firstName, ...lastParts] = name.split(' ');
   await page.goto('/register');
-  await page.fill('input[name="name"]', name);
+  await page.fill('input[name="firstName"]', firstName);
+  await page.fill('input[name="lastName"]', lastParts.join(' ') || 'User');
   await page.fill('input[name="email"]', email);
   await page.fill('input[name="password"]', password);
   await page.click('button[type="submit"]');
@@ -59,7 +61,8 @@ test('register page renders with all fields', async ({ page }) => {
   await page.goto('/register');
   await screenshot(page, '03-register');
 
-  await expect(page.locator('input[name="name"]')).toBeVisible();
+  await expect(page.locator('input[name="firstName"]')).toBeVisible();
+  await expect(page.locator('input[name="lastName"]')).toBeVisible();
   await expect(page.locator('input[name="email"]')).toBeVisible();
   await expect(page.locator('input[name="password"]')).toBeVisible();
 });
@@ -131,7 +134,8 @@ test('platform admin can view central admin dashboard', async ({ page }) => {
   await expect(page.locator('h1')).toContainText('Sort Check User');
   await expect(page.locator('.rj-admin-breadcrumbs').first()).toHaveText('admin / users');
   await expect(page.locator('text=Platform admin').first()).toBeVisible();
-  await page.fill('form[action$="/profile"] input[name="name"]', 'Sort Check Edited');
+  await page.fill('form[action$="/profile"] input[name="firstName"]', 'Sort');
+  await page.fill('form[action$="/profile"] input[name="lastName"]', 'Check Edited');
   await page.fill('form[action$="/profile"] input[name="reason"]', 'QA user edit');
   await page.locator('form[action$="/profile"] button[type="submit"]').click();
   await expect(page.locator('h1')).toContainText('Sort Check Edited');
@@ -193,10 +197,11 @@ test('account page supports profile and password edits', async ({ page }) => {
 
   await page.goto('/account');
   await screenshot(page, '05-account');
-  await expect(page.locator('h1')).toContainText('Account');
+  await expect(page.locator('h1')).toContainText("Account's account");
   await expect(page.locator('text=No team organizations.')).toBeVisible();
 
-  await page.fill('form[action="/account/profile"] input[name="name"]', 'Account Edited');
+  await page.fill('form[action="/account/profile"] input[name="firstName"]', 'Account');
+  await page.fill('form[action="/account/profile"] input[name="lastName"]', 'Edited');
   await page.fill('form[action="/account/profile"] input[name="email"]', nextEmail);
   await page.locator('form[action="/account/profile"] button[type="submit"]').click();
   await expect(page.locator('text=Profile updated.')).toBeVisible();
@@ -294,35 +299,59 @@ test('unknown route returns 404 page', async ({ page }) => {
 
 // ---- Design system ----
 
-test('Rumboworks theme applies warm palette tokens', async ({ page }) => {
+test('paper theme is the default shared theme', async ({ page }) => {
   await page.goto('/');
   const theme = await page.getAttribute('html', 'data-theme');
-  expect(theme).toBe('rumboworks');
+  expect(theme).toBe('paper');
 
-  // Check --rj-paper is the warm background (not pure white or grey)
   const bg = await page.evaluate(() =>
-    getComputedStyle(document.documentElement).getPropertyValue('--rj-paper').trim()
+    getComputedStyle(document.documentElement).getPropertyValue('--rj-bg').trim()
   );
-  expect(bg).toBe('#FAF7F1');
+  expect(bg).toBe('#f1ead8');
 });
 
-test('theme switcher changes data-theme to bw', async ({ page }) => {
+test('theme and density switchers persist browser-local preferences', async ({ page }) => {
   await page.goto('/');
-  await page.selectOption('#rj-theme-select', 'bw');
+  await page.selectOption('#rj-theme-select', 'dark');
 
   const theme = await page.getAttribute('html', 'data-theme');
-  expect(theme).toBe('bw');
+  expect(theme).toBe('dark');
 
-  // Assert the CSS variable is overridden (avoids the 200ms button transition)
-  const ember = await page.evaluate(() =>
-    getComputedStyle(document.documentElement).getPropertyValue('--rj-ember-500').trim()
-  );
-  expect(ember).toBe('#555555');
+  await page.evaluate(() => localStorage.setItem('rj-density', 'compact'));
+  await page.reload();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await expect(page.locator('html')).toHaveAttribute('data-density', 'compact');
+  await screenshot(page, '08-theme-dark');
+  await page.selectOption('#rj-theme-select', 'paper');
+  await page.evaluate(() => localStorage.setItem('rj-density', 'comfortable'));
+});
 
-  await screenshot(page, '08-theme-bw');
+test('navigation orientation is account-synced and active organization can switch', async ({ page }) => {
+  const email = `ui-pref-${Date.now()}@example.org`;
+  await registerUser(page, { name: 'UI Preference User', email, password: 'testpass99' });
+  const user = await db.user.findUnique({ where: { email }, include: { memberships: true } });
+  const secondOrg = await db.organization.create({
+    data: { name: 'Second QA Organization', slug: `second-qa-${Date.now()}`, organizationType: 'NONPROFIT', createdByUserId: user.id },
+  });
+  await db.membership.create({ data: { userId: user.id, orgId: secondOrg.id, role: 'MANAGER' } });
 
-  // Reset to rumboworks so other tests aren't affected
-  await page.selectOption('#rj-theme-select', 'rumboworks');
+  await page.goto('/account');
+  await expect(page.locator('html')).toHaveAttribute('data-nav-orientation', 'horizontal');
+  await page.click('#rj-nav-orientation-toggle');
+  await expect(page.locator('html')).toHaveAttribute('data-nav-orientation', 'vertical');
+  await expect.poll(async () => (await db.user.findUnique({ where: { id: user.id } })).navOrientation).toBe('VERTICAL');
+
+  await page.selectOption('#rj-org-select', secondOrg.id);
+  await page.waitForLoadState('networkidle');
+  await expect(page.locator('#rj-org-select')).toHaveValue(secondOrg.id);
+
+  await page.goto('/auth/logout');
+  await page.goto('/login');
+  await page.fill('input[name="email"]', email);
+  await page.fill('input[name="password"]', 'testpass99');
+  await page.click('button[type="submit"]');
+  await page.waitForURL('/');
+  await expect(page.locator('html')).toHaveAttribute('data-nav-orientation', 'vertical');
 });
 
 test('Google Fonts link present in head', async ({ page }) => {
@@ -352,8 +381,11 @@ test('registration creates account and logs in', async ({ page }) => {
   await registerUser(page, { name: 'QA User', email, password: 'testpass99' });
 
   await screenshot(page, '09-post-register');
-  await expect(page.locator('text=QA User')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'QA User', exact: true })).toBeVisible();
   await expect(page.locator('text=Sign out')).toBeVisible();
+  const user = await db.user.findUnique({ where: { email } });
+  expect(user.firstName).toBe('QA');
+  expect(user.lastName).toBe('User');
 });
 
 test('wrong password shows error or stays on login', async ({ page }) => {
@@ -371,7 +403,7 @@ test('full cycle: register → logout → login', async ({ page }) => {
 
   // Register
   await registerUser(page, { name: 'Cycle User', email, password: 'cycle99pass' });
-  await expect(page.locator('text=Cycle User')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Cycle User', exact: true })).toBeVisible();
 
   // Logout
   await page.click('text=Sign out');
@@ -385,7 +417,7 @@ test('full cycle: register → logout → login', async ({ page }) => {
   await page.click('button[type="submit"]');
   await page.waitForURL('/');
   await screenshot(page, '11-post-login');
-  await expect(page.locator('text=Cycle User')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Cycle User', exact: true })).toBeVisible();
 });
 
 // ---- Sounds Like Us ----
@@ -434,7 +466,8 @@ test('SLU: URL input pre-fills after returning from auth', async ({ page }) => {
 
   // Register
   const email = `slu-resume-${Date.now()}@example.org`;
-  await page.fill('input[name="name"]', 'SLU Resume');
+  await page.fill('input[name="firstName"]', 'SLU');
+  await page.fill('input[name="lastName"]', 'Resume');
   await page.fill('input[name="email"]', email);
   await page.fill('input[name="password"]', 'testpass99');
   await page.click('button[type="submit"]');

@@ -17,6 +17,8 @@ export function buildGoogleStrategy() {
           providerId: profile.id,
           email,
           name:       profile.displayName,
+          firstName:  profile.name?.givenName,
+          lastName:   profile.name?.familyName,
           avatarUrl:  profile.photos?.[0]?.value ?? null,
         });
         done(null, user);

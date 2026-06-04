@@ -34,7 +34,8 @@
             <li class="rj-wizard__nav-step" data-wizard-indicator="prompt"><span class="rj-wizard__nav-num">{{ isNewEval ? 2 : 1 }}</span><span>Prompt</span></li>
             <li class="rj-wizard__nav-step" data-wizard-indicator="models"><span class="rj-wizard__nav-num">{{ isNewEval ? 3 : 2 }}</span><span>Models</span></li>
             <li class="rj-wizard__nav-step" data-wizard-indicator="criteria"><span class="rj-wizard__nav-num">{{ isNewEval ? 4 : 3 }}</span><span>Criteria</span></li>
-            <li class="rj-wizard__nav-step" data-wizard-indicator="review"><span class="rj-wizard__nav-num">{{ isNewEval ? 5 : 4 }}</span><span>Review</span></li>
+            <li class="rj-wizard__nav-step" data-wizard-indicator="reviewers"><span class="rj-wizard__nav-num">{{ isNewEval ? 5 : 4 }}</span><span>Reviewers</span></li>
+            <li class="rj-wizard__nav-step" data-wizard-indicator="review"><span class="rj-wizard__nav-num">{{ isNewEval ? 6 : 5 }}</span><span>Review</span></li>
         </ol>
 
         <form class="rj-wizard__form" method="post" action="{{ formAction }}">
@@ -95,6 +96,21 @@
                 {% endif %}
             </fieldset>
 
+            <fieldset class="rj-wizard__step" data-wizard-step="reviewers">
+                <legend class="rj-wizard__step-title">Select reviewers</legend>
+                <p class="rj-wizard__step-desc">Choose people who should receive a review task when this run is launched. You can also manage reviewers later.</p>
+                {% if reviewers is empty %}
+                    <p class="rj-list__empty">No users currently have Eval access.</p>
+                {% else %}
+                    {% for reviewer in reviewers %}
+                        <label class="eval-check">
+                            <input type="checkbox" name="reviewerIds" value="{{ reviewer.id }}" data-label="{{ reviewer.name ?? reviewer.email }}">
+                            <span>{{ reviewer.name ?? reviewer.email }} <span class="rj-admin-muted">· {{ reviewer.role|lower }}</span></span>
+                        </label>
+                    {% endfor %}
+                {% endif %}
+            </fieldset>
+
             <fieldset class="rj-wizard__step" data-wizard-step="review">
                 <legend class="rj-wizard__step-title">Review &amp; launch</legend>
                 <p class="rj-wizard__step-desc">Confirm your setup. Launching creates response and review tasks and may trigger API calls.</p>
@@ -103,6 +119,7 @@
                     <div><dt>Prompt</dt><dd><span data-wizard-summary-text="promptText">—</span> <button type="button" class="rj-wizard__edit" data-wizard-goto="prompt">Edit</button></dd></div>
                     <div><dt>Models</dt><dd><span data-wizard-summary-list="modelIds">—</span> <button type="button" class="rj-wizard__edit" data-wizard-goto="models">Edit</button></dd></div>
                     <div><dt>Criteria</dt><dd><span data-wizard-summary-list="criterionIds">—</span> <button type="button" class="rj-wizard__edit" data-wizard-goto="criteria">Edit</button></dd></div>
+                    <div><dt>Reviewers</dt><dd><span data-wizard-summary-list="reviewerIds">None selected</span> <button type="button" class="rj-wizard__edit" data-wizard-goto="reviewers">Edit</button></dd></div>
                 </dl>
 
                 <fieldset class="eval-fieldset">

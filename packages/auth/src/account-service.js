@@ -6,6 +6,7 @@ import { can, Permission, Role } from './permissions.js';
 import { buildAbsoluteUrl, sendEmail } from './email-service.js';
 import { findUserByEmail, ensureOrgMembership } from './user-service.js';
 import { resolveRole } from './org-access-service.js';
+import { normalizePersonName } from './names.js';
 
 const RESET_TOKEN_BYTES = 32;
 const RESET_TOKEN_TTL_MINUTES = 60;
@@ -19,11 +20,6 @@ export const UserStatus = Object.freeze({
 
 function normalizeEmail(email) {
   return String(email || '').trim().toLowerCase();
-}
-
-function normalizeName(name) {
-  const trimmed = String(name || '').trim();
-  return trimmed || null;
 }
 
 function hashToken(token) {
@@ -86,7 +82,7 @@ export async function getAccountOverview(userId) {
   };
 }
 
-export async function updateOwnProfile(userId, { name, email }) {
+export async function updateOwnProfile(userId, { name, firstName, lastName, email }) {
   const user = await db.user.findUnique({ where: { id: userId } });
   if (!user) throw new Error('User not found.');
   if (!isActiveUser(user)) throw new Error('Account is not active.');
@@ -96,9 +92,22 @@ export async function updateOwnProfile(userId, { name, email }) {
   const existing = await findUserByEmail(nextEmail);
   if (existing && existing.id !== userId) throw new Error('That email address is already in use.');
 
+  const personName = normalizePersonName({ name, firstName, lastName });
+  if (!personName.firstName || !personName.lastName) throw new Error('First and last name are required.');
   return db.user.update({
     where: { id: userId },
-    data: { name: normalizeName(name), email: nextEmail },
+    data: { ...personName, email: nextEmail },
+  });
+}
+
+export async function updateNavigationOrientation(userId, orientation) {
+  if (!['HORIZONTAL', 'VERTICAL'].includes(orientation)) {
+    throw new Error('Invalid navigation orientation.');
+  }
+  return db.user.update({
+    where: { id: userId },
+    data: { navOrientation: orientation },
+    select: { navOrientation: true },
   });
 }
 
@@ -319,7 +328,7 @@ export async function removeMembership({ orgId, membershipId, actorId, actorRole
   return membership;
 }
 
-export async function adminUpdateUser({ userId, actorId, name, email, status, statusReason = null, reason = null }) {
+export async function adminUpdateUser({ userId, actorId, name, firstName, lastName, email, status, statusReason = null, reason = null }) {
   const user = await db.user.findUnique({ where: { id: userId } });
   if (!user) throw new Error('User not found.');
   if (!Object.values(UserStatus).includes(status)) throw new Error('Invalid account status.');
@@ -329,10 +338,12 @@ export async function adminUpdateUser({ userId, actorId, name, email, status, st
   const existing = await findUserByEmail(nextEmail);
   if (existing && existing.id !== userId) throw new Error('That email address is already in use.');
 
+  const personName = normalizePersonName({ name, firstName, lastName });
+  if (!personName.firstName || !personName.lastName) throw new Error('First and last name are required.');
   const updated = await db.user.update({
     where: { id: userId },
     data: {
-      name: normalizeName(name),
+      ...personName,
       email: nextEmail,
       status,
       statusReason: status === UserStatus.ACTIVE ? null : statusReason || null,
@@ -345,8 +356,8 @@ export async function adminUpdateUser({ userId, actorId, name, email, status, st
     action: 'user.profile_changed',
     targetType: 'user',
     targetId: userId,
-    oldValue: { name: user.name, email: user.email, status: user.status, statusReason: user.statusReason },
-    newValue: { name: updated.name, email: updated.email, status: updated.status, statusReason: updated.statusReason },
+    oldValue: { name: user.name, firstName: user.firstName, lastName: user.lastName, email: user.email, status: user.status, statusReason: user.statusReason },
+    newValue: { name: updated.name, firstName: updated.firstName, lastName: updated.lastName, email: updated.email, status: updated.status, statusReason: updated.statusReason },
     reason,
   });
 

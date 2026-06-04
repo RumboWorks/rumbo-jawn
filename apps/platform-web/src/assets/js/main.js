@@ -1,4 +1,5 @@
 import '../scss/main.scss';
+import { applyLocalUiPreferences } from '@rumbo/design-system';
 import { initIcons } from './icons.js';
 import './inline-edit.js';
 import { initReview } from './review.js';
@@ -13,6 +14,7 @@ initReview();
 
 // Stepped-form wizards (no-op unless a [data-wizard] is present).
 initWizards();
+applyLocalUiPreferences();
 
 function getSortableRows(table) {
   return Array.from(table.tBodies[0]?.rows ?? []).filter((row) => {
@@ -149,15 +151,107 @@ document.querySelectorAll('.rj-admin-table').forEach((table) => {
 });
 
 // ---- Theme switcher ----
-const select = document.getElementById('rj-theme-select');
-if (select) {
-  const current = document.documentElement.getAttribute('data-theme') || 'rumboworks';
-  select.value = current;
+const themeSelect = document.getElementById('rj-theme-select');
+if (themeSelect) {
+  const current = document.documentElement.getAttribute('data-theme') || 'light';
+  themeSelect.value = current;
 
-  select.addEventListener('change', () => {
-    const theme = select.value;
+  themeSelect.addEventListener('change', () => {
+    const theme = themeSelect.value;
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('rj-theme', theme);
     document.querySelectorAll('#rj-theme-select').forEach(el => { el.value = theme; });
   });
 }
+
+const densitySelect = document.getElementById('rj-density-select');
+if (densitySelect) {
+  densitySelect.value = document.documentElement.getAttribute('data-density') || 'comfortable';
+  densitySelect.addEventListener('change', () => {
+    const density = densitySelect.value;
+    document.documentElement.setAttribute('data-density', density);
+    localStorage.setItem('rj-density', density);
+  });
+}
+
+const orientationToggle = document.getElementById('rj-nav-orientation-toggle');
+if (orientationToggle) {
+  orientationToggle.addEventListener('click', async () => {
+    const root = document.documentElement;
+    const current = root.getAttribute('data-nav-orientation') || 'horizontal';
+    const orientation = current === 'horizontal' ? 'vertical' : 'horizontal';
+    const response = await fetch('/account/preferences/navigation', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      body: JSON.stringify({ orientation }),
+    });
+    if (response.ok) root.setAttribute('data-nav-orientation', orientation);
+  });
+}
+
+function rankClass(value, values) {
+  const higher = values.filter(v => v > value).length;
+  const lower = values.filter(v => v < value).length;
+  if (higher === 0) return 'rank-top';
+  if (lower === 0) return 'rank-bottom';
+  return 'rank-middle';
+}
+
+document.querySelectorAll('[data-eval-matrix]').forEach((matrix) => {
+  const cells = Array.from(matrix.querySelectorAll('.eval-heat[data-score]'));
+  document.querySelectorAll('[data-score-mode]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const rank = button.dataset.scoreMode === 'rank';
+      const values = cells.map(cell => Number(cell.dataset.score)).filter(Number.isFinite);
+      cells.forEach((cell) => {
+        cell.classList.remove('rank-top', 'rank-middle', 'rank-bottom');
+        const value = Number(cell.dataset.score);
+        if (rank && Number.isFinite(value)) cell.classList.add(rankClass(value, values));
+      });
+      button.parentElement.querySelectorAll('button').forEach(b => b.classList.toggle('is-active', b === button));
+    });
+  });
+});
+
+const drilldownDataNode = document.getElementById('eval-report-drilldowns');
+const drilldownDialog = document.getElementById('eval-report-drilldown');
+if (drilldownDataNode && drilldownDialog) {
+  const drilldowns = JSON.parse(drilldownDataNode.textContent || '{}');
+  document.querySelectorAll('.eval-heat--clickable').forEach((cell) => {
+    cell.addEventListener('click', () => {
+      const data = drilldowns[cell.dataset.modelId] || {};
+      const scores = (data.scores || []).filter(s => s.criterionSnapshotId === cell.dataset.criterionId);
+      const comments = data.comments || [];
+      document.getElementById('eval-drilldown-body').innerHTML = `
+        <h3>Response</h3><pre class="eval-prompt">${escapeHtml(data.responseText || 'No response')}</pre>
+        <h3>Reviewer scores</h3><p>${scores.map(s => s.score).join(', ') || 'No scores'}</p>
+        <h3>Comments</h3>${comments.map(c => `<blockquote>${escapeHtml(c.commentText)}</blockquote>`).join('') || '<p>No comments</p>'}`;
+      drilldownDialog.showModal();
+    });
+  });
+  drilldownDialog.querySelector('[data-dialog-close]')?.addEventListener('click', () => drilldownDialog.close());
+}
+
+function escapeHtml(value) {
+  const node = document.createElement('div');
+  node.textContent = value;
+  return node.innerHTML;
+}
+
+document.querySelectorAll('[data-response-display]').forEach((display) => {
+  display.querySelectorAll('[data-response-view]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const view = button.dataset.responseView;
+      display.querySelectorAll('[data-response-view]').forEach(b => b.classList.toggle('is-active', b === button));
+      display.querySelectorAll('[data-response-pane]').forEach(pane => { pane.hidden = pane.dataset.responsePane !== view; });
+    });
+  });
+});
+
+document.querySelectorAll('[data-detail-tab]').forEach((button) => {
+  button.addEventListener('click', () => {
+    const key = button.dataset.detailTab;
+    document.querySelectorAll('[data-detail-tab]').forEach(tab => tab.classList.toggle('is-active', tab === button));
+    document.querySelectorAll('[data-detail-panel]').forEach(panel => { panel.hidden = panel.dataset.detailPanel !== key; });
+  });
+});

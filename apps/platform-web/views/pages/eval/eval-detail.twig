@@ -17,6 +17,33 @@
 
     <p><a href="/eval/evals">&larr; All evaluations</a></p>
 
+    {% if detailReports.reports is not empty %}
+        <section class="rj-admin-panel">
+            <div class="rj-admin-panel__header"><h2>Completed run scores</h2></div>
+            <nav class="eval-tabs" role="tablist" aria-label="Completed run score views">
+                {% for data in detailReports.reports %}
+                    <button class="eval-tabs__tab{% if loop.first %} is-active{% endif %}" type="button" data-detail-tab="run-{{ data.run.publicId }}">Run {{ data.run.runNumber }}</button>
+                {% endfor %}
+                {% if detailReports.reports|length > 1 %}<button class="eval-tabs__tab" type="button" data-detail-tab="trend">Trend</button>{% endif %}
+            </nav>
+            {% for data in detailReports.reports %}
+                <div data-detail-panel="run-{{ data.run.publicId }}"{% if not loop.first %} hidden{% endif %}>
+                    {% include "pages/eval/_report-matrix.twig" with data %}
+                </div>
+            {% endfor %}
+            {% if detailReports.reports|length > 1 %}
+                <div data-detail-panel="trend" hidden>
+                    <div class="rj-table-wrap">
+                        <table class="rj-table rj-admin-table">
+                            <thead><tr><th>Run</th><th>Model</th><th>Average</th></tr></thead>
+                            <tbody>{% for point in detailReports.trendData %}<tr><td>Run {{ point.runNumber }}</td><td>{{ point.modelName }}</td><td>{{ point.average ?? '—' }}</td></tr>{% endfor %}</tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
+        </section>
+    {% endif %}
+
     <section class="rj-admin-panel">
         <div class="rj-admin-panel__header"><h2>Runs</h2></div>
         {% if eval.runs is not empty %}

@@ -13,7 +13,8 @@ import { db } from '@rumbo/db';
 async function setupEvalManager(page, label) {
   const email = `${label}-${Date.now()}@example.org`;
   await page.goto('/register');
-  await page.fill('input[name="name"]', 'Wizard User');
+  await page.fill('input[name="firstName"]', 'Wizard');
+  await page.fill('input[name="lastName"]', 'User');
   await page.fill('input[name="email"]', email);
   await page.fill('input[name="password"]', 'testpass99');
   await page.click('button[type="submit"]');
@@ -32,8 +33,15 @@ async function setupEvalManager(page, label) {
 }
 
 test('new-eval wizard: steps through and launches the first run', async ({ page }) => {
-  await setupEvalManager(page, 'eval-wiz-new');
+  const { orgId } = await setupEvalManager(page, 'eval-wiz-new');
 
+  await page.setViewportSize({ width: 1600, height: 900 });
+  await page.goto('/eval');
+  await expect(page.locator('h1')).toContainText('Wizard’s Desk');
+  await expect(page.locator('.eval-desk > .rj-admin-metrics')).toHaveCount(0);
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'paper');
+  const contentBox = await page.locator('.rj-app-content').boundingBox();
+  expect(contentBox.width).toBeLessThanOrEqual(1200);
   await page.goto('/eval/evals/new');
 
   // JS enhancement engaged: the stepper shows and only the first step is active.
@@ -61,7 +69,11 @@ test('new-eval wizard: steps through and launches the first run', async ({ page 
   await page.check('input[name="criterionIds"]');
   await page.click('[data-wizard-next]');
 
-  // Step 5: Review — summary reflects the choices.
+  // Step 5: Reviewers (optional)
+  await expect(page.locator('[data-wizard-step="reviewers"]')).toBeVisible();
+  await page.click('[data-wizard-next]');
+
+  // Step 6: Review — summary reflects the choices.
   await expect(page.locator('[data-wizard-step="review"]')).toBeVisible();
   await expect(page.locator('[data-wizard-summary-text="promptText"]')).toContainText('warm donation ask');
   await expect(page.locator('[data-wizard-summary-list="modelIds"]')).toContainText('GPT-test');
@@ -72,6 +84,51 @@ test('new-eval wizard: steps through and launches the first run', async ({ page 
   await expect(page).toHaveURL(/\/eval\/runs\/[^/]+$/);
   await expect(page.locator('h1')).toContainText('Run 1');
   await expect(page.locator('.rj-alert--success')).toContainText('launched');
+
+  await page.goto('/eval');
+  const listTitleStyle = await page.locator('.eval-list-section__title').first().evaluate(element => {
+    const style = getComputedStyle(element);
+    return { fontSize: style.fontSize, textTransform: style.textTransform };
+  });
+  expect(listTitleStyle).toEqual({ fontSize: '12px', textTransform: 'uppercase' });
+
+  const tableColors = await page.evaluate(() => {
+    const style = getComputedStyle(document.documentElement);
+    return {
+      header: style.getPropertyValue('--rj-table-header-bg').trim(),
+      body: style.getPropertyValue('--rj-table-body-bg').trim(),
+    };
+  });
+  expect(tableColors).toEqual({
+    header: '#f6efdc',
+    body: '#faf5e6',
+  });
+  await expect(page.locator('.eval-list-section .rj-table-tools__count')).toHaveCount(0);
+  await expect(page.locator('.eval-table thead')).not.toContainText('Status');
+  await expect(page.locator('.eval-table thead')).not.toContainText('Runs');
+  await expect(page.locator('.eval-progress').first()).toBeVisible();
+  await expect(page.locator('.eval-progress [aria-label="AI Responses"]').first()).toHaveAttribute('aria-valuetext', '0 of 1');
+  await expect(page.locator('.eval-progress [aria-label="Human Reviews"]').first()).toHaveAttribute('aria-valuetext', '0 of 0');
+
+  const completedEval = await db.eval.findFirst({
+    where: { organizationId: orgId, title: 'Spring appeal lines' },
+    include: { runs: { orderBy: { runNumber: 'desc' }, take: 1 } },
+  });
+  await db.evalRun.update({
+    where: { id: completedEval.runs[0].id },
+    data: { status: 'COMPLETED', completedAt: new Date() },
+  });
+  await page.reload();
+
+  const completedSection = page.locator('.eval-list-section', { hasText: 'Completed' });
+  await expect(completedSection.locator('.eval-summary')).toBeVisible();
+  await expect(completedSection.locator('.eval-summary__label')).toContainText([
+    'date range',
+    'runs',
+    'models',
+    'reviewers',
+  ]);
+  await expect(completedSection.locator('.eval-progress')).toHaveCount(0);
 });
 
 test('new-run wizard on an existing eval starts at the Prompt step', async ({ page }) => {
@@ -91,6 +148,8 @@ test('new-run wizard on an existing eval starts at the Prompt step', async ({ pa
   await page.check('input[name="modelIds"]');
   await page.click('[data-wizard-next]');
   await page.check('input[name="criterionIds"]');
+  await page.click('[data-wizard-next]');
+  await expect(page.locator('[data-wizard-step="reviewers"]')).toBeVisible();
   await page.click('[data-wizard-next]');
   await expect(page.locator('[data-wizard-step="review"]')).toBeVisible();
   await page.click('[data-wizard-submit]');

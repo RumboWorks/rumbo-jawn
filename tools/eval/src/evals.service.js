@@ -6,12 +6,116 @@ import { db } from '@rumbo/db';
 
 // ---- Evaluations ----
 
-export function listEvals(organizationId) {
-  return db.eval.findMany({
+export const latestRunProgressInclude = {
+  _count: {
+    select: {
+      criterionSnapshots: true,
+      modelSnapshots: true,
+      responses: true,
+      reviewAssignments: true,
+    },
+  },
+  responses: { select: { id: true, responseText: true, modelSnapshotId: true } },
+  reviewAssignments: { select: { userId: true } },
+  ratings: { select: { responseId: true, reviewerUserId: true, criterionSnapshotId: true, score: true } },
+  modelSnapshots: { select: { id: true, displayName: true }, orderBy: { displayOrder: 'asc' } },
+};
+
+function ratioProgress(done, total) {
+  const safeTotal = Math.max(total ?? 0, 0);
+  const safeDone = Math.min(Math.max(done ?? 0, 0), safeTotal);
+  return {
+    done: safeDone,
+    total: safeTotal,
+    label: `${safeDone} of ${safeTotal}`,
+    percent: safeTotal > 0 ? Math.round((safeDone / safeTotal) * 100) : 0,
+  };
+}
+
+export function decorateEvalProgress(evalRow) {
+  const latestRun = evalRow.runs?.[0] ?? null;
+  const responses = latestRun?.responses ?? [];
+  const assignments = latestRun?.reviewAssignments ?? [];
+  const ratings = latestRun?.ratings ?? [];
+  const criterionCount = latestRun?._count?.criterionSnapshots ?? 0;
+  const responseTotal = Math.max(latestRun?._count?.responses ?? 0, responses.length);
+  const reviewerTotal = Math.max(latestRun?._count?.reviewAssignments ?? 0, assignments.length);
+  const responseProgress = ratioProgress(
+    responses.filter(response => response.responseText != null && response.responseText !== '').length,
+    responseTotal
+  );
+
+  const scoredCriteria = new Map();
+  for (const rating of ratings) {
+    const key = `${rating.reviewerUserId}:${rating.responseId}`;
+    if (!scoredCriteria.has(key)) scoredCriteria.set(key, new Set());
+    scoredCriteria.get(key).add(rating.criterionSnapshotId);
+  }
+
+  let completedResponseReviews = 0;
+  if (criterionCount > 0) {
+    for (const assignment of assignments) {
+      for (const response of responses) {
+        if ((scoredCriteria.get(`${assignment.userId}:${response.id}`)?.size ?? 0) >= criterionCount) {
+          completedResponseReviews++;
+        }
+      }
+    }
+  }
+
+  let topModelName = null;
+  let topModelAverage = -Infinity;
+  if (latestRun?.status === 'COMPLETED') {
+    const responseModelIds = new Map(responses.map(response => [response.id, response.modelSnapshotId]));
+    const scoresByModel = new Map();
+    for (const rating of ratings) {
+      const modelId = responseModelIds.get(rating.responseId);
+      if (!modelId || rating.score == null) continue;
+      if (!scoresByModel.has(modelId)) scoresByModel.set(modelId, []);
+      scoresByModel.get(modelId).push(rating.score);
+    }
+    for (const model of latestRun.modelSnapshots ?? []) {
+      const scores = scoresByModel.get(model.id) ?? [];
+      if (!scores.length) continue;
+      const average = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+      if (average > topModelAverage) {
+        topModelAverage = average;
+        topModelName = model.displayName;
+      }
+    }
+  }
+
+  return {
+    ...evalRow,
+    progress: {
+      setupDone: Boolean(latestRun),
+      responses: responseProgress,
+      reviews: ratioProgress(completedResponseReviews, responseTotal * reviewerTotal),
+      allDone: latestRun?.status === 'COMPLETED',
+    },
+    completedSummary: latestRun?.status === 'COMPLETED'
+      ? {
+          firstRunDate: evalRow.createdAt,
+          lastRunDate: latestRun.completedAt ?? latestRun.updatedAt,
+          runCount: evalRow._count?.runs ?? 0,
+          modelCount: latestRun._count?.modelSnapshots ?? 0,
+          reviewerCount: latestRun._count?.reviewAssignments ?? 0,
+          topModelName,
+        }
+      : null,
+  };
+}
+
+export async function listEvals(organizationId) {
+  const evals = await db.eval.findMany({
     where: { organizationId, archivedAt: null },
     orderBy: { updatedAt: 'desc' },
-    include: { _count: { select: { runs: true } } },
+    include: {
+      _count: { select: { runs: true } },
+      runs: { orderBy: { runNumber: 'desc' }, take: 1, include: latestRunProgressInclude },
+    },
   });
+  return evals.map(decorateEvalProgress);
 }
 
 export function getEvalById(organizationId, evalId) {

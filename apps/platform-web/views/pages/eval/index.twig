@@ -7,112 +7,89 @@
 {% endblock %}
 
 {% block content %}
-    <div class="rj-page-header">
-        <h1>Eval</h1>
-        <p>Evaluate AI model and tool outputs against your criteria.</p>
-    </div>
+    <div class="eval-desk">
+        <div class="rj-page-header">
+            <h1 class="eval-desk__title">{{ currentUserFirstName }}’s Desk</h1>
+            <p class="eval-desk__subtitle">Evaluate AI model and tool outputs against your criteria.</p>
+        </div>
 
-    {% include "pages/eval/_flash.twig" %}
+        {% include "pages/eval/_flash.twig" %}
 
-    <section class="rj-admin-metrics rj-admin-metrics--compact">
-        <div class="rj-admin-metric">
-            <span class="rj-admin-metric__label">Evaluations</span>
-            <strong>{{ summary.evalCount }}</strong>
-        </div>
-        <div class="rj-admin-metric">
-            <span class="rj-admin-metric__label">Runs</span>
-            <strong>{{ summary.runCount }}</strong>
-        </div>
-        <div class="rj-admin-metric">
-            <span class="rj-admin-metric__label">Criteria</span>
-            <strong>{{ summary.criteriaCount }}</strong>
-        </div>
-        <div class="rj-admin-metric">
-            <span class="rj-admin-metric__label">Models</span>
-            <strong>{{ summary.modelCount }}</strong>
-        </div>
-    </section>
-
-    {% if notifications is not empty %}
-        <section class="rj-admin-panel">
-            <div class="rj-admin-panel__header">
-                <h2>Notifications{% if unread > 0 %} <span class="eval-badge">{{ unread }}</span>{% endif %}</h2>
-                {% if unread > 0 %}
-                    <form method="post" action="/eval/notifications/read"><button class="rj-btn rj-btn--ghost rj-btn--sm" type="submit">Mark all read</button></form>
-                {% endif %}
-            </div>
-            <div class="rj-list">
-                {% for n in notifications %}
-                    <div class="rj-item{% if not n.readAt %} eval-unread{% endif %}">
-                        <div class="rj-item__display">
-                            <div class="rj-item__main">
-                                <div class="rj-item__title">
-                                    {% if n.notificationType == 'REVIEW_ASSIGNED' %}You were assigned a review
-                                    {% elseif n.notificationType == 'REVIEW_REMINDER' %}Reminder: a review is waiting
-                                    {% elseif n.notificationType == 'EVAL_COMPLETED' %}A review you took part in is complete
-                                    {% elseif n.notificationType == 'MANUAL_RESPONSE_NEEDED' %}A response needs manual collection
-                                    {% else %}{{ n.notificationType|replace({'_': ' '})|lower }}{% endif %}
+        {% if notifications is not empty %}
+            <section class="rj-admin-panel">
+                <div class="rj-admin-panel__header">
+                    <h2>Notifications{% if unread > 0 %} <span class="eval-badge">{{ unread }}</span>{% endif %}</h2>
+                    {% if unread > 0 %}
+                        <form method="post" action="/eval/notifications/read"><button class="rj-btn rj-btn--ghost rj-btn--sm" type="submit">Mark all read</button></form>
+                    {% endif %}
+                </div>
+                <div class="rj-list">
+                    {% for n in notifications %}
+                        <div class="rj-item{% if not n.readAt %} eval-unread{% endif %}">
+                            <div class="rj-item__display">
+                                <div class="rj-item__main">
+                                    <div class="rj-item__title">
+                                        {% if n.notificationType == 'REVIEW_ASSIGNED' %}You were assigned a review
+                                        {% elseif n.notificationType == 'REVIEW_REMINDER' %}Reminder: a review is waiting
+                                        {% elseif n.notificationType == 'EVAL_COMPLETED' %}A review you took part in is complete
+                                        {% elseif n.notificationType == 'MANUAL_RESPONSE_NEEDED' %}A response needs manual collection
+                                        {% else %}{{ n.notificationType|replace({'_': ' '})|lower }}{% endif %}
+                                    </div>
+                                    <div class="rj-item__meta">{% if n.evalRun %}{{ n.evalRun.eval.title }} · run {{ n.evalRun.runNumber }} · {% endif %}{{ n.createdAt|date("M j, g:ia") }}</div>
                                 </div>
-                                <div class="rj-item__meta">{% if n.evalRun %}{{ n.evalRun.eval.title }} · run {{ n.evalRun.runNumber }} · {% endif %}{{ n.createdAt|date("M j, g:ia") }}</div>
-                            </div>
-                            {% if n.evalRun %}
-                                <div class="rj-item__actions"><a href="/eval/runs/{{ n.evalRun.publicId }}/review" class="rj-btn rj-btn--ghost rj-btn--sm">View</a></div>
-                            {% endif %}
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        </section>
-    {% endif %}
-
-    {% if myReviews is not empty %}
-        <section class="rj-admin-panel">
-            <div class="rj-admin-panel__header"><h2>Your reviews</h2></div>
-            <div class="rj-list">
-                {% for run in myReviews %}
-                    <div class="rj-item">
-                        <div class="rj-item__display">
-                            <div class="rj-item__main">
-                                <div class="rj-item__title">{{ run.eval.title }}</div>
-                                <div class="rj-item__meta">Run {{ run.runNumber }} · awaiting your review</div>
-                            </div>
-                            <div class="rj-item__actions">
-                                <a href="/eval/runs/{{ run.publicId }}/review" class="rj-btn rj-btn--primary rj-btn--sm">Review</a>
+                                {% if n.evalRun %}
+                                    <div class="rj-item__actions"><a href="/eval/runs/{{ n.evalRun.publicId }}/review" class="rj-btn rj-btn--ghost rj-btn--sm">View</a></div>
+                                {% endif %}
                             </div>
                         </div>
-                    </div>
-                {% endfor %}
-            </div>
-        </section>
-    {% endif %}
-
-    <section class="rj-admin-panel">
-        <div class="rj-admin-panel__header"><h2>Recent evaluations</h2></div>
-        {% if summary.recentEvals is not empty %}
-            <div class="rj-table-wrap">
-                <table class="rj-table rj-admin-table">
-                    <thead>
-                        <tr><th>Title</th><th>Runs</th><th>Updated</th></tr>
-                    </thead>
-                    <tbody>
-                        {% for ev in summary.recentEvals %}
-                            <tr>
-                                <td>{% if toolRole == 'MANAGER' %}<a href="/eval/evals/{{ ev.publicId }}">{{ ev.title }}</a>{% else %}{{ ev.title }}{% endif %}</td>
-                                <td class="rj-num">{{ ev._count.runs }}</td>
-                                <td class="rj-num">{{ ev.updatedAt|date("M j, Y") }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        {% else %}
-            <p class="eval-empty">No evaluations yet.
-                {% if toolRole == 'MANAGER' %}
-                    Set up your <a href="/eval/settings/models">models</a> and <a href="/eval/settings/criteria">criteria</a>, then <a href="/eval/evals/new">create an evaluation</a>.
-                {% else %}
-                    A manager can set up evaluations for your team.
-                {% endif %}
-            </p>
+                    {% endfor %}
+                </div>
+            </section>
         {% endif %}
-    </section>
+
+        {% if myReviews is not empty %}
+            <section class="rj-admin-panel">
+                <div class="rj-admin-panel__header"><h2>Your reviews</h2></div>
+                <div class="rj-list">
+                    {% for run in myReviews %}
+                        <div class="rj-item">
+                            <div class="rj-item__display">
+                                <div class="rj-item__main">
+                                    <div class="rj-item__title">{{ run.eval.title }}</div>
+                                    <div class="rj-item__meta">Run {{ run.runNumber }} · awaiting your review</div>
+                                </div>
+                                <div class="rj-item__actions">
+                                    <a href="/eval/runs/{{ run.publicId }}/review" class="rj-btn rj-btn--primary rj-btn--sm">Review</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </section>
+        {% endif %}
+
+        <section class="eval-desk__section">
+            <h2 class="eval-desk__section-title">Evaluations</h2>
+            {% if summary.recentEvals is empty %}
+                <p class="eval-empty">No evaluations yet.
+                    {% if toolRole == 'MANAGER' %}
+                        Set up your <a href="/eval/settings/models">models</a> and <a href="/eval/settings/criteria">criteria</a>, then <a href="/eval/evals/new">create an evaluation</a>.
+                    {% else %}
+                        A manager can set up evaluations for your team.
+                    {% endif %}
+                </p>
+            {% elseif toolRole == 'MANAGER' %}
+                {% set drafts = [] %}{% set active = [] %}{% set completed = [] %}
+                {% for ev in summary.recentEvals %}
+                    {% set latest = ev.runs[0] ?? null %}
+                    {% if not latest %}{% set drafts = drafts|merge([ev]) %}
+                    {% elseif latest.status == 'COMPLETED' %}{% set completed = completed|merge([ev]) %}
+                    {% else %}{% set active = active|merge([ev]) %}{% endif %}
+                {% endfor %}
+                {% include "pages/eval/_eval-table.twig" with { heading: 'Draft', items: drafts } %}
+                {% include "pages/eval/_eval-table.twig" with { heading: 'In progress', items: active } %}
+                {% include "pages/eval/_eval-table.twig" with { heading: 'Completed', items: completed } %}
+            {% endif %}
+        </section>
+    </div>
 {% endblock %}

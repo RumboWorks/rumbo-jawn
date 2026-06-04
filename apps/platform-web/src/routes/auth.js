@@ -56,10 +56,10 @@ router.post('/auth/local',
 );
 
 router.post('/register', async (req, res) => {
-  const { name, email, password } = req.body;
+  const { firstName, lastName, email, password } = req.body;
   const inviteToken = req.body.inviteToken || req.session.inviteToken || null;
   try {
-    const user = await registerLocalUser({ name, email, password, inviteToken });
+    const user = await registerLocalUser({ firstName, lastName, email, password, inviteToken });
     const returnTo = req.session.returnTo ?? '/';
     req.login(user, (err) => {
       if (err) return res.redirect('/login');

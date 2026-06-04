@@ -10,6 +10,7 @@ import {
   resolveRole,
   setMembershipRole,
   updateOwnProfile,
+  updateNavigationOrientation,
 } from '@rumbo/auth';
 
 const router = Router();
@@ -38,7 +39,11 @@ router.get('/', asyncHandler(async (req, res) => {
 
 router.post('/profile', asyncHandler(async (req, res) => {
   try {
-    await updateOwnProfile(req.user.id, { name: req.body.name, email: req.body.email });
+    await updateOwnProfile(req.user.id, {
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      email: req.body.email,
+    });
     req.session.flash_success = 'Profile updated.';
   } catch (err) {
     req.session.flash_error = err.message;
@@ -57,6 +62,16 @@ router.post('/password', asyncHandler(async (req, res) => {
     req.session.flash_error = err.message;
   }
   res.redirect('/account');
+}));
+
+router.post('/preferences/navigation', asyncHandler(async (req, res) => {
+  try {
+    const saved = await updateNavigationOrientation(req.user.id, String(req.body.orientation || '').toUpperCase());
+    req.user.navOrientation = saved.navOrientation;
+    res.json({ ok: true, orientation: saved.navOrientation.toLowerCase() });
+  } catch (err) {
+    res.status(422).json({ ok: false, error: err.message });
+  }
 }));
 
 router.get('/invites/:token/accept', asyncHandler(async (req, res) => {

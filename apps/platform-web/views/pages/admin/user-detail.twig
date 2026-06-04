@@ -33,8 +33,12 @@
             <div class="rj-admin-panel__header"><h2>Profile</h2></div>
             <form class="rj-admin-form" method="post" action="/admin/users/{{ userDetail.id }}/profile">
                 <label>
-                    <span>Name</span>
-                    <input type="text" name="name" value="{{ userDetail.name ?? '' }}" required>
+                    <span>First name</span>
+                    <input type="text" name="firstName" value="{{ userDetail.firstName ?? '' }}" required>
+                </label>
+                <label>
+                    <span>Last name</span>
+                    <input type="text" name="lastName" value="{{ userDetail.lastName ?? '' }}" required>
                 </label>
                 <label>
                     <span>Email</span>

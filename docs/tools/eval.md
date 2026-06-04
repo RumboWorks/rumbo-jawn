@@ -12,6 +12,8 @@ Eval lets an organization systematically evaluate AI model/tool outputs. A manag
 
 Core loop: author eval → launch run (immutable prompt/criteria/model snapshots) → collect responses → assign reviewers → rate/comment → on-screen report matrix.
 
+The Eval UI includes a task-first dashboard, grouped evaluation listings with segmented setup/response/review/done progress for open work and date/run/model/reviewer/top-score summaries for completed work, launch-time reviewer selection, completed-run score views, formatted/original response reading, a split review workspace, an organization reports list, score/rank report modes, and report drilldowns.
+
 ## Platform integration
 
 Eval reuses shared platform services and does not duplicate them:

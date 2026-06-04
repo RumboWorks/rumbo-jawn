@@ -3,9 +3,11 @@
 // Add a new theme by creating themes/_theme-{name}.scss and importing it here.
 
 @use 'partials/base-tokens';       // structural tokens (spacing, radii, type scale, motion)
-@use 'themes/theme-rumboworks';    // default color theme — :root + [data-theme="rumboworks"]
-@use 'themes/theme-bw';            // black & white theme — [data-theme="bw"]
-@use 'themes/theme-rumboworks-cards'; // card-layout variant — [data-theme="rumboworks-cards"]
+@use 'themes/theme-light';
+@use 'themes/theme-dark';
+@use 'themes/theme-paper';
+@use 'themes/theme-pink';
+@use 'partials/density';
 @use 'partials/reset';
 @use 'partials/typography';
 @use 'partials/layout';

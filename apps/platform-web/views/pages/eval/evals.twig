@@ -15,15 +15,22 @@
 
     {% include "pages/eval/_flash.twig" %}
 
-    {% if evals is not empty %}
-        <div class="rj-list">
-            {% for ev in evals %}
-                {% include "pages/eval/_eval-row.twig" %}
-            {% endfor %}
-        </div>
-    {% else %}
+    {% set drafts = [] %}
+    {% set active = [] %}
+    {% set completed = [] %}
+    {% for ev in evals %}
+        {% set latest = ev.runs[0] ?? null %}
+        {% if not latest %}{% set drafts = drafts|merge([ev]) %}
+        {% elseif latest.status == 'COMPLETED' %}{% set completed = completed|merge([ev]) %}
+        {% else %}{% set active = active|merge([ev]) %}{% endif %}
+    {% endfor %}
+    {% if evals is empty %}
         <div class="rj-list">
             <p class="rj-list__empty">No evaluations yet. <a href="/eval/evals/new">Create your first evaluation</a>.</p>
         </div>
+    {% else %}
+        {% include "pages/eval/_eval-table.twig" with { heading: 'Draft', items: drafts } %}
+        {% include "pages/eval/_eval-table.twig" with { heading: 'In progress', items: active } %}
+        {% include "pages/eval/_eval-table.twig" with { heading: 'Completed', items: completed } %}
     {% endif %}
 {% endblock %}

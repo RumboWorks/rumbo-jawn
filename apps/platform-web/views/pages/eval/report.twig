@@ -21,6 +21,13 @@
         {% include "pages/eval/_report-matrix.twig" %}
     </section>
 
+    <dialog class="eval-drilldown" id="eval-report-drilldown">
+        <button class="eval-drilldown__close" type="button" data-dialog-close aria-label="Close">×</button>
+        <h2 id="eval-drilldown-title">Score details</h2>
+        <div id="eval-drilldown-body"></div>
+    </dialog>
+    <script type="application/json" id="eval-report-drilldowns">{{ drilldowns|json_encode|raw }}</script>
+
     <section class="rj-admin-panel">
         <div class="rj-admin-panel__header"><h2>Summary &amp; recommendation</h2></div>
         <form class="rj-admin-form" method="post" action="/eval/runs/{{ run.publicId }}/report">

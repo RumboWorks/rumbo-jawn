@@ -52,7 +52,11 @@ No heavy utility-class framework.
 
 Use shared design-system conventions and tokenized CSS variables.
 
+Shared visual behavior belongs in `@rumbo/design-system` and the platform `rj-` component layer. Tool styles should describe workflow-specific presentation, not duplicate buttons, forms, navigation, tables, themes, or preference handling.
+
 Use `rj-` prefixes for shared design-system/platform classes and tool-specific prefixes for tool-specific classes.
+
+Supported root UI attributes are `data-theme`, `data-density`, `data-nav-orientation`, and `data-tool`. Theme and density are browser-local preferences; navigation orientation is account-synced.
 
 ## Documentation
 

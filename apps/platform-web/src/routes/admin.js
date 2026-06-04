@@ -78,7 +78,8 @@ router.post('/users/:userId/profile', asyncHandler(async (req, res) => {
   await adminUpdateUser({
     userId: req.params.userId,
     actorId: req.user.id,
-    name: req.body.name,
+    firstName: req.body.firstName,
+    lastName: req.body.lastName,
     email: req.body.email,
     status: req.body.status,
     statusReason: req.body.statusReason || null,

@@ -1,20 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"{% if currentUser %} data-nav-orientation="{{ navOrientation ?? 'horizontal' }}"{% endif %}>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Rumbo{% endblock %}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Bitter:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Hanken+Grotesk:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Geist:wght@300;400;500;600;700&family=Hanken+Grotesk:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=JetBrains+Mono:ital,wght@0,400;0,500;1,400&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Newsreader:ital,opsz,wght@0,6..72,300..800;1,6..72,300..800&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="/brand/rumboworks-mark.svg">
     <link rel="alternate icon" href="/favicon.ico">
     <link rel="stylesheet" href="/dist/main.css">
     <script>
         // Apply saved theme before paint to avoid flash
         (function() {
-            var t = localStorage.getItem('rj-theme') || 'rumboworks';
+            var t = localStorage.getItem('rj-theme') || 'paper';
+            var d = localStorage.getItem('rj-density') || 'comfortable';
             document.documentElement.setAttribute('data-theme', t);
+            document.documentElement.setAttribute('data-density', d);
         })();
     </script>
 </head>
@@ -25,6 +27,17 @@
                 <img src="/brand/rumboworks-mark.svg" alt="" width="28" height="28">
                 <span class="rj-wordmark">Rumbo</span>
             </a>
+            {% if currentUser and activeOrganization %}
+                <form class="rj-org-switcher" method="post" action="/organization/switch">
+                    <input type="hidden" name="returnTo" value="{{ currentPath ?? '/' }}">
+                    <label class="rj-sr-only" for="rj-org-select">Organization</label>
+                    <select id="rj-org-select" name="orgId" onchange="this.form.submit()">
+                        {% for org in organizations %}
+                            <option value="{{ org.id }}"{% if org.id == activeOrganization.id %} selected{% endif %}>{{ org.name }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+            {% endif %}
             <nav class="rj-header__nav">
                 {% if currentUser %}
                     {% for t in navTools %}
@@ -33,7 +46,10 @@
                     {% if currentUser.isPlatformAdmin %}
                         <a href="/admin" class="rj-header__nav-link">Admin</a>
                     {% endif %}
-                    <a href="/account" class="rj-header__nav-link">{{ currentUser.name ?? currentUser.email }}</a>
+                    <a href="/account" class="rj-header__nav-link">{{ currentUserDisplayName }}</a>
+                    <button class="rj-nav-orientation-toggle" id="rj-nav-orientation-toggle" type="button" aria-label="Switch navigation layout" title="Switch navigation layout">
+                        <i data-lucide="panel-left"></i>
+                    </button>
                     <a href="/auth/logout" class="rj-header__nav-link">Sign out</a>
                 {% else %}
                     <a href="/login" class="rj-header__nav-link">Sign in</a>
@@ -41,9 +57,14 @@
                 {% endif %}
                 <div class="rj-theme-switcher">
                     <select id="rj-theme-select" aria-label="Color theme">
-                        <option value="rumboworks">Rumboworks</option>
- <option value="rumboworks-cards">Rumbo Cards</option>
-                        <option value="bw">Black &amp; White</option>
+                        <option value="light">Light</option>
+                        <option value="dark">Dark</option>
+                        <option value="paper">Paper</option>
+                        <option value="pink">Pink</option>
+                    </select>
+                    <select id="rj-density-select" aria-label="Density">
+                        <option value="comfortable">Comfortable</option>
+                        <option value="compact">Compact</option>
                     </select>
                 </div>
             </nav>

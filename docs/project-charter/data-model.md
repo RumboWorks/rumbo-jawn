@@ -31,6 +31,8 @@ Users are global identities. Access is determined by relationships rather than a
 - partner-account membership,
 - partner access to managed organizations.
 
+Users store structured `firstName` and `lastName` profile fields while retaining `name` as the canonical full display-name compatibility field. New local registrations collect both structured fields; OAuth profiles populate them when providers supply given and family names.
+
 Organization memberships use manager/member semantics. Organization managers can administer an organization; organization members have standard org access. Partner managers can act with manager-level rights inside organizations their partner account manages.
 
 Billing and product entitlements are organization-centered. Solo organizations use the same entitlement model as other organizations. Billing responsibility may attach to an eligible organization owner/manager, including explicitly attached partner managers for managed organizations. Partner management access alone does not bypass organization limits.

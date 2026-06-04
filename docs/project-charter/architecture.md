@@ -111,12 +111,16 @@ Do not use Bootstrap, Tailwind, or a heavy CSS framework.
 
 Use a shared design-system foundation that works across simple server-rendered pages and complex React pages.
 
+`@rumbo/design-system` is the implementation source of truth for shared frontend choices, browser-side UI preference helpers, and reusable design-system contracts. The platform web app owns the compiled SCSS/Twig delivery surface, while tools consume shared `rj-` primitives and keep only workflow-specific styles under their own prefixes.
+
 Use Lucide as the default icon library unless a later decision changes this.
 
 Use moderate prefixing:
 
 - `rj-` for shared platform/design-system classes,
 - tool-specific prefixes for tool-specific classes, such as `slu-` and `meval-`.
+
+Authenticated pages support horizontal or vertical contextual navigation from the same navigation markup. The preference is stored on the user account and applies sitewide.
 
 Phase 01 should establish functional scaffolding plus a minimal neutral design foundation, not a final visual brand system.
 

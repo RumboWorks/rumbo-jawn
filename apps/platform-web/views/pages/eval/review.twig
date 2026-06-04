@@ -56,7 +56,7 @@
                 <div class="eval-panel{% if loop.first %} is-active{% endif %}" data-response-panel="{{ r.id }}"{% if not loop.first %} hidden{% endif %}>
                     <div class="rj-admin-panel">
                         <div class="rj-admin-panel__header"><h2>{{ labels[r.id] }}</h2></div>
-                        <pre class="eval-prompt eval-response-text">{{ r.responseText }}</pre>
+                        {% include "pages/eval/_response-display.twig" with { display: r.responseDisplay } %}
                     </div>
 
                     <div class="rj-admin-panel">

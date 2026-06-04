@@ -11,13 +11,11 @@ Each deferred item should include:
 - blocker, if any,
 - why it must not be forgotten.
 
-## Deferred item: Final visual design direction
+## Completed item: Final visual design direction
 
 Originally identified: Phase 01  
-Deferred to: later design/UI phase  
-Reason: Phase 01 should establish SCSS/Twig/design-system structure without locking final brand visuals.  
-Blocking: Real screens and product workflows should exist first.  
-Must not forget because: Early styling choices should eventually become a coherent public-facing visual system.
+Completed in: Phase 15
+Outcome: The implemented standalone Align Desk UI language was rebranded as Rumbo's shared design system.
 
 ## Deferred item: Model Eval implementation
 
@@ -207,10 +205,10 @@ Reason: The schema supports an EvalRun DRAFT status, but the MVP launches a run 
 Blocking: Need product clarity on whether draft editing (re-selecting models/criteria, editing the prompt) is worth the extra surface before reviewers are involved.
 Must not forget because: Managers may want to stage a run before committing snapshots.
 
-## Deferred item: Eval authoring UX refinement (wizard + flows + polish)
+## Completed item: Eval authoring UX refinement (wizard + flows + polish)
 
 Originally identified: Phase 12 review
-Deferred to: a dedicated Eval UX pass (preferably after Phase 14, once the tool is functional end-to-end)
+Completed in: Phase 15
 Reason: Phase 12 built the authoring flow as plain pages so the data/features land first. The authoring UX needs refinement and sits entirely on top of the stable launchRun/snapshot model, so it can be reworked without touching the data layer or blocking Phases 13–14.
 Scope to address:
 - Replace the single run-new form with a multi-step wizard (port model_eval's eval-wizard.service.js: prompt → models → criteria → reviewers → review; reviewers step depends on Phase 13).
@@ -218,4 +216,4 @@ Scope to address:
 - Optional save-as-draft / edit-before-launch (EvalRun DRAFT) — see related deferred item.
 - General polish pass across all eval screens (evals list, detail, run status, manual response).
 Blocking: Phase 13 introduces reviewer assignment, which is a wizard step in the original — build the wizard after that exists so the step is real.
-Must not forget because: The run-authoring flow is the heart of the tool and the current plain-page version is a deliberate placeholder.
+Outcome: The run-authoring flow uses a stepped wizard with reviewer selection and the Eval screens received a shared-system polish pass.

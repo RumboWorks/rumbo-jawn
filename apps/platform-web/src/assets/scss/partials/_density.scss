@@ -1,0 +1,16 @@
+:root,
+[data-density="comfortable"] {
+  --rj-header-height: 56px;
+}
+
+[data-density="compact"] {
+  --rj-header-height: 48px;
+  --rj-space-2: 6px;
+  --rj-space-3: 8px;
+  --rj-space-4: 12px;
+  --rj-space-5: 16px;
+  --rj-space-6: 20px;
+  --rj-space-8: 24px;
+  --rj-space-10: 32px;
+  --rj-space-12: 40px;
+}

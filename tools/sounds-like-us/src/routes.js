@@ -11,12 +11,8 @@ import { getGuidancePackage } from './config/config-loader.js';
 
 const router = Router();
 
-function primaryOrgIdForUser(user) {
-  return user?.memberships?.[0]?.orgId ?? null;
-}
-
-async function getSluBudgetStatusForUser(user) {
-  const orgId = primaryOrgIdForUser(user);
+async function getSluBudgetStatusForRequest(req) {
+  const orgId = req.toolOrgId;
   if (!orgId) return null;
   return getUsageBudgetStatus(orgId, {
     tool: 'slu',
@@ -59,7 +55,7 @@ function isCurrentGuidanceArtifact(artifact) {
 }
 
 router.get('/', async (req, res) => {
-  const budgetStatus = req.isAuthenticated() ? await getSluBudgetStatusForUser(req.user) : null;
+  const budgetStatus = req.isAuthenticated() ? await getSluBudgetStatusForRequest(req) : null;
   res.render('pages/slu/index', {
     tool: 'slu',
     title: 'Sounds Like Us',
@@ -79,7 +75,7 @@ router.post('/analyze', (req, res, next) => {
   const url = (req.body.url ?? '').trim();
   if (!url) return res.redirect('/slu');
   delete req.session.pendingAnalysisUrl;
-  const orgId = primaryOrgIdForUser(req.user);
+  const orgId = req.toolOrgId;
   const budgetStatus = orgId
     ? await getUsageBudgetStatus(orgId, { tool: 'slu', usageKey: UsageKey.SLU_ANALYSIS_ROLLING_7D })
     : null;
