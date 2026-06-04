@@ -318,8 +318,25 @@ body { display: flex; flex-direction: column; min-height: 100vh; }
 
 .rj-page-header {
   margin-bottom: var(--rj-space-6);
-  h1, h2 { margin-bottom: var(--rj-space-1); }
-  p { color: var(--rj-fg-3); font-size: var(--rj-text-sm); }
+
+  // Display-style title, matching the eval desk / dashboard header.
+  h1 {
+    margin-bottom: var(--rj-space-1);
+    font-family: var(--rj-font-serif);
+    font-size: clamp(28px, 4.8vw, 48px);
+    font-weight: var(--rj-weight-regular);
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+  }
+  h2 { margin-bottom: var(--rj-space-1); }
+
+  // Serif subtitle, matching the desk subtitle.
+  p {
+    color: var(--rj-fg-2);
+    font-family: var(--rj-font-serif);
+    font-size: 1.0625rem;
+    line-height: var(--rj-leading-relaxed);
+  }
 }
 
 // ---- Misc ----

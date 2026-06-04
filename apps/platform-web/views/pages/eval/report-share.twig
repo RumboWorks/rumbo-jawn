@@ -11,14 +11,19 @@
 
     <section class="rj-admin-panel">
         <div class="rj-admin-panel__header"><h2>Scores</h2></div>
-        {% include "pages/eval/_report-matrix.twig" %}
+        <div class="rj-admin-panel__body" data-matrix-scope>
+            {% include "pages/eval/_report-matrix.twig" %}
+            {% include "pages/eval/_matrix-mode.twig" %}
+        </div>
     </section>
 
     {% if report and (report.summaryText or report.recommendationText) %}
         <section class="rj-admin-panel">
             <div class="rj-admin-panel__header"><h2>Summary &amp; recommendation</h2></div>
-            {% if report.summaryText %}<p><strong>Summary.</strong> {{ report.summaryText }}</p>{% endif %}
-            {% if report.recommendationText %}<p><strong>Recommendation.</strong> {{ report.recommendationText }}</p>{% endif %}
+            <div class="rj-admin-panel__body">
+                {% if report.summaryText %}<p><strong>Summary.</strong> {{ report.summaryText }}</p>{% endif %}
+                {% if report.recommendationText %}<p><strong>Recommendation.</strong> {{ report.recommendationText }}</p>{% endif %}
+            </div>
         </section>
     {% endif %}
 </div>

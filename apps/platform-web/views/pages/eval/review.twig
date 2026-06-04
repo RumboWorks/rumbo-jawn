@@ -56,11 +56,14 @@
                 <div class="eval-panel{% if loop.first %} is-active{% endif %}" data-response-panel="{{ r.id }}"{% if not loop.first %} hidden{% endif %}>
                     <div class="rj-admin-panel">
                         <div class="rj-admin-panel__header"><h2>{{ labels[r.id] }}</h2></div>
-                        {% include "pages/eval/_response-display.twig" with { display: r.responseDisplay } %}
+                        <div class="rj-admin-panel__body">
+                            {% include "pages/eval/_response-display.twig" with { display: r.responseDisplay } %}
+                        </div>
                     </div>
 
                     <div class="rj-admin-panel">
                         <div class="rj-admin-panel__header"><h2>Score this response</h2></div>
+                        <div class="rj-admin-panel__body">
                         {% for c in criteria %}
                             {% set saved = ratings[r.id][c.id] ?? 0 %}
                             <div class="eval-criterion" data-response-id="{{ r.id }}" data-criterion-id="{{ c.id }}">
@@ -81,6 +84,7 @@
                             <span>Comment <span class="rj-admin-muted">(optional)</span></span>
                             <textarea rows="3" data-comment-for="{{ r.id }}"{% if not editable %} disabled{% endif %} placeholder="Notes on this response…">{{ comments[r.id] ?? '' }}</textarea>
                         </label>
+                        </div>
                     </div>
                 </div>
             {% endfor %}

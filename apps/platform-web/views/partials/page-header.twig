@@ -3,11 +3,22 @@
    {% include "partials/page-header.twig" with {
      heading: 'Models',
      subtitle: 'The models this org evaluates.',
+     breadcrumbs: [{ label: 'Evaluations', href: '/eval/evals' }, { label: 'Spring appeal' }],
      action: { label: 'Add model', href: '/eval/settings/models/new', icon: 'plus' }
    } %}
+   `breadcrumbs` is an optional array of { label, href? } — the last crumb is
+   usually the current page and omits href.
 #}
 <div class="rj-page-header rj-page-header--with-action">
     <div class="rj-page-header__text">
+        {% if breadcrumbs %}
+            <nav class="rj-admin-breadcrumbs" aria-label="Breadcrumb">
+                {% for crumb in breadcrumbs %}
+                    {% if not loop.first %}<span aria-hidden="true">/</span>{% endif %}
+                    {% if crumb.href %}<a href="{{ crumb.href }}">{{ crumb.label }}</a>{% else %}<span>{{ crumb.label }}</span>{% endif %}
+                {% endfor %}
+            </nav>
+        {% endif %}
         <h1>{{ heading }}</h1>
         {% if subtitle %}<p>{{ subtitle }}</p>{% endif %}
     </div>

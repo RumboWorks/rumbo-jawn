@@ -423,28 +423,46 @@
   &.is-error { color: var(--rj-danger, #b42318); }
 }
 
+// When the tab strip lives in a panel header, the header supplies the bottom
+// border and gutter — so drop the strip's own border/margin.
+.eval-tabs--in-header {
+  border-bottom: 0;
+  margin-bottom: 0;
+}
+
 .eval-tabs {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--rj-space-1);
+  gap: 0;
   border-bottom: 1px solid var(--rj-border);
-  margin-bottom: var(--rj-space-3);
 
   &__tab {
-    border: 1px solid transparent;
-    border-bottom: none;
-    background: none;
+    margin: var(--rj-space-1) 1px -1px;
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 10px 10px 0 0;
+    background: color-mix(in srgb, var(--rj-fg) 6%, transparent);
     cursor: pointer;
-    padding: var(--rj-space-2) var(--rj-space-3);
-    border-radius: var(--rj-radius-sm) var(--rj-radius-sm) 0 0;
+    padding: var(--rj-space-3) var(--rj-space-4);
     color: var(--rj-fg-2);
     font-weight: var(--rj-weight-medium);
+    white-space: nowrap;
+    transition: color var(--rj-dur) var(--rj-ease), border-color var(--rj-dur) var(--rj-ease), background var(--rj-dur) var(--rj-ease);
 
-    &.is-active {
-      background: var(--rj-bg);
-      border-color: var(--rj-border);
+    &:hover:not(.is-active) {
+      background: color-mix(in srgb, var(--rj-fg) 10%, transparent);
       color: var(--rj-fg);
     }
+
+    // Active tab: accent-coloured text + 2px accent underline (no bg swap).
+    &.is-active {
+      color: var(--rj-link);
+      border-bottom-color: var(--rj-link);
+      font-weight: var(--rj-weight-semibold);
+    }
+
+    // The non-date tabs (Overall / Trend) sit a touch darker.
+    &--strong { background: color-mix(in srgb, var(--rj-fg) 11%, transparent); }
   }
 
   &__check { color: var(--rj-pine-600, #1e7d4f); font-weight: var(--rj-weight-bold); }
@@ -461,6 +479,7 @@
     top: var(--rj-space-4);
   }
   .eval-tabs__tab {
+    margin-bottom: 0;
     border: 1px solid var(--rj-border);
     border-radius: var(--rj-radius-md);
     text-align: left;
@@ -548,30 +567,105 @@
 
 .eval-matrix {
   th, td { text-align: center; }
-  &__model, thead th:first-child, tfoot td:first-child { text-align: left; }
+  &__model, &__model-head, thead th:first-child, tfoot td:first-child { text-align: left; }
+
+  &__avg-head {
+    background: var(--rj-bg-sunken);
+  }
 }
 
+// Heat scale mirrors the legacy model-eval rank palette
+// (rank-1 best → rank-5 worst). heat-5 is the top score.
 .eval-heat {
   font-variant-numeric: tabular-nums;
   &.heat-0 { background: var(--rj-bg-sunken); color: var(--rj-fg-3, var(--rj-fg-2)); }
-  &.heat-1 { background: #f8d2cd; color: #7a1c12; }
-  &.heat-2 { background: #fbe2c4; color: #8a5a12; }
-  &.heat-3 { background: #fbf1c4; color: #7a6a12; }
-  &.heat-4 { background: #dcf0c8; color: #3f6a1e; }
-  &.heat-5 { background: #c4ebcf; color: #1e7d4f; }
+  &.heat-1 { background: #ecc6b3; color: #991b1b; }
+  &.heat-2 { background: #fde8c8; color: #92400e; }
+  &.heat-3 { background: #ede4c5; color: #713f12; }
+  &.heat-4 { background: #d8e0bf; color: #166534; }
+  &.heat-5 { background: #c2d8a8; color: #14532d; }
 }
 
 .eval-heat--clickable { cursor: pointer; }
 .eval-heat--clickable:hover { filter: brightness(0.94); }
-.eval-heat.rank-top { background: #bbf7d0; color: #14532d; }
-.eval-heat.rank-middle { background: #fef3c7; color: #713f12; }
-.eval-heat.rank-bottom { background: #fecaca; color: #991b1b; }
+.eval-heat.rank-top    { background: #c2d8a8; color: #14532d; }
+.eval-heat.rank-middle { background: #ede4c5; color: #713f12; }
+.eval-heat.rank-bottom { background: #ecc6b3; color: #991b1b; }
+
+// Score value spans inside heat cells.
+.eval-matrix__score {
+  font-size: var(--rj-text-base);
+  font-weight: var(--rj-weight-semibold);
+  line-height: 1.2;
+
+  &--avg {
+    font-size: var(--rj-text-lg, 1.125rem);
+    font-weight: var(--rj-weight-bold);
+  }
+}
+
+// Rank-mode winner icon (award on #1 criteria cells, trophy on #1 Average cell).
+.eval-matrix__medal {
+  display: inline-block;
+  width: 1.15em;
+  height: 1.15em;
+  margin-right: 0.3em;
+  vertical-align: -0.2em;
+  color: #b8860b;
+}
+
+// Sortable column headers — up/down arrows via pseudo-elements.
+.eval-matrix thead th[data-sort-col] {
+  position: relative;
+  padding-right: 1.4rem;
+  cursor: pointer;
+  user-select: none;
+
+  &::before, &::after {
+    position: absolute;
+    right: 0.35rem;
+    font-size: 0.6em;
+    line-height: 1;
+    letter-spacing: 0;
+    opacity: 0;
+    color: var(--rj-fg-3);
+  }
+  &::before { content: '▲'; top: calc(50% - 1em); }
+  &::after  { content: '▼'; top: calc(50% - 0.1em); }
+
+  &:hover::before, &:hover::after { opacity: 0.3; }
+
+  &.is-sort-asc::before  { opacity: 1;   color: var(--rj-pine-600, #1e7d4f); }
+  &.is-sort-asc::after   { opacity: 0.3; }
+  &.is-sort-desc::before { opacity: 0.3; }
+  &.is-sort-desc::after  { opacity: 1;   color: var(--rj-pine-600, #1e7d4f); }
+}
 
 .eval-matrix-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-top: var(--rj-space-3);
+}
+
+// Trend bump chart container.
+.eval-trend {
+  padding: var(--rj-space-4) var(--rj-space-2);
+  overflow-x: auto;
+  min-height: 280px;
+}
+
+// Score / Rank segmented switch (reuses .slu-wb__segmented look; static
+// active background instead of the React-measured sliding indicator, so it
+// works inside hidden tab panels too).
+.eval-mode-switch {
+  flex: 0 0 auto;
+  min-width: 168px;
+
+  .slu-wb__seg-btn.is-active {
+    background: var(--rj-bg-raised);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.10), 0 1px 1px rgba(0, 0, 0, 0.06);
+  }
 }
 
 .eval-drilldown {
@@ -586,3 +680,196 @@
   &::backdrop { background: rgb(15 23 42 / 0.55); }
 }
 .eval-drilldown__close { float: right; border: 0; background: none; font-size: 1.5rem; cursor: pointer; color: var(--rj-fg-2); }
+
+// ---- Cross-run drilldown (date + model toggles) ----
+
+.eval-drilldown--detail {
+  width: min(1000px, calc(100vw - 2rem));
+  max-height: 88vh;
+  padding: 0;
+  overflow: hidden;
+  flex-direction: column;
+}
+
+// Only flex when open — otherwise display:flex overrides the browser's
+// display:none for a closed <dialog>, making it render in the page flow.
+.eval-drilldown--detail[open] { display: flex; }
+
+.eval-drilldown__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--rj-space-3);
+  padding: var(--rj-space-4) var(--rj-space-5);
+  border-bottom: 1px solid var(--rj-border);
+}
+
+.eval-drilldown__title {
+  margin: 0;
+  font-size: var(--rj-text-lg);
+}
+
+.eval-drilldown--detail .eval-drilldown__close { float: none; }
+
+// Run / date toggle row — folder tabs, matching the page's .eval-tabs.
+.eval-drilldown__runs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--rj-space-1);
+  padding: var(--rj-space-3) var(--rj-space-5) 0;
+  border-bottom: 1px solid var(--rj-border);
+}
+
+.eval-drilldown__run {
+  margin: var(--rj-space-1) 1px -1px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 10px 10px 0 0;
+  background: color-mix(in srgb, var(--rj-fg) 6%, transparent);
+  padding: var(--rj-space-2) var(--rj-space-4);
+  font-size: var(--rj-text-sm);
+  font-weight: var(--rj-weight-medium);
+  color: var(--rj-fg-2);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background var(--rj-dur) var(--rj-ease), color var(--rj-dur) var(--rj-ease), border-color var(--rj-dur) var(--rj-ease);
+
+  &:hover:not(.is-active) { background: color-mix(in srgb, var(--rj-fg) 10%, transparent); color: var(--rj-fg); }
+
+  &.is-active {
+    color: var(--rj-link);
+    border-bottom-color: var(--rj-link);
+    font-weight: var(--rj-weight-semibold);
+  }
+
+  &.is-empty { opacity: 0.45; }
+}
+
+// Body: model nav (left) + main (chips + content).
+.eval-drilldown__layout {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.eval-drilldown__models {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rj-space-1);
+  padding: var(--rj-space-3);
+  border-right: 1px solid var(--rj-border);
+  overflow-y: auto;
+  min-width: 9rem;
+  max-width: 13rem;
+  flex-shrink: 0;
+}
+
+.eval-drilldown__model {
+  border: 1px solid transparent;
+  border-radius: var(--rj-radius-sm);
+  background: none;
+  padding: var(--rj-space-2) var(--rj-space-3);
+  text-align: left;
+  font-size: var(--rj-text-sm);
+  color: var(--rj-fg-2);
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &:hover { background: var(--rj-bg-sunken); color: var(--rj-fg); }
+  &.is-active { background: var(--rj-pine-50); border-color: var(--rj-pine-600); color: var(--rj-pine-800); font-weight: var(--rj-weight-semibold); }
+}
+
+.eval-drilldown__main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.eval-drilldown__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--rj-space-2);
+  padding: var(--rj-space-3) var(--rj-space-4);
+  border-bottom: 1px solid var(--rj-border);
+}
+
+.eval-drilldown__chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--rj-space-1) var(--rj-space-3);
+  border-radius: var(--rj-radius-sm);
+  min-width: 4.5rem;
+}
+
+.eval-drilldown__chip-name {
+  max-width: 9rem;
+  overflow: hidden;
+  font-size: var(--rj-text-micro);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0.85;
+}
+
+.eval-drilldown__chip-val {
+  font-size: var(--rj-text-base);
+  font-weight: var(--rj-weight-bold);
+  line-height: 1;
+}
+
+// Average chip leads the row and is separated from the per-criterion chips.
+.eval-drilldown__chip--avg {
+  margin-right: var(--rj-space-3);
+  border: 1px solid var(--rj-border-2, var(--rj-border));
+
+  .eval-drilldown__chip-name { font-weight: var(--rj-weight-bold); opacity: 1; }
+}
+
+.eval-drilldown__body {
+  flex: 1;
+  padding: var(--rj-space-4) var(--rj-space-5);
+  overflow-y: auto;
+}
+
+.eval-drilldown__section {
+  margin-bottom: var(--rj-space-5);
+  &:last-child { margin-bottom: 0; }
+
+  h3 {
+    margin: 0 0 var(--rj-space-2);
+    color: var(--rj-fg-3);
+    font-size: var(--rj-text-micro);
+    font-weight: var(--rj-weight-bold);
+    letter-spacing: var(--rj-tracking-caps);
+    text-transform: uppercase;
+  }
+}
+
+// AI response gets its own distinct, internally-scrolling box.
+.eval-drilldown__body .eval-response-display__pane {
+  max-height: 18rem;
+  padding: var(--rj-space-3) var(--rj-space-4);
+  border: 1px solid var(--rj-border);
+  border-radius: var(--rj-radius-md);
+  background: var(--rj-bg-sunken);
+  overflow-y: auto;
+}
+
+.eval-drilldown__comment {
+  margin: 0 0 var(--rj-space-2);
+  padding: var(--rj-space-2) var(--rj-space-3);
+  border-left: 3px solid var(--rj-border);
+  color: var(--rj-fg);
+  font-size: var(--rj-text-sm);
+  line-height: 1.6;
+}
+
+.eval-drilldown__empty {
+  color: var(--rj-fg-3);
+  font-size: var(--rj-text-sm);
+  font-style: italic;
+}

@@ -10,63 +10,192 @@
     {% include "partials/page-header.twig" with {
         heading: eval.title,
         subtitle: eval.description,
+        breadcrumbs: [{ label: 'Evaluations', href: '/eval/evals' }, { label: eval.title }],
         action: { label: 'New run', href: '/eval/evals/' ~ eval.publicId ~ '/runs/new', icon: 'plus' }
     } %}
 
     {% include "pages/eval/_flash.twig" %}
 
-    <p><a href="/eval/evals">&larr; All evaluations</a></p>
-
     {% if detailReports.reports is not empty %}
-        <section class="rj-admin-panel">
-            <div class="rj-admin-panel__header"><h2>Completed run scores</h2></div>
-            <nav class="eval-tabs" role="tablist" aria-label="Completed run score views">
+        <section class="rj-admin-panel" aria-label="Completed run scores">
+            <div class="rj-admin-panel__header rj-admin-panel__header--tabs">
+                <nav class="eval-tabs eval-tabs--in-header" role="tablist" aria-label="Completed run score views">
+                    {% for data in detailReports.reports %}
+                        <button class="eval-tabs__tab{% if loop.first %} eval-tabs__tab--strong is-active{% endif %}" type="button" data-detail-tab="run-{{ data.run.publicId }}">{% if loop.first %}Overall{% else %}{{ data.run.createdAt|date("M j, Y") }}{% endif %}</button>
+                    {% endfor %}
+                    {% if detailReports.reports|length > 1 %}<button class="eval-tabs__tab eval-tabs__tab--strong" type="button" data-detail-tab="trend">Trend</button>{% endif %}
+                </nav>
+            </div>
+            <div class="rj-admin-panel__body" data-matrix-scope>
                 {% for data in detailReports.reports %}
-                    <button class="eval-tabs__tab{% if loop.first %} is-active{% endif %}" type="button" data-detail-tab="run-{{ data.run.publicId }}">Run {{ data.run.runNumber }}</button>
-                {% endfor %}
-                {% if detailReports.reports|length > 1 %}<button class="eval-tabs__tab" type="button" data-detail-tab="trend">Trend</button>{% endif %}
-            </nav>
-            {% for data in detailReports.reports %}
-                <div data-detail-panel="run-{{ data.run.publicId }}"{% if not loop.first %} hidden{% endif %}>
-                    {% include "pages/eval/_report-matrix.twig" with data %}
-                </div>
-            {% endfor %}
-            {% if detailReports.reports|length > 1 %}
-                <div data-detail-panel="trend" hidden>
-                    <div class="rj-table-wrap">
-                        <table class="rj-table rj-admin-table">
-                            <thead><tr><th>Run</th><th>Model</th><th>Average</th></tr></thead>
-                            <tbody>{% for point in detailReports.trendData %}<tr><td>Run {{ point.runNumber }}</td><td>{{ point.modelName }}</td><td>{{ point.average ?? '—' }}</td></tr>{% endfor %}</tbody>
-                        </table>
+                    <div data-detail-panel="run-{{ data.run.publicId }}"{% if not loop.first %} hidden{% endif %}>
+                        {% include "pages/eval/_report-matrix.twig" with data %}
                     </div>
-                </div>
-            {% endif %}
+                {% endfor %}
+                {% if detailReports.reports|length > 1 %}
+                    <div data-detail-panel="trend" hidden>
+                        <div class="eval-trend" id="eval-trend-chart"></div>
+                        <script type="application/json" id="eval-trend-data">{{ detailReports.trendData|json_encode|raw }}</script>
+                    </div>
+                {% endif %}
+                {# One Score/Rank control drives every matrix in this scope. #}
+                {% include "pages/eval/_matrix-mode.twig" with { hideable: true } %}
+            </div>
         </section>
+
+        {# Score-cell drilldown: date (run) + model toggles, criterion chips, response & comments. #}
+        <dialog class="eval-drilldown eval-drilldown--detail" id="eval-detail-drilldown">
+            <div class="eval-drilldown__head">
+                <h2 class="eval-drilldown__title" id="eval-detail-drilldown-title">Model</h2>
+                <button class="eval-drilldown__close" type="button" data-dialog-close aria-label="Close">×</button>
+            </div>
+            <nav class="eval-drilldown__runs" id="eval-detail-drilldown-runs" aria-label="Run date"></nav>
+            <div class="eval-drilldown__layout">
+                <nav class="eval-drilldown__models" id="eval-detail-drilldown-models" aria-label="Models"></nav>
+                <div class="eval-drilldown__main">
+                    <div class="eval-drilldown__chips" id="eval-detail-drilldown-chips"></div>
+                    <div class="eval-drilldown__body" id="eval-detail-drilldown-body"></div>
+                </div>
+            </div>
+        </dialog>
+        <script type="application/json" id="eval-detail-drilldowns">{{ detailReports.drilldowns|json_encode|raw }}</script>
+        <script type="application/json" id="eval-detail-runlist">{{ detailReports.runList|json_encode|raw }}</script>
+
+        {# Trend bump chart (Observable Plot via CDN, rendered when the Trend tab is opened). #}
+        {% if detailReports.reports|length > 1 %}
+            <script type="module">
+            import * as Plot from 'https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm';
+
+            const container = document.getElementById('eval-trend-chart');
+            const dataNode  = document.getElementById('eval-trend-data');
+            if (container && dataNode) {
+              let drawn = false;
+
+              const data = JSON.parse(dataNode.textContent || '[]').filter(d => d.rank != null);
+
+              function render() {
+                if (data.length < 4) {
+                  container.innerHTML = '<p class="eval-empty">At least two completed runs are needed to show a trend.</p>';
+                  return;
+                }
+
+                const cs  = getComputedStyle(document.documentElement);
+                const get = v => cs.getPropertyValue(v).trim();
+                const fmt = v => Number.isFinite(Number(v)) ? Number(v).toFixed(1) : '';
+
+                const runLabels = [...new Map(
+                  [...data].sort((a, b) => a.runIdx - b.runIdx).map(d => [d.runIdx, d.runLabel])
+                ).values()];
+                const models    = [...new Set(data.map(d => d.modelName))];
+                const numModels = models.length;
+                const COLORS    = Array.from({ length: 8 }, (_, i) => get('--rj-chart-' + (i + 1)));
+
+                container.innerHTML = '';
+                const chart = Plot.plot({
+                  width:        Math.max(container.clientWidth || 680, 420),
+                  height:       280,
+                  marginTop:    16,
+                  marginRight:  148,
+                  marginBottom: 52,
+                  marginLeft:   44,
+                  style: {
+                    background: 'transparent',
+                    fontFamily: 'inherit',
+                    fontSize:   '12px',
+                    color:      get('--rj-fg-2') || '#64748b',
+                    overflow:   'visible',
+                  },
+                  x: { label: null, domain: runLabels, tickRotate: -20, tickSize: 0 },
+                  y: {
+                    label:      null,
+                    domain:     Array.from({ length: numModels }, (_, i) => i + 1),
+                    tickFormat: i => `#${i}`,
+                    tickSize:   0,
+                  },
+                  color: { domain: models, range: COLORS },
+                  marks: [
+                    Plot.ruleY(
+                      Array.from({ length: numModels }, (_, i) => i + 1),
+                      { stroke: get('--rj-border') || '#e2e8f0', strokeOpacity: 0.7 }
+                    ),
+                    Plot.line(data, {
+                      x: 'runLabel', y: 'rank', z: 'modelName',
+                      stroke: 'modelName', strokeWidth: 3.5, curve: 'bump-x',
+                    }),
+                    Plot.dot(data, {
+                      x: 'runLabel', y: 'rank',
+                      stroke: 'modelName', fill: get('--rj-bg-raised') || '#ffffff',
+                      strokeWidth: 2, r: 5,
+                      title: d => `${d.modelName}\nRank #${d.rank}  •  avg ${fmt(d.avgScore)}`,
+                    }),
+                    Plot.text(data, Plot.selectLast({
+                      x: 'runLabel', y: 'rank', z: 'modelName',
+                      text: 'modelName', textAnchor: 'start', lineAnchor: 'bottom',
+                      dx: 10, dy: -2, fill: 'modelName', fontSize: 12, fontWeight: 'bold',
+                    })),
+                  ],
+                });
+
+                container.appendChild(chart);
+                chart.style.maxWidth = '100%';
+                chart.style.height   = 'auto';
+              }
+
+              // Draw after the panel is actually visible (the tab handler that
+              // un-hides the panel runs on the same click); rAF lets the layout
+              // settle so the container reports its true width. Re-fit on resize.
+              function draw() {
+                requestAnimationFrame(() => {
+                  render();
+                  drawn = true;
+                });
+              }
+
+              const trendBtn = document.querySelector('[data-detail-tab="trend"]');
+              if (trendBtn) {
+                trendBtn.addEventListener('click', () => { if (!drawn) draw(); });
+                if (trendBtn.classList.contains('is-active')) draw();
+              }
+
+              let resizeTimer;
+              window.addEventListener('resize', () => {
+                if (!drawn) return;
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(render, 150);
+              });
+            }
+            </script>
+        {% endif %}
     {% endif %}
 
-    <section class="rj-admin-panel">
-        <div class="rj-admin-panel__header"><h2>Runs</h2></div>
-        {% if eval.runs is not empty %}
-            <div class="rj-table-wrap">
-                <table class="rj-table rj-admin-table">
-                    <thead>
-                        <tr><th>Run</th><th>Status</th><th>Models</th><th>Launched</th><th></th></tr>
-                    </thead>
-                    <tbody>
-                        {% for run in eval.runs %}
-                            <tr>
-                                <td>#{{ run.runNumber }}</td>
-                                <td><span class="eval-status eval-status--{{ run.status|lower }}">{{ run.status|replace({'_': ' '})|lower }}</span></td>
-                                <td class="rj-num">{{ run._count.modelSnapshots }}</td>
-                                <td class="rj-num">{{ run.createdAt|date("M j, Y") }}</td>
-                                <td><a href="/eval/runs/{{ run.publicId }}" class="rj-btn rj-btn--secondary rj-btn--sm">Open</a></td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+    {# Runs panel only shows when there's no completed-run matrix to feature. #}
+    {% if detailReports.reports is empty %}
+        <section class="rj-admin-panel">
+            <div class="rj-admin-panel__header"><h2>Runs</h2></div>
+            <div class="rj-admin-panel__body">
+                {% if eval.runs is not empty %}
+                    <div class="rj-table-wrap">
+                        <table class="rj-table rj-admin-table">
+                            <thead>
+                                <tr><th>Run</th><th>Status</th><th>Models</th><th>Launched</th><th></th></tr>
+                            </thead>
+                            <tbody>
+                                {% for run in eval.runs %}
+                                    <tr>
+                                        <td>#{{ run.runNumber }}</td>
+                                        <td><span class="eval-status eval-status--{{ run.status|lower }}">{{ run.status|replace({'_': ' '})|lower }}</span></td>
+                                        <td class="rj-num">{{ run._count.modelSnapshots }}</td>
+                                        <td class="rj-num">{{ run.createdAt|date("M j, Y") }}</td>
+                                        <td><a href="/eval/runs/{{ run.publicId }}" class="rj-btn rj-btn--secondary rj-btn--sm">Open</a></td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="eval-empty">No runs yet. <a href="/eval/evals/{{ eval.publicId }}/runs/new">Launch the first run</a> to start collecting responses.</p>
+                {% endif %}
             </div>
-        {% else %}
-            <p class="eval-empty">No runs yet. <a href="/eval/evals/{{ eval.publicId }}/runs/new">Launch the first run</a> to start collecting responses.</p>
-        {% endif %}
-    </section>
+        </section>
+    {% endif %}
 {% endblock %}

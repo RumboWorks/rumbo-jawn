@@ -10,6 +10,7 @@
   line-height: var(--rj-leading-snug);
 
   svg { flex: none; width: 18px; height: 18px; margin-top: 1px; stroke: currentColor; }
+  margin-bottom: var(--rj-space-5);
 }
 
 .rj-alert--info    { background: var(--rj-info-bg);    border-color: #BCD6D8; color: var(--rj-info-fg); }

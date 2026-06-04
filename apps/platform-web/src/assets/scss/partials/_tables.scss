@@ -100,9 +100,14 @@
 
   tbody tr {
     transition: background var(--rj-dur-fast) var(--rj-ease);
-    &:last-child td { border-bottom: none; }
     &:hover { background: var(--rj-pine-50); }
   }
+
+  // Drop the border on the final visual row only: tbody's last row when there's
+  // no tfoot, otherwise the tfoot's last row. (Stops the second-to-last row from
+  // losing its border when a tfoot is present.)
+  tbody:last-child tr:last-child td,
+  tfoot tr:last-child td { border-bottom: none; }
 
   .rj-num { font-family: var(--rj-font-mono); font-variant-numeric: tabular-nums; }
 }

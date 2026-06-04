@@ -15,55 +15,46 @@
 
         {% include "pages/eval/_flash.twig" %}
 
-        {% if notifications is not empty %}
-            <section class="rj-admin-panel">
-                <div class="rj-admin-panel__header">
-                    <h2>Notifications{% if unread > 0 %} <span class="eval-badge">{{ unread }}</span>{% endif %}</h2>
-                    {% if unread > 0 %}
-                        <form method="post" action="/eval/notifications/read"><button class="rj-btn rj-btn--ghost rj-btn--sm" type="submit">Mark all read</button></form>
-                    {% endif %}
-                </div>
-                <div class="rj-list">
-                    {% for n in notifications %}
-                        <div class="rj-item{% if not n.readAt %} eval-unread{% endif %}">
-                            <div class="rj-item__display">
-                                <div class="rj-item__main">
-                                    <div class="rj-item__title">
-                                        {% if n.notificationType == 'REVIEW_ASSIGNED' %}You were assigned a review
-                                        {% elseif n.notificationType == 'REVIEW_REMINDER' %}Reminder: a review is waiting
-                                        {% elseif n.notificationType == 'EVAL_COMPLETED' %}A review you took part in is complete
-                                        {% elseif n.notificationType == 'MANUAL_RESPONSE_NEEDED' %}A response needs manual collection
-                                        {% else %}{{ n.notificationType|replace({'_': ' '})|lower }}{% endif %}
-                                    </div>
-                                    <div class="rj-item__meta">{% if n.evalRun %}{{ n.evalRun.eval.title }} · run {{ n.evalRun.runNumber }} · {% endif %}{{ n.createdAt|date("M j, g:ia") }}</div>
-                                </div>
-                                {% if n.evalRun %}
-                                    <div class="rj-item__actions"><a href="/eval/runs/{{ n.evalRun.publicId }}/review" class="rj-btn rj-btn--ghost rj-btn--sm">View</a></div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    {% endfor %}
+        {% if myTasks is not empty %}
+            <section class="eval-desk__section">
+                <h2 class="eval-desk__section-title">Your tasks</h2>
+                <div class="rj-table-wrap eval-table-wrap">
+                    <table class="rj-table">
+                        <thead><tr><th>Task</th><th>Evaluation</th><th class="eval-table__col--actions"></th></tr></thead>
+                        <tbody>
+                            {% for t in myTasks %}
+                                <tr>
+                                    <td>
+                                        {% if t.taskType == 'REVIEW_RESPONSES' %}Review responses
+                                        {% elseif t.taskType == 'COLLECT_MANUAL_RESPONSE' %}Collect a response{% if t.response %}: {{ t.response.modelSnapshot.displayName }}{% endif %}
+                                        {% else %}{{ t.taskType|replace({'_': ' '})|lower }}{% endif %}
+                                    </td>
+                                    <td>{{ t.evalRun.eval.title }} · run {{ t.evalRun.runNumber }}</td>
+                                    <td class="eval-table__cell--actions"><a href="{{ t.href }}" class="rj-btn rj-btn--secondary rj-btn--sm">Open</a></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </section>
         {% endif %}
 
         {% if myReviews is not empty %}
-            <section class="rj-admin-panel">
-                <div class="rj-admin-panel__header"><h2>Your reviews</h2></div>
-                <div class="rj-list">
-                    {% for run in myReviews %}
-                        <div class="rj-item">
-                            <div class="rj-item__display">
-                                <div class="rj-item__main">
-                                    <div class="rj-item__title">{{ run.eval.title }}</div>
-                                    <div class="rj-item__meta">Run {{ run.runNumber }} · awaiting your review</div>
-                                </div>
-                                <div class="rj-item__actions">
-                                    <a href="/eval/runs/{{ run.publicId }}/review" class="rj-btn rj-btn--primary rj-btn--sm">Review</a>
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
+            <section class="eval-desk__section">
+                <h2 class="eval-desk__section-title">Your reviews</h2>
+                <div class="rj-table-wrap eval-table-wrap">
+                    <table class="rj-table">
+                        <thead><tr><th>Evaluation</th><th>Status</th><th class="eval-table__col--actions"></th></tr></thead>
+                        <tbody>
+                            {% for run in myReviews %}
+                                <tr>
+                                    <td>{{ run.eval.title }}</td>
+                                    <td>Run {{ run.runNumber }} · awaiting your review</td>
+                                    <td class="eval-table__cell--actions"><a href="/eval/runs/{{ run.publicId }}/review" class="rj-btn rj-btn--primary rj-btn--sm">Review</a></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </section>
         {% endif %}

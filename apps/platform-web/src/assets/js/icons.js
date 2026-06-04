@@ -4,17 +4,17 @@
 // <i data-lucide> elements, so re-running it is idempotent.
 import {
   createIcons,
-  Activity, AlertTriangle, Boxes, Braces, Brain, Building2, CheckCircle2,
+  Activity, AlertTriangle, Award, Boxes, Braces, Brain, Building2, CheckCircle2,
   CircleAlert, CircleX, ClipboardCheck, ClipboardList, Clock, Copy, Cpu, FileText, Globe, Info,
   BarChart3, Filter, KeyRound, LayoutDashboard, ListChecks, Loader, LogIn, LogOut,
-  Mic2, PanelLeft, Pencil, Plus, Save, SlidersHorizontal, Sparkles, Tag, Trash2, User, Users, X, XCircle,
+  Mic2, PanelLeft, Pencil, Plus, Save, SlidersHorizontal, Sparkles, Tag, Trash2, Trophy, User, Users, X, XCircle,
 } from 'lucide';
 
 const ICONS = {
-  Activity, AlertTriangle, Boxes, Braces, Brain, Building2, CheckCircle2,
+  Activity, AlertTriangle, Award, Boxes, Braces, Brain, Building2, CheckCircle2,
   CircleAlert, CircleX, ClipboardCheck, ClipboardList, Clock, Copy, Cpu, FileText, Globe, Info,
   BarChart3, Filter, KeyRound, LayoutDashboard, ListChecks, Loader, LogIn, LogOut,
-  Mic2, PanelLeft, Pencil, Plus, Save, SlidersHorizontal, Sparkles, Tag, Trash2, User, Users, X, XCircle,
+  Mic2, PanelLeft, Pencil, Plus, Save, SlidersHorizontal, Sparkles, Tag, Trash2, Trophy, User, Users, X, XCircle,
 };
 
 export function initIcons() {

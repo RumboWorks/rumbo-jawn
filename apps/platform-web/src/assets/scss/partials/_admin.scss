@@ -79,6 +79,25 @@
   margin-bottom: var(--rj-space-5);
 }
 
+// Inner body wrapper: gives panel content padding the header can't (the header
+// has its own). Use for any non-full-bleed content; full-bleed blocks like
+// .rj-table-wrap can still be placed as a direct child of the panel instead.
+.rj-admin-panel__body {
+  padding: var(--rj-space-5);
+
+  // Content blocks flow with their own margins; kill stray edge margins so the
+  // wrapper padding defines the gutter cleanly.
+  > :first-child { margin-top: 0; }
+  > :last-child { margin-bottom: 0; }
+}
+
+// Header that hosts a tab strip in place of a title: drop only the bottom
+// padding so the tabs sit flush on the header's bottom border. (Double class so
+// it beats the base .rj-admin-panel__header padding regardless of source order.)
+.rj-admin-panel__header.rj-admin-panel__header--tabs {
+  padding-bottom: 0;
+}
+
 .rj-admin-panel__header {
   display: flex;
   align-items: center;

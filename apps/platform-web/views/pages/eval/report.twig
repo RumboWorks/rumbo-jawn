@@ -9,16 +9,23 @@
 {% block content %}
     {% include "partials/page-header.twig" with {
         heading: run.eval.title ~ ' — report',
-        subtitle: 'Run ' ~ run.runNumber
+        subtitle: 'Run ' ~ run.runNumber,
+        breadcrumbs: [
+            { label: 'Evaluations', href: '/eval/evals' },
+            { label: run.eval.title, href: '/eval/evals/' ~ run.eval.publicId },
+            { label: 'Run ' ~ run.runNumber, href: '/eval/runs/' ~ run.publicId },
+            { label: 'Report' }
+        ]
     } %}
 
     {% include "pages/eval/_flash.twig" %}
 
-    <p><a href="/eval/runs/{{ run.publicId }}">&larr; Back to run</a></p>
-
     <section class="rj-admin-panel">
         <div class="rj-admin-panel__header"><h2>Scores</h2></div>
-        {% include "pages/eval/_report-matrix.twig" %}
+        <div class="rj-admin-panel__body" data-matrix-scope>
+            {% include "pages/eval/_report-matrix.twig" %}
+            {% include "pages/eval/_matrix-mode.twig" %}
+        </div>
     </section>
 
     <dialog class="eval-drilldown" id="eval-report-drilldown">
@@ -52,11 +59,11 @@
                 <input type="checkbox" name="enabled"{% if report.secureShareEnabled %} checked{% endif %} onchange="this.form.submit()">
                 <span>Anyone with the link can view this report (read-only, model names hidden)</span>
             </label>
+            {% if report.secureShareEnabled and report.secureShareToken %}
+                <p class="rj-admin-muted">Share link:
+                    <a href="{{ shareBase }}{{ report.secureShareToken }}">{{ shareBase }}{{ report.secureShareToken }}</a>
+                </p>
+            {% endif %}
         </form>
-        {% if report.secureShareEnabled and report.secureShareToken %}
-            <p class="rj-admin-muted">Share link:
-                <a href="{{ shareBase }}{{ report.secureShareToken }}">{{ shareBase }}{{ report.secureShareToken }}</a>
-            </p>
-        {% endif %}
     </section>
 {% endblock %}

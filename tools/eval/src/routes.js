@@ -61,11 +61,10 @@ function renderRow(res, view, locals) {
 // ---- Landing / dashboard ----
 
 router.get('/', asyncHandler(async (req, res) => {
-  const [summary, myReviews, notifications, unread] = await Promise.all([
+  const [summary, myReviews, myTasks] = await Promise.all([
     getDashboardSummary(req.toolOrgId),
     listMyOpenReviews(req.toolOrgId, req.user.id),
-    listMyNotifications(req.toolOrgId, req.user.id, { limit: 8 }),
-    countUnreadNotifications(req.toolOrgId, req.user.id),
+    listMyTasks(req.toolOrgId, req.user.id),
   ]);
   res.render('pages/eval/index', {
     tool: 'eval',
@@ -73,8 +72,7 @@ router.get('/', asyncHandler(async (req, res) => {
     toolRole: req.toolRole,
     summary,
     myReviews,
-    notifications,
-    unread,
+    myTasks,
     flash: takeFlash(req),
   });
 }));

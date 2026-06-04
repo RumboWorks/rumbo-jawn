@@ -9,16 +9,22 @@
 {% block content %}
     {% include "partials/page-header.twig" with {
         heading: 'Response: ' ~ response.modelSnapshot.displayName,
-        subtitle: response.evalRun.eval.title ~ ' · run ' ~ response.evalRun.runNumber
+        subtitle: response.evalRun.eval.title ~ ' · run ' ~ response.evalRun.runNumber,
+        breadcrumbs: [
+            { label: 'Evaluations', href: '/eval/evals' },
+            { label: response.evalRun.eval.title, href: '/eval/evals/' ~ response.evalRun.eval.publicId },
+            { label: 'Run ' ~ response.evalRun.runNumber, href: '/eval/runs/' ~ response.evalRun.publicId },
+            { label: 'Response' }
+        ]
     } %}
 
     {% include "pages/eval/_flash.twig" %}
 
-    <p><a href="/eval/runs/{{ response.evalRun.publicId }}">&larr; Back to run</a></p>
-
     <section class="rj-admin-panel">
         <div class="rj-admin-panel__header"><h2>Prompt</h2></div>
-        <pre class="eval-prompt">{{ response.evalRun.promptSnapshot.promptText }}</pre>
+        <div class="rj-admin-panel__body">
+            <pre class="eval-prompt">{{ response.evalRun.promptSnapshot.promptText }}</pre>
+        </div>
     </section>
 
     <section class="rj-admin-panel">

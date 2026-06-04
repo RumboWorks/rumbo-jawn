@@ -197,18 +197,92 @@ function rankClass(value, values) {
   return 'rank-middle';
 }
 
-document.querySelectorAll('[data-eval-matrix]').forEach((matrix) => {
-  const cells = Array.from(matrix.querySelectorAll('.eval-heat[data-score]'));
-  document.querySelectorAll('[data-score-mode]').forEach((button) => {
+// Apply Score/Rank display to one matrix. In Rank mode each column (the Average
+// column and every criterion) is ranked across models: the cell shows its
+// competition rank (1 = best; ties share a rank, next rank skips) in place of
+// the score, tinted by tier. Score mode restores the one-decimal values.
+function setMatrixMode(matrix, isRank) {
+  const rows = Array.from(matrix.querySelectorAll('tbody tr'));
+  const colCount = rows[0] ? rows[0].cells.length : 0;
+  let addedIcons = false;
+  for (let col = 1; col < colCount; col++) {
+    const isAvgCol = col === 1; // Average column leads the criteria columns.
+    const colCells = rows.map(r => r.cells[col]).filter(c => c && c.hasAttribute('data-score'));
+    const scores = colCells
+      .map(c => (c.dataset.score === '' ? null : parseFloat(c.dataset.score)))
+      .filter(v => v != null && Number.isFinite(v));
+    colCells.forEach((cell) => {
+      const span = cell.querySelector('.eval-matrix__score');
+      const raw = cell.dataset.score;
+      const v = raw === '' || raw == null ? null : parseFloat(raw);
+      cell.classList.remove('rank-top', 'rank-middle', 'rank-bottom');
+      cell.querySelectorAll('.eval-matrix__medal').forEach(el => el.remove());
+      if (!isRank || v == null || !Number.isFinite(v)) {
+        if (span) span.textContent = (v == null || !Number.isFinite(v)) ? '—' : v.toFixed(1);
+        return;
+      }
+      const rank = 1 + scores.filter(s => s > v).length;
+      if (span) span.textContent = rank;
+      cell.classList.add(rankClass(v, scores));
+      if (rank === 1) {
+        // Trophy for the overall (Average) winner, award for each criterion winner.
+        const icon = document.createElement('i');
+        icon.className = 'eval-matrix__medal';
+        icon.dataset.lucide = isAvgCol ? 'trophy' : 'award';
+        cell.insertBefore(icon, cell.firstChild);
+        addedIcons = true;
+      }
+    });
+  }
+  if (addedIcons) initIcons();
+}
+
+// One Score/Rank control drives every matrix in its [data-matrix-scope] — so the
+// mode is shared across all the run tabs instead of resetting per panel.
+document.querySelectorAll('[data-rank-switch]').forEach((rankSwitch) => {
+  const scope = rankSwitch.closest('[data-matrix-scope]') || document;
+  const matrices = Array.from(scope.querySelectorAll('[data-eval-matrix]'));
+  rankSwitch.querySelectorAll('.slu-wb__seg-btn').forEach((button) => {
     button.addEventListener('click', () => {
-      const rank = button.dataset.scoreMode === 'rank';
-      const values = cells.map(cell => Number(cell.dataset.score)).filter(Number.isFinite);
-      cells.forEach((cell) => {
-        cell.classList.remove('rank-top', 'rank-middle', 'rank-bottom');
-        const value = Number(cell.dataset.score);
-        if (rank && Number.isFinite(value)) cell.classList.add(rankClass(value, values));
+      rankSwitch.querySelectorAll('.slu-wb__seg-btn').forEach(b => b.classList.toggle('is-active', b === button));
+      const isRank = button.dataset.mode === 'rank';
+      matrices.forEach(m => setMatrixMode(m, isRank));
+    });
+  });
+});
+
+// Per-table column sort (each matrix sorts independently).
+document.querySelectorAll('[data-eval-matrix]').forEach((matrix) => {
+  let sortCol = -1, sortDir = 1;
+  matrix.querySelectorAll('thead th[data-sort-col]').forEach((th) => {
+    th.addEventListener('click', () => {
+      const col = parseInt(th.dataset.sortCol, 10);
+      if (sortCol === col) sortDir = -sortDir;
+      else { sortCol = col; sortDir = col === 0 ? 1 : -1; }
+      matrix.querySelectorAll('thead th[data-sort-col]').forEach((h) => {
+        h.classList.remove('is-sort-asc', 'is-sort-desc');
+        if (parseInt(h.dataset.sortCol, 10) === sortCol) {
+          h.classList.add(sortDir === 1 ? 'is-sort-asc' : 'is-sort-desc');
+        }
       });
-      button.parentElement.querySelectorAll('button').forEach(b => b.classList.toggle('is-active', b === button));
+      const tbody = matrix.querySelector('tbody');
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+      rows.sort((a, b) => {
+        if (sortCol === 0) {
+          const na = (a.cells[0].dataset.modelName || '').toLowerCase();
+          const nb = (b.cells[0].dataset.modelName || '').toLowerCase();
+          return na < nb ? -sortDir : na > nb ? sortDir : 0;
+        }
+        const sa = a.cells[sortCol]?.dataset.score;
+        const sb = b.cells[sortCol]?.dataset.score;
+        const va = sa === '' || sa == null ? null : parseFloat(sa);
+        const vb = sb === '' || sb == null ? null : parseFloat(sb);
+        if (va === null && vb === null) return 0;
+        if (va === null) return 1;
+        if (vb === null) return -1;
+        return (va - vb) * sortDir;
+      });
+      rows.forEach(r => tbody.appendChild(r));
     });
   });
 });
@@ -238,20 +312,147 @@ function escapeHtml(value) {
   return node.innerHTML;
 }
 
-document.querySelectorAll('[data-response-display]').forEach((display) => {
-  display.querySelectorAll('[data-response-view]').forEach((button) => {
-    button.addEventListener('click', () => {
-      const view = button.dataset.responseView;
-      display.querySelectorAll('[data-response-view]').forEach(b => b.classList.toggle('is-active', b === button));
-      display.querySelectorAll('[data-response-pane]').forEach(pane => { pane.hidden = pane.dataset.responsePane !== view; });
+// Wires Formatted/Original toggles for any response-display blocks within a
+// root (document on load, or freshly-injected modal content).
+function wireResponseDisplay(root) {
+  root.querySelectorAll('[data-response-display]').forEach((display) => {
+    display.querySelectorAll('[data-response-view]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const view = button.dataset.responseView;
+        display.querySelectorAll('[data-response-view]').forEach(b => b.classList.toggle('is-active', b === button));
+        display.querySelectorAll('[data-response-pane]').forEach(pane => { pane.hidden = pane.dataset.responsePane !== view; });
+      });
     });
   });
-});
+}
+wireResponseDisplay(document);
+
+// ---- Eval detail cross-run drilldown (date + model toggles) ----
+const detailDrillNode = document.getElementById('eval-detail-drilldowns');
+const detailDrillDialog = document.getElementById('eval-detail-drilldown');
+if (detailDrillNode && detailDrillDialog) {
+  const drilldowns = JSON.parse(detailDrillNode.textContent || '{}');
+  const runList = JSON.parse(document.getElementById('eval-detail-runlist')?.textContent || '[]');
+  const titleEl = document.getElementById('eval-detail-drilldown-title');
+  const runsNav = document.getElementById('eval-detail-drilldown-runs');
+  const modelsNav = document.getElementById('eval-detail-drilldown-models');
+  const chipsEl = document.getElementById('eval-detail-drilldown-chips');
+  const bodyEl = document.getElementById('eval-detail-drilldown-body');
+
+  let curModel = null;
+  let curRunId = null;
+
+  const chipHeat = (avg) => {
+    if (avg == null) return 'heat-0';
+    if (avg >= 4.5) return 'heat-5';
+    if (avg >= 3.5) return 'heat-4';
+    if (avg >= 2.5) return 'heat-3';
+    if (avg >= 1.5) return 'heat-2';
+    return 'heat-1';
+  };
+
+  const currentEntry = () => (drilldowns[curModel]?.runs || []).find(r => r.id === curRunId) || null;
+
+  function renderRuns() {
+    runsNav.innerHTML = '';
+    runList.forEach((run) => {
+      const has = (drilldowns[curModel]?.runs || []).some(r => r.id === run.id);
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'eval-drilldown__run' + (run.id === curRunId ? ' is-active' : '') + (has ? '' : ' is-empty');
+      btn.textContent = run.label;
+      btn.addEventListener('click', () => { curRunId = run.id; renderRuns(); renderChips(); renderBody(); });
+      runsNav.appendChild(btn);
+    });
+  }
+
+  function renderModels() {
+    modelsNav.innerHTML = '';
+    Object.keys(drilldowns).forEach((name) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'eval-drilldown__model' + (name === curModel ? ' is-active' : '');
+      btn.textContent = name;
+      btn.title = name;
+      btn.addEventListener('click', () => { curModel = name; renderModels(); renderRuns(); renderChips(); renderBody(); });
+      modelsNav.appendChild(btn);
+    });
+  }
+
+  function renderChips() {
+    chipsEl.innerHTML = '';
+    const entry = currentEntry();
+    if (!entry) return;
+    const cells = [{ title: 'Average', average: entry.average, isAvg: true }, ...entry.criteria];
+    cells.forEach((c) => {
+      const chip = document.createElement('div');
+      chip.className = 'eval-drilldown__chip eval-heat ' + chipHeat(c.average) + (c.isAvg ? ' eval-drilldown__chip--avg' : '');
+      chip.innerHTML = `<span class="eval-drilldown__chip-name">${escapeHtml(c.title)}</span>`
+        + `<span class="eval-drilldown__chip-val">${c.average == null ? '—' : Number(c.average).toFixed(1)}</span>`;
+      chipsEl.appendChild(chip);
+    });
+  }
+
+  function renderBody() {
+    titleEl.textContent = curModel || 'Model';
+    const entry = currentEntry();
+    if (!entry) {
+      bodyEl.innerHTML = '<p class="eval-drilldown__empty">No data for this run.</p>';
+      return;
+    }
+    let html = '<section class="eval-drilldown__section"><h3>AI response</h3>';
+    if (entry.responseHtml || entry.responseText) {
+      html += `<div class="eval-response-display" data-response-display>
+          <div class="eval-response-display__pane" data-response-pane="formatted">${entry.responseHtml || escapeHtml(entry.responseText || '')}</div>
+          <pre class="eval-response-display__pane eval-prompt" data-response-pane="original" hidden>${escapeHtml(entry.responseText || '')}</pre>
+          <div class="eval-response-display__tabs" role="tablist" aria-label="Response display mode">
+            <button type="button" class="is-active" data-response-view="formatted">Formatted</button>
+            <button type="button" data-response-view="original">Original</button>
+          </div>
+        </div>`;
+    } else {
+      html += '<p class="eval-drilldown__empty">No response submitted.</p>';
+    }
+    html += '</section><section class="eval-drilldown__section"><h3>Reviewer comments</h3>';
+    if (entry.comments.length) {
+      entry.comments.forEach((text) => { html += `<blockquote class="eval-drilldown__comment">${escapeHtml(text)}</blockquote>`; });
+    } else {
+      html += '<p class="eval-drilldown__empty">No comments.</p>';
+    }
+    html += '</section>';
+    bodyEl.innerHTML = html;
+    wireResponseDisplay(bodyEl);
+  }
+
+  function openDetailDrilldown(modelName, runId) {
+    if (!drilldowns[modelName]) return;
+    curModel = modelName;
+    curRunId = (runId && runList.some(r => r.id === runId)) ? runId : (runList[0] && runList[0].id);
+    renderRuns();
+    renderModels();
+    renderChips();
+    renderBody();
+    detailDrillDialog.showModal();
+  }
+
+  document.querySelectorAll('[data-detail-panel] .eval-heat--clickable').forEach((cell) => {
+    cell.addEventListener('click', () => {
+      const panel = cell.closest('[data-detail-panel]');
+      const runId = panel ? panel.dataset.detailPanel.replace(/^run-/, '') : null;
+      openDetailDrilldown(cell.dataset.modelName, runId);
+    });
+  });
+
+  detailDrillDialog.querySelector('[data-dialog-close]')?.addEventListener('click', () => detailDrillDialog.close());
+  detailDrillDialog.addEventListener('click', (e) => { if (e.target === detailDrillDialog) detailDrillDialog.close(); });
+}
 
 document.querySelectorAll('[data-detail-tab]').forEach((button) => {
   button.addEventListener('click', () => {
     const key = button.dataset.detailTab;
     document.querySelectorAll('[data-detail-tab]').forEach(tab => tab.classList.toggle('is-active', tab === button));
     document.querySelectorAll('[data-detail-panel]').forEach(panel => { panel.hidden = panel.dataset.detailPanel !== key; });
+    // The Score/Rank control only applies to matrices — hide it on the Trend tab.
+    document.querySelectorAll('[data-matrix-footer]').forEach(footer => { footer.hidden = key === 'trend'; });
   });
 });

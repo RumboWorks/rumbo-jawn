@@ -1,6 +1,6 @@
+{% if items is not empty %}
 <section class="eval-list-section">
     <h2 class="eval-list-section__title">{{ heading }} <span class="eval-list-section__count">{{ items|length }}</span></h2>
-    {% if items is not empty %}
         <div class="rj-table-wrap eval-table-wrap">
             <table class="rj-table eval-table">
                 <colgroup>
@@ -58,5 +58,5 @@
                 </tbody>
             </table>
         </div>
-    {% endif %}
 </section>
+{% endif %}

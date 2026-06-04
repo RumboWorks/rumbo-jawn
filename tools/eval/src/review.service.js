@@ -251,13 +251,54 @@ export async function getEvalDetailReports(organizationId, evalRecord) {
   const completedRuns = (evalRecord?.runs ?? []).filter(run => run.status === 'COMPLETED');
   const reports = (await Promise.all(completedRuns.map(run => getReportData(organizationId, run.publicId, { reveal: true }))))
     .filter(Boolean);
-  const trendData = reports.flatMap((data, runIndex) => data.matrix.map(row => ({
-    runIndex,
-    runNumber: data.run.runNumber,
-    modelName: row.modelName,
-    average: row.modelAvg,
-  })));
-  return { reports, trendData };
+  // Trend bump chart: one point per model per run, ranked within each run by
+  // average (rank 1 = best). Chronological (oldest run first) so the x-axis
+  // reads left→right over time. `reports` is newest-first, so reverse it.
+  const chronological = [...reports].reverse();
+  const trendData = chronological.flatMap((data, runIdx) => {
+    const ranked = data.matrix
+      .filter(row => row.modelAvg != null)
+      .sort((a, b) => b.modelAvg - a.modelAvg);
+    const rankByModel = new Map(ranked.map((row, i) => [row.modelName, i + 1]));
+    return data.matrix.map(row => ({
+      runIdx,
+      runNumber: data.run.runNumber,
+      runLabel: runDateLabel(data.run),
+      modelName: row.modelName,
+      rank: rankByModel.get(row.modelName) ?? null,
+      avgScore: row.modelAvg,
+    }));
+  });
+
+  // Cross-run drilldown data for the score-cell modal. Keyed by model name so
+  // the same model can be tracked across runs (each run has its own snapshot
+  // id). Each model carries the runs it appeared in; the run nav (date toggle)
+  // and model nav let the user move between them.
+  const runList = reports.map(data => ({ id: data.run.publicId, label: runDateLabel(data.run) }));
+  const drilldowns = {};
+  for (const data of reports) {
+    const runId = data.run.publicId;
+    const label = runDateLabel(data.run);
+    for (const row of data.matrix) {
+      const entry = (drilldowns[row.modelName] ??= { runs: [] });
+      const drill = data.drilldowns[row.modelId] ?? {};
+      entry.runs.push({
+        id: runId,
+        label,
+        average: row.modelAvg,
+        responseHtml: drill.responseDisplay?.html ?? '',
+        responseText: drill.responseDisplay?.original ?? drill.responseText ?? '',
+        comments: (drill.comments ?? []).map(c => c.commentText),
+        criteria: row.cells.map(c => ({ title: c.criterionTitle, average: c.average })),
+      });
+    }
+  }
+
+  return { reports, trendData, drilldowns, runList };
+}
+
+function runDateLabel(run) {
+  return new Date(run.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 // ---- Report text + sharing ----

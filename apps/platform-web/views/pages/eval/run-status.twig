@@ -9,12 +9,15 @@
 {% block content %}
     {% include "partials/page-header.twig" with {
         heading: 'Run ' ~ run.runNumber,
-        subtitle: run.eval.title
+        subtitle: run.eval.title,
+        breadcrumbs: [
+            { label: 'Evaluations', href: '/eval/evals' },
+            { label: run.eval.title, href: '/eval/evals/' ~ run.eval.publicId },
+            { label: 'Run ' ~ run.runNumber }
+        ]
     } %}
 
     {% include "pages/eval/_flash.twig" %}
-
-    <p><a href="/eval/evals/{{ run.eval.publicId }}">&larr; Back to {{ run.eval.title }}</a></p>
 
     <section class="rj-admin-metrics rj-admin-metrics--compact">
         <div class="rj-admin-metric">
@@ -33,6 +36,7 @@
 
     <section class="rj-admin-panel">
         <div class="rj-admin-panel__header"><h2>Run controls</h2></div>
+        <div class="rj-admin-panel__body">
         <div class="rj-form-actions">
             {% if run.status == 'COLLECTING_RESPONSES' %}
                 <form method="post" action="/eval/runs/{{ run.publicId }}/status">
@@ -72,10 +76,12 @@
         {% if budget and budget.overLimit %}
             <p class="rj-admin-muted">Response-collection budget reached for this period; API collection may be blocked.</p>
         {% endif %}
+        </div>
     </section>
 
     <section class="rj-admin-panel">
         <div class="rj-admin-panel__header"><h2>Reviewers</h2></div>
+        <div class="rj-admin-panel__body">
         {% if reviewers is empty %}
             <p class="eval-empty">No one in this organization has Eval access yet. A platform admin grants per-tool access on the user's admin page.</p>
         {% else %}
@@ -96,6 +102,7 @@
                 </div>
             </form>
         {% endif %}
+        </div>
     </section>
 
     <section class="rj-admin-panel">
@@ -126,11 +133,15 @@
                 </tbody>
             </table>
         </div>
-        <p class="rj-admin-muted">API responses are collected in the background — refresh to see results.</p>
+        <div class="rj-admin-panel__body">
+            <p class="rj-admin-muted">API responses are collected in the background — refresh to see results.</p>
+        </div>
     </section>
 
     <section class="rj-admin-panel">
         <div class="rj-admin-panel__header"><h2>Prompt</h2></div>
-        <pre class="eval-prompt">{{ run.promptSnapshot.promptText }}</pre>
+        <div class="rj-admin-panel__body">
+            <pre class="eval-prompt">{{ run.promptSnapshot.promptText }}</pre>
+        </div>
     </section>
 {% endblock %}
