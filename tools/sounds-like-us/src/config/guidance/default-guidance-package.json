@@ -61,7 +61,7 @@
       "label": "Plain Language",
       "source": "reading",
       "heading": "Reading level - Plain Language (grade 4-5)",
-      "previewText": "Write in plain language for {{organizationShortName}}'s audience, around grades 4-5, with short sentences, common words, active voice, and clear explanations.",
+      "previewText": "DEPRECATED OPTION Write in plain language for {{organizationShortName}}'s audience, around grades 4-5, with short sentences, common words, active voice, and clear explanations.",
       "fullText": "Write at a plain-language reading level, approximately grade 4-5.\n- Use short sentences and common words.\n- Spell out acronyms the first time they appear.\n- Use active voice.\n- Break up paragraphs with headings or bullets when the content allows.\n- Explain any technical terms in plain language when they must appear."
     },
     "general_adult": {
@@ -172,7 +172,7 @@
         "label": "Point-by-point",
         "source": "task",
         "heading": "Critique existing text - Point-by-point review",
-        "previewText": "Provide a point-by-point review of the provided text, calling out specific passages that work well or need revision for {{organizationShortName}}.",
+        "previewText": "DEPRECATED OPTION Provide a point-by-point review of the provided text, calling out specific passages that work well or need revision for {{organizationShortName}}.",
         "fullText": "Provide a point-by-point review of the provided text for {{organizationName}}.\n- Note specific phrases, sentences, or passages that work well or need revision.\n- Organize feedback by issue type or by passage.\n- Be specific: quote the text you are commenting on, explain what to change, and say why."
       }
     }

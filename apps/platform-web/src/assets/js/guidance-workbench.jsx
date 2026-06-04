@@ -25,7 +25,6 @@ const LENGTH_OPTIONS = {
     { value: 'quick_take',        label: 'Quick take',         desc: 'Short overall reaction' },
     { value: 'summary_critique',  label: 'Summary',   desc: 'Strengths, weaknesses, top improvements' },
     { value: 'detailed_critique', label: 'Detailed',  desc: 'By category with recommendations' },
-    { value: 'point_by_point',    label: 'Point-by‑point',     desc: 'Specific issues organized by passage' },
   ],
 };
 
@@ -43,7 +42,6 @@ const DEFAULT_LENGTH = {
 
 const READING_LEVELS = [
   { value: 'easy_read',        label: 'Easy Read',         sub: 'Grade 2–3' },
-  { value: 'plain_language',   label: 'Plain Language',    sub: 'Grade 4–5' },
   { value: 'general_adult',    label: 'General Adult',     sub: 'Grade 6–8' },
   { value: 'specialist_expert',label: 'Specialist/ Expert',sub: 'Grade 8–10+' },
 ];
