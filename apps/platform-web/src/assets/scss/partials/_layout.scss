@@ -14,7 +14,7 @@ body { display: flex; flex-direction: column; min-height: 100vh; }
 .rj-header {
   height: var(--rj-header-height);
   border-bottom: 1px solid var(--rj-border);
-  background: #0f172a;
+  background: var(--rj-header-bgcolor);
   display: flex;
   align-items: center;
   flex-shrink: 0;
