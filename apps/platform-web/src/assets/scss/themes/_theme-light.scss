@@ -40,5 +40,5 @@
   --rj-shadow-sm: 0 1px 3px rgb(15 23 42 / 0.08);
   --rj-shadow-md: 0 4px 12px rgb(15 23 42 / 0.12);
   --rj-ring: 0 0 0 3px rgb(79 70 229 / 0.18);
-  --rj-header-bgcolor: #2d3a5e;
+  --rj-header-bgcolor: var(--rj-tide-600);
 }

@@ -3,6 +3,7 @@
 // Add a new theme by creating themes/_theme-{name}.scss and importing it here.
 
 @use 'partials/base-tokens';       // structural tokens (spacing, radii, type scale, motion)
+@use 'themes/theme-brand';
 @use 'themes/theme-light';
 @use 'themes/theme-dark';
 @use 'themes/theme-paper';

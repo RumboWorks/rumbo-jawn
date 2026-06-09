@@ -1,0 +1,268 @@
+// Brand theme is always included; defaults for brand colors
+
+/* ============================================================================
+   RumboWorks — Colors & Type Foundation
+   "Better AI starts with better human guidance."
+
+   Design language: warm, editorial "field guide / wayfinding" system.
+   Pine = identity & structure. Ember/Clay = human action & warmth.
+   Tide = depth, trust, data & plan tiers (deliberate cool complement).
+   Warm paper neutrals throughout. Professional, legible, inviting.
+
+   Fonts are Google Fonts (open source):
+     - Bricolage Grotesque — distinctive grotesque, wordmark / logo only
+     - Lora             — warm calligraphic serif, primary display & headings
+     - Bitter           — sturdy slab serif, alternate headlines & accents
+     - Hanken Grotesk — humanist sans, UI & body
+     - IBM Plex Mono  — data, tokens, costs, URLs, code
+   ========================================================================== */
+
+:root {
+  /* ---- Brand: Pine (primary identity / structure) ---------------------- */
+  --rj-pine-50:  #EAF3EE;
+  --rj-pine-100: #D2E6DC;
+  --rj-pine-200: #A7CDBA;
+  --rj-pine-300: #74AE92;
+  --rj-pine-400: #48906E;
+  --rj-pine-500: #2C7355;
+  --rj-pine-600: #1F5B43;   /* primary brand green */
+  --rj-pine-700: #184734;
+  --rj-pine-800: #143A2B;
+  --rj-pine-900: #102D22;
+
+  /* ---- Brand: Ember / Clay (human action / warmth / CTA) --------------- */
+  --rj-ember-50:  #FBEEE8;
+  --rj-ember-100: #F6D9CB;
+  --rj-ember-200: #ECB29A;
+  --rj-ember-300: #E0825A;
+  --rj-ember-400: #D26B3E;
+  --rj-ember-500: #C2562F;   /* primary action / CTA */
+  --rj-ember-600: #A4441F;
+  --rj-ember-700: #85371A;
+
+  /* ---- Brand: Tide (deep navy-slate / depth & trust / data / plan tiers) -- */
+  --rj-tide-50:  #EDF0F7;
+  --rj-tide-100: #D5DAEd;
+  --rj-tide-200: #ACB5D8;
+  --rj-tide-300: #7E8EC0;
+  --rj-tide-400: #546AA6;
+  --rj-tide-500: #384F88;
+  --rj-tide-600: #2C3A5C;   /* primary — slightly warmer than user's #2D3A5E */
+  --rj-tide-700: #1F2C4D;
+  --rj-tide-800: #161F3A;
+  --rj-tide-900: #0E1426;
+
+  /* ---- Accent: Ochre / Sand (highlight, marks, attention) -------------- */
+  --rj-ochre-100: #F7E9C6;
+  --rj-ochre-300: #E8C97A;
+  --rj-ochre-500: #D9A441;
+  --rj-ochre-700: #A87A26;
+
+  /* ---- Warm neutrals: Stone (paper -> ink) ----------------------------- */
+  --rj-paper:    #FAF7F1;    /* app background (warm paper) */
+  --rj-white:    #FFFFFF;    /* raised cards */
+  --rj-stone-50:  #F5F1E8;
+  --rj-stone-100: #ECE6D9;
+  --rj-stone-200: #DCD4C4;
+  --rj-stone-300: #C4BAA6;
+  --rj-stone-400: #A39884;
+  --rj-stone-500: #827767;
+  --rj-stone-600: #615A4D;
+  --rj-stone-700: #494339;
+  --rj-stone-800: #332F28;
+  --rj-stone-900: #211E18;
+  --rj-ink:      #1E2A24;    /* warm near-black, green undertone */
+
+  /* ---- Semantic ------------------------------------------------------- */
+  --rj-success:     #236B4E;
+  --rj-success-bg:  #E6F1EA;
+  --rj-success-fg:  #143A2B;
+  --rj-warning:     #B07D1E;
+  --rj-warning-bg:  #FBF0D4;
+  --rj-warning-fg:  #6B4A0E;
+  --rj-danger:      #B23A28;
+  --rj-danger-bg:   #F8E3DE;
+  --rj-danger-fg:   #6E2218;
+  --rj-info:        #37636B;
+  --rj-info-bg:     #E2EEEF;
+  --rj-info-fg:     #1F3A3F;
+
+  /* ---- Semantic surface / text roles (light theme) -------------------- */
+  --rj-bg:          var(--rj-paper);
+  --rj-bg-raised:   var(--rj-white);
+  --rj-bg-sunken:   var(--rj-stone-50);
+  --rj-surface-2:   var(--rj-stone-50);
+  --rj-fg:          var(--rj-ink);        /* primary text */
+  --rj-fg-2:        var(--rj-stone-600);  /* secondary text */
+  --rj-fg-3:        var(--rj-stone-500);  /* tertiary / captions */
+  --rj-fg-on-dark:  var(--rj-stone-50);
+  --rj-border:      var(--rj-stone-200);  /* default hairline */
+  --rj-border-2:    var(--rj-stone-300);  /* stronger border */
+  --rj-link:        var(--rj-pine-600);
+  --rj-link-hover:  var(--rj-pine-700);
+  --rj-focus:       var(--rj-ember-500);  /* focus ring color */
+
+  /* ---- Typography: families ------------------------------------------- */
+  --rj-font-brand: "Bricolage Grotesque", "Hanken Grotesk", sans-serif; /* wordmark / logo only */
+  --rj-font-serif: "Lora", "Iowan Old Style", Georgia, "Times New Roman", serif;
+  --rj-font-slab:  "Bitter", "Iowan Old Style", Georgia, "Times New Roman", serif;
+  --rj-font-sans:  "Hanken Grotesk", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --rj-font-mono:  "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* ---- Typography: type scale (UI base 16px) -------------------------- */
+  --rj-text-display: 3rem;     /* 48 — marketing hero */
+  --rj-text-h1:      2.25rem;  /* 36 */
+  --rj-text-h2:      1.75rem;  /* 28 */
+  --rj-text-h3:      1.375rem; /* 22 */
+  --rj-text-h4:      1.125rem; /* 18 */
+  --rj-text-lg:      1.125rem; /* 18 body-large */
+  --rj-text-base:    1rem;     /* 16 body */
+  --rj-text-sm:      0.875rem; /* 14 */
+  --rj-text-cap:     0.8125rem;/* 13 caption */
+  --rj-text-micro:   0.75rem;  /* 12 labels (min) */
+
+  --rj-leading-tight: 1.1;
+  --rj-leading-snug:  1.3;
+  --rj-leading-normal:1.55;
+  --rj-leading-relaxed:1.7;
+
+  --rj-tracking-tight: -0.02em;
+  --rj-tracking-normal: 0;
+  --rj-tracking-wide:  0.02em;
+  --rj-tracking-caps:  0.08em;  /* uppercase eyebrows / labels */
+
+  --rj-weight-regular: 400;
+  --rj-weight-medium:  500;
+  --rj-weight-semibold:600;
+  --rj-weight-bold:    700;
+  --rj-weight-black:   800;
+
+  /* ---- Spacing scale (4px base) --------------------------------------- */
+  --rj-space-1: 4px;
+  --rj-space-2: 8px;
+  --rj-space-3: 12px;
+  --rj-space-4: 16px;
+  --rj-space-5: 20px;
+  --rj-space-6: 24px;
+  --rj-space-8: 32px;
+  --rj-space-10: 40px;
+  --rj-space-12: 48px;
+  --rj-space-16: 64px;
+  --rj-space-20: 80px;
+  --rj-space-24: 96px;
+
+  /* ---- Radii ----------------------------------------------------------- */
+  --rj-radius-sm: 4px;
+  --rj-radius-md: 8px;    /* buttons, inputs */
+  --rj-radius-lg: 12px;   /* cards */
+  --rj-radius-xl: 16px;   /* large panels */
+  --rj-radius-pill: 999px;
+
+  /* Organic radii — hand-drawn, each corner different. Pair with the
+     "organic" component variants. Use sparingly for warmth & character. */
+  --rj-radius-organic-sm: 14px 9px 15px 10px;       /* chips, small controls */
+  --rj-radius-organic-md: 18px 12px 20px 13px;      /* buttons, inputs */
+  --rj-radius-organic-lg: 26px 18px 28px 16px;      /* cards, panels */
+  --rj-radius-blob: 60% 40% 55% 45% / 55% 50% 50% 45%; /* pebble / swish */
+
+  /* ---- Elevation (warm-tinted, soft) ---------------------------------- */
+  --rj-shadow-xs: 0 1px 2px rgba(30,42,36,0.06);
+  --rj-shadow-sm: 0 1px 3px rgba(30,42,36,0.08), 0 1px 2px rgba(30,42,36,0.04);
+  --rj-shadow-md: 0 2px 8px rgba(30,42,36,0.08), 0 1px 3px rgba(30,42,36,0.06);
+  --rj-shadow-lg: 0 8px 24px rgba(30,42,36,0.10), 0 2px 6px rgba(30,42,36,0.06);
+  --rj-shadow-xl: 0 16px 40px rgba(30,42,36,0.14), 0 4px 10px rgba(30,42,36,0.08);
+  --rj-ring: 0 0 0 3px rgba(194,86,47,0.32);   /* ember focus ring */
+  --rj-ring-pine: 0 0 0 3px rgba(31,91,67,0.26);
+
+  /* ---- Motion ---------------------------------------------------------- */
+  --rj-ease: cubic-bezier(0.2, 0.6, 0.2, 1); /* @kind other */
+  --rj-ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* @kind other */
+  --rj-dur-fast: 120ms; /* @kind other */
+  --rj-dur: 200ms; /* @kind other */
+  --rj-dur-slow: 320ms; /* @kind other */
+}
+
+/* ============================================================================
+   Semantic element styles — opt in with class .rj or use as reference.
+   ========================================================================== */
+.rj-display {
+  font-family: var(--rj-font-serif);
+  font-size: var(--rj-text-display);
+  line-height: var(--rj-leading-tight);
+  letter-spacing: var(--rj-tracking-tight);
+  font-weight: var(--rj-weight-semibold);
+  color: var(--rj-fg);
+}
+.rj-h1 {
+  font-family: var(--rj-font-serif);
+  font-size: var(--rj-text-h1);
+  line-height: var(--rj-leading-tight);
+  letter-spacing: var(--rj-tracking-tight);
+  font-weight: var(--rj-weight-semibold);
+  color: var(--rj-fg);
+}
+.rj-h2 {
+  font-family: var(--rj-font-serif);
+  font-size: var(--rj-text-h2);
+  line-height: var(--rj-leading-snug);
+  font-weight: var(--rj-weight-semibold);
+  color: var(--rj-fg);
+}
+.rj-h3 {
+  font-family: var(--rj-font-sans);
+  font-size: var(--rj-text-h3);
+  line-height: var(--rj-leading-snug);
+  font-weight: var(--rj-weight-bold);
+  letter-spacing: var(--rj-tracking-tight);
+  color: var(--rj-fg);
+}
+.rj-h4 {
+  font-family: var(--rj-font-sans);
+  font-size: var(--rj-text-h4);
+  line-height: var(--rj-leading-snug);
+  font-weight: var(--rj-weight-semibold);
+  color: var(--rj-fg);
+}
+.rj-body {
+  font-family: var(--rj-font-sans);
+  font-size: var(--rj-text-base);
+  line-height: var(--rj-leading-normal);
+  font-weight: var(--rj-weight-regular);
+  color: var(--rj-fg);
+}
+.rj-body-sm {
+  font-family: var(--rj-font-sans);
+  font-size: var(--rj-text-sm);
+  line-height: var(--rj-leading-normal);
+  color: var(--rj-fg-2);
+}
+.rj-lead {
+  font-family: var(--rj-font-serif);
+  font-size: var(--rj-text-lg);
+  line-height: var(--rj-leading-relaxed);
+  font-weight: var(--rj-weight-regular);
+  color: var(--rj-fg-2);
+}
+/* Uppercase eyebrow / section label */
+.rj-eyebrow {
+  font-family: var(--rj-font-sans);
+  font-size: var(--rj-text-micro);
+  font-weight: var(--rj-weight-bold);
+  letter-spacing: var(--rj-tracking-caps);
+  text-transform: uppercase;
+  color: var(--rj-pine-600);
+}
+.rj-caption {
+  font-family: var(--rj-font-sans);
+  font-size: var(--rj-text-cap);
+  line-height: var(--rj-leading-snug);
+  color: var(--rj-fg-3);
+}
+.rj-mono,
+.rj-code {
+  font-family: var(--rj-font-mono);
+  font-size: var(--rj-text-sm);
+  font-weight: var(--rj-weight-medium);
+  color: var(--rj-fg-2);
+  font-variant-numeric: tabular-nums;
+}
