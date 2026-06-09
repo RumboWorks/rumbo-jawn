@@ -15,6 +15,7 @@ export const TOOLS = Object.freeze([
   Object.freeze({
     key: 'slu',
     name: 'Sounds Like Us',
+    description: 'Turn public source material into reusable voice and writing guidance for your team and AI tools.',
     path: '/slu',
     icon: 'audio-lines',
     navOrder: 10,
@@ -23,6 +24,7 @@ export const TOOLS = Object.freeze([
   Object.freeze({
     key: 'eval',
     name: 'Eval',
+    description: 'Compare model and tool outputs with structured criteria, reviewer scoring, and clear reports.',
     path: '/eval',
     icon: 'clipboard-check',
     navOrder: 20,

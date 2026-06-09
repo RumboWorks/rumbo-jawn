@@ -19,20 +19,31 @@
     {% if detailReports.reports is not empty %}
         <section class="rj-admin-panel" aria-label="Completed run scores">
             <div class="rj-admin-panel__header rj-admin-panel__header--tabs">
+                {% set multiRun = detailReports.reports|length > 1 %}
                 <nav class="eval-tabs eval-tabs--in-header" role="tablist" aria-label="Completed run score views">
-                    {% for data in detailReports.reports %}
-                        <button class="eval-tabs__tab{% if loop.first %} eval-tabs__tab--strong is-active{% endif %}" type="button" data-detail-tab="run-{{ data.run.publicId }}">{% if loop.first %}Overall{% else %}{{ data.run.createdAt|date("M j, Y") }}{% endif %}</button>
+                    {# Overall (average of all runs) first, then every run as a date
+                       tab ascending — same chronological direction as the Trend chart. #}
+                    {% if multiRun %}
+                        <button class="eval-tabs__tab eval-tabs__tab--strong is-active" type="button" data-detail-tab="overall">Overall</button>
+                    {% endif %}
+                    {% for data in detailReports.reports|reverse %}
+                        <button class="eval-tabs__tab{% if not multiRun and loop.first %} is-active{% endif %}" type="button" data-detail-tab="run-{{ data.run.publicId }}">{{ data.run.createdAt|date("M j, Y") }}</button>
                     {% endfor %}
-                    {% if detailReports.reports|length > 1 %}<button class="eval-tabs__tab eval-tabs__tab--strong" type="button" data-detail-tab="trend">Trend</button>{% endif %}
+                    {% if multiRun %}<button class="eval-tabs__tab eval-tabs__tab--strong" type="button" data-detail-tab="trend">Trend</button>{% endif %}
                 </nav>
             </div>
             <div class="rj-admin-panel__body" data-matrix-scope>
+                {% if multiRun %}
+                    <div data-detail-panel="overall">
+                        {% include "pages/eval/_report-matrix.twig" with detailReports.aggregate|merge({ clickable: false }) %}
+                    </div>
+                {% endif %}
                 {% for data in detailReports.reports %}
-                    <div data-detail-panel="run-{{ data.run.publicId }}"{% if not loop.first %} hidden{% endif %}>
+                    <div data-detail-panel="run-{{ data.run.publicId }}"{% if multiRun %} hidden{% endif %}>
                         {% include "pages/eval/_report-matrix.twig" with data %}
                     </div>
                 {% endfor %}
-                {% if detailReports.reports|length > 1 %}
+                {% if multiRun %}
                     <div data-detail-panel="trend" hidden>
                         <div class="eval-trend" id="eval-trend-chart"></div>
                         <script type="application/json" id="eval-trend-data">{{ detailReports.trendData|json_encode|raw }}</script>

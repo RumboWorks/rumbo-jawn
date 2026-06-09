@@ -27,46 +27,63 @@
                 <img src="/brand/rumboworks-mark.svg" alt="" width="28" height="28">
                 <span class="rj-wordmark">RumboWorks</span>
             </a>
-            {% if currentUser and activeOrganization %}
-                <form class="rj-org-switcher" method="post" action="/organization/switch">
-                    <input type="hidden" name="returnTo" value="{{ currentPath ?? '/' }}">
-                    <label class="rj-sr-only" for="rj-org-select">Organization</label>
-                    <select id="rj-org-select" name="orgId" onchange="this.form.submit()">
-                        {% for org in organizations %}
-                            <option value="{{ org.id }}"{% if org.id == activeOrganization.id %} selected{% endif %}>{{ org.name }}</option>
-                        {% endfor %}
-                    </select>
-                </form>
-            {% endif %}
             <nav class="rj-header__nav">
                 {% if currentUser %}
-                    {% for t in navTools %}
-                        <a href="{{ t.path }}" class="rj-header__nav-link">{{ t.name }}</a>
-                    {% endfor %}
+                    {% include "partials/tool-switcher.twig" %}
                     {% if currentUser.isPlatformAdmin %}
                         <a href="/admin" class="rj-header__nav-link">Admin</a>
                     {% endif %}
-                    <a href="/account" class="rj-header__nav-link">{{ currentUserDisplayName }}</a>
-                    <button class="rj-nav-orientation-toggle" id="rj-nav-orientation-toggle" type="button" aria-label="Switch navigation layout" title="Switch navigation layout">
-                        <i data-lucide="panel-left"></i>
-                    </button>
-                    <a href="/auth/logout" class="rj-header__nav-link">Sign out</a>
+                    <details class="rj-account-menu">
+                        <summary class="rj-header__nav-link">{{ currentUserDisplayName }}</summary>
+                        <div class="rj-account-menu__panel">
+                            <a href="/account">My account</a>
+                            {% if activeOrganization %}
+                                <form class="rj-org-switcher" method="post" action="/organization/switch">
+                                    <input type="hidden" name="returnTo" value="{{ currentPath ?? '/' }}">
+                                    <label>Organization
+                                        <select id="rj-org-select" name="orgId" onchange="this.form.submit()" aria-label="Organization">
+                                            {% for org in organizations %}
+                                                <option value="{{ org.id }}"{% if org.id == activeOrganization.id %} selected{% endif %}>{{ org.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </label>
+                                </form>
+                            {% endif %}
+                            <div class="rj-ui-options">
+                                <label>Theme
+                                    <select id="rj-theme-select" aria-label="Color theme">
+                                        <option value="light">Light</option>
+                                        <option value="dark">Dark</option>
+                                        <option value="paper">Paper</option>
+                                        <option value="pink">Pink</option>
+                                    </select>
+                                </label>
+                                <label>Density
+                                    <select id="rj-density-select" aria-label="Density">
+                                        <option value="comfortable">Comfortable</option>
+                                        <option value="compact">Compact</option>
+                                    </select>
+                                </label>
+                            </div>
+                            <a href="/auth/logout">Sign out</a>
+                        </div>
+                    </details>
                 {% else %}
                     <a href="/login" class="rj-header__nav-link">Sign in</a>
                     <a href="/register" class="rj-btn rj-btn--primary rj-btn--sm">Get started</a>
+                    <div class="rj-theme-switcher">
+                        <select id="rj-theme-select" aria-label="Color theme">
+                            <option value="light">Light</option>
+                            <option value="dark">Dark</option>
+                            <option value="paper">Paper</option>
+                            <option value="pink">Pink</option>
+                        </select>
+                        <select id="rj-density-select" aria-label="Density">
+                            <option value="comfortable">Comfortable</option>
+                            <option value="compact">Compact</option>
+                        </select>
+                    </div>
                 {% endif %}
-                <div class="rj-theme-switcher">
-                    <select id="rj-theme-select" aria-label="Color theme">
-                        <option value="light">Light</option>
-                        <option value="dark">Dark</option>
-                        <option value="paper">Paper</option>
-                        <option value="pink">Pink</option>
-                    </select>
-                    <select id="rj-density-select" aria-label="Density">
-                        <option value="comfortable">Comfortable</option>
-                        <option value="compact">Compact</option>
-                    </select>
-                </div>
             </nav>
         </div>
     </header>

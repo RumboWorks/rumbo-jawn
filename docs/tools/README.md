@@ -35,3 +35,17 @@ Tools must not depend on each other's internals.
 
 - `sounds-like-us.md` — first MVP tool.
 - `eval.md` — Eval (formerly Model Eval), the second tool; migration planned in `docs/development-phases/phase-10`–`phase-14`.
+
+## Tool switcher copy and icons
+
+The global tool switcher is driven by the code-level registry in `packages/config/src/tools.js`.
+
+To change a tool's switcher text or icon, update that tool's registry entry:
+
+- `name` — short display name shown in the header and switcher.
+- `description` — one-sentence switcher description.
+- `icon` — Lucide icon name in kebab case, used with `<i data-lucide="...">`.
+- `path` — landing route used when a user selects the tool.
+- `navOrder` — sort order in the switcher.
+
+If you use a new Lucide icon, also import and add it to `apps/platform-web/src/assets/js/icons.js`; otherwise the placeholder `<i>` element will not render as an SVG.

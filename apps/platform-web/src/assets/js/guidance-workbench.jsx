@@ -55,12 +55,25 @@ const FEEDBACK_CATEGORIES = [
   { value: 'other',            label: 'Other' },
 ];
 
+const OPEN_IN_AI_TOOLS = [
+  { id: 'chatgpt', name: 'ChatGPT', logo: '/brand/openai.svg', urlPrefix: 'https://chatgpt.com/?q=' },
+  { id: 'copilot', name: 'Microsoft Copilot', logo: '/brand/microsoft.svg', urlPrefix: 'https://copilot.microsoft.com/?q=' },
+  { id: 'perplexity', name: 'Perplexity', logo: '/brand/perplexity.svg', urlPrefix: 'https://www.perplexity.ai/?q=' },
+];
+
 const GUIDANCE_VIEW_MODES = [
   { value: 'preview', label: 'Preview' },
   { value: 'full_guidance', label: 'Full Guidance' },
 ];
 
-const PREVIEW_EXCLUDED_BLOCK_IDS = new Set(['vocabulary', 'what-to-avoid']);
+// Closing line appended to the full guidance so chatbots prompt for the user's
+// text instead of acting on the guidance alone.
+const CLOSING_INSTRUCTION = 'Now ask the user to paste or upload their text to begin.';
+
+const FALLBACK_PREVIEW_TEXT = {
+  vocabulary: 'The full section lists words and phrases that fit {{organizationShortName}}\'s voice and can be reused when writing in this style.',
+  'what-to-avoid': 'The full section lists words, phrases, tones, and patterns to avoid so the writing does not drift away from {{organizationShortName}}\'s voice.',
+};
 
 // ---- Assembly (mirrors server-side guidance-assembly.service.js) ----
 
@@ -135,15 +148,20 @@ function getGuidanceTokenContext(guidance) {
 
 function blockContent(block, mode, tokenContext) {
   const field = mode === 'preview' ? 'previewText' : 'fullText';
-  if (typeof block[field] !== 'string' || !block[field].trim()) {
+  const content = block[field] || (mode === 'preview' ? FALLBACK_PREVIEW_TEXT[block.id] : '');
+  if (typeof content !== 'string' || !content.trim()) {
     throw new Error(`Missing ${field} for guidance block ${block.id}.`);
   }
-  return renderTemplate(block[field], tokenContext);
+  return renderTemplate(content, tokenContext);
 }
 
 function assemblePreviewBlocks(blocks, tokenContext) {
+  return blocks.map(block => ({ ...block, content: blockContent(block, 'preview', tokenContext) }));
+}
+
+function assembleOptionalPreviewBlocks(blocks, tokenContext) {
   return blocks
-    .filter(block => !PREVIEW_EXCLUDED_BLOCK_IDS.has(block.id))
+    .filter(block => (typeof block.previewText === 'string' && block.previewText.trim()) || FALLBACK_PREVIEW_TEXT[block.id])
     .map(block => ({ ...block, content: blockContent(block, 'preview', tokenContext) }));
 }
 
@@ -199,13 +217,24 @@ function addTaskOpening(blocks, guidancePackage, tokenContext) {
 }
 
 function renderFullGuidanceText(blocks) {
-  return blocks.map(block => normalizeGuidanceText(block.content)).join('\n\n');
+  return blocks.map(block => normalizeGuidanceText(withSectionHeading(block).content)).join('\n\n');
 }
 
 function normalizeGuidanceText(content) {
   return content
     .replace(/:\s+-\s+/g, ':\n- ')
     .replace(/\s+-\s+(?=(?:"|'|[A-Z][A-Za-z ]{1,40}:|[A-Za-z0-9]))/g, '\n- ');
+}
+
+function sectionFriendlyName(block) {
+  return block.label || block.heading || 'Guidance';
+}
+
+function withSectionHeading(block) {
+  const heading = sectionFriendlyName(block);
+  const content = normalizeGuidanceText(block.content).trim();
+  if (content.startsWith(`## ${heading}`)) return { ...block, content };
+  return { ...block, content: `## ${heading}\n\n${content}` };
 }
 
 // ---- Color map (source → CSS variable name) ----
@@ -395,13 +424,102 @@ function ViewModeSwitch({ value, onChange }) {
   );
 }
 
-function Toggle({ id, label, checked, onChange }) {
+function ClipboardIcon() {
   return (
-    <label className="slu-wb__toggle-row">
+    <svg className="slu-wb__btn-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="8" y="2" width="8" height="4" rx="1" fill="none" stroke="currentColor" strokeWidth="2" />
+      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function ExternalIcon() {
+  return (
+    <svg className="slu-wb__open-ai-action" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M7 17 17 7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path d="M9 7h8v8" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function SelectMenu({ id, value, options, onChange }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const wrapRef = useRef(null);
+  const selectedOption = options.find(option => option.value === value) ?? options[0];
+  const listboxId = `${id}-listbox`;
+
+  useEffect(() => {
+    if (!isOpen) return undefined;
+
+    const closeOnOutsideClick = event => {
+      if (!wrapRef.current?.contains(event.target)) setIsOpen(false);
+    };
+    const closeOnEscape = event => {
+      if (event.key === 'Escape') setIsOpen(false);
+    };
+
+    document.addEventListener('mousedown', closeOnOutsideClick);
+    document.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.removeEventListener('mousedown', closeOnOutsideClick);
+      document.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [isOpen]);
+
+  const chooseOption = option => {
+    onChange(option.value);
+    setIsOpen(false);
+  };
+
+  return (
+    <div className={`slu-wb__select-wrap${isOpen ? ' is-open' : ''}`} ref={wrapRef}>
+      <button
+        type="button"
+        id={id}
+        className="slu-wb__select"
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        aria-controls={listboxId}
+        onClick={() => setIsOpen(open => !open)}
+      >
+        <span>{selectedOption?.label ?? 'None'}</span>
+      </button>
+      <span className="slu-wb__select-chevron" aria-hidden="true">⌄</span>
+      {isOpen && (
+        <div className="slu-wb__select-menu" id={listboxId} role="listbox" aria-labelledby={id}>
+          {options.map(option => (
+            <button
+              key={option.value}
+              type="button"
+              className={`slu-wb__select-option${option.value === value ? ' is-selected' : ''}`}
+              role="option"
+              aria-selected={option.value === value}
+              onClick={() => chooseOption(option)}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Toggle({ id, label, checked, onChange, disabled = false }) {
+  return (
+    <label className={`slu-wb__toggle-row${disabled ? ' is-disabled' : ''}`}>
       <span className="slu-wb__toggle-label">{label}</span>
-      <span className={`slu-wb__switch${checked ? ' is-on' : ''}`} role="switch" aria-checked={checked} onClick={() => onChange(!checked)}>
+      <button
+        type="button"
+        className={`slu-wb__switch${checked ? ' is-on' : ''}`}
+        role="switch"
+        aria-checked={checked}
+        aria-label={label}
+        disabled={disabled}
+        onClick={() => onChange(!checked)}
+      >
         <span className="slu-wb__knob" />
-      </span>
+      </button>
     </label>
   );
 }
@@ -447,6 +565,14 @@ function OutputContent({ content }) {
     };
 
     for (const line of lines) {
+      const headingMatch = line.match(/^##\s+(.+)$/);
+      if (headingMatch) {
+        flushParagraph();
+        flushList();
+        chunks.push({ type: 'heading', text: headingMatch[1] });
+        continue;
+      }
+
       const isListItem = line.startsWith('- ') || line.startsWith('• ') || /^\d+\.\s/.test(line);
       if (isListItem) {
         flushParagraph();
@@ -462,6 +588,10 @@ function OutputContent({ content }) {
 
     return chunks.map((chunk, chunkIndex) => {
       const key = `${groupIndex}-${chunkIndex}`;
+      if (chunk.type === 'heading') {
+        return <h2 key={key} className="slu-wb__out-h2">{chunk.text}</h2>;
+      }
+
       if (chunk.type === 'list') {
         return (
           <ul key={key} className="slu-wb__out-list">
@@ -475,18 +605,43 @@ function OutputContent({ content }) {
   });
 }
 
-function OutputDocument({ blocks }) {
+function OutputDocument({ blocks, onToggleSection, closing }) {
   return (
     <article className="slu-wb__out-document" aria-label="Assembled guidance output">
       {blocks.map((block, i) => {
         const source = SOURCE_COLOR[block.source] ?? 'generic';
+        const friendlyName = sectionFriendlyName(block);
+        const nextModeLabel = block.displayMode === 'full_guidance' ? 'preview' : 'full guidance';
+        const canToggleSection = block.canPreview !== false;
 
         return (
           <section key={`${block.id}-${i}`} className={`slu-wb__out-section slu-wb__out-section--${source}`} data-source={block.source}>
-            <OutputContent content={block.content} />
+            <button
+              type="button"
+              className={`slu-wb__out-rail${canToggleSection ? '' : ' is-disabled'}`}
+              onClick={() => onToggleSection(block)}
+              disabled={!canToggleSection}
+              aria-label={`Show ${nextModeLabel} for ${friendlyName}`}
+              aria-pressed={block.displayMode === 'full_guidance'}
+              title={canToggleSection ? `Switch ${friendlyName} to ${nextModeLabel}` : `${friendlyName} is only available in full guidance`}
+            />
+            <div className="slu-wb__out-section-body">
+              <OutputContent content={withSectionHeading(block).content} />
+            </div>
           </section>
         );
       })}
+      {closing && (
+        <section
+          className="slu-wb__out-section slu-wb__out-section--closing"
+          title="This instructs the AI to ask the user for text to review/critique, or write from."
+        >
+          <div className="slu-wb__out-rail slu-wb__out-rail--static" aria-hidden="true" />
+          <div className="slu-wb__out-section-body">
+            <p className="slu-wb__out-p slu-wb__out-closing">{closing}</p>
+          </div>
+        </section>
+      )}
     </article>
   );
 }
@@ -542,9 +697,11 @@ function GuidanceWorkbenchInner({ data }) {
   const [readingLevel, setReadingLevel] = useState(savedOptions?.readingLevel ?? 'general_adult');
   const [bestPracticePack, setBestPracticePack] = useState(savedOptions?.bestPracticePack ?? 'none');
   const [guidanceViewMode, setGuidanceViewMode] = useState('preview');
+  const [sectionViewModes, setSectionViewModes] = useState({});
   const [includedBlocks, setIncludedBlocks] = useState(() => {
-    if (savedOptions?.includedBlocks) return new Set(savedOptions.includedBlocks);
-    return getDefaultIncludedBlocks(guidance, guidancePackage);
+    const next = savedOptions?.includedBlocks ? new Set(savedOptions.includedBlocks) : getDefaultIncludedBlocks(guidance, guidancePackage);
+    next.add('voice-tone');
+    return next;
   });
 
   const [copied, setCopied] = useState(false);
@@ -562,6 +719,7 @@ function GuidanceWorkbenchInner({ data }) {
   };
 
   const toggleBlock = (id) => {
+    if (id === 'voice-tone') return;
     setIncludedBlocks(prev => {
       const next = new Set(prev);
       next.has(id) ? next.delete(id) : next.add(id);
@@ -569,15 +727,42 @@ function GuidanceWorkbenchInner({ data }) {
     });
   };
 
+  const handleGuidanceViewModeChange = (mode) => {
+    setGuidanceViewMode(mode);
+    setSectionViewModes({});
+  };
+
   // Assemble output from current selections
   const selections = { guidanceTask, lengthDetail, readingLevel, bestPracticePack };
   const orgName = guidance.organization.name;
   const tokenContext = getGuidanceTokenContext(guidance);
   const assembledBlocks = assembleBlocks(guidance, guidancePackage, selections, includedBlocks);
+  const optionalPreviewBlocks = addTaskOpening(orderDisplayBlocks(assembleOptionalPreviewBlocks(assembledBlocks, tokenContext)), guidancePackage, tokenContext);
   const previewBlocks = addTaskOpening(orderDisplayBlocks(assemblePreviewBlocks(assembledBlocks, tokenContext)), guidancePackage, tokenContext);
   const fullDisplayBlocks = addTaskOpening(orderDisplayBlocks(assembleFullBlocks(assembledBlocks, tokenContext)), guidancePackage, tokenContext);
-  const visibleBlocks = guidanceViewMode === 'full_guidance' ? fullDisplayBlocks : previewBlocks;
-  const fullGuidanceText = renderFullGuidanceText(fullDisplayBlocks);
+  const previewBlockById = new Map(optionalPreviewBlocks.map(block => [block.id, block]));
+  const fullBlockById = new Map(fullDisplayBlocks.map(block => [block.id, block]));
+  const baseVisibleBlocks = guidanceViewMode === 'full_guidance' ? fullDisplayBlocks : previewBlocks;
+  const visibleBlocks = baseVisibleBlocks.map(block => {
+    const canPreview = previewBlockById.has(block.id);
+    const requestedMode = sectionViewModes[block.id] ?? guidanceViewMode;
+    const mode = requestedMode === 'preview' && !canPreview ? 'full_guidance' : requestedMode;
+    const modeBlock = mode === 'full_guidance' ? fullBlockById.get(block.id) : previewBlockById.get(block.id);
+    return {
+      ...(modeBlock ?? block),
+      displayMode: mode,
+      canPreview,
+    };
+  });
+  const fullGuidanceText = `${renderFullGuidanceText(fullDisplayBlocks)}\n\n${CLOSING_INSTRUCTION}`;
+  const toggleSectionViewMode = (block) => {
+    if (block.canPreview === false) return;
+    setSectionViewModes(prev => {
+      const current = prev[block.id] ?? guidanceViewMode;
+      const next = current === 'full_guidance' ? 'preview' : 'full_guidance';
+      return { ...prev, [block.id]: next };
+    });
+  };
   const buildDownloadUrl = (format) => {
     const params = new URLSearchParams({
       format,
@@ -615,6 +800,16 @@ function GuidanceWorkbenchInner({ data }) {
       if (ta) { ta.value = fullGuidanceText; ta.select(); document.execCommand('copy'); setCopied(true); setTimeout(() => setCopied(false), 2000); }
     }
   };
+
+  const handleOpenInAi = async () => {
+    try {
+      await navigator.clipboard.writeText(fullGuidanceText);
+    } catch {
+      // Deep links still work without the clipboard fallback.
+    }
+  };
+
+  const buildOpenInAiUrl = (tool) => `${tool.urlPrefix}${encodeURIComponent(fullGuidanceText)}`;
 
   // Submit feedback
   const handleFeedbackSubmit = async (e) => {
@@ -672,13 +867,12 @@ function GuidanceWorkbenchInner({ data }) {
           </ControlSection>
 
           {/* Best-Practice Pack */}
-          <ControlSection colorKey="pack" title="Add best-practice guidance for…">
-            <RadioGroup
-              name="bestPracticePack"
+          <ControlSection colorKey="pack" title="Add Best Practices For...">
+            <SelectMenu
+              id="bestPracticePack"
               options={bestPracticePacks.map(p => ({ value: p.id, label: p.label }))}
               value={bestPracticePack}
               onChange={setBestPracticePack}
-              vertical
             />
           </ControlSection>
 
@@ -690,8 +884,9 @@ function GuidanceWorkbenchInner({ data }) {
                 key={b.id}
                 id={b.id}
                 label={b.label}
-                checked={includedBlocks.has(b.id)}
+                checked={b.id === 'voice-tone' || includedBlocks.has(b.id)}
                 onChange={() => toggleBlock(b.id)}
+                disabled={b.id === 'voice-tone'}
               />
             ))}
             {/* Reading level toggle */}
@@ -732,7 +927,7 @@ function GuidanceWorkbenchInner({ data }) {
             <span className="slu-wb__out-meta">
               {guidanceViewMode === 'full_guidance' ? 'Full Guidance' : 'Preview'} · {visibleBlocks.length} section{visibleBlocks.length !== 1 ? 's' : ''}
             </span>
-            <ViewModeSwitch value={guidanceViewMode} onChange={setGuidanceViewMode} />
+            <ViewModeSwitch value={guidanceViewMode} onChange={handleGuidanceViewModeChange} />
           </div>
 
           {/* Assembled output */}
@@ -742,7 +937,11 @@ function GuidanceWorkbenchInner({ data }) {
             </div>
           ) : (
             <div className="slu-wb__out-blocks">
-              <OutputDocument blocks={visibleBlocks} />
+              <OutputDocument
+                blocks={visibleBlocks}
+                onToggleSection={toggleSectionViewMode}
+                closing={guidanceViewMode === 'full_guidance' ? CLOSING_INSTRUCTION : null}
+              />
             </div>
           )}
 
@@ -792,20 +991,49 @@ function GuidanceWorkbenchInner({ data }) {
 
       {/* Output actions */}
       <aside className="slu-wb__actions" aria-label="Output actions">
-        <div className="slu-wb__actions-card">
-          <div>
-            <p className="slu-wb__actions-title">Output</p>
+        <div className="slu-wb__actions-stack">
+          <div className="slu-wb__actions-card">
+            <div>
+              <p className="slu-wb__actions-title">Output</p>
+            </div>
+            <div className="slu-wb__out-btns">
+              <button type="button" className="rj-btn rj-btn--secondary rj-btn--sm" onClick={handleCopy}>
+                <ClipboardIcon />
+                <span>{copied ? 'Copied' : 'Copy full guidance'}</span>
+              </button>
+              <a href={buildDownloadUrl('txt')} className="rj-btn rj-btn--ghost rj-btn--sm" download>
+                Download .txt
+              </a>
+              <a href={buildDownloadUrl('md')} className="rj-btn rj-btn--ghost rj-btn--sm" download>
+                Download .md
+              </a>
+            </div>
           </div>
-          <div className="slu-wb__out-btns">
-            <button type="button" className="rj-btn rj-btn--secondary rj-btn--sm" onClick={handleCopy}>
-              {copied ? 'Copied' : 'Copy full guidance'}
-            </button>
-            <a href={buildDownloadUrl('txt')} className="rj-btn rj-btn--ghost rj-btn--sm" download>
-              Download .txt
-            </a>
-            <a href={buildDownloadUrl('md')} className="rj-btn rj-btn--ghost rj-btn--sm" download>
-              Download .md
-            </a>
+
+          <div className="slu-wb__actions-card">
+            <div>
+              <p className="slu-wb__actions-title">Open in...</p>
+            </div>
+            <div className="slu-wb__open-ai-list">
+              {OPEN_IN_AI_TOOLS.map(tool => (
+                <a
+                  key={tool.id}
+                  className="slu-wb__open-ai-link"
+                  href={buildOpenInAiUrl(tool)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={handleOpenInAi}
+                >
+                  <span
+                    className="slu-wb__open-ai-icon"
+                    style={{ '--logo': `url(${tool.logo})` }}
+                    aria-hidden="true"
+                  />
+                  <span className="slu-wb__open-ai-name">{tool.name}</span>
+                  <ExternalIcon />
+                </a>
+              ))}
+            </div>
           </div>
         </div>
       </aside>

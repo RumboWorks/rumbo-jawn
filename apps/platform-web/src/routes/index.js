@@ -23,7 +23,11 @@ router.get('/', async (req, res, next) => {
 router.post('/organization/switch', async (req, res, next) => {
   try {
     await setActiveOrganization(req, req.body.orgId);
-    res.redirect(req.body.returnTo || '/');
+    const redirectTo = req.body.returnTo || '/';
+    if (req.session) {
+      return req.session.save(() => res.redirect(redirectTo));
+    }
+    return res.redirect(redirectTo);
   } catch (err) {
     next(err);
   }

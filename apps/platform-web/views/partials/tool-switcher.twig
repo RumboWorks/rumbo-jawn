@@ -1,0 +1,33 @@
+{% set activeTool = tool is defined and toolRegistryByKey[tool] is defined ? toolRegistryByKey[tool] : null %}
+{% set activeToolName = activeTool ? activeTool.name : 'Tools' %}
+{% set activeToolIcon = activeTool ? activeTool.icon : 'boxes' %}
+
+<div class="rj-tool-switcher">
+    <button class="rj-tool-switcher__trigger" type="button" data-tool-switcher-open aria-haspopup="dialog" aria-controls="rj-tool-switcher-dialog">
+        <i data-lucide="{{ activeToolIcon }}"></i>
+        <span>{{ activeToolName }}</span>
+        <i data-lucide="arrow-left-right" class="rj-tool-switcher__switch-icon"></i>
+    </button>
+    <dialog class="rj-tool-switcher__dialog" id="rj-tool-switcher-dialog" aria-labelledby="rj-tool-switcher-title">
+        <div class="rj-tool-switcher__header">
+            <div>
+                <h2 id="rj-tool-switcher-title">Switch tools</h2>
+                <p>Choose another Rumbo workspace available to you in this organization.</p>
+            </div>
+            <button class="rj-tool-switcher__close" type="button" data-tool-switcher-close aria-label="Close tool switcher">×</button>
+        </div>
+        <div class="rj-tool-switcher__list">
+            {% for t in navTools %}
+                <a class="rj-tool-switcher__item{% if tool is defined and t.key == tool %} is-active{% endif %}" href="{{ t.path }}"{% if tool is defined and t.key == tool %} aria-current="page"{% endif %}>
+                    <span class="rj-tool-switcher__item-icon"><i data-lucide="{{ t.icon ?? 'boxes' }}"></i></span>
+                    <span class="rj-tool-switcher__item-copy">
+                        <strong>{{ t.name }}</strong>
+                        <span>{{ t.description ?? 'Open this Rumbo tool.' }}</span>
+                    </span>
+                </a>
+            {% else %}
+                <p class="rj-tool-switcher__empty">No tools are available for this organization yet.</p>
+            {% endfor %}
+        </div>
+    </dialog>
+</div>

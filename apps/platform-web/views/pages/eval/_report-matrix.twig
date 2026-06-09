@@ -1,7 +1,10 @@
 {# Report heatmap: models (rows) × criteria (columns). Needs `matrix`,
    `criteria`, `criterionAverages`, `overall`, `overallHeatClass` in scope.
    The Score/Rank control lives outside this partial (_matrix-mode.twig, one per
-   page) so a single switch can drive every matrix in its scope. #}
+   page) so a single switch can drive every matrix in its scope.
+   `clickable` (default true): set false for the cross-run aggregate, whose cells
+   have no single run/response to drill into. #}
+{% set clickable = clickable ?? true %}
 <div class="rj-table-wrap">
     <table class="rj-table eval-matrix" data-eval-matrix>
             <thead>
@@ -15,19 +18,15 @@
                 {% for row in matrix %}
                     <tr>
                         <td class="eval-matrix__model" data-model-name="{{ row.modelName }}">{{ row.modelName }}</td>
-                        <td class="eval-heat eval-matrix__avg-cell {{ row.modelAvgHeatClass }}{% if row.modelAvg is not null %} eval-heat--clickable{% endif %}"
+                        <td class="eval-heat eval-matrix__avg-cell {{ row.modelAvgHeatClass }}{% if clickable and row.modelAvg is not null %} eval-heat--clickable{% endif %}"
                             data-score="{{ row.modelAvg ?? '' }}"
-                            data-model-id="{{ row.modelId }}"
-                            data-model-name="{{ row.modelName }}">
+                            {% if clickable %}data-model-id="{{ row.modelId }}" data-model-name="{{ row.modelName }}"{% endif %}>
                             <span class="eval-matrix__score eval-matrix__score--avg">{{ row.modelAvg is null ? '—' : row.modelAvg|number_format(1) }}</span>
                         </td>
                         {% for cell in row.cells %}
-                            <td class="eval-heat {{ cell.heatClass }}{% if cell.average is not null %} eval-heat--clickable{% endif %}"
+                            <td class="eval-heat {{ cell.heatClass }}{% if clickable and cell.average is not null %} eval-heat--clickable{% endif %}"
                                 data-score="{{ cell.average ?? '' }}"
-                                data-model-id="{{ row.modelId }}"
-                                data-model-name="{{ row.modelName }}"
-                                data-criterion-id="{{ cell.criterionId }}"
-                                data-criterion-title="{{ cell.criterionTitle }}"
+                                {% if clickable %}data-model-id="{{ row.modelId }}" data-model-name="{{ row.modelName }}" data-criterion-id="{{ cell.criterionId }}" data-criterion-title="{{ cell.criterionTitle }}"{% endif %}
                                 title="{{ cell.count }} rating{{ cell.count == 1 ? '' : 's' }}">
                                 <span class="eval-matrix__score">{{ cell.average is null ? '—' : cell.average|number_format(1) }}</span>
                             </td>
@@ -35,18 +34,5 @@
                     </tr>
                 {% endfor %}
             </tbody>
-            <tfoot>
-                <tr>
-                    <td class="eval-matrix__model">Average</td>
-                    <td class="eval-heat eval-matrix__avg-cell {{ overallHeatClass }}">
-                        <span class="eval-matrix__score eval-matrix__score--avg">{{ overall is null ? '—' : overall|number_format(1) }}</span>
-                    </td>
-                    {% for ca in criterionAverages %}
-                        <td class="eval-heat {{ ca.heatClass }}">
-                            <span class="eval-matrix__score">{{ ca.average is null ? '—' : ca.average|number_format(1) }}</span>
-                        </td>
-                    {% endfor %}
-                </tr>
-            </tfoot>
         </table>
     </div>

@@ -157,11 +157,25 @@ function normalizeGuidanceText(content) {
     .replace(/\s+-\s+(?=(?:"|'|[A-Z][A-Za-z ]{1,40}:|[A-Za-z0-9]))/g, '\n- ');
 }
 
+function sectionFriendlyName(block) {
+  return block.label || block.heading || 'Guidance';
+}
+
+function withPlainSectionHeading(block) {
+  const content = normalizeGuidanceText(block.content).trim();
+  return `${sectionFriendlyName(block)}\n\n${content}`;
+}
+
+function withMarkdownSectionHeading(block) {
+  const content = normalizeGuidanceText(block.content).trim();
+  return `## ${sectionFriendlyName(block)}\n\n${content}`;
+}
+
 // Render assembled blocks to plain text.
 export function renderPlainText(guidance, blocks) {
   const tokenContext = guidanceTokenContext(guidance);
   return addTaskOpening(tokenContext, orderAssembledBlocks(blocks).map(block => ({ ...block, content: renderBlockText(block, tokenContext) })))
-    .map(block => normalizeGuidanceText(block.content))
+    .map(block => withPlainSectionHeading(block))
     .join('\n\n');
 }
 
@@ -169,6 +183,6 @@ export function renderPlainText(guidance, blocks) {
 export function renderMarkdown(guidance, blocks) {
   const tokenContext = guidanceTokenContext(guidance);
   return addTaskOpening(tokenContext, orderAssembledBlocks(blocks).map(block => ({ ...block, content: renderBlockText(block, tokenContext) })))
-    .map(block => normalizeGuidanceText(block.content))
+    .map(block => withMarkdownSectionHeading(block))
     .join('\n\n');
 }

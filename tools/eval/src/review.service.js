@@ -294,7 +294,64 @@ export async function getEvalDetailReports(organizationId, evalRecord) {
     }
   }
 
-  return { reports, trendData, drilldowns, runList };
+  return { reports, trendData, drilldowns, runList, aggregate: buildAggregateReport(reports) };
+}
+
+// "Overall" matrix: averages each model × criterion across every run. Models and
+// criteria are matched by name/title (snapshot ids differ per run). Cells carry
+// no run/response id, so the matrix partial renders them non-clickable.
+function buildAggregateReport(reports) {
+  if (reports.length === 0) return null;
+
+  const modelNames = [];
+  const criterionTitles = [];
+  for (const data of reports) {
+    for (const row of data.matrix) if (!modelNames.includes(row.modelName)) modelNames.push(row.modelName);
+    for (const ca of data.criterionAverages) if (!criterionTitles.includes(ca.criterionTitle)) criterionTitles.push(ca.criterionTitle);
+  }
+
+  // modelName -> criterionTitle -> [per-run cell averages]
+  const acc = {};
+  for (const data of reports) {
+    for (const row of data.matrix) {
+      const m = (acc[row.modelName] ??= {});
+      for (const cell of row.cells) {
+        if (cell.average == null) continue;
+        (m[cell.criterionTitle] ??= []).push(cell.average);
+      }
+    }
+  }
+
+  const matrix = modelNames.map(name => {
+    const m = acc[name] ?? {};
+    const cells = criterionTitles.map(title => {
+      const vals = m[title] ?? [];
+      const a = vals.length ? round1(avg(vals)) : null;
+      return { criterionId: null, criterionTitle: title, average: a, count: vals.length, heatClass: heatClass(a) };
+    });
+    const modelAvg = round1(avg(cells.flatMap(c => (c.average == null ? [] : [c.average]))));
+    return { modelId: null, modelName: name, modelAvg, modelAvgHeatClass: heatClass(modelAvg), cells };
+  });
+
+  const criterionAverages = criterionTitles.map(title => {
+    const all = matrix.flatMap(row => {
+      const cell = row.cells.find(c => c.criterionTitle === title);
+      return cell && cell.average != null ? [cell.average] : [];
+    });
+    const a = all.length ? round1(avg(all)) : null;
+    return { criterionId: null, criterionTitle: title, average: a, heatClass: heatClass(a) };
+  });
+
+  const allAverages = matrix.flatMap(row => row.cells.flatMap(c => (c.average == null ? [] : [c.average])));
+  const overall = allAverages.length ? round1(avg(allAverages)) : null;
+
+  return {
+    matrix,
+    criteria: criterionTitles.map(title => ({ title })),
+    criterionAverages,
+    overall,
+    overallHeatClass: heatClass(overall),
+  };
 }
 
 function runDateLabel(run) {

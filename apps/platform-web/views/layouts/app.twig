@@ -26,40 +26,29 @@
                 <img src="/brand/rumboworks-mark.svg" alt="" width="28" height="28">
                 <span class="rj-wordmark">RumboWorks</span>
             </a>
-            {% if activeOrganization %}
-                <form class="rj-org-switcher" method="post" action="/organization/switch">
-                    <input type="hidden" name="returnTo" value="{{ currentPath ?? '/' }}">
-                    <label class="rj-sr-only" for="rj-org-select">Organization</label>
-                    <select id="rj-org-select" name="orgId" onchange="this.form.submit()">
-                        {% for org in organizations %}
-                            <option value="{{ org.id }}"{% if org.id == activeOrganization.id %} selected{% endif %}>{{ org.name }}</option>
-                        {% endfor %}
-                    </select>
-                </form>
-            {% endif %}
             {% block header_nav %}
             <nav class="rj-header__nav">
                 {% if currentUser %}
-                    {% if navTools is not empty %}
-                        <details class="rj-tools-menu">
-                            <summary class="rj-header__nav-link">Tools</summary>
-                            <div class="rj-tools-menu__list">
-                                {% for t in navTools %}
-                                    <a href="{{ t.path }}" class="rj-tools-menu__item">{{ t.name }}</a>
-                                {% endfor %}
-                            </div>
-                        </details>
-                    {% endif %}
+                    {% include "partials/tool-switcher.twig" %}
                     {% if currentUser.isPlatformAdmin %}
                         <a href="/admin" class="rj-header__nav-link">Admin</a>
                     {% endif %}
-                    <button class="rj-nav-orientation-toggle" id="rj-nav-orientation-toggle" type="button" aria-label="Switch navigation layout" title="Switch navigation layout">
-                        <i data-lucide="panel-left"></i>
-                    </button>
                     <details class="rj-account-menu">
                         <summary class="rj-header__nav-link">{{ currentUserDisplayName }}</summary>
                         <div class="rj-account-menu__panel">
                             <a href="/account">My account</a>
+                            {% if activeOrganization %}
+                                <form class="rj-org-switcher" method="post" action="/organization/switch">
+                                    <input type="hidden" name="returnTo" value="{{ currentPath ?? '/' }}">
+                                    <label>Organization
+                                        <select id="rj-org-select" name="orgId" onchange="this.form.submit()" aria-label="Organization">
+                                            {% for org in organizations %}
+                                                <option value="{{ org.id }}"{% if org.id == activeOrganization.id %} selected{% endif %}>{{ org.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </label>
+                                </form>
+                            {% endif %}
                             <div class="rj-ui-options">
                                 <label>Theme
                                     <select id="rj-theme-select" aria-label="Color theme">
@@ -88,6 +77,11 @@
     <div class="rj-app-shell">
         <nav class="rj-sidebar">
             {% block sidebar %}{% endblock %}
+            <div class="rj-sidebar__section rj-sidebar__section--utility">
+                <button class="rj-sidebar__link rj-sidebar__button rj-nav-orientation-toggle" id="rj-nav-orientation-toggle" type="button" aria-label="Switch navigation layout" title="Switch navigation layout">
+                    <i data-lucide="panel-left"></i> <span>Layout</span>
+                </button>
+            </div>
         </nav>
         <main class="rj-app-content">
             {% block content %}{% endblock %}

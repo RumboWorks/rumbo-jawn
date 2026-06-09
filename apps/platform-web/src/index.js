@@ -12,6 +12,7 @@ import {
   displayNameForUser,
   firstNameForUser,
 } from '@rumbo/auth';
+import { listTools } from '@rumbo/config';
 import routes from './routes/index.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -54,25 +55,8 @@ app.use((req, res, next) => {
   next();
 });
 
-// Cosmetic nav list cache. The header tool list is purely presentational — the
-// authoritative access check lives in requireToolAccess, which is never cached.
-// The lookup is non-blocking: a cache miss returns what we have (possibly empty)
-// and refreshes in the background, so no awaited DB work sits on the page-load
-// hot path. The header menu therefore appears from the second page load; the
-// home route fetches its own launcher list directly, so the launcher is always
-// complete. Staleness of up to ~30s in the header menu is acceptable.
-const navCache = new Map(); // userId -> { tools, expires }
-const NAV_TTL_MS = 30_000;
-
-function getNavToolsCached(user, orgId) {
-  const key = `${user.id}:${orgId ?? ''}`;
-  const cached = navCache.get(key);
-  if (cached && cached.expires > Date.now()) return cached.tools;
-  listAccessibleTools(user, orgId)
-    .then(tools => navCache.set(key, { tools, expires: Date.now() + NAV_TTL_MS }))
-    .catch(() => {});
-  return cached?.tools ?? [];
-}
+const TOOL_REGISTRY = listTools();
+const TOOL_REGISTRY_BY_KEY = Object.fromEntries(TOOL_REGISTRY.map(tool => [tool.key, tool]));
 
 // Expose current user and accessible tool nav to all Twig templates.
 app.use(async (req, res, next) => {
@@ -82,6 +66,8 @@ app.use(async (req, res, next) => {
     res.locals.currentUserFirstName = req.user ? firstNameForUser(req.user) : null;
     res.locals.currentPath = req.originalUrl;
     res.locals.navTools = [];
+    res.locals.toolRegistry = TOOL_REGISTRY;
+    res.locals.toolRegistryByKey = TOOL_REGISTRY_BY_KEY;
     res.locals.organizations = [];
     res.locals.activeOrganization = null;
     res.locals.navOrientation = (req.user?.navOrientation ?? 'HORIZONTAL').toLowerCase();
@@ -89,7 +75,7 @@ app.use(async (req, res, next) => {
       const organization = await loadActiveOrganization(req);
       res.locals.activeOrganization = organization;
       res.locals.organizations = await listAccessibleOrganizations(req.user);
-      res.locals.navTools = getNavToolsCached(req.user, organization?.id);
+      res.locals.navTools = await listAccessibleTools(req.user, organization?.id);
     }
     next();
   } catch (err) {

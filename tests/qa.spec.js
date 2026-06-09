@@ -109,26 +109,28 @@ test('platform admin can view central admin dashboard', async ({ page }) => {
   await page.goto('/admin/users');
   await expect(page.locator('h1')).toContainText('Users');
   await expect(page.locator('.rj-admin-breadcrumbs').first()).toHaveText('admin / users');
-  await expect(page.locator('.rj-table-tools__count').first()).toContainText(/^\d+ of \d+ items\.$/);
-  await page.locator('.rj-table-tools__input').first().fill(`Filter Target User ${runId}`);
+  await expect(page.locator('.rj-table-tools__count').first()).toContainText(/Showing 1–\d+ of \d+ users\./);
+  await page.goto(`/admin/users?q=${encodeURIComponent(`Filter Target User ${runId}`)}`);
   await expect(page.locator('.rj-admin-table tbody tr:visible')).toHaveCount(1);
   await expect(page.locator('.rj-admin-table tbody tr:visible')).toContainText(`Filter Target User ${runId}`);
-  await expect(page.locator('.rj-table-tools__count').first()).toContainText(/^1 of \d+ items\.$/);
-  await page.locator('.rj-table-tools__input').first().fill('');
+  await expect(page.locator('.rj-table-tools__count').first()).toContainText(/Showing 1–1 of 1 users\./);
+  await page.goto('/admin/users');
   const userColumn = page.locator('.rj-admin-table tbody tr td:first-child');
   const normalizeColumn = async () => (await userColumn.allTextContents())
     .map(text => text.replace(/\s+/g, ' ').trim());
   await expect.poll(async () => (await normalizeColumn()).length).toBeGreaterThan(1);
   await page.locator('th.rj-table__sort-head', { hasText: 'User' }).click();
-  await expect(page.locator('th', { hasText: 'User' })).toHaveAttribute('aria-sort', 'ascending');
+  await expect(page.locator('th', { hasText: 'User' })).toHaveClass(/is-sort-asc/);
   const ascendingUsers = await normalizeColumn();
   expect(ascendingUsers).toEqual([...ascendingUsers].sort((a, b) => (
     a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
   )));
   await page.locator('th.rj-table__sort-head', { hasText: 'User' }).click();
-  await expect(page.locator('th', { hasText: 'User' })).toHaveAttribute('aria-sort', 'descending');
+  await expect(page.locator('th', { hasText: 'User' })).toHaveClass(/is-sort-desc/);
   const descendingUsers = await normalizeColumn();
-  expect(descendingUsers).toEqual([...ascendingUsers].reverse());
+  expect(descendingUsers).toEqual([...descendingUsers].sort((a, b) => (
+    b.localeCompare(a, undefined, { numeric: true, sensitivity: 'base' })
+  )));
 
   await page.goto(`/admin/users/${sortUser.id}`);
   await expect(page.locator('h1')).toContainText('Sort Check User');
@@ -341,8 +343,12 @@ test('navigation orientation is account-synced and active organization can switc
   await expect(page.locator('html')).toHaveAttribute('data-nav-orientation', 'vertical');
   await expect.poll(async () => (await db.user.findUnique({ where: { id: user.id } })).navOrientation).toBe('VERTICAL');
 
-  await page.selectOption('#rj-org-select', secondOrg.id);
-  await page.waitForLoadState('networkidle');
+  await page.locator('.rj-account-menu summary').click();
+  await Promise.all([
+    page.waitForResponse(response => response.url().includes('/organization/switch') && response.request().method() === 'POST'),
+    page.selectOption('#rj-org-select', secondOrg.id),
+  ]);
+  await page.waitForLoadState('domcontentloaded');
   await expect(page.locator('#rj-org-select')).toHaveValue(secondOrg.id);
 
   await page.goto('/auth/logout');
@@ -381,8 +387,9 @@ test('registration creates account and logs in', async ({ page }) => {
   await registerUser(page, { name: 'QA User', email, password: 'testpass99' });
 
   await screenshot(page, '09-post-register');
-  await expect(page.getByRole('link', { name: 'QA User', exact: true })).toBeVisible();
-  await expect(page.locator('text=Sign out')).toBeVisible();
+  await expect(page.locator('.rj-account-menu summary')).toHaveText('QA User');
+  await page.locator('.rj-account-menu summary').click();
+  await expect(page.getByRole('link', { name: 'Sign out' })).toBeVisible();
   const user = await db.user.findUnique({ where: { email } });
   expect(user.firstName).toBe('QA');
   expect(user.lastName).toBe('User');
@@ -403,10 +410,11 @@ test('full cycle: register → logout → login', async ({ page }) => {
 
   // Register
   await registerUser(page, { name: 'Cycle User', email, password: 'cycle99pass' });
-  await expect(page.getByRole('link', { name: 'Cycle User', exact: true })).toBeVisible();
+  await expect(page.locator('.rj-account-menu summary')).toHaveText('Cycle User');
 
   // Logout
-  await page.click('text=Sign out');
+  await page.locator('.rj-account-menu summary').click();
+  await page.getByRole('link', { name: 'Sign out' }).click();
   await page.waitForURL('/');
   await expect(page.locator('text=Sign in')).toBeVisible();
 
@@ -417,7 +425,7 @@ test('full cycle: register → logout → login', async ({ page }) => {
   await page.click('button[type="submit"]');
   await page.waitForURL('/');
   await screenshot(page, '11-post-login');
-  await expect(page.getByRole('link', { name: 'Cycle User', exact: true })).toBeVisible();
+  await expect(page.locator('.rj-account-menu summary')).toHaveText('Cycle User');
 });
 
 // ---- Sounds Like Us ----

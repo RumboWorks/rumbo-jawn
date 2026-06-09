@@ -112,11 +112,8 @@ function validateParsedGuidance(parsed) {
   requireArray(parsed.guidance_blocks, 'guidance_blocks');
   for (const [index, block] of parsed.guidance_blocks.entries()) {
     requireObject(block, `guidance_blocks[${index}]`);
-    for (const field of ['id', 'label', 'heading', 'fullText']) {
+    for (const field of ['id', 'label', 'heading', 'previewText', 'fullText']) {
       requireString(block[field], `guidance_blocks[${index}].${field}`);
-    }
-    if (block.id === 'voice-tone') {
-      requireString(block.previewText, `guidance_blocks[${index}].previewText`);
     }
   }
 

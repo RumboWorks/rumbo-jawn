@@ -40,6 +40,13 @@ test('new-eval wizard: steps through and launches the first run', async ({ page 
   await expect(page.locator('h1')).toContainText('Wizard’s Desk');
   await expect(page.locator('.eval-desk > .rj-admin-metrics')).toHaveCount(0);
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'paper');
+  await expect(page.locator('.rj-tool-switcher__trigger')).toContainText('Eval');
+  await page.locator('.rj-tool-switcher__trigger').click();
+  const switcher = page.locator('.rj-tool-switcher__dialog');
+  await expect(switcher).toBeVisible();
+  await expect(switcher).toContainText('Compare model and tool outputs with structured criteria');
+  await expect(switcher).toContainText('Turn public source material into reusable voice');
+  await page.locator('[data-tool-switcher-close]').click();
   const contentBox = await page.locator('.rj-app-content').boundingBox();
   expect(contentBox.width).toBeLessThanOrEqual(1200);
   await page.goto('/eval/evals/new');

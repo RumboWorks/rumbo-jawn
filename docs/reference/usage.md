@@ -158,7 +158,7 @@ Verified admin routes:
 
 ## Tools and per-tool access
 
-Tools are registered in `@rumbo/config` (`packages/config/src/tools.js`). Access has two axes: org entitlement (`features[tool]` on the product tier) and a per-user `ToolGrant`. Platform admins assign per-tool roles on `/admin/users/:userId` (Tool access section). `slu` is `orgOpen` (any org member with the org entitled); `eval` requires an explicit grant.
+Tools are registered in `@rumbo/config` (`packages/config/src/tools.js`). Access has two axes: org entitlement (`features[tool]` on the product tier) and a per-user `ToolGrant`. Platform admins assign per-tool roles on `/admin/users/:userId` (Tool access section). `slu` is `orgOpen` (any org member with the org entitled); `eval` requires an explicit grant. The same registry supplies global tool-switcher display metadata: `name`, `description`, `icon`, `path`, and `navOrder`.
 
 ## Eval
 

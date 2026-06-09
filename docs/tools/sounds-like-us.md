@@ -55,7 +55,7 @@ The preview should read as one assembled guidance document, starting with the ta
 
 The workbench supports a short Preview view and a Full Guidance view. Copy and download actions always use Full Guidance, regardless of the currently visible view.
 
-Preview omits detailed "Words and phrases to use" and "What to avoid" blocks; Full Guidance includes them when selected.
+Preview includes concise versions of selected guidance blocks, including "Words and phrases to use" and "What to avoid"; Full Guidance expands those sections when selected.
 
 For voice and tone, the analysis artifact stores both `voiceTone.previewSummary` and `voiceTone.fullGuidance`. Preview uses the concise summary; Full Guidance, copy, and downloads use the full guidance. The normalized organization object also stores `organization.shortName`, supplied by the initial AI analysis, so guidance templates can refer naturally to the organization without string-derived abbreviations.
 

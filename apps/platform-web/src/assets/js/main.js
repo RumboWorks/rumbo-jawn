@@ -16,6 +16,24 @@ initReview();
 initWizards();
 applyLocalUiPreferences();
 
+document.querySelectorAll('[data-tool-switcher-open]').forEach((button) => {
+  const dialog = document.getElementById(button.getAttribute('aria-controls'));
+  if (!dialog) return;
+  button.addEventListener('click', () => {
+    if (typeof dialog.showModal === 'function') dialog.showModal();
+    else dialog.setAttribute('open', '');
+  });
+});
+
+document.querySelectorAll('.rj-tool-switcher__dialog').forEach((dialog) => {
+  dialog.querySelectorAll('[data-tool-switcher-close]').forEach((button) => {
+    button.addEventListener('click', () => dialog.close());
+  });
+  dialog.addEventListener('click', (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+});
+
 function getSortableRows(table) {
   return Array.from(table.tBodies[0]?.rows ?? []).filter((row) => {
     if (row.cells.length === 0) return false;
