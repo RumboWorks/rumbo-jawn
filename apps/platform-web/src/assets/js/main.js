@@ -129,10 +129,9 @@ function buildTableTools(table, rows) {
   }
 }
 
-document.querySelectorAll('.rj-admin-table').forEach((table) => {
+function enableClientSort(table) {
   const headers = Array.from(table.tHead?.rows[0]?.cells ?? []);
   const rows = getSortableRows(table);
-  buildTableTools(table, rows);
   if (headers.length === 0 || rows.length < 2) return;
 
   headers.forEach((header, columnIndex) => {
@@ -147,6 +146,49 @@ document.querySelectorAll('.rj-admin-table').forEach((table) => {
       event.preventDefault();
       applyTableSort(table, header, columnIndex);
     });
+  });
+}
+
+// Client-side filter + count: complete admin tables only. Server-managed lists
+// provide their own search/count/pagination, so skip them.
+document.querySelectorAll('.rj-admin-table').forEach((table) => {
+  if (table.closest('[data-server-table]')) return;
+  buildTableTools(table, getSortableRows(table));
+});
+
+// Click-to-sort for any complete data table. Excludes server-managed lists
+// (sorting one page is misleading — they sort server-side, below) and the eval
+// matrix (which manages its own sort + heat/rank rendering).
+document.querySelectorAll('.rj-table').forEach((table) => {
+  if (table.closest('[data-server-table]')) return;
+  if (table.hasAttribute('data-eval-matrix')) return;
+  if (table.hasAttribute('data-no-sort')) return;
+  enableClientSort(table);
+});
+
+// Server-managed sortable headers: re-query the server with ?sort=&dir=, toggling
+// direction on repeat clicks (or the column's default first), resetting to page 1
+// and preserving the other query params.
+document.querySelectorAll('[data-server-table] th[data-sort-key]').forEach((th) => {
+  th.setAttribute('tabindex', '0');
+  const sortBy = () => {
+    const url = new URL(window.location.href);
+    const key = th.dataset.sortKey;
+    const curSort = url.searchParams.get('sort');
+    const curDir = url.searchParams.get('dir') || 'asc';
+    const dir = curSort === key
+      ? (curDir === 'asc' ? 'desc' : 'asc')
+      : (th.dataset.sortDefault || 'asc');
+    url.searchParams.set('sort', key);
+    url.searchParams.set('dir', dir);
+    url.searchParams.set('page', '1');
+    window.location.href = url.toString();
+  };
+  th.addEventListener('click', sortBy);
+  th.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    sortBy();
   });
 });
 

@@ -55,12 +55,30 @@ router.get('/', asyncHandler(async (req, res) => {
   });
 }));
 
+const USER_SORT_KEYS = ['email', 'isPlatformAdmin', 'jobs', 'createdAt'];
+
 router.get('/users', asyncHandler(async (req, res) => {
-  const users = await listAdminUsers();
+  const q = (req.query.q ?? '').trim();
+  const requestedPage = parseInt(req.query.page, 10) || 1;
+  const sort = USER_SORT_KEYS.includes(req.query.sort) ? req.query.sort : null;
+  const dir = req.query.dir === 'desc' ? 'desc' : 'asc';
+  const { users, total, page, pageCount, pageSize } = await listAdminUsers({
+    search: q || undefined,
+    page: requestedPage,
+    sort,
+    dir,
+  });
   res.render('pages/admin/users', {
     title: 'Admin users',
     active: 'users',
     users,
+    q,
+    sort,
+    dir,
+    total,
+    page,
+    pageCount,
+    pageSize,
   });
 }));
 

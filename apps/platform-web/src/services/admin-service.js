@@ -9,6 +9,26 @@ import { listTools } from '@rumbo/config';
 const RECENT_LIMIT = 10;
 const LIST_LIMIT = 50;
 
+// Shared server-side pagination for admin list pages. Returns the page window
+// plus the true total so the UI can render an accurate "X–Y of N" and a pager
+// instead of guessing from the rows that happen to be loaded. The requested
+// page is clamped into range, so out-of-bounds ?page values land on the last
+// page rather than an empty table.
+async function paginate(model, { where, orderBy, include, select, page = 1, pageSize = LIST_LIMIT }) {
+  const total = await model.count({ where });
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
+  const safePage = Math.min(Math.max(1, page), pageCount);
+  const rows = await model.findMany({
+    where,
+    orderBy,
+    include,
+    select,
+    skip: (safePage - 1) * pageSize,
+    take: pageSize,
+  });
+  return { rows, total, page: safePage, pageCount, pageSize };
+}
+
 function decimalToNumber(value) {
   if (value === null || value === undefined) return 0;
   return Number(value);
@@ -101,16 +121,33 @@ export async function getAdminDashboard() {
   };
 }
 
-export async function listAdminUsers() {
-  return db.user.findMany({
-    orderBy: { createdAt: 'desc' },
-    take: LIST_LIMIT,
+function userOrderBy(sort, dir) {
+  const d = dir === 'desc' ? 'desc' : 'asc';
+  switch (sort) {
+    case 'email': return { email: d };
+    case 'isPlatformAdmin': return { isPlatformAdmin: d };
+    case 'jobs': return { jobs: { _count: d } };
+    case 'createdAt': return { createdAt: d };
+    default: return { createdAt: 'desc' };
+  }
+}
+
+export async function listAdminUsers({ search, page = 1, pageSize = LIST_LIMIT, sort, dir = 'asc' } = {}) {
+  const where = search
+    ? { OR: [{ email: { contains: search } }, { name: { contains: search } }] }
+    : undefined;
+  const { rows, total, page: safePage, pageCount } = await paginate(db.user, {
+    where,
+    orderBy: userOrderBy(sort, dir),
     include: {
       memberships: { include: { org: true }, orderBy: { createdAt: 'asc' } },
       partnerMemberships: { include: { partnerAccount: true }, orderBy: { createdAt: 'asc' } },
       _count: { select: { jobs: true } },
     },
+    page,
+    pageSize,
   });
+  return { users: rows, total, page: safePage, pageCount, pageSize };
 }
 
 export async function getAdminUserDetail(userId) {

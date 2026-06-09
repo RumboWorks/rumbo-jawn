@@ -1,0 +1,30 @@
+{# Reusable list count + pager for server-paginated tables. Render above and/or
+   below the table. Needs in scope:
+     total     - true total row count (across all pages)
+     page      - current 1-based page
+     pageCount - total pages
+     pageSize  - rows per page
+     shown     - rows rendered on this page (e.g. users|length)
+     baseQuery - query string carrying all params except page, ending in '&' or ''
+     label     - plural noun for the count line (e.g. 'users')
+     q         - current search term (optional, for the empty message) #}
+{% set rangeStart = total == 0 ? 0 : (page - 1) * pageSize + 1 %}
+{% set rangeEnd = (page - 1) * pageSize + shown %}
+<div class="rj-table-footer">
+    <p class="rj-table-tools__count">
+        {% if total == 0 %}
+            No {{ label ?? 'items' }}{% if q %} match “{{ q }}”{% endif %}.
+        {% else %}
+            Showing {{ rangeStart }}–{{ rangeEnd }} of {{ total }} {{ label ?? 'items' }}.
+        {% endif %}
+    </p>
+    {% if pageCount > 1 %}
+        <nav class="rj-pager" aria-label="Pagination">
+            <a class="rj-btn rj-btn--secondary rj-btn--sm{% if page <= 1 %} is-disabled{% endif %}"
+               href="?{{ baseQuery }}page={{ page - 1 }}"{% if page <= 1 %} aria-disabled="true" tabindex="-1"{% endif %}>Previous</a>
+            <span class="rj-pager__status">Page {{ page }} of {{ pageCount }}</span>
+            <a class="rj-btn rj-btn--secondary rj-btn--sm{% if page >= pageCount %} is-disabled{% endif %}"
+               href="?{{ baseQuery }}page={{ page + 1 }}"{% if page >= pageCount %} aria-disabled="true" tabindex="-1"{% endif %}>Next</a>
+        </nav>
+    {% endif %}
+</div>

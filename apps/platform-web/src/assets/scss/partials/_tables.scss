@@ -42,6 +42,32 @@
   font-size: var(--rj-text-sm);
 }
 
+// Server-managed list count + pager (rendered above and/or below the table).
+.rj-table-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--rj-space-3);
+  margin-block: var(--rj-space-3);
+}
+
+.rj-pager {
+  display: flex;
+  align-items: center;
+  gap: var(--rj-space-3);
+
+  &__status {
+    color: var(--rj-fg-3);
+    font-size: var(--rj-text-sm);
+  }
+
+  .is-disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+}
+
 .rj-table {
   width: 100%;
   border-collapse: collapse;
