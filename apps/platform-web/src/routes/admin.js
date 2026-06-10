@@ -23,6 +23,15 @@ import {
   updatePartnerAccount,
 } from '@rumbo/auth';
 import { deleteEvalRunCascade, listEvalRunsForAdmin } from '@rumbo/eval';
+import { listTools } from '@rumbo/config';
+import {
+  deleteHelpArticle,
+  getHelpArticle,
+  listHelpArticlesForAdmin,
+  previewMarkdown,
+  setHelpArticlePublished,
+  upsertHelpArticle,
+} from '../services/help-service.js';
 import {
   adminCancelSubscription,
   setOrgBillingResponsible,
@@ -478,6 +487,107 @@ router.post('/partners/:partnerId/org-access/:accessId/remove', asyncHandler(asy
     req.session.flash_error = err.message;
   }
   res.redirect(`/admin/partners/${req.params.partnerId}`);
+}));
+
+// ---- Help & FAQ content ----
+
+router.get('/help', asyncHandler(async (req, res) => {
+  const tool = req.query.tool === '' ? null : (req.query.tool ?? undefined);
+  const articles = await listHelpArticlesForAdmin({ tool });
+  res.render('pages/admin/help-articles', {
+    title: 'Help articles',
+    active: 'help',
+    articles,
+    toolFilter: req.query.tool ?? '',
+    tools: listTools(),
+    ...takeFlash(req),
+  });
+}));
+
+router.get('/help/new', asyncHandler(async (req, res) => {
+  res.render('pages/admin/help-article-edit', {
+    title: 'New help article',
+    active: 'help',
+    article: null,
+    tools: listTools(),
+    ...takeFlash(req),
+  });
+}));
+
+router.post('/help/preview', asyncHandler(async (req, res) => {
+  res.json({ html: previewMarkdown(req.body.bodyMarkdown ?? '') });
+}));
+
+router.post('/help', asyncHandler(async (req, res) => {
+  try {
+    const article = await upsertHelpArticle({
+      id: req.body.id || null,
+      tool: req.body.tool || null,
+      slug: req.body.slug,
+      title: req.body.title,
+      bodyMarkdown: req.body.bodyMarkdown,
+      contextKeys: req.body.contextKeys,
+      navOrder: req.body.navOrder,
+      isPublished: req.body.isPublished === 'on',
+    });
+    await auditAdminAction({
+      actorId: req.user.id,
+      action: req.body.id ? 'help.article_updated' : 'help.article_created',
+      targetType: 'help_article',
+      targetId: article.id,
+      newValue: { tool: article.tool, slug: article.slug, title: article.title, isPublished: article.isPublished },
+    });
+    req.session.flash_success = 'Help article saved.';
+    return res.redirect(`/admin/help/${article.id}`);
+  } catch (err) {
+    req.session.flash_error = err.message;
+    return res.redirect(req.body.id ? `/admin/help/${req.body.id}` : '/admin/help/new');
+  }
+}));
+
+router.post('/help/:articleId/publish', asyncHandler(async (req, res) => {
+  try {
+    const article = await setHelpArticlePublished(req.params.articleId, req.body.publish === '1');
+    await auditAdminAction({
+      actorId: req.user.id,
+      action: article.isPublished ? 'help.article_published' : 'help.article_unpublished',
+      targetType: 'help_article',
+      targetId: article.id,
+    });
+    req.session.flash_success = article.isPublished ? 'Article published.' : 'Article unpublished.';
+  } catch (err) {
+    req.session.flash_error = err.message;
+  }
+  res.redirect('/admin/help');
+}));
+
+router.post('/help/:articleId/delete', asyncHandler(async (req, res) => {
+  try {
+    const article = await deleteHelpArticle(req.params.articleId);
+    await auditAdminAction({
+      actorId: req.user.id,
+      action: 'help.article_deleted',
+      targetType: 'help_article',
+      targetId: req.params.articleId,
+      oldValue: { tool: article.tool, slug: article.slug, title: article.title },
+    });
+    req.session.flash_success = 'Article deleted.';
+  } catch (err) {
+    req.session.flash_error = err.message;
+  }
+  res.redirect('/admin/help');
+}));
+
+router.get('/help/:articleId', asyncHandler(async (req, res) => {
+  const article = await getHelpArticle(req.params.articleId);
+  if (!article) return res.status(404).render('pages/error', { status: 404, message: 'Help article not found' });
+  res.render('pages/admin/help-article-edit', {
+    title: `${article.title} — help article`,
+    active: 'help',
+    article,
+    tools: listTools(),
+    ...takeFlash(req),
+  });
 }));
 
 // ---- Eval data (cross-org destructive ops) ----

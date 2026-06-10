@@ -15,6 +15,7 @@
     "@rumbo/design-system": "^0.0.1",
     "@rumbo/eval": "^0.0.1",
     "@rumbo/jobs": "^0.0.1",
+    "@rumbo/markdown": "^0.0.1",
     "@rumbo/sounds-like-us": "^0.0.1",
     "@rumbo/storage": "^0.0.1",
     "dotenv": "^16.4.0",

@@ -48,10 +48,10 @@ Completion phases covering docs accuracy, UI consistency, admin/partner complete
 - [x] Phase 19 — Partner self-service area (`/partner`: org list, create/edit/archive, partner members)
 - [x] Phase 20 — Email verification and public signup (pricing page, 4 tiers, terms acceptance, rate limiting, QA teardown)
 - [x] Phase 21 — Stripe billing (Checkout + Customer Portal, webhooks, entitlement sync, org suspend, admin cancel; live-key activation checklist tracked for phase 09)
-- [ ] Phase 22 — Context-sensitive help and Help & FAQ (help drawer, `/help` pages, admin-managed `HelpArticle` content)
+- [x] Phase 22 — Context-sensitive help and Help & FAQ (help drawer, `/help` pages, admin-managed `HelpArticle` content, 15 seeded articles)
 - [ ] Phase 23 — Missing-pieces sweep (legal pages, account deletion, healthz/monitoring, backups, CSRF, usage visibility, public polish)
 - [ ] Phase 09 — Finish-line discipline and launch hardening (final gate; runs after phase 23)
 
 ## Next up
 
-Phase 22 — context-sensitive help and Help & FAQ.
+Phase 23 — missing-pieces sweep.

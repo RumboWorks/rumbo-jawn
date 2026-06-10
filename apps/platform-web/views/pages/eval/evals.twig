@@ -7,6 +7,7 @@
 {% endblock %}
 
 {% block content %}
+    {% set helpContextKey = 'eval.evals' %}
     {% include "partials/page-header.twig" with {
         heading: 'Evaluations',
         subtitle: 'Each evaluation holds a prompt and a history of runs against your models and criteria.',

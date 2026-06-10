@@ -60,6 +60,9 @@ export default async function globalTeardown() {
     .map(p => p.id);
   await db.partnerAccount.deleteMany({ where: { id: { in: partnerIds } } });
 
+  // Help articles created by QA (mid-test failures can leave them behind).
+  await db.helpArticle.deleteMany({ where: { slug: { startsWith: 'qa-' } } });
+
   await db.organization.deleteMany({ where: { id: { in: orgIds } } });
   await db.user.deleteMany({ where: { id: { in: userIds } } });
 

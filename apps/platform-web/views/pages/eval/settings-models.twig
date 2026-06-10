@@ -7,6 +7,7 @@
 {% endblock %}
 
 {% block content %}
+    {% set helpContextKey = 'eval.models' %}
     {% include "partials/page-header.twig" with {
         heading: 'Models',
         subtitle: 'The AI models and tools this organization evaluates, collected by platform API, your own API key, or manual entry.',

@@ -4,6 +4,7 @@
 {% block sidebar %}{% include "pages/eval/_sidebar.twig" with { active: 'reports', toolRole: toolRole } %}{% endblock %}
 
 {% block content %}
+    {% set helpContextKey = 'eval.reports' %}
     {% include "partials/page-header.twig" with {
         heading: 'Reports',
         subtitle: 'Completed evaluation reports for this organization.'

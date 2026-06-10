@@ -1,0 +1,12 @@
+{# Context-sensitive help drawer. Opened by the page-header "?" button; content
+   is fetched from /help/api/context on open. Authenticated pages only. #}
+{% if currentUser %}
+    <dialog class="rj-help-drawer" id="rj-help-drawer" aria-label="Help">
+        <div class="rj-help-drawer__head">
+            <h2>Help</h2>
+            <a href="/help" class="rj-help-drawer__all">All topics</a>
+            <button type="button" class="rj-help-drawer__close" data-help-close aria-label="Close">×</button>
+        </div>
+        <div class="rj-help-drawer__body" id="rj-help-drawer-body"></div>
+    </dialog>
+{% endif %}

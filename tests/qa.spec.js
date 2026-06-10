@@ -814,6 +814,59 @@ test('suspended organizations lose tool access until unsuspended', async ({ page
   expect(restored.status()).toBe(200);
 });
 
+// ---- Help system (phase 22) ----
+
+test('help system: admin CRUD, tool help page, context API, and the drawer', async ({ page }) => {
+  const runId = Date.now();
+  const adminEmail = `help-admin-${runId}@example.org`;
+  const title = `QA Help Article ${runId}`;
+  await registerUser(page, { name: 'Help Admin', email: adminEmail, password: 'helppass99' });
+  await db.user.update({ where: { email: adminEmail }, data: { isPlatformAdmin: true } });
+  page.on('dialog', dialog => dialog.accept());
+
+  // Create + publish via the dedicated editor.
+  await page.goto('/admin/help/new');
+  await expect(page.locator('h1')).toContainText('New help article');
+  await page.selectOption('select[name="tool"]', 'slu');
+  await page.fill('input[name="slug"]', `qa-article-${runId}`);
+  await page.fill('input[name="title"]', title);
+  // Two keys: a unique one for the exact-match API assertion, plus the SLU
+  // history page's key so the drawer test below includes this article.
+  await page.fill('input[name="contextKeys"]', 'qa.test.key, slu');
+  await page.fill('textarea[name="bodyMarkdown"]', '# Hello\n\nThis is **QA** help content.');
+  await page.check('input[name="isPublished"]');
+  await page.click('button[type="submit"]');
+  await expect(page.locator('text=Help article saved.')).toBeVisible();
+
+  // Published article renders on the tool help page.
+  await page.goto('/help/slu');
+  await expect(page.locator('.rj-help-item', { hasText: title })).toBeVisible();
+  await expect(page.locator('.rj-help-item__body strong', { hasText: 'QA' })).toBeVisible();
+
+  // Context API: exact key match first, tool fallback otherwise.
+  const exact = await (await page.request.get('/help/api/context?key=qa.test.key')).json();
+  expect(exact.matched).toBe('context');
+  expect(exact.articles[0].title).toBe(title);
+  const fallback = await (await page.request.get('/help/api/context?key=slu.some-unknown-page')).json();
+  expect(fallback.matched).toBe('tool');
+
+  // The drawer opens from the page-header "?" and loads tool help.
+  await page.goto('/slu/history');
+  await page.locator('[data-help-open]').first().click();
+  await expect(page.locator('#rj-help-drawer')).toBeVisible();
+  await expect(page.locator('#rj-help-drawer-body')).toContainText(title);
+
+  // Unpublish hides it; delete removes it.
+  await page.goto('/admin/help');
+  await page.locator('tr', { hasText: title }).locator('form[action$="/publish"] button').click();
+  await expect(page.locator('text=Article unpublished.')).toBeVisible();
+  await page.goto('/help/slu');
+  await expect(page.locator('.rj-help-item', { hasText: title })).toHaveCount(0);
+  await page.goto('/admin/help');
+  await page.locator('tr', { hasText: title }).locator('form[action$="/delete"] button').click();
+  await expect(page.locator('text=Article deleted.')).toBeVisible();
+});
+
 test('requireAuth redirects unauthenticated users', async ({ page }) => {
   // /account uses app layout but doesn't require auth yet — this tests
   // that protected routes (added in Phase 04+) will redirect correctly.

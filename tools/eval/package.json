@@ -15,8 +15,7 @@
     "@rumbo/config": "^0.0.1",
     "@rumbo/db": "^0.0.1",
     "@rumbo/jobs": "^0.0.1",
-    "@rumbo/storage": "^0.0.1",
-    "markdown-it": "^14.1.0",
-    "sanitize-html": "^2.17.0"
+    "@rumbo/markdown": "^0.0.1",
+    "@rumbo/storage": "^0.0.1"
   }
 }

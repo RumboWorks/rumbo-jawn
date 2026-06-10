@@ -1,0 +1,88 @@
+{% extends "layouts/app.twig" %}
+
+{% block title %}{% if article %}{{ article.title }}{% else %}New help article{% endif %} — Rumbo Admin{% endblock %}
+
+{% block sidebar %}
+    {% include "pages/admin/_sidebar.twig" %}
+{% endblock %}
+
+{% block content %}
+    <div class="rj-page-header">
+        {% include "pages/admin/_breadcrumbs.twig" with { sectionLabel: 'help articles', sectionHref: '/admin/help' } %}
+        <h1>{% if article %}{{ article.title }}{% else %}New help article{% endif %}</h1>
+        <p>Markdown body with live preview. Context keys connect the article to the in-page help drawer.</p>
+    </div>
+
+    {% include "pages/admin/_flash.twig" %}
+
+    <section class="rj-admin-panel">
+        <div class="rj-admin-panel__header"><h2>Article</h2></div>
+        <div class="rj-admin-panel__body">
+            <form class="rj-admin-form" method="post" action="/admin/help">
+                {% if article %}<input type="hidden" name="id" value="{{ article.id }}">{% endif %}
+                <label>
+                    <span>Scope</span>
+                    <select name="tool">
+                        <option value=""{% if article == null or article.tool == null %} selected{% endif %}>Platform</option>
+                        {% for tool in tools %}
+                            <option value="{{ tool.key }}"{% if article and article.tool == tool.key %} selected{% endif %}>{{ tool.name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>
+                    <span>Slug</span>
+                    <input type="text" name="slug" value="{{ article.slug ?? '' }}" required placeholder="getting-started">
+                </label>
+                <label>
+                    <span>Title</span>
+                    <input type="text" name="title" value="{{ article.title ?? '' }}" required>
+                </label>
+                <label>
+                    <span>Context keys</span>
+                    <input type="text" name="contextKeys" value="{{ article and article.contextKeys ? article.contextKeys|join(', ') : '' }}" placeholder="eval.evals, eval.runs">
+                    <p class="rj-admin-muted">Comma-separated page keys for the context drawer (optional).</p>
+                </label>
+                <label>
+                    <span>Order</span>
+                    <input type="number" name="navOrder" value="{{ article.navOrder ?? 0 }}" step="1">
+                </label>
+                <label class="rj-admin-check">
+                    <input type="checkbox" name="isPublished"{% if article and article.isPublished %} checked{% endif %}>
+                    <span>Published</span>
+                </label>
+                <div class="rj-help-editor">
+                    <label style="display:contents">
+                        <textarea name="bodyMarkdown" id="help-body" required placeholder="Write markdown…">{{ article.bodyMarkdown ?? '' }}</textarea>
+                    </label>
+                    <div class="rj-help-preview" id="help-preview" aria-label="Preview"></div>
+                </div>
+                <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit">
+                    <i data-lucide="save"></i> Save article
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <script>
+(function () {
+    var body = document.getElementById('help-body');
+    var preview = document.getElementById('help-preview');
+    if (!body || !preview) return;
+    var timer = null;
+    function render() {
+        fetch('/admin/help/preview', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            body: JSON.stringify({ bodyMarkdown: body.value }),
+        }).then(function (res) { return res.json(); })
+          .then(function (data) { preview.innerHTML = data.html; })
+          .catch(function () { /* preview is best-effort */ });
+    }
+    body.addEventListener('input', function () {
+        clearTimeout(timer);
+        timer = setTimeout(render, 400);
+    });
+    render();
+})();
+</script>
+{% endblock %}

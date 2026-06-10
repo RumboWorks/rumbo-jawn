@@ -1,0 +1,89 @@
+{% extends "layouts/app.twig" %}
+
+{% block title %}Help articles — Rumbo Admin{% endblock %}
+
+{% block sidebar %}
+    {% include "pages/admin/_sidebar.twig" %}
+{% endblock %}
+
+{% block content %}
+    <div class="rj-page-header">
+        {% include "pages/admin/_breadcrumbs.twig" with { sectionLabel: 'help articles', sectionHref: '/admin/help' } %}
+        <h1>Help articles</h1>
+        <p>Help &amp; FAQ content shown on /help and in the context drawer.</p>
+    </div>
+
+    {% include "pages/admin/_flash.twig" %}
+
+    <p>
+        <a href="/admin/help/new" class="rj-btn rj-btn--primary rj-btn--sm"><i data-lucide="plus"></i> Add article</a>
+        <form method="get" action="/admin/help" class="rj-admin-inline-form" style="display:inline-flex;gap:8px;margin-left:12px;">
+            <select name="tool" onchange="this.form.submit()">
+                <option value=""{% if toolFilter == '' %} selected{% endif %}>All</option>
+                {% for tool in tools %}
+                    <option value="{{ tool.key }}"{% if toolFilter == tool.key %} selected{% endif %}>{{ tool.name }}</option>
+                {% endfor %}
+            </select>
+        </form>
+    </p>
+
+    <div class="rj-table-wrap">
+        <table class="rj-table rj-admin-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Scope</th>
+                    <th>Context keys</th>
+                    <th>Order</th>
+                    <th>Published</th>
+                    <th>Updated</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for article in articles %}
+                    <tr>
+                        <td>
+                            <a href="/admin/help/{{ article.id }}"><strong>{{ article.title }}</strong></a>
+                            <br><span class="rj-admin-muted rj-admin-mono">{{ article.slug }}</span>
+                        </td>
+                        <td>
+                            {% if article.tool %}
+                                {{ article.tool }}
+                            {% else %}
+                                <span class="rj-admin-muted">platform</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if article.contextKeys %}
+                                <span class="rj-admin-mono">{{ article.contextKeys|join(', ') }}</span>
+                            {% else %}
+                                <span class="rj-admin-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td class="rj-num">{{ article.navOrder }}</td>
+                        <td>
+                            {% if article.isPublished %}
+                                <span class="rj-badge rj-badge--success"><span class="rj-dot"></span>Live</span>
+                            {% else %}
+                                <span class="rj-badge rj-badge--neutral"><span class="rj-dot"></span>Draft</span>
+                            {% endif %}
+                        </td>
+                        <td class="rj-num">{{ article.updatedAt|date("M j, Y") }}</td>
+                        <td>
+                            <form method="post" action="/admin/help/{{ article.id }}/publish" style="display:inline">
+                                <input type="hidden" name="publish" value="{% if article.isPublished %}0{% else %}1{% endif %}">
+                                <button class="rj-btn rj-btn--ghost rj-btn--sm" type="submit">{% if article.isPublished %}Unpublish{% else %}Publish{% endif %}</button>
+                            </form>
+                            <form method="post" action="/admin/help/{{ article.id }}/delete" style="display:inline" onsubmit="return confirm('Delete this article?')">
+                                <button class="rj-btn rj-btn--ghost rj-btn--sm" type="submit">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="7" class="rj-table__empty">No help articles yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

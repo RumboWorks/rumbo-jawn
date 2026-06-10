@@ -369,6 +369,27 @@ model AdminAuditLog {
   @@index([createdAt])
 }
 
+// ---- Help & FAQ content ----
+
+// Platform-admin-editable help articles. `tool` is a registry key or null for
+// platform-level articles. `contextKeys` (JSON array of strings) drives the
+// context-sensitive help drawer; `slug` is stable per tool for linking.
+model HelpArticle {
+  id           String   @id @default(cuid())
+  tool         String?
+  slug         String
+  title        String
+  bodyMarkdown String   @db.Text
+  contextKeys  Json?
+  navOrder     Int      @default(0)
+  isPublished  Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([tool, slug])
+  @@index([tool, isPublished, navOrder])
+}
+
 // ---- Sessions ----
 
 model Session {

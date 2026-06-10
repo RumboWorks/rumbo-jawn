@@ -7,6 +7,7 @@
 {% endblock %}
 
 {% block content %}
+    {% set helpContextKey = 'eval.tasks' %}
     {% include "partials/page-header.twig" with { heading: 'Your tasks', subtitle: 'Reviews to complete and responses to collect.' } %}
 
     {% include "pages/eval/_flash.twig" %}

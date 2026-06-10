@@ -119,6 +119,14 @@ Platform-admin grants and revocations remain CLI-only. The admin UI can display 
 - New local accounts must verify their email: they can log in but app surfaces redirect to `/auth/verify-pending` (resend available) until the emailed `/auth/verify/:token` link is opened. OAuth accounts start verified. Existing users were backfilled as verified.
 - Public auth endpoints (`POST /signup`, `/auth/local`, `/password/forgot`, `/auth/verify/resend`) are rate-limited per client IP (15-minute windows). Loopback is exempt so the QA suite and local smoke checks are unaffected; the app sets `trust proxy` so Apache-forwarded client IPs are used.
 
+## Help & FAQ
+
+- `/help` and `/help/<toolKey>` — published help articles (platform-level and per-tool); "Help & FAQ" links live in the tool/account sidebars.
+- The "?" button in the page header opens the context-sensitive help drawer; pages declare `{% set helpContextKey = '...' %}` before including `partials/page-header.twig`. Resolution: exact context-key match (across all published articles) → tool articles → platform articles, served by `GET /help/api/context?key=…`.
+- Admin authoring at `/admin/help` (list, publish/unpublish, delete) and `/admin/help/new` / `/admin/help/:id` (markdown editor with live preview). Articles have a tool scope (or platform), slug, context keys, and nav order; all mutations are audit-logged.
+- Seed the starter content (idempotent): `npm run seed-help --workspace=@rumbo/db` (15 articles: 5 platform, 4 SLU, 6 Eval).
+- Markdown rendering lives in the shared `@rumbo/markdown` package (markdown-it + sanitize-html); Eval re-imports it for response commentary.
+
 ## Account Management
 
 Verified account routes:

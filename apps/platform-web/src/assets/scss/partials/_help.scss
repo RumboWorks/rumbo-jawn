@@ -1,0 +1,133 @@
+// Help system: the "?" trigger, the right-side drawer, and the /help pages.
+
+.rj-help-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--rj-border);
+  border-radius: var(--rj-radius-pill);
+  background: var(--rj-bg-raised);
+  color: var(--rj-fg-3);
+  cursor: pointer;
+  transition: color var(--rj-dur) var(--rj-ease), border-color var(--rj-dur) var(--rj-ease);
+
+  svg { width: 1.1rem; height: 1.1rem; }
+
+  &:hover { color: var(--rj-fg); border-color: var(--rj-fg-3); }
+}
+
+.rj-page-header__side {
+  display: flex;
+  align-items: center;
+  gap: var(--rj-space-3);
+  flex-shrink: 0;
+}
+
+// Right-side drawer built on a native <dialog>.
+.rj-help-drawer {
+  position: fixed;
+  inset: 0 0 0 auto;
+  margin: 0;
+  width: min(420px, 92vw);
+  height: 100vh;
+  max-height: 100vh;
+  display: none;
+  flex-direction: column;
+  padding: 0;
+  border: 0;
+  border-left: 1px solid var(--rj-border);
+  background: var(--rj-bg-raised);
+  color: var(--rj-fg);
+  box-shadow: var(--rj-shadow-md);
+
+  &[open] { display: flex; }
+  &::backdrop { background: rgb(15 23 42 / 0.4); }
+}
+
+.rj-help-drawer__head {
+  display: flex;
+  align-items: center;
+  gap: var(--rj-space-3);
+  padding: var(--rj-space-4) var(--rj-space-5);
+  border-bottom: 1px solid var(--rj-border);
+
+  h2 { margin: 0; font-size: var(--rj-text-lg); flex: 1; }
+}
+
+.rj-help-drawer__all { font-size: var(--rj-text-sm); }
+
+.rj-help-drawer__close {
+  border: 0;
+  background: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--rj-fg-2);
+  cursor: pointer;
+}
+
+.rj-help-drawer__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--rj-space-4) var(--rj-space-5);
+}
+
+.rj-help-drawer__empty { color: var(--rj-fg-3); }
+
+.rj-help-item {
+  margin-bottom: var(--rj-space-3);
+  border: 1px solid var(--rj-border);
+  border-radius: var(--rj-radius-md);
+  background: var(--rj-bg);
+
+  > summary {
+    padding: var(--rj-space-3) var(--rj-space-4);
+    cursor: pointer;
+    font-weight: var(--rj-weight-semibold);
+  }
+}
+
+.rj-help-item__body {
+  padding: 0 var(--rj-space-4) var(--rj-space-4);
+  font-size: var(--rj-text-sm);
+  line-height: 1.65;
+
+  p, ul, ol { margin-bottom: var(--rj-space-3); }
+  h1, h2, h3 { margin: var(--rj-space-4) 0 var(--rj-space-2); font-size: var(--rj-text-base); }
+}
+
+// /help pages: article accordions at full width.
+.rj-help-page .rj-help-item__body { font-size: var(--rj-text-base); }
+
+.rj-help-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--rj-space-2);
+  margin-bottom: var(--rj-space-6);
+}
+
+// Admin editor: markdown textarea + live preview side by side.
+.rj-help-editor {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--rj-space-4);
+  align-items: start;
+
+  textarea { min-height: 24rem; font-family: var(--rj-font-mono, monospace); font-size: var(--rj-text-sm); }
+
+  @media (max-width: 900px) { grid-template-columns: 1fr; }
+}
+
+.rj-help-preview {
+  border: 1px solid var(--rj-border);
+  border-radius: var(--rj-radius-md);
+  background: var(--rj-bg);
+  padding: var(--rj-space-4);
+  min-height: 24rem;
+  overflow-y: auto;
+  font-size: var(--rj-text-sm);
+  line-height: 1.65;
+
+  p, ul, ol { margin-bottom: var(--rj-space-3); }
+}

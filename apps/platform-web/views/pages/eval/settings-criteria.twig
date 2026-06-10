@@ -7,6 +7,7 @@
 {% endblock %}
 
 {% block content %}
+    {% set helpContextKey = 'eval.criteria' %}
     {% include "partials/page-header.twig" with {
         heading: 'Evaluation criteria',
         subtitle: 'Reusable criteria reviewers score responses against. Snapshotted into a run when it launches.',

@@ -2,6 +2,7 @@ import '../scss/main.scss';
 import { applyLocalUiPreferences } from '@rumbo/design-system';
 import { initIcons } from './icons.js';
 import './inline-edit.js';
+import { initHelp } from './help.js';
 import { initReview } from './review.js';
 import { initWizards } from './wizard.js';
 
@@ -14,6 +15,10 @@ initReview();
 
 // Stepped-form wizards (no-op unless a [data-wizard] is present).
 initWizards();
+
+// Context-sensitive help drawer (no-op unless the drawer is present).
+initHelp();
+
 applyLocalUiPreferences();
 
 document.querySelectorAll('[data-tool-switcher-open]').forEach((button) => {

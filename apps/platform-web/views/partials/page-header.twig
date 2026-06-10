@@ -22,9 +22,16 @@
         <h1>{{ heading }}</h1>
         {% if subtitle %}<p>{{ subtitle }}</p>{% endif %}
     </div>
-    {% if action %}
-        <a href="{{ action.href }}" class="rj-btn rj-btn--primary rj-btn--sm rj-page-header__action">
-            {% if action.icon %}<i data-lucide="{{ action.icon }}"></i>{% endif %} {{ action.label }}
-        </a>
-    {% endif %}
+    <div class="rj-page-header__side">
+        {% if action %}
+            <a href="{{ action.href }}" class="rj-btn rj-btn--primary rj-btn--sm rj-page-header__action">
+                {% if action.icon %}<i data-lucide="{{ action.icon }}"></i>{% endif %} {{ action.label }}
+            </a>
+        {% endif %}
+        {% if currentUser %}
+            <button type="button" class="rj-help-trigger" data-help-open{% if helpContextKey is defined and helpContextKey %} data-help-context="{{ helpContextKey }}"{% endif %} aria-label="Help for this page" title="Help">
+                <i data-lucide="circle-help"></i>
+            </button>
+        {% endif %}
+    </div>
 </div>

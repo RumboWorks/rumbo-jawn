@@ -1,0 +1,30 @@
+{% extends "layouts/app.twig" %}
+
+{% block title %}{{ heading }} — Rumbo{% endblock %}
+
+{% block content %}
+    {% include "partials/page-header.twig" with {
+        heading: heading,
+        subtitle: 'Answers and how-tos. Use the ? button on any page for help in context.'
+    } %}
+
+    <div class="rj-help-tools">
+        <a href="/help" class="rj-btn rj-btn--sm {% if toolKey is null %}rj-btn--primary{% else %}rj-btn--secondary{% endif %}">Platform</a>
+        {% for tool in tools %}
+            <a href="/help/{{ tool.key }}" class="rj-btn rj-btn--sm {% if toolKey == tool.key %}rj-btn--primary{% else %}rj-btn--secondary{% endif %}">{{ tool.name }}</a>
+        {% endfor %}
+    </div>
+
+    <div class="rj-help-page">
+        {% if articles is empty %}
+            <p class="rj-admin-empty">No help articles published here yet.</p>
+        {% else %}
+            {% for article in articles %}
+                <details class="rj-help-item"{% if loop.first %} open{% endif %}>
+                    <summary>{{ article.title }}</summary>
+                    <div class="rj-help-item__body">{{ article.html|raw }}</div>
+                </details>
+            {% endfor %}
+        {% endif %}
+    </div>
+{% endblock %}

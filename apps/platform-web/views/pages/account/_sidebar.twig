@@ -8,6 +8,9 @@
     <a href="/billing" class="rj-sidebar__link{% if active == 'billing' %} is-active{% endif %}">
         <i data-lucide="credit-card"></i> Billing
     </a>
+    <a href="/help" class="rj-sidebar__link{% if active == 'help' %} is-active{% endif %}">
+        <i data-lucide="life-buoy"></i> Help &amp; FAQ
+    </a>
     {% if account is defined and account %}
         {% for membership in account.visibleMemberships %}
             {% if membership.role == 'MANAGER' %}

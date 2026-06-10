@@ -19,6 +19,7 @@
     {% set wizardCrumbs = isNewEval
         ? [{ label: 'Evaluations', href: '/eval/evals' }, { label: 'New evaluation' }]
         : [{ label: 'Evaluations', href: '/eval/evals' }, { label: eval.title, href: '/eval/evals/' ~ eval.publicId }, { label: 'New run' }] %}
+    {% set helpContextKey = 'eval.run' %}
     {% include "partials/page-header.twig" with {
         heading: isNewEval ? 'New evaluation' : 'New run',
         subtitle: isNewEval ? 'Set up an evaluation and launch its first run.' : eval.title,

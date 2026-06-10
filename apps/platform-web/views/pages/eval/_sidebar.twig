@@ -14,6 +14,9 @@
             <i data-lucide="bar-chart-3"></i> Reports
         </a>
     {% endif %}
+    <a href="/help/eval" class="rj-sidebar__link{% if active == 'help' %} is-active{% endif %}">
+        <i data-lucide="life-buoy"></i> Help &amp; FAQ
+    </a>
 </div>
 {% if toolRole == 'MANAGER' %}
     <span class="rj-sidebar__label">Settings</span>
