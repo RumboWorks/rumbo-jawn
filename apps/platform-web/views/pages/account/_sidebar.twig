@@ -5,6 +5,9 @@
     <a href="/account" class="rj-sidebar__link{% if active == 'profile' %} is-active{% endif %}">
         <i data-lucide="user"></i> Profile
     </a>
+    <a href="/billing" class="rj-sidebar__link{% if active == 'billing' %} is-active{% endif %}">
+        <i data-lucide="credit-card"></i> Billing
+    </a>
     {% if account is defined and account %}
         {% for membership in account.visibleMemberships %}
             {% if membership.role == 'MANAGER' %}

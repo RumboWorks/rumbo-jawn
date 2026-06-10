@@ -77,6 +77,8 @@ model Organization {
   createdAt        DateTime                    @default(now())
   updatedAt        DateTime                    @updatedAt
   deletedAt        DateTime?
+  suspendedAt      DateTime?
+  suspendedReason  String?                     @db.Text
   createdBy        User?                       @relation("OrganizationCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull)
   memberships      Membership[]
   invites          OrganizationInvite[]
@@ -248,16 +250,18 @@ enum PartnerRole {
 // ---- Entitlements / billing readiness ----
 
 model ProductTier {
-  id          String   @id @default(cuid())
-  key         String   @unique
-  name        String
-  description String?  @db.Text
-  limits      Json?
-  features    Json?
-  isDefault   Boolean  @default(false)
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String   @id @default(cuid())
+  key             String   @unique
+  name            String
+  description     String?  @db.Text
+  limits          Json?
+  features        Json?
+  stripePriceId   String?
+  priceUsdMonthly Decimal? @db.Decimal(10, 2)
+  isDefault       Boolean  @default(false)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   entitlements OrganizationEntitlement[]
 }

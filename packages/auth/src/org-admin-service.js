@@ -48,6 +48,33 @@ export async function adminCreateOrganization({ name, organizationType = 'NONPRO
   return org;
 }
 
+// Suspend / unsuspend: a suspended org loses tool access for everyone except
+// platform admins (enforced in tool-access-service); members can still sign in.
+export async function adminSetOrgSuspension({ orgId, suspend, actorId, reason = null }) {
+  const org = await db.organization.findFirst({ where: { id: orgId, deletedAt: null } });
+  if (!org) throw new Error('Organization not found.');
+
+  const updated = await db.organization.update({
+    where: { id: orgId },
+    data: suspend
+      ? { suspendedAt: new Date(), suspendedReason: reason || null }
+      : { suspendedAt: null, suspendedReason: null },
+  });
+
+  await audit({
+    actorId,
+    action: suspend ? 'org.suspended' : 'org.unsuspended',
+    targetType: 'organization',
+    targetId: orgId,
+    orgId,
+    oldValue: { suspendedAt: org.suspendedAt },
+    newValue: { suspendedAt: updated.suspendedAt },
+    reason,
+  });
+
+  return updated;
+}
+
 // Soft delete: sets deletedAt so the org disappears from every deletedAt:null
 // query (access lists, admin lists, nav). Data is retained. Blocked while a
 // Stripe subscription is active — cancel it first (admin billing controls).

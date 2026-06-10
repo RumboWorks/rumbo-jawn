@@ -15,6 +15,7 @@ import {
 } from '@rumbo/auth';
 import { listTools } from '@rumbo/config';
 import routes from './routes/index.js';
+import { handleStripeWebhook } from './routes/billing.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -32,6 +33,10 @@ app.set('views', path.join(__dirname, '../views'));
 
 // Static files
 app.use(express.static(path.join(__dirname, '../public')));
+
+// Stripe webhook needs the raw request body for signature verification, so it
+// mounts before the global JSON parser.
+app.post('/billing/webhook', express.raw({ type: 'application/json' }), handleStripeWebhook);
 
 // Body parsing
 app.use(express.json());

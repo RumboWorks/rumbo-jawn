@@ -140,6 +140,15 @@ Archiving removes the partner's access; the organization itself is only soft-del
 
 ## Billing / Entitlements
 
+Stripe (hosted Checkout + Customer Portal):
+
+- Env: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`. Without them, `/billing` renders an unconfigured state and `POST /billing/webhook` returns 503.
+- To make a tier purchasable, set `ProductTier.stripePriceId` (and `priceUsdMonthly` for display) to a Stripe Price from the dashboard. Configure the Customer Portal in Stripe to allow switching among those prices and cancel-at-period-end.
+- `/billing` — current plan for the active org (managers, billing-responsible users, or personal-workspace owners); upgrade buttons create Checkout Sessions; "Manage billing" opens the portal (card, plan changes, invoices, cancel).
+- `POST /billing/webhook` — mounted with a raw body parser before the JSON middleware; handles `checkout.session.completed`, `customer.subscription.created/updated/deleted`, `invoice.payment_failed`. Subscription state mirrors onto `OrganizationEntitlement`; the tier follows the subscription's price; deletion downgrades to `free`. Local testing: `stripe listen --forward-to localhost:4000/billing/webhook`.
+- Dunning is Stripe-native (Smart Retries + Stripe emails); terminal failure emits `subscription.deleted` → auto-downgrade. `past_due` shows a warning banner on `/billing`.
+- Admin (`/admin/orgs/:orgId`): Stripe billing card (status, period, dashboard links), immediate subscription cancel, suspend/unsuspend (suspended orgs lose tool access for everyone but platform admins). Org delete stays blocked while a subscription is active.
+
 Seed default product tiers, AI model config, and missing org entitlements:
 
 ```sh

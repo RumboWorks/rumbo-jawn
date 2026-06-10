@@ -7,7 +7,7 @@ import crypto from 'crypto';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { registerLocalUser } from '@rumbo/auth';
-import { recordUsageEvent, UsageKey } from '@rumbo/billing';
+import { handleWebhookEvent, recordUsageEvent, UsageKey } from '@rumbo/billing';
 import { db } from '@rumbo/db';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -743,6 +743,75 @@ test('partner signup provisions a partner account and first org', async ({ page 
   expect(partner.memberships).toHaveLength(1);
   expect(partner.memberships[0].role).toBe('MANAGER');
   expect(partner.orgAccesses).toHaveLength(1);
+});
+
+// ---- Stripe billing (phase 21) ----
+
+test('billing page renders and webhook sync drives the tier up and back down', async ({ page, request }) => {
+  const runId = Date.now();
+  const email = `billing-${runId}@example.org`;
+  await registerUser(page, { name: 'Billing User', email, password: 'billing99' });
+
+  // The personal-workspace owner can see billing (unconfigured-Stripe state).
+  await page.goto('/billing');
+  await expect(page.locator('h1')).toContainText('Billing');
+  await expect(page.locator('text=Current plan')).toBeVisible();
+  await expect(page.locator('text=Free plan')).toBeVisible();
+
+  // The webhook endpoint refuses politely while Stripe isn't configured.
+  const webhookRes = await request.post('/billing/webhook', { data: {} });
+  expect(webhookRes.status()).toBe(503);
+
+  // Webhook sync: an active subscription flips the tier implied by its price.
+  const user = await db.user.findUnique({ where: { email }, include: { memberships: true } });
+  const orgId = user.memberships[0].orgId;
+  const priceId = `price_qa_${runId}`;
+  const qaTier = await db.productTier.create({
+    data: { key: `qa-tier-${runId}`, name: 'QA Paid Tier', stripePriceId: priceId, features: { slu: true, eval: true } },
+  });
+  const subscription = {
+    id: `sub_qa_${runId}`,
+    status: 'active',
+    customer: `cus_qa_${runId}`,
+    metadata: { orgId },
+    items: { data: [{ price: { id: priceId } }] },
+    current_period_start: Math.floor(Date.now() / 1000),
+    current_period_end: Math.floor(Date.now() / 1000) + 30 * 24 * 3600,
+    cancel_at_period_end: false,
+  };
+  await handleWebhookEvent({ type: 'customer.subscription.updated', data: { object: subscription } });
+  let entitlement = await db.organizationEntitlement.findUnique({ where: { orgId }, include: { tier: true } });
+  expect(entitlement.tier.key).toBe(`qa-tier-${runId}`);
+  expect(entitlement.stripeSubscriptionId).toBe(`sub_qa_${runId}`);
+  expect(entitlement.stripeSubscriptionStatus).toBe('active');
+
+  // The billing page now offers the Stripe portal for the live subscription.
+  await page.goto('/billing');
+  await expect(page.locator('text=Manage billing')).toBeVisible();
+
+  // Cancellation (subscription.deleted) downgrades back to free.
+  await handleWebhookEvent({ type: 'customer.subscription.deleted', data: { object: subscription } });
+  entitlement = await db.organizationEntitlement.findUnique({ where: { orgId }, include: { tier: true } });
+  expect(entitlement.tier.key).toBe('free');
+  expect(entitlement.stripeSubscriptionStatus).toBe('canceled');
+
+  await db.productTier.delete({ where: { id: qaTier.id } });
+});
+
+test('suspended organizations lose tool access until unsuspended', async ({ page }) => {
+  const runId = Date.now();
+  const email = `suspend-org-${runId}@example.org`;
+  await registerUser(page, { name: 'Suspend Org', email, password: 'suspend99' });
+  const user = await db.user.findUnique({ where: { email }, include: { memberships: true } });
+  const orgId = user.memberships[0].orgId;
+
+  await db.organization.update({ where: { id: orgId }, data: { suspendedAt: new Date(), suspendedReason: 'QA suspension' } });
+  const blocked = await page.goto('/slu');
+  expect(blocked.status()).toBe(403);
+
+  await db.organization.update({ where: { id: orgId }, data: { suspendedAt: null, suspendedReason: null } });
+  const restored = await page.goto('/slu');
+  expect(restored.status()).toBe(200);
 });
 
 test('requireAuth redirects unauthenticated users', async ({ page }) => {

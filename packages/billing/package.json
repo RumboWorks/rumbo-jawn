@@ -9,6 +9,7 @@
     "set-org-tier": "node src/scripts/set-org-tier.js"
   },
   "dependencies": {
-    "@rumbo/db": "^0.0.1"
+    "@rumbo/db": "^0.0.1",
+    "stripe": "^22.2.0"
   }
 }

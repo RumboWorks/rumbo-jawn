@@ -5,6 +5,7 @@ import {
   adminCreateOrganization,
   adminRemoveToolGrant,
   adminRemoveUserMembership,
+  adminSetOrgSuspension,
   adminSoftDeleteOrganization,
   adminUpdateUser,
   adminUpsertToolGrant,
@@ -23,6 +24,7 @@ import {
 } from '@rumbo/auth';
 import { deleteEvalRunCascade, listEvalRunsForAdmin } from '@rumbo/eval';
 import {
+  adminCancelSubscription,
   setOrgBillingResponsible,
   setOrgSpendCap,
   setOrgSluBudget,
@@ -207,6 +209,50 @@ router.post('/orgs', asyncHandler(async (req, res) => {
     req.session.flash_error = err.message;
     return res.redirect('/admin/orgs/new');
   }
+}));
+
+router.post('/orgs/:orgId/suspend', asyncHandler(async (req, res) => {
+  try {
+    await adminSetOrgSuspension({
+      orgId: req.params.orgId,
+      suspend: true,
+      actorId: req.user.id,
+      reason: req.body.reason || null,
+    });
+    req.session.flash_success = 'Organization suspended — tool access is blocked.';
+  } catch (err) {
+    req.session.flash_error = err.message;
+  }
+  res.redirect(`/admin/orgs/${req.params.orgId}`);
+}));
+
+router.post('/orgs/:orgId/unsuspend', asyncHandler(async (req, res) => {
+  try {
+    await adminSetOrgSuspension({
+      orgId: req.params.orgId,
+      suspend: false,
+      actorId: req.user.id,
+      reason: req.body.reason || null,
+    });
+    req.session.flash_success = 'Organization unsuspended.';
+  } catch (err) {
+    req.session.flash_error = err.message;
+  }
+  res.redirect(`/admin/orgs/${req.params.orgId}`);
+}));
+
+router.post('/orgs/:orgId/cancel-subscription', asyncHandler(async (req, res) => {
+  try {
+    await adminCancelSubscription({
+      orgId: req.params.orgId,
+      actorId: req.user.id,
+      reason: req.body.reason || null,
+    });
+    req.session.flash_success = 'Subscription cancelled; the organization drops to the free tier.';
+  } catch (err) {
+    req.session.flash_error = err.message;
+  }
+  res.redirect(`/admin/orgs/${req.params.orgId}`);
 }));
 
 router.post('/orgs/:orgId/delete', asyncHandler(async (req, res) => {

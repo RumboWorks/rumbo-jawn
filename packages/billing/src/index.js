@@ -1,5 +1,18 @@
 import { db } from '@rumbo/db';
 
+export {
+  isStripeConfigured,
+  getStripe,
+  tierForPriceId,
+  listPurchasableTiers,
+  createCheckoutSession,
+  createPortalSession,
+  syncEntitlementFromSubscription,
+  handleWebhookEvent,
+  verifyWebhookSignature,
+  adminCancelSubscription,
+} from './stripe-service.js';
+
 export const TierKey = Object.freeze({
   FREE: 'free',
   SOLO: 'solo',

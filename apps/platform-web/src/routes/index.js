@@ -4,6 +4,7 @@ import adminRoutes from './admin.js';
 import accountRoutes from './account.js';
 import authRoutes from './auth.js';
 import partnerRoutes from './partner.js';
+import billingRoutes from './billing.js';
 import { sluRouter } from '@rumbo/sounds-like-us';
 import { evalRouter, evalShareRouter } from '@rumbo/eval';
 
@@ -44,6 +45,7 @@ router.use('/eval/share', evalShareRouter);
 router.use('/eval', requireVerified, requireToolAccess('eval'), evalRouter);
 router.use('/admin', requireVerified, adminRoutes);
 router.use('/partner', requireVerified, partnerRoutes);
+router.use('/billing', billingRoutes);
 router.use('/account', requireVerified, accountRoutes);
 router.use('/', authRoutes);
 

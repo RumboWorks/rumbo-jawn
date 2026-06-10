@@ -45,6 +45,10 @@ export async function resolveToolRole(user, orgId, toolKey) {
 
   if (user.isPlatformAdmin) return 'MANAGER';
 
+  // Suspended orgs lose tool access for everyone except platform admins.
+  const org = await db.organization.findUnique({ where: { id: orgId }, select: { suspendedAt: true } });
+  if (org?.suspendedAt) return null;
+
   const entitlement = await getEffectiveEntitlement(orgId);
   if (!entitlement?.features?.[toolKey]) return null;
 
@@ -76,6 +80,9 @@ export async function listAccessibleTools(user, orgId) {
   if (user.isPlatformAdmin) {
     return tools.map(tool => ({ ...tool, role: 'MANAGER' }));
   }
+
+  const org = await db.organization.findUnique({ where: { id: orgId }, select: { suspendedAt: true } });
+  if (org?.suspendedAt) return [];
 
   const entitlement = await getEffectiveEntitlement(orgId);
   const features = entitlement?.features ?? {};

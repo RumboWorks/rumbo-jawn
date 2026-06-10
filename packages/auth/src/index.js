@@ -24,6 +24,7 @@ export {
 } from './tool-access-service.js';
 export {
   adminCreateOrganization,
+  adminSetOrgSuspension,
   adminSoftDeleteOrganization,
   uniqueOrgSlug,
 } from './org-admin-service.js';

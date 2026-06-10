@@ -1,0 +1,119 @@
+{% extends "layouts/app.twig" %}
+
+{% block title %}Billing — Rumbo{% endblock %}
+
+{% block sidebar %}
+    <span class="rj-sidebar__label">Account</span>
+    <div class="rj-sidebar__section">
+        <a href="/account" class="rj-sidebar__link">
+            <i data-lucide="user"></i> Profile
+        </a>
+        <a href="/billing" class="rj-sidebar__link is-active">
+            <i data-lucide="credit-card"></i> Billing
+        </a>
+    </div>
+{% endblock %}
+
+{% block content %}
+    {% include "partials/page-header.twig" with {
+        heading: 'Billing',
+        subtitle: 'Plan and payment for ' ~ organization.name ~ '. Switch organizations from the account menu to manage a different one.'
+    } %}
+
+    {% include "pages/admin/_flash.twig" %}
+
+    {% if not stripeConfigured %}
+        <div class="rj-alert rj-alert--info">
+            <i data-lucide="info"></i>
+            <div class="rj-alert__body">Online payment isn't configured in this environment. Plans can be assigned by a platform admin.</div>
+        </div>
+    {% endif %}
+
+    {% if entitlement and entitlement.stripeSubscriptionStatus == 'past_due' %}
+        <div class="rj-alert rj-alert--warning">
+            <i data-lucide="alert-triangle"></i>
+            <div class="rj-alert__body">Your last payment failed. Update your payment method to keep your plan — Stripe will retry automatically.</div>
+        </div>
+    {% endif %}
+
+    {% if intendedTier and entitlement.tier.key == 'free' %}
+        <div class="rj-alert rj-alert--info">
+            <i data-lucide="info"></i>
+            <div class="rj-alert__body">You chose the <strong>{{ intendedTier|title }}</strong> plan at signup. Finish below to activate it.</div>
+        </div>
+    {% endif %}
+
+    <section class="rj-admin-panel">
+        <div class="rj-admin-panel__header"><h2>Current plan</h2></div>
+        <div class="rj-admin-panel__body">
+            <dl class="rj-admin-kv">
+                <dt>Plan</dt>
+                <dd><strong>{{ entitlement.tier.name }}</strong></dd>
+                <dt>Status</dt>
+                <dd>
+                    {% if hasSubscription %}
+                        <span class="rj-badge rj-badge--success"><span class="rj-dot"></span>{{ entitlement.stripeSubscriptionStatus }}</span>
+                        {% if entitlement.stripeCancelAtPeriodEnd %}
+                            <span class="rj-admin-muted">— cancels at period end</span>
+                        {% endif %}
+                    {% elseif entitlement.tier.key == 'free' %}
+                        <span class="rj-badge rj-badge--neutral"><span class="rj-dot"></span>Free plan</span>
+                    {% else %}
+                        <span class="rj-badge rj-badge--neutral"><span class="rj-dot"></span>No subscription</span>
+                    {% endif %}
+                </dd>
+                {% if entitlement.stripeCurrentPeriodEnd %}
+                    <dt>{% if entitlement.stripeCancelAtPeriodEnd %}Ends{% else %}Renews{% endif %}</dt>
+                    <dd class="rj-num">{{ entitlement.stripeCurrentPeriodEnd|date("M j, Y") }}</dd>
+                {% endif %}
+            </dl>
+        </div>
+    </section>
+
+    {% if hasSubscription %}
+        <section class="rj-admin-panel">
+            <div class="rj-admin-panel__header"><h2>Manage</h2></div>
+            <div class="rj-admin-panel__body">
+                <p class="rj-admin-muted">Change your payment method, switch plans, download invoices, or cancel — all in the secure Stripe portal.</p>
+                <form method="post" action="/billing/portal">
+                    <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit"{% if not stripeConfigured %} disabled{% endif %}>
+                        <i data-lucide="credit-card"></i> Manage billing
+                    </button>
+                </form>
+            </div>
+        </section>
+    {% else %}
+        <section class="rj-admin-panel">
+            <div class="rj-admin-panel__header"><h2>Upgrade</h2></div>
+            <div class="rj-admin-panel__body">
+                {% if purchasableTiers is empty %}
+                    <p class="rj-admin-empty">No paid plans are available for purchase yet.</p>
+                {% else %}
+                    <div class="rj-list">
+                        {% for tier in purchasableTiers %}
+                            <div class="rj-item">
+                                <div class="rj-item__display">
+                                    <div class="rj-item__main">
+                                        <div class="rj-item__title">{{ tier.name }}</div>
+                                        <div class="rj-item__meta">
+                                            {% if tier.priceUsdMonthly %}${{ tier.priceUsdMonthly|number_format(2, '.', ',') }} / month{% endif %}
+                                            {% if tier.description %} · {{ tier.description }}{% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="rj-item__actions">
+                                        <form method="post" action="/billing/checkout">
+                                            <input type="hidden" name="tierKey" value="{{ tier.key }}">
+                                            <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit"{% if not stripeConfigured %} disabled{% endif %}>
+                                                Choose {{ tier.name }}
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+    {% endif %}
+{% endblock %}

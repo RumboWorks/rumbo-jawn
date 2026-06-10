@@ -244,6 +244,78 @@
         </div>
     </section>
 
+    <div class="rj-admin-detail-grid">
+        <section class="rj-admin-panel">
+            <div class="rj-admin-panel__header"><h2>Stripe billing</h2></div>
+            <div class="rj-admin-panel__body">
+                <dl class="rj-admin-kv">
+                    <dt>Subscription</dt>
+                    <dd>
+                        {% if org.entitlement.stripeSubscriptionStatus %}
+                            <span class="rj-badge {% if org.entitlement.stripeSubscriptionStatus in ['active', 'trialing'] %}rj-badge--success{% elseif org.entitlement.stripeSubscriptionStatus == 'past_due' %}rj-badge--warning{% else %}rj-badge--neutral{% endif %}">
+                                <span class="rj-dot"></span>{{ org.entitlement.stripeSubscriptionStatus }}
+                            </span>
+                            {% if org.entitlement.stripeCancelAtPeriodEnd %}<span class="rj-admin-muted">cancels at period end</span>{% endif %}
+                        {% else %}
+                            <span class="rj-admin-muted">None</span>
+                        {% endif %}
+                    </dd>
+                    {% if org.entitlement.stripeCurrentPeriodEnd %}
+                        <dt>Period ends</dt>
+                        <dd class="rj-num">{{ org.entitlement.stripeCurrentPeriodEnd|date("M j, Y") }}</dd>
+                    {% endif %}
+                    {% if org.entitlement.stripeCustomerId %}
+                        <dt>Customer</dt>
+                        <dd><a href="https://dashboard.stripe.com/customers/{{ org.entitlement.stripeCustomerId }}" target="_blank" rel="noopener" class="rj-admin-mono">{{ org.entitlement.stripeCustomerId }}</a></dd>
+                    {% endif %}
+                    {% if org.entitlement.stripeSubscriptionId %}
+                        <dt>Subscription ID</dt>
+                        <dd><a href="https://dashboard.stripe.com/subscriptions/{{ org.entitlement.stripeSubscriptionId }}" target="_blank" rel="noopener" class="rj-admin-mono">{{ org.entitlement.stripeSubscriptionId }}</a></dd>
+                    {% endif %}
+                </dl>
+                {% if org.entitlement.stripeSubscriptionStatus and org.entitlement.stripeSubscriptionStatus not in ['canceled', 'incomplete_expired'] %}
+                    <form class="rj-admin-form" method="post" action="/admin/orgs/{{ org.id }}/cancel-subscription" onsubmit="return confirm('Cancel this subscription immediately? The organization drops to the free tier.')">
+                        <label>
+                            <span>Reason</span>
+                            <input type="text" name="reason" placeholder="Optional audit note">
+                        </label>
+                        <button class="rj-btn rj-btn--secondary rj-btn--sm" type="submit">
+                            <i data-lucide="circle-x"></i> Cancel subscription
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+        </section>
+
+        <section class="rj-admin-panel">
+            <div class="rj-admin-panel__header"><h2>Suspension</h2></div>
+            <div class="rj-admin-panel__body">
+                {% if org.suspendedAt %}
+                    <p><span class="rj-badge rj-badge--warning"><span class="rj-dot"></span>Suspended</span>
+                        <span class="rj-admin-muted">since {{ org.suspendedAt|date("M j, Y") }}{% if org.suspendedReason %} — {{ org.suspendedReason }}{% endif %}</span></p>
+                    <form class="rj-admin-form" method="post" action="/admin/orgs/{{ org.id }}/unsuspend">
+                        <label>
+                            <span>Reason</span>
+                            <input type="text" name="reason" placeholder="Optional audit note">
+                        </label>
+                        <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit">Unsuspend</button>
+                    </form>
+                {% else %}
+                    <p class="rj-admin-muted">Suspending blocks tool access for every member (platform admins keep access). Sign-in still works.</p>
+                    <form class="rj-admin-form" method="post" action="/admin/orgs/{{ org.id }}/suspend" onsubmit="return confirm('Suspend {{ org.name|e('js') }}?')">
+                        <label>
+                            <span>Reason</span>
+                            <input type="text" name="reason" placeholder="Shown in the audit log">
+                        </label>
+                        <button class="rj-btn rj-btn--secondary rj-btn--sm" type="submit">
+                            <i data-lucide="circle-alert"></i> Suspend organization
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+        </section>
+    </div>
+
     <section class="rj-admin-panel">
         <div class="rj-admin-panel__header"><h2>Danger zone</h2></div>
         <div class="rj-admin-panel__body">
