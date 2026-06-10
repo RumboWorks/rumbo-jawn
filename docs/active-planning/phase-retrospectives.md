@@ -711,6 +711,30 @@ Next phase recommendation: Proceed to the finish-line phases (16–23) then Phas
 
 ---
 
+## Phases 15b–23 — Finish-line phases
+
+Date: 2026-06-10 (all executed in one planned sequence; one commit each)
+
+Outcome: All complete; proceed to Phase 09 as the final gate.
+
+Each phase's `docs/development-phases/phase-NN-*.md` carries full closeout notes; this entry is the index:
+
+- **15b** — Landed the in-flight admin-panel body-wrapper UI pass (14 files; finished two half-converted eval report panels).
+- **16** — Documentation reconciliation: charter docs reflect the code as-built; retrospectives backfilled for 08–15; roadmap gained the finish-line section; finish-line decisions recorded.
+- **17** — Structural/UI consistency: SLU joined the app shell with a sidebar; account pages adopted inline-edit; the segmented control became shared `rj-segmented` (removing Eval's dependency on `slu-` classes); styled error pages; dead views removed.
+- **18** — Admin completeness: org create/soft-delete, full partner-account CRUD (first partner UI anywhere), audited act-as-org with banner, Eval-run cascade delete and job-artifact purge panels. Found and fixed: act-as-org never worked (Prisma drops empty OR objects); `ensureOrgEntitlement` create race; a collation-dependent flaky sort test.
+- **19** — Partner self-service at `/partner`: client-org create/edit/archive, co-manager management, nav entry.
+- **20** — Email verification (token model, verify-pending gate) + public `/pricing` and tiered `/signup` for all four tiers; rate limiting; the QA `@example.org` teardown (first run swept 756 stale users). Found and fixed: Passport session regeneration had silently broken SLU's URL-resume; now `keepSessionInfo`.
+- **21** — Stripe billing: hosted Checkout + Customer Portal, raw-body webhook with idempotent entitlement sync (tier follows price; deletion downgrades to free), `/billing` page, org suspension, admin cancel. Live-key activation checklist recorded for Phase 09.
+- **22** — Help system: `HelpArticle` model, shared `@rumbo/markdown`, on-request context-sensitive help drawer, `/help` pages, admin markdown editor with live preview, 15 seeded articles.
+- **23** — Missing pieces: draft legal pages + `/support`, anonymizing self-service account deletion, `/healthz`, operations runbook (backups/restore/deploy/rollback), SameSite=Lax CSRF baseline (decision logged), account usage card, robots.txt + OG tags.
+
+Checks/tests run: full Playwright suite after every phase; finished at 38/38 with the post-run data sweep keeping the dev DB at its two real accounts.
+
+Next phase recommendation: Phase 09 — launch hardening as the final gate.
+
+---
+
 ## Template
 
 ```md

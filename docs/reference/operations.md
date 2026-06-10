@@ -52,6 +52,24 @@ For off-host durability, push both to S3 (`aws s3 sync /var/backups/rumbo s3://<
 
 A full restore rehearsal is pending: the `rumbo_dev` MySQL user lacks `CREATE DATABASE` (the same limitation that blocks Prisma's shadow DB), so restoring into a scratch database needs a privileged user first. Tracked for phase 09 launch hardening.
 
+## Deploy
+
+Deploys are git-based on the host:
+
+1. `git pull` (or `git checkout <tag>`).
+2. `npm install` (only when dependencies changed).
+3. Apply any schema change additively (see gotchas below), then `npm run db:generate --workspace=@rumbo/db`.
+4. `npm run build --workspace=rumbo-web`.
+5. `pm2 restart rumbo-web rumbo-worker`.
+6. Check `/healthz`, sign in, and click through one tool page.
+
+## Rollback
+
+1. Note the bad commit: `git log --oneline -3`.
+2. `git checkout <last-good-commit>` (every phase is one commit, so the last-good point is always a phase boundary).
+3. `npm run build --workspace=rumbo-web`; `pm2 restart rumbo-web rumbo-worker`.
+4. Schema changes are additive-only, so a code rollback runs safely against the newer schema — extra columns/tables are simply unused. Only restore the database (see Restore) if data itself was corrupted.
+
 ## Known operational gotchas
 
 - **Do not** run `prisma db push --force-reset` against a database with real data; the dev DB also has pre-existing FK drift that makes plain `db push` fail. Apply schema changes additively: `prisma migrate diff --from-url <DATABASE_URL> --to-schema-datamodel prisma/schema.prisma --script`, extract only the new statements, then `prisma db execute --file …`.

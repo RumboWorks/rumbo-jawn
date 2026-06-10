@@ -50,8 +50,8 @@ Completion phases covering docs accuracy, UI consistency, admin/partner complete
 - [x] Phase 21 — Stripe billing (Checkout + Customer Portal, webhooks, entitlement sync, org suspend, admin cancel; live-key activation checklist tracked for phase 09)
 - [x] Phase 22 — Context-sensitive help and Help & FAQ (help drawer, `/help` pages, admin-managed `HelpArticle` content, 15 seeded articles)
 - [x] Phase 23 — Missing-pieces sweep (legal pages, account deletion, healthz/monitoring, backups runbook, SameSite CSRF baseline, usage visibility, public polish)
-- [ ] Phase 09 — Finish-line discipline and launch hardening (final gate; runs after phase 23)
+- [x] Phase 09 — Finish-line discipline and launch hardening (final gate; closed 2026-06-10 — launch pends only the external items in the phase-09 launch checklist)
 
 ## Next up
 
-Phase 09 — finish-line discipline and launch hardening (final gate).
+Launch: work through the pending-external items in `docs/development-phases/phase-09-finish-line-discipline-launch-hardening.md` (Stripe keys, OAuth creds, SMTP, MySQL privileges for migration baseline + restore rehearsal, storage root, prod env, legal review).
