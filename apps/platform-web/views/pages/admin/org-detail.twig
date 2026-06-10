@@ -35,55 +35,60 @@
     <div class="rj-admin-detail-grid">
         <section class="rj-admin-panel">
             <div class="rj-admin-panel__header"><h2>Invite member</h2></div>
-            <form class="rj-admin-form" method="post" action="/admin/orgs/{{ org.id }}/invites">
-                <label>
-                    <span>Email</span>
-                    <input type="email" name="email" placeholder="person@example.org" required>
-                </label>
-                <label>
-                    <span>Role</span>
-                    <select name="role">
-                        <option value="MEMBER">Member</option>
-                        <option value="MANAGER">Manager</option>
-                    </select>
-                </label>
-                <button class="rj-btn rj-btn--secondary rj-btn--sm" type="submit">
-                    <i data-lucide="plus"></i> Send invite
-                </button>
-            </form>
+            <div class="rj-admin-panel__body">
+                <form class="rj-admin-form" method="post" action="/admin/orgs/{{ org.id }}/invites">
+                    <label>
+                        <span>Email</span>
+                        <input type="email" name="email" placeholder="person@example.org" required>
+                    </label>
+                    <label>
+                        <span>Role</span>
+                        <select name="role">
+                            <option value="MEMBER">Member</option>
+                            <option value="MANAGER">Manager</option>
+                        </select>
+                    </label>
+                    <button class="rj-btn rj-btn--secondary rj-btn--sm" type="submit">
+                        <i data-lucide="plus"></i> Send invite
+                    </button>
+                </form>
+            </div>
         </section>
 
         <section class="rj-admin-panel">
             <div class="rj-admin-panel__header"><h2>Pending invites</h2></div>
-            {% if org.invites|length == 0 %}
-                <p class="rj-admin-empty">No pending invites.</p>
-            {% else %}
-                <div class="rj-table-wrap">
-                    <table class="rj-table rj-admin-table">
-                        <thead>
-                            <tr>
-                                <th>Email</th>
-                                <th>Role</th>
-                                <th>Expires</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for invite in org.invites %}
+            <div class="rj-admin-panel__body">
+                {% if org.invites|length == 0 %}
+                    <p class="rj-admin-empty">No pending invites.</p>
+                {% else %}
+                    <div class="rj-table-wrap">
+                        <table class="rj-table rj-admin-table">
+                            <thead>
                                 <tr>
-                                    <td>{{ invite.email }}</td>
-                                    <td>{{ invite.role|lower }}</td>
-                                    <td class="rj-num">{{ invite.expiresAt|date("M j, Y") }}</td>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Expires</th>
                                 </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            {% endif %}
+                            </thead>
+                            <tbody>
+                                {% for invite in org.invites %}
+                                    <tr>
+                                        <td>{{ invite.email }}</td>
+                                        <td>{{ invite.role|lower }}</td>
+                                        <td class="rj-num">{{ invite.expiresAt|date("M j, Y") }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            </div>
         </section>
     </div>
 
     <section class="rj-admin-panel">
         <div class="rj-admin-panel__header"><h2>Members</h2></div>
+        <div class="rj-admin-panel__body">
         <div class="rj-table-wrap">
             <table class="rj-table rj-admin-table">
                 <thead>
@@ -123,97 +128,108 @@
                 </tbody>
             </table>
         </div>
+        </div>
     </section>
 
     <div class="rj-admin-detail-grid">
         <section class="rj-admin-panel">
             <div class="rj-admin-panel__header"><h2>Tier</h2></div>
-            <form class="rj-admin-form" method="post" action="/admin/orgs/{{ org.id }}/tier">
-                <label>
-                    <span>Product tier</span>
-                    <select name="tierKey">
-                        {% for tier in org.tiers %}
-                            <option value="{{ tier.key }}"{% if org.entitlement.tier.key == tier.key %} selected{% endif %}>{{ tier.name }}</option>
-                        {% endfor %}
-                    </select>
-                </label>
-                <label>
-                    <span>Reason</span>
-                    <input type="text" name="reason" placeholder="Optional">
-                </label>
-                <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit">
-                    <i data-lucide="save"></i> Save tier
-                </button>
-            </form>
+            <div class="rj-admin-panel__body">
+                <form class="rj-admin-form" method="post" action="/admin/orgs/{{ org.id }}/tier">
+                    <label>
+                        <span>Product tier</span>
+                        <select name="tierKey">
+                            {% for tier in org.tiers %}
+                                <option value="{{ tier.key }}"{% if org.entitlement.tier.key == tier.key %} selected{% endif %}>{{ tier.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        <span>Reason</span>
+                        <input type="text" name="reason" placeholder="Optional">
+                    </label>
+                    <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit">
+                        <i data-lucide="save"></i> Save tier
+                    </button>
+                </form>
+            </div>
         </section>
 
         <section class="rj-admin-panel">
             <div class="rj-admin-panel__header"><h2>Billing responsibility</h2></div>
-            <form class="rj-admin-form" method="post" action="/admin/orgs/{{ org.id }}/billing-responsible">
-                <label>
-                    <span>Manager</span>
-                    <select name="membershipId">
-                        <option value="">Unassigned</option>
-                        {% for membership in org.managerMemberships %}
-                            <option value="{{ membership.id }}"{% if org.entitlement.billingResponsibleMembershipId == membership.id %} selected{% endif %}>
-                                {{ membership.user.email }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </label>
-                <label>
-                    <span>Reason</span>
-                    <input type="text" name="reason" placeholder="Optional">
-                </label>
-                <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit">
-                    <i data-lucide="save"></i> Save billing person
-                </button>
-            </form>
+            <div class="rj-admin-panel__body">
+                <form class="rj-admin-form" method="post" action="/admin/orgs/{{ org.id }}/billing-responsible">
+                    <label>
+                        <span>Manager</span>
+                        <select name="membershipId">
+                            <option value="">Unassigned</option>
+                            {% for membership in org.managerMemberships %}
+                                <option value="{{ membership.id }}"{% if org.entitlement.billingResponsibleMembershipId == membership.id %} selected{% endif %}>
+                                    {{ membership.user.email }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        <span>Reason</span>
+                        <input type="text" name="reason" placeholder="Optional">
+                    </label>
+                    <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit">
+                        <i data-lucide="save"></i> Save billing person
+                    </button>
+                </form>
+            </div>
         </section>
     </div>
 
     <div class="rj-admin-detail-grid">
         <section class="rj-admin-panel">
             <div class="rj-admin-panel__header"><h2>Sounds Like Us budget</h2></div>
-            <form class="rj-admin-form" method="post" action="/admin/orgs/{{ org.id }}/usage-budget">
-                <label>
-                    <span>Runs</span>
-                    <input type="number" name="limit" min="0" step="1" value="{{ org.sluBudgetStatus.limit }}">
-                </label>
-                <label>
-                    <span>Window days</span>
-                    <input type="number" name="windowDays" min="1" step="1" value="{{ org.sluBudgetStatus.windowDays }}">
-                </label>
-                <label>
-                    <span>Reason</span>
-                    <input type="text" name="reason" placeholder="Optional">
-                </label>
-                <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit">
-                    <i data-lucide="save"></i> Save budget
-                </button>
-            </form>
+            <div class="rj-admin-panel__body">
+                <form class="rj-admin-form" method="post" action="/admin/orgs/{{ org.id }}/usage-budget">
+                    <label>
+                        <span>Runs</span>
+                        <input type="number" name="limit" min="0" step="1" value="{{ org.sluBudgetStatus.limit }}">
+                    </label>
+                    <label>
+                        <span>Window days</span>
+                        <input type="number" name="windowDays" min="1" step="1" value="{{ org.sluBudgetStatus.windowDays }}">
+                    </label>
+                    <label>
+                        <span>Reason</span>
+                        <input type="text" name="reason" placeholder="Optional">
+                    </label>
+                    <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit">
+                        <i data-lucide="save"></i> Save budget
+                    </button>
+                </form>
+            </div>
         </section>
 
         <section class="rj-admin-panel">
             <div class="rj-admin-panel__header"><h2>AI spend cap</h2></div>
-            <form class="rj-admin-form" method="post" action="/admin/orgs/{{ org.id }}/spend-cap">
-                <label>
-                    <span>USD cap</span>
-                    <input type="number" name="aiSpendCapUsd" min="0" step="0.01" value="{{ org.spendStatus.capUsd }}">
-                </label>
-                <label>
-                    <span>Reason</span>
-                    <input type="text" name="reason" placeholder="Optional">
-                </label>
-                <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit">
-                    <i data-lucide="save"></i> Save spend cap
-                </button>
-            </form>
+            <div class="rj-admin-panel__body">
+                <form class="rj-admin-form" method="post" action="/admin/orgs/{{ org.id }}/spend-cap">
+                    <label>
+                        <span>USD cap</span>
+                        <input type="number" name="aiSpendCapUsd" min="0" step="0.01" value="{{ org.spendStatus.capUsd }}">
+                    </label>
+                    <label>
+                        <span>Reason</span>
+                        <input type="text" name="reason" placeholder="Optional">
+                    </label>
+                    <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit">
+                        <i data-lucide="save"></i> Save spend cap
+                    </button>
+                </form>
+            </div>
         </section>
     </div>
 
     <section class="rj-admin-panel">
         <div class="rj-admin-panel__header"><h2>Recent changes</h2></div>
-        {% include "pages/admin/_audit-table.twig" with { auditLogs: org.auditLogs } %}
+        <div class="rj-admin-panel__body">
+            {% include "pages/admin/_audit-table.twig" with { auditLogs: org.auditLogs } %}
+        </div>
     </section>
 {% endblock %}

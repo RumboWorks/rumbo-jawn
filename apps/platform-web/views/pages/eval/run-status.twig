@@ -107,33 +107,33 @@
 
     <section class="rj-admin-panel">
         <div class="rj-admin-panel__header"><h2>Responses</h2></div>
-        <div class="rj-table-wrap">
-            <table class="rj-table rj-admin-table">
-                <thead>
-                    <tr><th>Model</th><th>Source</th><th>Status</th><th>Actions</th></tr>
-                </thead>
-                <tbody>
-                    {% for r in run.responses %}
-                        <tr>
-                            <td>{{ r.modelSnapshot.displayName }}{% if r.modelSnapshot.providerModelName %}<br><span class="rj-admin-muted">{{ r.modelSnapshot.providerModelName }}</span>{% endif %}</td>
-                            <td>{{ r.responseSource|replace({'_': ' '})|lower }}</td>
-                            <td>{% if r.collected %}<span class="eval-status eval-status--ready_for_reviews">collected</span>{% else %}<span class="eval-status eval-status--collecting_responses">pending</span>{% endif %}</td>
-                            <td>
-                                <div class="rj-item__actions">
-                                    {% if r.liveCollectable %}
-                                        <form method="post" action="/eval/responses/{{ r.publicId }}/collect">
-                                            <button class="rj-btn rj-btn--secondary rj-btn--sm" type="submit"><i data-lucide="sparkles"></i> {{ r.collected ? 'Re-collect' : 'Collect via API' }}</button>
-                                        </form>
-                                    {% endif %}
-                                    <a href="/eval/responses/{{ r.publicId }}/manual" class="rj-btn rj-btn--ghost rj-btn--sm">{{ r.collected ? 'Edit' : 'Enter manually' }}</a>
-                                </div>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
         <div class="rj-admin-panel__body">
+            <div class="rj-table-wrap">
+                <table class="rj-table rj-admin-table">
+                    <thead>
+                        <tr><th>Model</th><th>Source</th><th>Status</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for r in run.responses %}
+                            <tr>
+                                <td>{{ r.modelSnapshot.displayName }}{% if r.modelSnapshot.providerModelName %}<br><span class="rj-admin-muted">{{ r.modelSnapshot.providerModelName }}</span>{% endif %}</td>
+                                <td>{{ r.responseSource|replace({'_': ' '})|lower }}</td>
+                                <td>{% if r.collected %}<span class="eval-status eval-status--ready_for_reviews">collected</span>{% else %}<span class="eval-status eval-status--collecting_responses">pending</span>{% endif %}</td>
+                                <td>
+                                    <div class="rj-item__actions">
+                                        {% if r.liveCollectable %}
+                                            <form method="post" action="/eval/responses/{{ r.publicId }}/collect">
+                                                <button class="rj-btn rj-btn--secondary rj-btn--sm" type="submit"><i data-lucide="sparkles"></i> {{ r.collected ? 'Re-collect' : 'Collect via API' }}</button>
+                                            </form>
+                                        {% endif %}
+                                        <a href="/eval/responses/{{ r.publicId }}/manual" class="rj-btn rj-btn--ghost rj-btn--sm">{{ r.collected ? 'Edit' : 'Enter manually' }}</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
             <p class="rj-admin-muted">API responses are collected in the background — refresh to see results.</p>
         </div>
     </section>

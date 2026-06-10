@@ -36,55 +36,60 @@
     <div class="rj-admin-grid">
         <section class="rj-admin-panel">
             <div class="rj-admin-panel__header"><h2>Invite member</h2></div>
-            <form class="rj-admin-form" method="post" action="/account/orgs/{{ org.id }}/invites">
-                <label>
-                    <span>Email</span>
-                    <input type="email" name="email" required placeholder="person@example.org">
-                </label>
-                <label>
-                    <span>Role</span>
-                    <select name="role">
-                        <option value="MEMBER">Member</option>
-                        <option value="MANAGER">Manager</option>
-                    </select>
-                </label>
-                <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit">
-                    <i data-lucide="plus"></i> Send invite
-                </button>
-            </form>
+            <div class="rj-admin-panel__body">
+                <form class="rj-admin-form" method="post" action="/account/orgs/{{ org.id }}/invites">
+                    <label>
+                        <span>Email</span>
+                        <input type="email" name="email" required placeholder="person@example.org">
+                    </label>
+                    <label>
+                        <span>Role</span>
+                        <select name="role">
+                            <option value="MEMBER">Member</option>
+                            <option value="MANAGER">Manager</option>
+                        </select>
+                    </label>
+                    <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit">
+                        <i data-lucide="plus"></i> Send invite
+                    </button>
+                </form>
+            </div>
         </section>
 
         <section class="rj-admin-panel">
             <div class="rj-admin-panel__header"><h2>Pending invites</h2></div>
-            {% if org.invites|length == 0 %}
-                <p class="rj-admin-empty">No pending invites.</p>
-            {% else %}
-                <div class="rj-table-wrap">
-                    <table class="rj-table rj-admin-table">
-                        <thead>
-                            <tr>
-                                <th>Email</th>
-                                <th>Role</th>
-                                <th>Expires</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for invite in org.invites %}
+            <div class="rj-admin-panel__body">
+                {% if org.invites|length == 0 %}
+                    <p class="rj-admin-empty">No pending invites.</p>
+                {% else %}
+                    <div class="rj-table-wrap">
+                        <table class="rj-table rj-admin-table">
+                            <thead>
                                 <tr>
-                                    <td>{{ invite.email }}</td>
-                                    <td>{{ invite.role|lower }}</td>
-                                    <td class="rj-num">{{ invite.expiresAt|date("M j, Y") }}</td>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Expires</th>
                                 </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            {% endif %}
+                            </thead>
+                            <tbody>
+                                {% for invite in org.invites %}
+                                    <tr>
+                                        <td>{{ invite.email }}</td>
+                                        <td>{{ invite.role|lower }}</td>
+                                        <td class="rj-num">{{ invite.expiresAt|date("M j, Y") }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            </div>
         </section>
     </div>
 
     <section class="rj-admin-panel">
         <div class="rj-admin-panel__header"><h2>Members</h2></div>
+        <div class="rj-admin-panel__body">
         <div class="rj-table-wrap">
             <table class="rj-table rj-admin-table">
                 <thead>
@@ -120,6 +125,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+        </div>
         </div>
     </section>
 {% endblock %}

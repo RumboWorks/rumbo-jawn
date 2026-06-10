@@ -46,7 +46,9 @@
                 <h2>Recent jobs</h2>
                 <a href="/admin/jobs">View all</a>
             </div>
-            {% include "pages/admin/_jobs-table.twig" with { jobs: dashboard.recentJobs, compact: true } %}
+            <div class="rj-admin-panel__body">
+                {% include "pages/admin/_jobs-table.twig" with { jobs: dashboard.recentJobs, compact: true } %}
+            </div>
         </section>
 
         <section class="rj-admin-panel">
@@ -54,7 +56,9 @@
                 <h2>Recent failures</h2>
                 <a href="/admin/failures">View all</a>
             </div>
-            {% include "pages/admin/_jobs-table.twig" with { jobs: dashboard.recentFailures, compact: true } %}
+            <div class="rj-admin-panel__body">
+                {% include "pages/admin/_jobs-table.twig" with { jobs: dashboard.recentFailures, compact: true } %}
+            </div>
         </section>
     </div>
 
@@ -64,7 +68,9 @@
                 <h2>Sounds Like Us runs</h2>
                 <a href="/admin/sounds-like-us">View all</a>
             </div>
-            {% include "pages/admin/_jobs-table.twig" with { jobs: dashboard.recentSluRuns, compact: true } %}
+            <div class="rj-admin-panel__body">
+                {% include "pages/admin/_jobs-table.twig" with { jobs: dashboard.recentSluRuns, compact: true } %}
+            </div>
         </section>
 
         <section class="rj-admin-panel">
@@ -72,37 +78,39 @@
                 <h2>Recent AI calls</h2>
                 <a href="/admin/ai-calls">View all</a>
             </div>
-            {% if dashboard.recentAiCalls|length == 0 %}
-                <p class="rj-admin-empty">No AI calls recorded yet.</p>
-            {% else %}
-                <div class="rj-table-wrap">
-                    <table class="rj-table rj-admin-table">
-                        <thead>
-                            <tr>
-                                <th>Call</th>
-                                <th>Model</th>
-                                <th>Tokens</th>
-                                <th>Cost</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for call in dashboard.recentAiCalls %}
+            <div class="rj-admin-panel__body">
+                {% if dashboard.recentAiCalls|length == 0 %}
+                    <p class="rj-admin-empty">No AI calls recorded yet.</p>
+                {% else %}
+                    <div class="rj-table-wrap">
+                        <table class="rj-table rj-admin-table">
+                            <thead>
                                 <tr>
-                                    <td>
-                                        <strong>{{ call.callType }}</strong>
-                                        {% if call.job %}
-                                            <br><a href="/admin/jobs/{{ call.job.id }}" class="rj-admin-muted">{{ call.job.type }}</a>
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ call.provider }} / {{ call.model }}</td>
-                                    <td class="rj-num">{{ call.totalTokens }}</td>
-                                    <td class="rj-num">${{ call.costUsd|number_format(6, '.', ',') }}</td>
+                                    <th>Call</th>
+                                    <th>Model</th>
+                                    <th>Tokens</th>
+                                    <th>Cost</th>
                                 </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            {% endif %}
+                            </thead>
+                            <tbody>
+                                {% for call in dashboard.recentAiCalls %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ call.callType }}</strong>
+                                            {% if call.job %}
+                                                <br><a href="/admin/jobs/{{ call.job.id }}" class="rj-admin-muted">{{ call.job.type }}</a>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ call.provider }} / {{ call.model }}</td>
+                                        <td class="rj-num">{{ call.totalTokens }}</td>
+                                        <td class="rj-num">${{ call.costUsd|number_format(6, '.', ',') }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            </div>
         </section>
     </div>
 {% endblock %}

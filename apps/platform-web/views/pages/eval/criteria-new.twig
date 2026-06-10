@@ -12,19 +12,22 @@
     {% include "pages/eval/_flash.twig" %}
 
     <section class="rj-admin-panel">
-        <form class="rj-admin-form" method="post" action="/eval/settings/criteria">
-            <label>
-                <span>Title</span>
-                <input type="text" name="title" required autofocus placeholder="e.g. Clarity">
-            </label>
-            <label>
-                <span>Description</span>
-                <input type="text" name="description" placeholder="What reviewers should look for">
-            </label>
-            <div class="rj-form-actions">
-                <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit"><i data-lucide="plus"></i> Add criterion</button>
-                <a class="rj-btn rj-btn--ghost rj-btn--sm" href="/eval/settings/criteria">Cancel</a>
-            </div>
-        </form>
+        <div class="rj-admin-panel__header"><h2>Details</h2></div>
+        <div class="rj-admin-panel__body">
+            <form class="rj-admin-form" method="post" action="/eval/settings/criteria">
+                <label>
+                    <span>Title</span>
+                    <input type="text" name="title" required autofocus placeholder="e.g. Clarity">
+                </label>
+                <label>
+                    <span>Description</span>
+                    <input type="text" name="description" placeholder="What reviewers should look for">
+                </label>
+                <div class="rj-form-actions">
+                    <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit"><i data-lucide="plus"></i> Add criterion</button>
+                    <a class="rj-btn rj-btn--ghost rj-btn--sm" href="/eval/settings/criteria">Cancel</a>
+                </div>
+            </form>
+        </div>
     </section>
 {% endblock %}

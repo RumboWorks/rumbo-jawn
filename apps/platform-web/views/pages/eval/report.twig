@@ -37,33 +37,37 @@
 
     <section class="rj-admin-panel">
         <div class="rj-admin-panel__header"><h2>Summary &amp; recommendation</h2></div>
-        <form class="rj-admin-form" method="post" action="/eval/runs/{{ run.publicId }}/report">
-            <label>
-                <span>Summary</span>
-                <textarea name="summaryText" rows="4" placeholder="What the scores show…">{{ report.summaryText ?? '' }}</textarea>
-            </label>
-            <label>
-                <span>Recommendation</span>
-                <textarea name="recommendationText" rows="3" placeholder="What to do next…">{{ report.recommendationText ?? '' }}</textarea>
-            </label>
-            <div class="rj-form-actions">
-                <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit"><i data-lucide="save"></i> Save report</button>
-            </div>
-        </form>
+        <div class="rj-admin-panel__body">
+            <form class="rj-admin-form" method="post" action="/eval/runs/{{ run.publicId }}/report">
+                <label>
+                    <span>Summary</span>
+                    <textarea name="summaryText" rows="4" placeholder="What the scores show…">{{ report.summaryText ?? '' }}</textarea>
+                </label>
+                <label>
+                    <span>Recommendation</span>
+                    <textarea name="recommendationText" rows="3" placeholder="What to do next…">{{ report.recommendationText ?? '' }}</textarea>
+                </label>
+                <div class="rj-form-actions">
+                    <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit"><i data-lucide="save"></i> Save report</button>
+                </div>
+            </form>
+        </div>
     </section>
 
     <section class="rj-admin-panel">
         <div class="rj-admin-panel__header"><h2>Secure share link</h2></div>
-        <form class="rj-admin-form" method="post" action="/eval/runs/{{ run.publicId }}/report/share">
-            <label class="eval-check">
-                <input type="checkbox" name="enabled"{% if report.secureShareEnabled %} checked{% endif %} onchange="this.form.submit()">
-                <span>Anyone with the link can view this report (read-only, model names hidden)</span>
-            </label>
-            {% if report.secureShareEnabled and report.secureShareToken %}
-                <p class="rj-admin-muted">Share link:
-                    <a href="{{ shareBase }}{{ report.secureShareToken }}">{{ shareBase }}{{ report.secureShareToken }}</a>
-                </p>
-            {% endif %}
-        </form>
+        <div class="rj-admin-panel__body">
+            <form class="rj-admin-form" method="post" action="/eval/runs/{{ run.publicId }}/report/share">
+                <label class="eval-check">
+                    <input type="checkbox" name="enabled"{% if report.secureShareEnabled %} checked{% endif %} onchange="this.form.submit()">
+                    <span>Anyone with the link can view this report (read-only, model names hidden)</span>
+                </label>
+                {% if report.secureShareEnabled and report.secureShareToken %}
+                    <p class="rj-admin-muted">Share link:
+                        <a href="{{ shareBase }}{{ report.secureShareToken }}">{{ shareBase }}{{ report.secureShareToken }}</a>
+                    </p>
+                {% endif %}
+            </form>
+        </div>
     </section>
 {% endblock %}

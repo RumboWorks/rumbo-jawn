@@ -15,39 +15,41 @@
 
     <section class="rj-admin-panel">
         <div class="rj-admin-panel__header"><h2>Configuration</h2></div>
-        <form class="rj-admin-form" method="post" action="/admin/product-controls/feature-flags">
-            {% if flag %}<input type="hidden" name="id" value="{{ flag.id }}">{% endif %}
-            <label>
-                <span>Key</span>
-                <input type="text" name="key" value="{{ flag.key ?? 'slu.enabled' }}" required>
-            </label>
-            <label>
-                <span>Scope</span>
-                <select name="scope">
-                    {% for scope in ['platform', 'tier', 'org'] %}
-                        <option value="{{ scope }}"{% if (flag.scope ?? 'platform') == scope %} selected{% endif %}>{{ scope }}</option>
-                    {% endfor %}
-                </select>
-            </label>
-            <label>
-                <span>Scope ID</span>
-                <input type="text" name="scopeId" value="{{ flag.scopeId ?? '' }}" placeholder="Blank for platform">
-            </label>
-            <label>
-                <span>Tool</span>
-                <input type="text" name="tool" value="{{ flag.tool ?? 'slu' }}">
-            </label>
-            <label class="rj-admin-check">
-                <input type="checkbox" name="enabled"{% if flag is not defined or flag == null or flag.enabled %} checked{% endif %}>
-                <span>Enabled</span>
-            </label>
-            <label>
-                <span>Reason</span>
-                <input type="text" name="reason" placeholder="Optional">
-            </label>
-            <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit">
-                <i data-lucide="save"></i> Save flag
-            </button>
-        </form>
+        <div class="rj-admin-panel__body">
+            <form class="rj-admin-form" method="post" action="/admin/product-controls/feature-flags">
+                {% if flag %}<input type="hidden" name="id" value="{{ flag.id }}">{% endif %}
+                <label>
+                    <span>Key</span>
+                    <input type="text" name="key" value="{{ flag.key ?? 'slu.enabled' }}" required>
+                </label>
+                <label>
+                    <span>Scope</span>
+                    <select name="scope">
+                        {% for scope in ['platform', 'tier', 'org'] %}
+                            <option value="{{ scope }}"{% if (flag.scope ?? 'platform') == scope %} selected{% endif %}>{{ scope }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>
+                    <span>Scope ID</span>
+                    <input type="text" name="scopeId" value="{{ flag.scopeId ?? '' }}" placeholder="Blank for platform">
+                </label>
+                <label>
+                    <span>Tool</span>
+                    <input type="text" name="tool" value="{{ flag.tool ?? 'slu' }}">
+                </label>
+                <label class="rj-admin-check">
+                    <input type="checkbox" name="enabled"{% if flag is not defined or flag == null or flag.enabled %} checked{% endif %}>
+                    <span>Enabled</span>
+                </label>
+                <label>
+                    <span>Reason</span>
+                    <input type="text" name="reason" placeholder="Optional">
+                </label>
+                <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit">
+                    <i data-lucide="save"></i> Save flag
+                </button>
+            </form>
+        </div>
     </section>
 {% endblock %}

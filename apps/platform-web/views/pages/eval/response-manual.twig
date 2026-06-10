@@ -29,15 +29,17 @@
 
     <section class="rj-admin-panel">
         <div class="rj-admin-panel__header"><h2>Model output</h2></div>
-        <form class="rj-admin-form" method="post" action="/eval/responses/{{ response.publicId }}/manual">
-            <label>
-                <span>Paste the model's response</span>
-                <textarea name="responseText" rows="12" required autofocus>{{ response.responseText ?? '' }}</textarea>
-            </label>
-            <div class="rj-form-actions">
-                <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit"><i data-lucide="save"></i> Save response</button>
-                <a class="rj-btn rj-btn--ghost rj-btn--sm" href="/eval/runs/{{ response.evalRun.publicId }}">Cancel</a>
-            </div>
-        </form>
+        <div class="rj-admin-panel__body">
+            <form class="rj-admin-form" method="post" action="/eval/responses/{{ response.publicId }}/manual">
+                <label>
+                    <span>Paste the model's response</span>
+                    <textarea name="responseText" rows="12" required autofocus>{{ response.responseText ?? '' }}</textarea>
+                </label>
+                <div class="rj-form-actions">
+                    <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit"><i data-lucide="save"></i> Save response</button>
+                    <a class="rj-btn rj-btn--ghost rj-btn--sm" href="/eval/runs/{{ response.evalRun.publicId }}">Cancel</a>
+                </div>
+            </form>
+        </div>
     </section>
 {% endblock %}

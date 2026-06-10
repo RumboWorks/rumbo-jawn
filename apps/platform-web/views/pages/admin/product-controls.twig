@@ -20,33 +20,35 @@
                 <i data-lucide="plus"></i> Add
             </a>
         </div>
-        <div class="rj-table-wrap">
-            <table class="rj-table rj-admin-table">
-                <thead>
-                    <tr>
-                        <th>Tool</th>
-                        <th>Call type</th>
-                        <th>Provider / model</th>
-                        <th>Scope</th>
-                        <th>Enabled</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for config in controls.aiModelConfigs %}
+        <div class="rj-admin-panel__body">
+            <div class="rj-table-wrap">
+                <table class="rj-table rj-admin-table">
+                    <thead>
                         <tr>
-                            <td>{{ config.tool }}</td>
-                            <td><a href="/admin/product-controls/ai-model-config/{{ config.id }}">{{ config.callType }}</a></td>
-                            <td>{{ config.provider }}<br><span class="rj-admin-muted">{{ config.model }}</span></td>
-                            <td>{{ config.scope }}{% if config.scopeId %}<br><span class="rj-admin-muted rj-admin-mono">{{ config.scopeId }}</span>{% endif %}</td>
-                            <td>{% if config.enabled %}Yes{% else %}No{% endif %}</td>
-                            <td><a class="rj-btn rj-btn--ghost rj-btn--sm" href="/admin/product-controls/ai-model-config/{{ config.id }}">Edit</a></td>
+                            <th>Tool</th>
+                            <th>Call type</th>
+                            <th>Provider / model</th>
+                            <th>Scope</th>
+                            <th>Enabled</th>
+                            <th></th>
                         </tr>
-                    {% else %}
-                        <tr><td colspan="6" class="rj-table__empty">No model config found.</td></tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {% for config in controls.aiModelConfigs %}
+                            <tr>
+                                <td>{{ config.tool }}</td>
+                                <td><a href="/admin/product-controls/ai-model-config/{{ config.id }}">{{ config.callType }}</a></td>
+                                <td>{{ config.provider }}<br><span class="rj-admin-muted">{{ config.model }}</span></td>
+                                <td>{{ config.scope }}{% if config.scopeId %}<br><span class="rj-admin-muted rj-admin-mono">{{ config.scopeId }}</span>{% endif %}</td>
+                                <td>{% if config.enabled %}Yes{% else %}No{% endif %}</td>
+                                <td><a class="rj-btn rj-btn--ghost rj-btn--sm" href="/admin/product-controls/ai-model-config/{{ config.id }}">Edit</a></td>
+                            </tr>
+                        {% else %}
+                            <tr><td colspan="6" class="rj-table__empty">No model config found.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </section>
 
@@ -57,36 +59,40 @@
                 <i data-lucide="plus"></i> Add
             </a>
         </div>
-        <div class="rj-table-wrap">
-            <table class="rj-table rj-admin-table">
-                <thead>
-                    <tr>
-                        <th>Key</th>
-                        <th>Scope</th>
-                        <th>Tool</th>
-                        <th>Enabled</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for flag in controls.featureFlags %}
+        <div class="rj-admin-panel__body">
+            <div class="rj-table-wrap">
+                <table class="rj-table rj-admin-table">
+                    <thead>
                         <tr>
-                            <td><a href="/admin/product-controls/feature-flags/{{ flag.id }}">{{ flag.key }}</a></td>
-                            <td>{{ flag.scope }}{% if flag.scopeId %}<br><span class="rj-admin-muted rj-admin-mono">{{ flag.scopeId }}</span>{% endif %}</td>
-                            <td>{% if flag.tool %}{{ flag.tool }}{% else %}<span class="rj-admin-muted">Any</span>{% endif %}</td>
-                            <td>{% if flag.enabled %}Yes{% else %}No{% endif %}</td>
-                            <td><a class="rj-btn rj-btn--ghost rj-btn--sm" href="/admin/product-controls/feature-flags/{{ flag.id }}">Edit</a></td>
+                            <th>Key</th>
+                            <th>Scope</th>
+                            <th>Tool</th>
+                            <th>Enabled</th>
+                            <th></th>
                         </tr>
-                    {% else %}
-                        <tr><td colspan="5" class="rj-table__empty">No feature flags found.</td></tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {% for flag in controls.featureFlags %}
+                            <tr>
+                                <td><a href="/admin/product-controls/feature-flags/{{ flag.id }}">{{ flag.key }}</a></td>
+                                <td>{{ flag.scope }}{% if flag.scopeId %}<br><span class="rj-admin-muted rj-admin-mono">{{ flag.scopeId }}</span>{% endif %}</td>
+                                <td>{% if flag.tool %}{{ flag.tool }}{% else %}<span class="rj-admin-muted">Any</span>{% endif %}</td>
+                                <td>{% if flag.enabled %}Yes{% else %}No{% endif %}</td>
+                                <td><a class="rj-btn rj-btn--ghost rj-btn--sm" href="/admin/product-controls/feature-flags/{{ flag.id }}">Edit</a></td>
+                            </tr>
+                        {% else %}
+                            <tr><td colspan="5" class="rj-table__empty">No feature flags found.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </section>
 
     <section class="rj-admin-panel">
         <div class="rj-admin-panel__header"><h2>Recent product-control changes</h2></div>
-        {% include "pages/admin/_audit-table.twig" with { auditLogs: controls.auditLogs } %}
+        <div class="rj-admin-panel__body">
+            {% include "pages/admin/_audit-table.twig" with { auditLogs: controls.auditLogs } %}
+        </div>
     </section>
 {% endblock %}
