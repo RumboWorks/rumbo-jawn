@@ -1,0 +1,33 @@
+{# Profile row: read-only display + inline edit form. Needs `account` in scope
+   (the account page and the AJAX save both provide it). #}
+<div class="rj-item" data-inline-edit>
+    <div class="rj-item__display" data-edit-display>
+        <div class="rj-item__main">
+            <div class="rj-item__title">{{ account.firstName }} {{ account.lastName }}</div>
+            <div class="rj-item__meta">{{ account.email }}</div>
+        </div>
+        <div class="rj-item__actions">
+            <button type="button" class="rj-btn rj-btn--ghost rj-btn--sm" data-edit-start>
+                <i data-lucide="pencil"></i> Edit
+            </button>
+        </div>
+    </div>
+    <form class="rj-item__edit" method="post" action="/account/profile" data-edit-form hidden>
+        <label>
+            <span>First name</span>
+            <input type="text" name="firstName" value="{{ account.firstName ?? '' }}" required autocomplete="given-name">
+        </label>
+        <label>
+            <span>Last name</span>
+            <input type="text" name="lastName" value="{{ account.lastName ?? '' }}" required autocomplete="family-name">
+        </label>
+        <label>
+            <span>Email</span>
+            <input type="email" name="email" value="{{ account.email }}" required>
+        </label>
+        <div class="rj-item__edit-actions">
+            <button type="submit" class="rj-btn rj-btn--secondary rj-btn--sm"><i data-lucide="save"></i> Save</button>
+            <button type="button" class="rj-btn rj-btn--ghost rj-btn--sm" data-edit-cancel>Cancel</button>
+        </div>
+    </form>
+</div>

@@ -1,9 +1,13 @@
-{% extends "layouts/base.twig" %}
+{% extends "layouts/app.twig" %}
 
 {% block title %}{{ title }} — Sounds Like Us{% endblock %}
 
+{% block sidebar %}
+    {% include "pages/slu/_sidebar.twig" with { active: 'analyze' } %}
+{% endblock %}
+
 {% block content %}
-<div class="rj-container slu-page">
+<div class="slu-page">
 
     <div class="slu-job-header">
         <p class="rj-eyebrow">Sounds Like Us</p>

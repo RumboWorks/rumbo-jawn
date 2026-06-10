@@ -3,22 +3,14 @@
 {% block title %}{{ org.name }} members — Rumbo{% endblock %}
 
 {% block sidebar %}
-    <span class="rj-sidebar__label">Account</span>
-    <div class="rj-sidebar__section">
-        <a href="/account" class="rj-sidebar__link">
-            <i data-lucide="user"></i> Profile
-        </a>
-        <a href="/account/orgs/{{ org.id }}/members" class="rj-sidebar__link is-active">
-            <i data-lucide="users"></i> {{ org.name }}
-        </a>
-    </div>
+    {% include "pages/account/_sidebar.twig" with { org: org, active: org.id } %}
 {% endblock %}
 
 {% block content %}
-    <div class="rj-page-header">
-        <h1>{{ org.name }}</h1>
-        <p>Manage members and invitations.</p>
-    </div>
+    {% include "partials/page-header.twig" with {
+        heading: org.name,
+        subtitle: 'Manage members and invitations.'
+    } %}
 
     {% if flash_error %}
         <div class="rj-alert rj-alert--danger">
@@ -90,42 +82,15 @@
     <section class="rj-admin-panel">
         <div class="rj-admin-panel__header"><h2>Members</h2></div>
         <div class="rj-admin-panel__body">
-        <div class="rj-table-wrap">
-            <table class="rj-table rj-admin-table">
-                <thead>
-                    <tr>
-                        <th>User</th>
-                        <th>Role</th>
-                        <th>Joined</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
+            {% if org.memberships|length == 0 %}
+                <p class="rj-admin-empty">No members found.</p>
+            {% else %}
+                <div class="rj-list">
                     {% for membership in org.memberships %}
-                        <tr>
-                            <td>{{ membership.user.email }}<br><span class="rj-admin-muted">{{ membership.user.name ?? 'No name' }}</span></td>
-                            <td>
-                                <form method="post" action="/account/orgs/{{ org.id }}/memberships/{{ membership.id }}/role" class="rj-admin-inline-form">
-                                    <select name="role">
-                                        <option value="MEMBER"{% if membership.role == 'MEMBER' %} selected{% endif %}>Member</option>
-                                        <option value="MANAGER"{% if membership.role == 'MANAGER' %} selected{% endif %}>Manager</option>
-                                    </select>
-                                    <button class="rj-btn rj-btn--secondary rj-btn--sm" type="submit">Update</button>
-                                </form>
-                            </td>
-                            <td class="rj-num">{{ membership.createdAt|date("M j, Y") }}</td>
-                            <td>
-                                <form method="post" action="/account/orgs/{{ org.id }}/memberships/{{ membership.id }}/remove">
-                                    <button class="rj-btn rj-btn--ghost rj-btn--sm" type="submit">Remove</button>
-                                </form>
-                            </td>
-                        </tr>
-                    {% else %}
-                        <tr><td colspan="4" class="rj-table__empty">No members found.</td></tr>
+                        {% include "pages/account/_member-row.twig" %}
                     {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                </div>
+            {% endif %}
         </div>
     </section>
 {% endblock %}

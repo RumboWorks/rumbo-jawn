@@ -1,17 +1,22 @@
-{% extends "layouts/base.twig" %}
+{% extends "layouts/app.twig" %}
 
 {% block title %}Your analyses — Sounds Like Us{% endblock %}
 
-{% block content %}
-<div class="rj-container slu-page">
+{% block sidebar %}
+    {% include "pages/slu/_sidebar.twig" with { active: 'history' } %}
+{% endblock %}
 
-    <div class="slu-hero">
-        <p class="rj-eyebrow">Sounds Like Us</p>
-        <h1 class="rj-h1">Your analyses</h1>
-    </div>
+{% block content %}
+    {% include "partials/page-header.twig" with {
+        heading: 'Your analyses',
+        subtitle: 'Past Sounds Like Us runs and their guidance.',
+        action: { label: 'New analysis', href: '/slu', icon: 'plus' }
+    } %}
 
     {% if jobs|length == 0 %}
-        <p class="rj-body-sm rj-placeholder-note">No analyses yet. <a href="/slu">Analyze an organization.</a></p>
+        <div class="rj-list">
+            <p class="rj-list__empty">No analyses yet. <a href="/slu">Analyze an organization</a>.</p>
+        </div>
     {% else %}
     <div class="rj-table-wrap">
         <table class="rj-table">
@@ -55,12 +60,4 @@
         </table>
     </div>
     {% endif %}
-
-    <div style="margin-top: var(--rj-space-6)">
-        <a href="/slu" class="rj-btn rj-btn--primary rj-btn--sm">
-            <i data-lucide="plus"></i> New analysis
-        </a>
-    </div>
-
-</div>
 {% endblock %}

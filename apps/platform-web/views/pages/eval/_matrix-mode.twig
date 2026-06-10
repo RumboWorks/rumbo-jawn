@@ -2,8 +2,8 @@
    Pass `hideable: true` where it should be hidden on non-matrix tabs (e.g. Trend). #}
 <div class="eval-matrix-footer"{% if hideable %} data-matrix-footer{% endif %}>
     <span class="rj-admin-muted">Score: low 1 → 5 high</span>
-    <div class="slu-wb__segmented eval-mode-switch" role="radiogroup" aria-label="Matrix display mode" data-rank-switch>
-        <button type="button" class="slu-wb__seg-btn is-active" data-mode="score"><span class="slu-wb__seg-label">Score</span></button>
-        <button type="button" class="slu-wb__seg-btn" data-mode="rank"><span class="slu-wb__seg-label">Rank</span></button>
+    <div class="rj-segmented eval-mode-switch" role="radiogroup" aria-label="Matrix display mode" data-rank-switch>
+        <button type="button" class="rj-segmented__btn is-active" data-mode="score"><span class="rj-segmented__label">Score</span></button>
+        <button type="button" class="rj-segmented__btn" data-mode="rank"><span class="rj-segmented__label">Rank</span></button>
     </div>
 </div>

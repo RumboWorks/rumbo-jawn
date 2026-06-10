@@ -1,0 +1,35 @@
+{# One org-member row: read-only display + inline role edit. Needs `org` and
+   `membership` in scope (the members page and the AJAX save both provide them). #}
+<div class="rj-item" data-inline-edit>
+    <div class="rj-item__display" data-edit-display>
+        <div class="rj-item__main">
+            <div class="rj-item__title">{{ membership.user.name ?? membership.user.email }}</div>
+            <div class="rj-item__meta">
+                {{ membership.user.email }}
+                · {{ membership.role|lower }}
+                · joined {{ membership.createdAt|date("M j, Y") }}
+            </div>
+        </div>
+        <div class="rj-item__actions">
+            <button type="button" class="rj-btn rj-btn--ghost rj-btn--sm" data-edit-start>
+                <i data-lucide="pencil"></i> Edit
+            </button>
+            <form method="post" action="/account/orgs/{{ org.id }}/memberships/{{ membership.id }}/remove" data-inline-remove>
+                <button type="submit" class="rj-btn rj-btn--ghost rj-btn--sm">Remove</button>
+            </form>
+        </div>
+    </div>
+    <form class="rj-item__edit" method="post" action="/account/orgs/{{ org.id }}/memberships/{{ membership.id }}/role" data-edit-form hidden>
+        <label>
+            <span>Role</span>
+            <select name="role">
+                <option value="MEMBER"{% if membership.role == 'MEMBER' %} selected{% endif %}>Member</option>
+                <option value="MANAGER"{% if membership.role == 'MANAGER' %} selected{% endif %}>Manager</option>
+            </select>
+        </label>
+        <div class="rj-item__edit-actions">
+            <button type="submit" class="rj-btn rj-btn--secondary rj-btn--sm"><i data-lucide="save"></i> Save</button>
+            <button type="button" class="rj-btn rj-btn--ghost rj-btn--sm" data-edit-cancel>Cancel</button>
+        </div>
+    </form>
+</div>

@@ -7,6 +7,22 @@
   @media (min-width: 768px) { padding-inline: var(--rj-space-8); }
 }
 
+// ---- Error page (404/403/500) ----
+
+.rj-error-page {
+  padding-block: var(--rj-space-10, 4rem);
+  text-align: center;
+
+  .rj-lead { margin-top: var(--rj-space-2); color: var(--rj-fg-2); }
+}
+
+.rj-error-page__actions {
+  display: flex;
+  justify-content: center;
+  gap: var(--rj-space-3);
+  margin-top: var(--rj-space-6);
+}
+
 // ---- Public page shell ----
 
 body { display: flex; flex-direction: column; min-height: 100vh; }

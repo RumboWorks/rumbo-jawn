@@ -23,6 +23,14 @@ function redirectBack(req, res, fallback) {
   res.redirect(req.get('Referer') || fallback);
 }
 
+const isAjax = req => req.xhr || (req.get('X-Requested-With') === 'XMLHttpRequest');
+
+function renderRow(res, view, locals) {
+  return new Promise((resolve, reject) => {
+    res.render(view, locals, (err, html) => (err ? reject(err) : resolve(html)));
+  });
+}
+
 router.use(requireAuth);
 
 router.get('/', asyncHandler(async (req, res) => {
@@ -44,8 +52,14 @@ router.post('/profile', asyncHandler(async (req, res) => {
       lastName: req.body.lastName,
       email: req.body.email,
     });
+    if (isAjax(req)) {
+      const account = await getAccountOverview(req.user.id);
+      const rowHtml = await renderRow(res, 'pages/account/_profile-row', { account });
+      return res.json({ ok: true, rowHtml });
+    }
     req.session.flash_success = 'Profile updated.';
   } catch (err) {
+    if (isAjax(req)) return res.status(422).json({ ok: false, error: err.message });
     req.session.flash_error = err.message;
   }
   res.redirect('/account');
@@ -57,8 +71,14 @@ router.post('/password', asyncHandler(async (req, res) => {
       currentPassword: req.body.currentPassword,
       newPassword: req.body.newPassword,
     });
+    if (isAjax(req)) {
+      const account = await getAccountOverview(req.user.id);
+      const rowHtml = await renderRow(res, 'pages/account/_password-row', { account });
+      return res.json({ ok: true, rowHtml });
+    }
     req.session.flash_success = 'Password updated.';
   } catch (err) {
+    if (isAjax(req)) return res.status(422).json({ ok: false, error: err.message });
     req.session.flash_error = err.message;
   }
   res.redirect('/account');
@@ -126,8 +146,16 @@ router.post('/orgs/:orgId/memberships/:membershipId/role', asyncHandler(async (r
       actorRole,
       reason: req.body.reason || null,
     });
+    if (isAjax(req)) {
+      const { org } = await getManagedOrganization({ user: req.user, orgId: req.params.orgId });
+      const membership = org?.memberships.find(m => m.id === req.params.membershipId);
+      if (!membership) return res.status(404).json({ ok: false, error: 'Membership not found.' });
+      const rowHtml = await renderRow(res, 'pages/account/_member-row', { org, membership });
+      return res.json({ ok: true, rowHtml });
+    }
     req.session.flash_success = 'Member role updated.';
   } catch (err) {
+    if (isAjax(req)) return res.status(422).json({ ok: false, error: err.message });
     req.session.flash_error = err.message;
   }
   redirectBack(req, res, `/account/orgs/${req.params.orgId}/members`);
@@ -143,8 +171,10 @@ router.post('/orgs/:orgId/memberships/:membershipId/remove', asyncHandler(async 
       actorRole,
       reason: req.body.reason || null,
     });
+    if (isAjax(req)) return res.json({ ok: true, removed: true });
     req.session.flash_success = 'Member removed.';
   } catch (err) {
+    if (isAjax(req)) return res.status(422).json({ ok: false, error: err.message });
     req.session.flash_error = err.message;
   }
   redirectBack(req, res, `/account/orgs/${req.params.orgId}/members`);

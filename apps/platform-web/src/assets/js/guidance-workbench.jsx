@@ -270,7 +270,7 @@ function RadioGroup({ name, options, value, onChange, vertical }) {
     const container = containerRef.current;
     const indicator = indicatorRef.current;
     if (!container || !indicator) return;
-    const activeBtn = container.querySelector('.slu-wb__seg-btn.is-active');
+    const activeBtn = container.querySelector('.rj-segmented__btn.is-active');
     if (!activeBtn) { indicator.style.opacity = '0'; return; }
     const cr = container.getBoundingClientRect();
     const br = activeBtn.getBoundingClientRect();
@@ -299,24 +299,24 @@ function RadioGroup({ name, options, value, onChange, vertical }) {
     return () => cancelAnimationFrame(raf);
   }, [slideIndicator]);
 
-  const segmentedClass = 'slu-wb__segmented' + (vertical ? ' slu-wb__segmented--vertical' : '');
+  const segmentedClass = 'rj-segmented' + (vertical ? ' rj-segmented--vertical' : '');
 
   return (
     <>
       <div className={segmentedClass} ref={containerRef} role="radiogroup">
-        <span className="slu-wb__seg-indicator" ref={indicatorRef} aria-hidden="true" />
+        <span className="rj-segmented__indicator" ref={indicatorRef} aria-hidden="true" />
         {options.map(opt => (
           <button
             key={opt.value}
             type="button"
-            className={`slu-wb__seg-btn${value === opt.value ? ' is-active' : ''}`}
+            className={`rj-segmented__btn${value === opt.value ? ' is-active' : ''}`}
             onClick={() => onChange(opt.value)}
           >
-            <span className="slu-wb__seg-label">{opt.label}</span>
+            <span className="rj-segmented__label">{opt.label}</span>
           </button>
         ))}
       </div>
-      {activeDesc && <p className="slu-wb__seg-active-desc">{activeDesc}</p>}
+      {activeDesc && <p className="rj-segmented__desc">{activeDesc}</p>}
     </>
   );
 }
@@ -330,7 +330,7 @@ function SegmentedControl({ options, value, onChange }) {
     const container = containerRef.current;
     const indicator = indicatorRef.current;
     if (!container || !indicator) return;
-    const activeBtn = container.querySelector('.slu-wb__seg-btn.is-active');
+    const activeBtn = container.querySelector('.rj-segmented__btn.is-active');
     if (!activeBtn) { indicator.style.opacity = '0'; return; }
     const cr = container.getBoundingClientRect();
     const br = activeBtn.getBoundingClientRect();
@@ -356,20 +356,20 @@ function SegmentedControl({ options, value, onChange }) {
 
   return (
     <>
-      <div className="slu-wb__segmented" ref={containerRef}>
-        <span className="slu-wb__seg-indicator" ref={indicatorRef} aria-hidden="true" />
+      <div className="rj-segmented" ref={containerRef}>
+        <span className="rj-segmented__indicator" ref={indicatorRef} aria-hidden="true" />
         {options.map(opt => (
           <button
             key={opt.value}
             type="button"
-            className={`slu-wb__seg-btn${value === opt.value ? ' is-active' : ''}`}
+            className={`rj-segmented__btn${value === opt.value ? ' is-active' : ''}`}
             onClick={() => onChange(opt.value)}
           >
-            <span className="slu-wb__seg-label">{opt.label}</span>
+            <span className="rj-segmented__label">{opt.label}</span>
           </button>
         ))}
       </div>
-      {activeDesc && <p className="slu-wb__seg-active-desc">{activeDesc}</p>}
+      {activeDesc && <p className="rj-segmented__desc">{activeDesc}</p>}
     </>
   );
 }
@@ -382,7 +382,7 @@ function ViewModeSwitch({ value, onChange }) {
     const container = containerRef.current;
     const indicator = indicatorRef.current;
     if (!container || !indicator) return;
-    const activeBtn = container.querySelector('.slu-wb__seg-btn.is-active');
+    const activeBtn = container.querySelector('.rj-segmented__btn.is-active');
     if (!activeBtn) { indicator.style.opacity = '0'; return; }
     const cr = container.getBoundingClientRect();
     const br = activeBtn.getBoundingClientRect();
@@ -407,17 +407,17 @@ function ViewModeSwitch({ value, onChange }) {
   }, [slideIndicator]);
 
   return (
-    <div className="slu-wb__segmented slu-wb__view-switch" ref={containerRef} role="group" aria-label="Guidance view mode">
-      <span className="slu-wb__seg-indicator" ref={indicatorRef} aria-hidden="true" />
+    <div className="rj-segmented slu-wb__view-switch" ref={containerRef} role="group" aria-label="Guidance view mode">
+      <span className="rj-segmented__indicator" ref={indicatorRef} aria-hidden="true" />
       {GUIDANCE_VIEW_MODES.map(opt => (
         <button
           key={opt.value}
           type="button"
-          className={`slu-wb__seg-btn${value === opt.value ? ' is-active' : ''}`}
+          className={`rj-segmented__btn${value === opt.value ? ' is-active' : ''}`}
           onClick={() => onChange(opt.value)}
           aria-pressed={value === opt.value}
         >
-          <span className="slu-wb__seg-label">{opt.label}</span>
+          <span className="rj-segmented__label">{opt.label}</span>
         </button>
       ))}
     </div>

@@ -302,9 +302,9 @@ function setMatrixMode(matrix, isRank) {
 document.querySelectorAll('[data-rank-switch]').forEach((rankSwitch) => {
   const scope = rankSwitch.closest('[data-matrix-scope]') || document;
   const matrices = Array.from(scope.querySelectorAll('[data-eval-matrix]'));
-  rankSwitch.querySelectorAll('.slu-wb__seg-btn').forEach((button) => {
+  rankSwitch.querySelectorAll('.rj-segmented__btn').forEach((button) => {
     button.addEventListener('click', () => {
-      rankSwitch.querySelectorAll('.slu-wb__seg-btn').forEach(b => b.classList.toggle('is-active', b === button));
+      rankSwitch.querySelectorAll('.rj-segmented__btn').forEach(b => b.classList.toggle('is-active', b === button));
       const isRank = button.dataset.mode === 'rank';
       matrices.forEach(m => setMatrixMode(m, isRank));
     });

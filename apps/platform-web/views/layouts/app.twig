@@ -83,11 +83,12 @@
                 </button>
             </div>
         </nav>
-        <main class="rj-app-content">
+        <main class="rj-app-content{% block content_class %}{% endblock %}">
             {% block content %}{% endblock %}
         </main>
     </div>
 
     <script type="module" src="/dist/main.js"></script>
+    {% block scripts %}{% endblock %}
 </body>
 </html>

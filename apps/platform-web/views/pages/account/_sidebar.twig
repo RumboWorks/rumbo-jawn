@@ -1,0 +1,21 @@
+{# Account sidebar. Needs `account` (overview) OR `org` (members page) plus
+   `active` ('profile' or an org id). #}
+<span class="rj-sidebar__label">Account</span>
+<div class="rj-sidebar__section">
+    <a href="/account" class="rj-sidebar__link{% if active == 'profile' %} is-active{% endif %}">
+        <i data-lucide="user"></i> Profile
+    </a>
+    {% if account is defined and account %}
+        {% for membership in account.visibleMemberships %}
+            {% if membership.role == 'MANAGER' %}
+                <a href="/account/orgs/{{ membership.org.id }}/members" class="rj-sidebar__link{% if active == membership.org.id %} is-active{% endif %}">
+                    <i data-lucide="users"></i> {{ membership.org.name }}
+                </a>
+            {% endif %}
+        {% endfor %}
+    {% elseif org is defined and org %}
+        <a href="/account/orgs/{{ org.id }}/members" class="rj-sidebar__link{% if active == org.id %} is-active{% endif %}">
+            <i data-lucide="users"></i> {{ org.name }}
+        </a>
+    {% endif %}
+</div>

@@ -3,26 +3,14 @@
 {% block title %}Account — Rumbo{% endblock %}
 
 {% block sidebar %}
-    <span class="rj-sidebar__label">Account</span>
-    <div class="rj-sidebar__section">
-        <a href="/account" class="rj-sidebar__link is-active">
-            <i data-lucide="user"></i> Profile
-        </a>
-        {% for membership in account.visibleMemberships %}
-            {% if membership.role == 'MANAGER' %}
-                <a href="/account/orgs/{{ membership.org.id }}/members" class="rj-sidebar__link">
-                    <i data-lucide="users"></i> {{ membership.org.name }}
-                </a>
-            {% endif %}
-        {% endfor %}
-    </div>
+    {% include "pages/account/_sidebar.twig" with { account: account, active: 'profile' } %}
 {% endblock %}
 
 {% block content %}
-    <div class="rj-page-header">
-        <h1>{{ currentUserFirstName }}'s account</h1>
-        <p>Manage your profile, password, and access.</p>
-    </div>
+    {% include "partials/page-header.twig" with {
+        heading: currentUserFirstName ~ "'s account",
+        subtitle: 'Manage your profile, password, and access.'
+    } %}
 
     {% if flash_error %}
         <div class="rj-alert rj-alert--danger">
@@ -37,53 +25,15 @@
         </div>
     {% endif %}
 
-    <div class="rj-admin-detail-grid">
-        <section class="rj-admin-panel">
-            <div class="rj-admin-panel__header"><h2>Profile</h2></div>
-            <div class="rj-admin-panel__body">
-                <form class="rj-admin-form" method="post" action="/account/profile">
-                    <label>
-                        <span>First name</span>
-                        <input type="text" name="firstName" value="{{ account.firstName ?? '' }}" required autocomplete="given-name">
-                    </label>
-                    <label>
-                        <span>Last name</span>
-                        <input type="text" name="lastName" value="{{ account.lastName ?? '' }}" required autocomplete="family-name">
-                    </label>
-                    <label>
-                        <span>Email</span>
-                        <input type="email" name="email" value="{{ account.email }}" required>
-                    </label>
-                    <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit">
-                        <i data-lucide="save"></i> Save profile
-                    </button>
-                </form>
+    <section class="rj-admin-panel">
+        <div class="rj-admin-panel__header"><h2>Sign-in</h2></div>
+        <div class="rj-admin-panel__body">
+            <div class="rj-list">
+                {% include "pages/account/_profile-row.twig" %}
+                {% include "pages/account/_password-row.twig" %}
             </div>
-        </section>
-
-        <section class="rj-admin-panel">
-            <div class="rj-admin-panel__header"><h2>Password</h2></div>
-            <div class="rj-admin-panel__body">
-                {% if account.hasPassword %}
-                    <form class="rj-admin-form" method="post" action="/account/password">
-                        <label>
-                            <span>Current password</span>
-                            <input type="password" name="currentPassword" autocomplete="current-password" required>
-                        </label>
-                        <label>
-                            <span>New password</span>
-                            <input type="password" name="newPassword" autocomplete="new-password" minlength="8" required>
-                        </label>
-                        <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit">
-                            <i data-lucide="save"></i> Change password
-                        </button>
-                    </form>
-                {% else %}
-                    <p class="rj-admin-empty">This account signs in with {{ account.authProviders|join(', ') }}.</p>
-                {% endif %}
-            </div>
-        </section>
-    </div>
+        </div>
+    </section>
 
     <section class="rj-admin-panel">
         <div class="rj-admin-panel__header"><h2>Access</h2></div>

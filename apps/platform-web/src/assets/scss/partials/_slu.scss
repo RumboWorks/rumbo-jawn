@@ -387,115 +387,13 @@
   }
 }
 
-// ---- Pill-button segmented controls (unified) ----
-// Used for guidance task, length/detail, reading level, and best-practice packs.
-// Options sit in a horizontal row; the active one slides visually via CSS transitions.
-// Sub-text renders beneath the label in a smaller colour.
-
-// ---- Sliding-indicator segmented controls (unified) ----
-// A physical .slu-wb__seg-indicator element slides behind the active
-// button. JS measures the active button's offset and updates the
-// indicator's width and translateX; CSS transition animates the move.
-
-.slu-wb__segmented {
-  position: relative;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 3px;
-  background: var(--rj-bg-sunken);
-  border: 1px solid var(--rj-border);
-  border-radius: var(--rj-radius-pill);
-  padding: 3px;
-}
-
-.slu-wb__seg-indicator {
-  position: absolute;
-  top: 3px;
-  bottom: 3px;
-  left: 0;
-  width: 0;
-  background: var(--rj-bg-raised);
-  border-radius: var(--rj-radius-pill);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.10), 0 1px 1px rgba(0,0,0,0.06);
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0;
-  transition:
-    transform var(--rj-dur-slow) var(--rj-ease),
-    width var(--rj-dur-slow) var(--rj-ease),
-    opacity var(--rj-dur-fast) var(--rj-ease);
-}
-
-.slu-wb__seg-btn {
-  position: relative;
-  z-index: 1;
-  flex: 1 1 0;
-  min-width: 0;
-  padding: var(--rj-space-2) var(--rj-space-2);
-  border: none;
-  background: transparent;
-  border-radius: var(--rj-radius-pill);
-  font-size: var(--rj-text-sm);
-  font-weight: var(--rj-weight-medium);
-  color: var(--rj-fg-3);
-  cursor: pointer;
-  transition: color var(--rj-dur) var(--rj-ease);
-  text-align: center;
-  line-height: 1.3;
-
-  &.is-active {
-    color: var(--rj-fg);
-    font-weight: var(--rj-weight-semibold);
-  }
-
-  &:hover:not(.is-active) { color: var(--rj-fg); }
-}
-
-.slu-wb__seg-label {
-  display: block;
-}
-
-// ---- Active-option description (appears below the segmented control) ----
-
-.slu-wb__seg-active-desc {
-  margin: var(--rj-space-2) 0 0;
-  font-size: 11px;
-  line-height: 1.4;
-  color: var(--rj-fg-3);
-}
-
-// ---- Vertical variant (stacked, slides up/down) ----
-
-.slu-wb__segmented--vertical {
-  flex-direction: column;
-  flex-wrap: nowrap;
-  border-radius: var(--rj-radius-md);
-
-  .slu-wb__seg-indicator {
-    top: 0;
-    left: 3px;
-    right: 3px;
-    bottom: auto;
-    width: auto;
-    height: 0;
-    border-radius: calc(var(--rj-radius-md) - 2px);
-    transition:
-      transform var(--rj-dur-slow) var(--rj-ease),
-      height var(--rj-dur-slow) var(--rj-ease),
-      opacity var(--rj-dur-fast) var(--rj-ease);
-  }
-
-  .slu-wb__seg-btn {
-    flex: 0 0 auto;
-    text-align: left;
-    padding: var(--rj-space-2) var(--rj-space-3);
-  }
-}
+// Segmented controls are the shared rj-segmented component (_segmented.scss).
+// SLU only keeps its workbench-specific sizing variant.
 
 .slu-wb__view-switch {
   min-width: 210px;
 
-  .slu-wb__seg-label {
+  .rj-segmented__label {
     white-space: nowrap;
   }
 }

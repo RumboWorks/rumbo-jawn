@@ -655,14 +655,14 @@
   min-height: 280px;
 }
 
-// Score / Rank segmented switch (reuses .slu-wb__segmented look; static
-// active background instead of the React-measured sliding indicator, so it
-// works inside hidden tab panels too).
+// Score / Rank segmented switch (shared rj-segmented; static active background
+// instead of the JS-measured sliding indicator, so it works inside hidden tab
+// panels too).
 .eval-mode-switch {
   flex: 0 0 auto;
   min-width: 168px;
 
-  .slu-wb__seg-btn.is-active {
+  .rj-segmented__btn.is-active {
     background: var(--rj-bg-raised);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.10), 0 1px 1px rgba(0, 0, 0, 0.06);
   }

@@ -1,9 +1,13 @@
-{% extends "layouts/base.twig" %}
+{% extends currentUser ? "layouts/app.twig" : "layouts/base.twig" %}
 
 {% block title %}Sounds Like Us — Rumbo{% endblock %}
 
+{% block sidebar %}
+    {% include "pages/slu/_sidebar.twig" with { active: 'analyze' } %}
+{% endblock %}
+
 {% block content %}
-<div class="rj-container slu-page">
+<div class="{% if not currentUser %}rj-container {% endif %}slu-page">
 
     <div class="slu-hero">
         <p class="rj-eyebrow">Sounds Like Us</p>
@@ -46,14 +50,6 @@
             </button>
         </form>
     </div>
-
-    {% if currentUser %}
-    <div class="slu-history-link">
-        <a href="/slu/history" class="rj-btn rj-btn--ghost rj-btn--sm">
-            <i data-lucide="clock"></i> View past analyses
-        </a>
-    </div>
-    {% endif %}
 
 </div>
 {% endblock %}

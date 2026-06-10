@@ -202,17 +202,26 @@ test('account page supports profile and password edits', async ({ page }) => {
   await expect(page.locator('h1')).toContainText("Account's account");
   await expect(page.locator('text=No team organizations.')).toBeVisible();
 
-  await page.fill('form[action="/account/profile"] input[name="firstName"]', 'Account');
-  await page.fill('form[action="/account/profile"] input[name="lastName"]', 'Edited');
-  await page.fill('form[action="/account/profile"] input[name="email"]', nextEmail);
-  await page.locator('form[action="/account/profile"] button[type="submit"]').click();
-  await expect(page.locator('text=Profile updated.')).toBeVisible();
-  await expect(page.locator('input[name="email"]').first()).toHaveValue(nextEmail);
+  // Inline-edit round trip: the profile row flips to a form, saves over fetch,
+  // and swaps back to an updated display row.
+  const profileRow = page.locator('[data-inline-edit]:has(form[action="/account/profile"])');
+  await profileRow.locator('[data-edit-start]').click();
+  await profileRow.locator('input[name="firstName"]').fill('Account');
+  await profileRow.locator('input[name="lastName"]').fill('Edited');
+  await profileRow.locator('input[name="email"]').fill(nextEmail);
+  await profileRow.locator('form[data-edit-form] button[type="submit"]').click();
+  await expect(page.locator('[data-inline-edit]:has(form[action="/account/profile"]) [data-edit-display]'))
+    .toContainText(nextEmail);
+  await expect(page.locator('[data-inline-edit]:has(form[action="/account/profile"]) [data-edit-display]'))
+    .toContainText('Account Edited');
 
-  await page.fill('form[action="/account/password"] input[name="currentPassword"]', 'testpass99');
-  await page.fill('form[action="/account/password"] input[name="newPassword"]', 'newpass99');
-  await page.locator('form[action="/account/password"] button[type="submit"]').click();
-  await expect(page.locator('text=Password updated.')).toBeVisible();
+  const passwordRow = page.locator('[data-inline-edit]:has(form[action="/account/password"])');
+  await passwordRow.locator('[data-edit-start]').click();
+  await passwordRow.locator('input[name="currentPassword"]').fill('testpass99');
+  await passwordRow.locator('input[name="newPassword"]').fill('newpass99');
+  await passwordRow.locator('form[data-edit-form] button[type="submit"]').click();
+  await expect(page.locator('[data-inline-edit]:has(form[action="/account/password"]) [data-edit-display]'))
+    .toBeVisible();
 
   await page.goto('/auth/logout');
   await page.goto('/login');
@@ -483,6 +492,19 @@ test('SLU: URL input pre-fills after returning from auth', async ({ page }) => {
   // Should land on /slu (returnTo set to /slu)
   await expect(page).toHaveURL('/slu');
   await screenshot(page, '13-slu-after-auth');
+});
+
+test('SLU: signed-in users get the app shell with the SLU sidebar', async ({ page }) => {
+  const email = `slu-shell-${Date.now()}@example.org`;
+  await registerUser(page, { name: 'Shell User', email, password: 'testpass99' });
+
+  await page.goto('/slu');
+  await expect(page.locator('.rj-sidebar__link', { hasText: 'Analyze' })).toBeVisible();
+  await expect(page.locator('.rj-sidebar__link', { hasText: 'Your analyses' })).toBeVisible();
+
+  await page.locator('.rj-sidebar__link', { hasText: 'Your analyses' }).click();
+  await expect(page).toHaveURL('/slu/history');
+  await expect(page.locator('h1')).toContainText('Your analyses');
 });
 
 test('requireAuth redirects unauthenticated users', async ({ page }) => {
