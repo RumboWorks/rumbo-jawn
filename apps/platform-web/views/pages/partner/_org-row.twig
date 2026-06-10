@@ -1,0 +1,37 @@
+<div class="rj-item" data-inline-edit>
+    <div class="rj-item__display" data-edit-display>
+        <div class="rj-item__main">
+            <div class="rj-item__title">{{ org.name }}</div>
+            <div class="rj-item__meta">
+                {{ org.slug }} · {{ org.organizationType|lower }} · {% if org.entitlement %}{{ org.entitlement.tier.name }}{% else %}No tier{% endif %} · {{ org._count.memberships }} member{{ org._count.memberships == 1 ? '' : 's' }}
+            </div>
+        </div>
+        <div class="rj-item__actions">
+            <button type="button" class="rj-btn rj-btn--ghost rj-btn--sm" data-edit-start>
+                <i data-lucide="pencil"></i> Edit
+            </button>
+            <form method="post" action="/partner/orgs/{{ org.id }}/archive" onsubmit="return confirm('Remove {{ org.name }} from your partner account?')">
+                <button type="submit" class="rj-btn rj-btn--ghost rj-btn--sm">Archive</button>
+            </form>
+        </div>
+    </div>
+    <form class="rj-item__edit" method="post" action="/partner/orgs/{{ org.id }}" data-edit-form hidden>
+        <label>
+            <span>Name</span>
+            <input type="text" name="name" value="{{ org.name }}" required>
+        </label>
+        <label>
+            <span>Type</span>
+            <select name="organizationType">
+                <option value="SOLO"{% if org.organizationType == 'SOLO' %} selected{% endif %}>Solo</option>
+                <option value="NONPROFIT"{% if org.organizationType == 'NONPROFIT' %} selected{% endif %}>Nonprofit</option>
+                <option value="AGENCY"{% if org.organizationType == 'AGENCY' %} selected{% endif %}>Agency</option>
+                <option value="ENTERPRISE"{% if org.organizationType == 'ENTERPRISE' %} selected{% endif %}>Enterprise</option>
+            </select>
+        </label>
+        <div class="rj-item__edit-actions">
+            <button type="submit" class="rj-btn rj-btn--secondary rj-btn--sm"><i data-lucide="save"></i> Save</button>
+            <button type="button" class="rj-btn rj-btn--ghost rj-btn--sm" data-edit-cancel>Cancel</button>
+        </div>
+    </form>
+</div>

@@ -580,6 +580,70 @@ test('admin can create an org, manage partners, act as org, and delete the org',
   await db.partnerAccount.deleteMany({ where: { name: partnerName } });
 });
 
+// ---- Partner self-service area (phase 19) ----
+
+test('partner manager can create, edit, and archive client orgs and manage co-managers', async ({ page }) => {
+  const runId = Date.now();
+  const managerEmail = `partner-mgr-${runId}@example.org`;
+  const colleagueEmail = `partner-colleague-${runId}@example.org`;
+  const partnerName = `QA Partner Area ${runId}`;
+  const orgName = `QA Client Org ${runId}`;
+  page.on('dialog', dialog => dialog.accept());
+
+  await registerUser(page, { name: 'Partner Manager', email: managerEmail, password: 'partner99' });
+  await registerLocalUser({ name: 'Partner Colleague', email: colleagueEmail, password: 'partner99' });
+  const manager = await db.user.findUnique({ where: { email: managerEmail } });
+  const partner = await db.partnerAccount.create({ data: { name: partnerName } });
+  await db.partnerMembership.create({ data: { partnerAccountId: partner.id, userId: manager.id, role: 'MANAGER' } });
+
+  // Nav link appears and the dashboard renders with an empty state.
+  await page.goto('/');
+  await expect(page.getByRole('link', { name: 'Partner', exact: true })).toBeVisible();
+  await page.goto('/partner');
+  await expect(page.locator('h1')).toContainText('Partner dashboard');
+  await expect(page.locator('text=No client organizations yet.')).toBeVisible();
+
+  // Create a client org.
+  await page.goto('/partner/orgs/new');
+  await page.fill('input[name="name"]', orgName);
+  await page.click('button[type="submit"]');
+  await page.waitForURL('/partner');
+  await expect(page.locator('text=Organization created.')).toBeVisible();
+  const orgRow = page.locator('[data-inline-edit]', { hasText: orgName });
+  await expect(orgRow).toBeVisible();
+
+  // Inline-edit the org name over fetch.
+  await orgRow.locator('[data-edit-start]').click();
+  await orgRow.locator('input[name="name"]').fill(`${orgName} Edited`);
+  await orgRow.locator('form[data-edit-form] button[type="submit"]').click();
+  await expect(page.locator('[data-inline-edit] [data-edit-display]', { hasText: `${orgName} Edited` })).toBeVisible();
+
+  // Manage co-managers: add by email, then remove.
+  await page.fill('form[action*="/members"] input[name="email"]', colleagueEmail);
+  await page.locator('form[action*="/members"] button[type="submit"]').click();
+  await expect(page.locator('text=Partner manager added.')).toBeVisible();
+  const colleagueRow = page.locator('tr', { hasText: colleagueEmail });
+  await expect(colleagueRow).toBeVisible();
+  await colleagueRow.locator('form[action$="/remove"] button').click();
+  await expect(page.locator('text=Partner manager removed.')).toBeVisible();
+  await expect(page.locator('tr', { hasText: colleagueEmail })).toHaveCount(0);
+
+  // Archive the org (it has no direct members, so it is removed entirely).
+  await page.locator('[data-inline-edit]', { hasText: `${orgName} Edited` })
+    .locator('form[action$="/archive"] button').click();
+  await expect(page.locator('text=Organization archived and removed')).toBeVisible();
+  await expect(page.locator('[data-inline-edit]', { hasText: orgName })).toHaveCount(0);
+
+  // Non-partner users are denied.
+  await page.goto('/auth/logout');
+  const outsiderEmail = `partner-outsider-${runId}@example.org`;
+  await registerUser(page, { name: 'Outsider User', email: outsiderEmail, password: 'outsider99' });
+  const res = await page.goto('/partner');
+  expect(res.status()).toBe(403);
+
+  await db.partnerAccount.delete({ where: { id: partner.id } });
+});
+
 test('requireAuth redirects unauthenticated users', async ({ page }) => {
   // /account uses app layout but doesn't require auth yet — this tests
   // that protected routes (added in Phase 04+) will redirect correctly.

@@ -30,6 +30,9 @@
             <nav class="rj-header__nav">
                 {% if currentUser %}
                     {% include "partials/tool-switcher.twig" %}
+                    {% if isPartnerManager %}
+                        <a href="/partner" class="rj-header__nav-link">Partner</a>
+                    {% endif %}
                     {% if currentUser.isPlatformAdmin %}
                         <a href="/admin" class="rj-header__nav-link">Admin</a>
                     {% endif %}

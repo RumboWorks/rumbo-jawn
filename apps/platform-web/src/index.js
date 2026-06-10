@@ -72,6 +72,7 @@ app.use(async (req, res, next) => {
     res.locals.organizations = [];
     res.locals.activeOrganization = null;
     res.locals.navOrientation = (req.user?.navOrientation ?? 'HORIZONTAL').toLowerCase();
+    res.locals.isPartnerManager = Boolean(req.user?.partnerMemberships?.some(m => m.role === 'MANAGER'));
     res.locals.actingAsOrg = false;
     res.locals.primaryOrgId = null;
     if (req.method === 'GET' && req.isAuthenticated()) {

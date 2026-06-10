@@ -1,0 +1,91 @@
+{% extends "layouts/app.twig" %}
+
+{% block title %}Partner — Rumbo{% endblock %}
+
+{% block sidebar %}
+    {% include "pages/partner/_sidebar.twig" with { active: 'dashboard' } %}
+{% endblock %}
+
+{% block content %}
+    {% include "partials/page-header.twig" with {
+        heading: 'Partner dashboard',
+        subtitle: 'Client organizations you manage through your partner account.',
+        action: { label: 'New organization', href: '/partner/orgs/new', icon: 'plus' }
+    } %}
+
+    {% include "pages/admin/_flash.twig" %}
+
+    {% for account in accounts %}
+        {% if accounts|length > 1 %}
+            <h2 class="rj-h2">{{ account.name }}</h2>
+        {% endif %}
+
+        <section class="rj-admin-panel">
+            <div class="rj-admin-panel__header"><h2>Organizations</h2></div>
+            <div class="rj-admin-panel__body">
+                {% if account.orgAccesses is empty %}
+                    <p class="rj-admin-empty">No client organizations yet. <a href="/partner/orgs/new">Create the first one</a>.</p>
+                {% else %}
+                    <div class="rj-list">
+                        {% for access in account.orgAccesses %}
+                            {% set org = access.org %}
+                            {% include "pages/partner/_org-row.twig" %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <section class="rj-admin-panel">
+            <div class="rj-admin-panel__header"><h2>Partner managers</h2></div>
+            <div class="rj-admin-panel__body">
+                <form class="rj-admin-form" method="post" action="/partner/accounts/{{ account.id }}/members">
+                    <label>
+                        <span>Email</span>
+                        <input type="email" name="email" required placeholder="colleague@example.org">
+                    </label>
+                    <p class="rj-admin-muted">The user must already have a Rumbo account.</p>
+                    <button class="rj-btn rj-btn--secondary rj-btn--sm" type="submit">
+                        <i data-lucide="plus"></i> Add manager
+                    </button>
+                </form>
+
+                <div class="rj-table-wrap">
+                    <table class="rj-table rj-admin-table">
+                        <thead>
+                            <tr>
+                                <th>Manager</th>
+                                <th>Added</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for membership in account.memberships %}
+                                <tr>
+                                    <td>
+                                        {{ membership.user.email }}
+                                        <br><span class="rj-admin-muted">{{ membership.user.name }}</span>
+                                    </td>
+                                    <td class="rj-num">{{ membership.createdAt|date("M j, Y") }}</td>
+                                    <td>
+                                        {% if membership.user.id != currentUser.id %}
+                                            <form method="post" action="/partner/accounts/{{ account.id }}/members/{{ membership.id }}/remove">
+                                                <button class="rj-btn rj-btn--ghost rj-btn--sm" type="submit">Remove</button>
+                                            </form>
+                                        {% else %}
+                                            <span class="rj-admin-muted">You</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr><td colspan="3" class="rj-table__empty">No managers yet.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    {% else %}
+        <p class="rj-admin-empty">No partner accounts exist yet. Create one under <a href="/admin/partners">Admin → Partners</a>.</p>
+    {% endfor %}
+{% endblock %}

@@ -3,6 +3,7 @@ import { requireToolAccess, listAccessibleTools, loadActiveOrganization, setActi
 import adminRoutes from './admin.js';
 import accountRoutes from './account.js';
 import authRoutes from './auth.js';
+import partnerRoutes from './partner.js';
 import { sluRouter } from '@rumbo/sounds-like-us';
 import { evalRouter, evalShareRouter } from '@rumbo/eval';
 
@@ -40,6 +41,7 @@ router.use('/slu', requireToolAccess('slu', { allowAnonymous: true }), sluRouter
 router.use('/eval/share', evalShareRouter);
 router.use('/eval', requireToolAccess('eval'), evalRouter);
 router.use('/admin', adminRoutes);
+router.use('/partner', partnerRoutes);
 router.use('/account', accountRoutes);
 router.use('/', authRoutes);
 

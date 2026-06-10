@@ -121,6 +121,15 @@ Verified account routes:
 - `/password/reset/:token` — complete password reset with a valid reset token
 - `/invites/:token` — organization invitation landing/acceptance
 
+## Partner Area
+
+Partner managers (users with a `PartnerMembership` role `MANAGER`; platform admins also pass) get a "Partner" entry in the header nav. Routes:
+
+- `/partner` — dashboard: managed client organizations (inline-edit name/type, archive) and partner co-manager management per account
+- `/partner/orgs/new` — create a client organization under the partner account (free tier; the partner gets manager access via partner-org access)
+
+Archiving removes the partner's access; the organization itself is only soft-deleted when it has no direct members. All mutations are audit-logged.
+
 ## Billing / Entitlements
 
 Seed default product tiers, AI model config, and missing org entitlements:

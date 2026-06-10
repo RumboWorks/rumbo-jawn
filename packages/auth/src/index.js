@@ -1,6 +1,6 @@
 export { configurePassport } from './passport.js';
 export { buildSessionMiddleware } from './session.js';
-export { requireAuth, requireAdmin, requirePlatformAdmin } from './middleware.js';
+export { requireAuth, requireAdmin, requirePlatformAdmin, requirePartnerManager } from './middleware.js';
 export { registerLocalUser } from './strategies/local.js';
 export { findUserByEmail, loadUser, ensureOrgMembership } from './user-service.js';
 export * from './account-service.js';
@@ -35,4 +35,9 @@ export {
   removePartnerMember,
   grantPartnerOrgAccess,
   revokePartnerOrgAccess,
+  getPartnerDashboard,
+  getPartnerManagedOrg,
+  createPartnerManagedOrg,
+  updatePartnerManagedOrg,
+  archivePartnerManagedOrg,
 } from './partner-service.js';
