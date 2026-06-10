@@ -10,9 +10,11 @@ The platform should run on self-contained EC2 servers initially. Future architec
 
 Rumbo is the shared platform/product family.
 
-Sounds Like Us is the first MVP tool.
+Sounds Like Us is the first tool (built; phases 04–05).
 
-Model Eval is a planned sibling tool and is out of scope for initial MVP implementation unless a phase file explicitly says otherwise.
+Eval (formerly "Model Eval") is the second tool (built; migrated into the platform in phases 10–14). See `docs/tools/eval.md`.
+
+Tools register in `packages/config/src/tools.js` (the `TOOLS` array: key, name, path, icon, navOrder, orgOpen) and mount in `apps/platform-web/src/routes/index.js` behind `requireToolAccess`. A third tool follows the same pattern.
 
 Shared services belong to the platform:
 
@@ -44,9 +46,7 @@ Tools must not depend on each other's internals.
 
 ## Repository strategy
 
-Use a monorepo.
-
-Recommended shape:
+Use a monorepo (npm workspaces). Shape as built:
 
 ```text
 apps/
@@ -55,10 +55,11 @@ apps/
 
 tools/
   sounds-like-us/
-  model-eval/
+  eval/
 
 packages/
   auth/
+  billing/
   db/
   design-system/
   ai/
@@ -72,7 +73,7 @@ python/
   analysis/
 ```
 
-The exact package structure may evolve during Phase 00 and Phase 01, but the boundary principle should remain: shared platform packages should not depend on tool modules.
+The boundary principle: shared platform packages must not depend on tool modules, and tools must not import each other's internals. Tools may export services (e.g., admin-facing helpers) that the platform app consumes.
 
 ## Runtime
 
@@ -118,11 +119,11 @@ Use Lucide as the default icon library unless a later decision changes this.
 Use moderate prefixing:
 
 - `rj-` for shared platform/design-system classes,
-- tool-specific prefixes for tool-specific classes, such as `slu-` and `meval-`.
+- tool-specific prefixes for tool-specific classes: `slu-` and `eval-`.
 
 Authenticated pages support horizontal or vertical contextual navigation from the same navigation markup. The preference is stored on the user account and applies sitewide.
 
-Phase 01 should establish functional scaffolding plus a minimal neutral design foundation, not a final visual brand system.
+The shared visual design system landed in phase 15 (the Align Desk UI language rebranded as Rumbo's design system); see `docs/reference/design.md`.
 
 ## Build
 
@@ -203,7 +204,7 @@ Product tiers, usage limits, billing readiness, feature flags, and AI model/prov
 
 The billable/control unit is the organization, including internal solo organizations. Tools should ask shared services for budget and entitlement status rather than embedding billing logic in tool modules.
 
-AI model/provider configuration is keyed by tool and call type. This allows the same call type, such as `crawl.summarize`, to use different providers or models for Sounds Like Us, Model Eval, or future tools.
+AI model/provider configuration is keyed by tool and call type. This allows the same call type, such as `crawl.summarize`, to use different providers or models for Sounds Like Us, Eval, or future tools.
 
 Sounds Like Us starts with a soft usage budget of 10 runs per 7 days. Soft usage overages surface to users and admins but do not block runs. AI spend caps remain server-enforced before provider calls.
 

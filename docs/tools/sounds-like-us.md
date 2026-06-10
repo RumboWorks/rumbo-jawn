@@ -84,7 +84,7 @@ The app should disclose that content from submitted public URLs may be sent to A
 
 ## Out of scope for initial tool phases unless explicitly added
 
-- Model Eval features,
+- Eval features (Eval is its own tool; see `eval.md`),
 - custom multi-profile paid org management beyond planned MVP scope,
 - fully polished visual branding,
 - complex embeddable widgets unless Phase 08 or a revised phase adds them,

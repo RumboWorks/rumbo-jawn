@@ -6,17 +6,17 @@ Rumbo is a modular platform and product family for AI-assisted tools that help n
 
 The platform should support multiple tools over time without each tool reinventing users, organizations, authentication, billing, jobs, AI provider handling, admin visibility, storage, or design-system conventions.
 
-## First MVP tool
+## First tool
 
-The first MVP tool is Sounds Like Us.
+The first tool is Sounds Like Us.
 
 Sounds Like Us helps an organization generate reusable writing guidance from public source material such as website pages and, later, PDFs. The guidance can help staff or AI tools write in a voice that better matches the organization.
 
-## Planned sibling tool
+## Second tool
 
-Model Eval is a planned sibling tool.
+Eval (formerly "Model Eval") is the second tool, built on the platform in phases 10–14. It helps teams compare AI model responses against their own criteria through structured runs, reviews, and reports. See `docs/tools/eval.md`.
 
-It is out of scope for the initial MVP implementation, but its future needs should inform shared platform architecture. The platform should avoid one-off decisions that make sense only for Sounds Like Us and would block future tools like Model Eval.
+The platform should continue to avoid one-off decisions that make sense only for one tool and would block future tools.
 
 ## Audience
 

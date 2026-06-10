@@ -4,6 +4,77 @@ This is the actual project decision log.
 
 Use `.agent/decision-log.agent.md` when maintaining this file.
 
+## 2026-06-10 — Finish-line plan: phases 16–23 then phase 09 as the final gate
+
+Status: Accepted
+
+Decision:
+Finish the product through a planned sequence: docs reconciliation (16), structural/UI consistency (17), admin completeness + act-as-org (18), partner self-service area (19), email verification + public signup (20), Stripe billing (21), context-sensitive help + Help & FAQ (22), missing-pieces sweep (23), and finally the existing Phase 09 launch hardening as the last pre-launch gate. One commit per phase.
+
+Rationale:
+The platform and both tools are built; what remains is the finish-line work (docs drift, no partner UI, no self-service billing, no help system) that Phase 09 anticipated. Sequencing puts shared primitives and admin/partner services before the screens that consume them, and verification-heavy billing before content phases.
+
+Consequences:
+- Roadmap gains a "Finish line" section; Phase 09 moves to the end.
+- Phase docs are created per phase as work begins.
+
+## 2026-06-10 — Stripe Checkout + Customer Portal (hosted) for billing
+
+Status: Accepted
+
+Decision:
+Integrate payments with Stripe-hosted surfaces: Checkout Sessions for purchase and the Customer Portal for card updates, plan changes, and self-cancel. Rumbo keeps a thin `/billing` page and syncs subscription state into the existing `OrganizationEntitlement` stripe fields via webhooks (`checkout.session.completed`, `customer.subscription.updated`/`deleted`, `invoice.payment_failed`). Dunning uses Stripe Smart Retries and Stripe-hosted emails; terminal failure downgrades the org to the free tier. The webhook mounts with a raw body parser ahead of the global `express.json()`.
+
+Rationale:
+Hosted surfaces minimize code and PCI surface and ship fastest; the schema was already prepared for exactly this shape (stripe* fields on `OrganizationEntitlement`).
+
+Consequences:
+- `stripe` dependency lives in `@rumbo/billing`; price IDs live on `ProductTier` rows, not env.
+- Free tier never touches Stripe; the partner tier's subscription attaches to the partner's primary org.
+- Custom dunning emails and proration policy stay deferred (see deferred-work).
+
+## 2026-06-10 — Self-service signup: four public tiers with required email verification
+
+Status: Accepted
+
+Decision:
+Public signup offers all four existing tiers (free, solo, team, partner). Team signup creates a named org with the user as manager; partner signup creates a `PartnerAccount` + partner membership + first org; free/solo create a personal SOLO org. Email verification is required: users can log in but are blocked from the app (redirect to a verify-pending page with resend) until verified; OAuth emails count as verified. Terms acceptance is collected at signup. Public auth endpoints are rate-limited.
+
+Rationale:
+Self-service accounts that can spend AI budget and purchase subscriptions need verified ownership of the email; keeping all four tiers preserves pricing flexibility already encoded in `ProductTier`.
+
+Consequences:
+- New `EmailVerificationToken` model (mirrors `PasswordResetToken`) and `User.emailVerifiedAt`/`termsAcceptedAt`; existing users backfilled as verified.
+- `/register` becomes a redirect into the tiered `/signup` flow.
+
+## 2026-06-10 — Admin tool-data access: act-as-org plus targeted panels
+
+Status: Accepted
+
+Decision:
+Platform admins manage tool data primarily by switching their active organization to any org ("act as org" — access already resolves to MANAGER everywhere) with a persistent indicator banner and an audit-log entry, rather than duplicating every tool screen under `/admin`. Targeted admin panels exist only for cross-org lists and destructive operations (e.g. delete an Eval run, purge SLU job artifacts, partner account CRUD, org create/delete).
+
+Rationale:
+The tool's own manager UI is already the best editor for tool data; mirroring it in admin would double the maintained surface for every tool. `listAccessibleOrganizations` already returns all orgs for platform admins, so only UI, visibility, and auditing were missing.
+
+Consequences:
+- Org switching by an admin into a non-membership org is audit-logged (`admin.act_as_org`).
+- Tools may export small admin services (e.g. cascade delete) for the platform admin router to consume.
+
+## 2026-06-10 — Help system: DB-backed articles, on-request drawer, dedicated admin editor
+
+Status: Accepted
+
+Decision:
+Help content lives in a `HelpArticle` table (tool-scoped or platform-level, markdown body, context keys, publish flag) editable by platform admins. The in-app surface is a help drawer (native `<dialog>` per the tool-switcher pattern) opened only from a "?" button — never proactive — resolving content by page context key with tool-level then platform-level fallback. Each tool sidebar gains a "Help & FAQ" item linking to rendered article pages. Markdown rendering moves from `tools/eval` into a shared package so the platform can render article bodies. Authoring uses a dedicated edit page with preview (long markdown does not fit the inline-edit row pattern).
+
+Rationale:
+DB-backed content lets admins edit without deploys; the on-request drawer satisfies "help must not get in the way"; reusing the dialog pattern and markdown-it avoids new dependencies.
+
+Consequences:
+- New shared markdown package; `tools/eval` re-imports it.
+- Planned in Phase 22, with seeded draft FAQs for SLU, Eval, and platform topics.
+
 ## 2026-06-04 — Adopt Align Desk UI language as Rumbo design system
 
 Status: Accepted

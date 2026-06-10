@@ -35,7 +35,7 @@ Key files:
 - `docs/tools/sounds-like-us.md`
 - `docs/tools/eval.md`
 
-Rumbo is the shared platform. Sounds Like Us is the first MVP tool. Eval (formerly Model Eval) is the second tool; its migration into the platform is planned in `docs/development-phases/phase-10`–`phase-14`.
+Rumbo is the shared platform. Sounds Like Us is the first tool. Eval (formerly Model Eval) is the second tool; it was migrated into the platform in `docs/development-phases/phase-10`–`phase-14`.
 
 ## Active planning
 

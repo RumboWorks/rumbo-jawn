@@ -1,8 +1,8 @@
 # Eval Authoring UX Pass — Recommendations & Run-Wizard Design
 
-> Working note. Captures the UX review of the Eval authoring flow and the design for the
-> single-page run-creation wizard. Promote durable decisions into the tool docs once the wizard
-> lands; archive this note afterward.
+> ARCHIVED 2026-06-10. The run-creation wizard described here was implemented in Phase 15
+> (commit "Add Eval run-creation wizard (authoring UX pass)", 2026-06-04) and is covered by
+> `tests/eval-wizard.spec.js`. Kept for design rationale; not source of truth.
 
 ## Context
 

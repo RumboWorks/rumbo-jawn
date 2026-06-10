@@ -541,6 +541,176 @@ Next phase recommendation: Proceed to Phase 08 — Embeddable Widgets.
 
 ---
 
+## Phase 08 — Embeddable Widgets
+
+Date: 2026-06-02
+
+Outcome: Deferred (conditional phase; no strong widget use case yet)
+
+Completed: Nothing built by design — this phase only proceeds if a strong public widget use case appears.
+
+Deferred:
+- Widget use-case selection remains tracked in `deferred-work.md` ("Embeddable widget use-case selection").
+
+Next phase recommendation: Proceed to Phase 08b — User Account Management.
+
+---
+
+## Phase 08b — User Account Management
+
+Date: 2026-06-02
+
+Outcome: Proceed to next phase
+
+Completed:
+- Real `/account` page: profile editing (name/email), signed-in password change, access overview.
+- Password recovery by email with single-use hashed expiring tokens.
+- SMTP-backed email infrastructure (`packages/auth/src/email-service.js`) with `EMAIL_TRANSPORT=log` for safe dev.
+- Organization invites (create, email, accept) and manager-visible member management.
+- `UserStatus` (ACTIVE/SUSPENDED/DEACTIVATED) with login/session enforcement.
+- Platform-admin user detail pages: profile/status editing and membership management; platform-admin grants stay CLI-only.
+- New solo memberships created as `MEMBER` so personal workspaces hide org-management UI until promotion.
+
+Deferred:
+- Partner-account management screens, account deletion/anonymization, OAuth link/unlink (all in `deferred-work.md`).
+
+Checks/tests run: `db:generate`, schema push + reseed, `npm run build`, `npm run qa`, log-mode invite smoke check.
+
+Next phase recommendation: Proceed to Phase 10 — Multi-Tool Access Foundation (Phase 09 repositioned as the final pre-launch gate).
+
+---
+
+## Phase 10 — Multi-Tool Access Foundation
+
+Date: 2026-06-03
+
+Outcome: Proceed to next phase
+
+Completed:
+- Tool registry in `@rumbo/config` (`tools.js`): canonical tool keys/paths/nav order; `slu` (`orgOpen: true`), `eval` (`orgOpen: false`).
+- `ToolGrant` table (per-user, per-org, per-tool role) reusing `MemberRole`.
+- `resolveToolRole` / `listAccessibleTools` / `requireToolAccess` in `@rumbo/auth` with documented precedence (platform admin → org entitlement gate → partner manager → grant → orgOpen membership).
+- SLU wired through `requireToolAccess('slu', { allowAnonymous: true })` non-breakingly.
+- Access-driven navigation (home launcher + header tool switcher) with a 30s non-blocking cache.
+- Platform-admin per-tool grant management on the user-detail page, audit-logged.
+
+Changed from original plan:
+- Schema applied additively (extracted DDL via `prisma migrate diff`) instead of `db push --force-reset`, because the dev DB has pre-existing FK drift and real data. This became the standing migration approach.
+
+Deferred: org-manager self-serve grants, per-tool tiers, dense nav UX (all in `deferred-work.md`).
+
+Checks/tests run: `db:generate`, build, `npm run qa`, direct resolver verification across all precedence branches.
+
+Next phase recommendation: Proceed to Phase 11 — Eval Tool Foundation.
+
+---
+
+## Phase 11 — Eval Tool Foundation
+
+Date: 2026-06-03
+
+Outcome: Proceed to next phase
+
+Completed:
+- `tools/model-eval` stub renamed to `tools/eval` (`@rumbo/eval`), mounted at `/eval` behind `requireToolAccess('eval')` with manager-gated settings.
+- Full Eval-domain schema: 16 `Eval*` tables, 8 enums, scalar FKs to platform User/Organization (no back-relations), applied additively.
+- `eval` wired into billing (tier features, `eval.response_collection` usage key, default AiModelConfig).
+- Manager settings: criteria CRUD and model catalog CRUD with seeded provider catalog (OpenAI, Anthropic, Google, Manual, Other).
+- Eval landing/dashboard shell and `eval-` SCSS partial.
+
+Checks/tests run: `db:generate`, DDL applied + verified, seeds, build, `npm run qa`, HTTP role-matrix verification (manager/member/no-grant).
+
+Next phase recommendation: Proceed to Phase 12 — Eval Authoring, Runs, Responses.
+
+---
+
+## Phase 12 — Eval Authoring, Runs, and Response Collection
+
+Date: 2026-06-03
+
+Outcome: Proceed to next phase
+
+Completed:
+- Eval CRUD (list-first + inline edit), detail page with run history; all db access in `evals.service.js`.
+- Run launch creates immutable prompt/criteria/model snapshots + one response slot per model in a single transaction (`COLLECTING_RESPONSES`).
+- Manual response paste page; live API collection via `eval.collectResponse` worker handler through `@rumbo/ai` (cost → `AiCall`, spend cap enforced, `UsageEvent` recorded).
+- Run status page with progress, per-response actions, and lifecycle transitions.
+
+Changed from original plan:
+- Run creation shipped as a single page; the multi-step wizard was deliberately deferred to the authoring UX pass (delivered with Phase 15).
+
+Deferred: Google/org-key live collection, editable draft runs (in `deferred-work.md`).
+
+Checks/tests run: build, `npm run qa`, full live end-to-end with real API keys (worker collected a real response; cost/usage logged).
+
+Next phase recommendation: Proceed to Phase 13 — Eval Review and Report.
+
+---
+
+## Phase 13 — Eval Review Workflow and Report
+
+Date: 2026-06-03
+
+Outcome: Proceed to next phase
+
+Completed:
+- Reviewer assignment (managers assign org members holding eval grants); lifecycle `READY_FOR_REVIEWS → IN_REVIEW → COMPLETED` with reopen.
+- Tabbed review screen (Twig + vanilla JS): 1–5 scores + comments autosaving over fetch; `hideModelNames` renders neutral labels.
+- Completion ensures an `EvalReport`; models×criteria heatmap, editable summary/recommendation.
+- Secure share link: tokenized public read-only route (`evalShareRouter`) mounted outside `requireToolAccess`, always hides model names.
+
+Changed from original plan: review screen confirmed as vanilla JS (no React island).
+
+Checks/tests run: build, `npm run qa` (23/23), two-account HTTP end-to-end including unauthenticated share fetch.
+
+Next phase recommendation: Proceed to Phase 14 — Eval Tasks and Notifications.
+
+---
+
+## Phase 14 — Eval Tasks and Notifications
+
+Date: 2026-06-03
+
+Outcome: Eval migration complete; proceed
+
+Completed:
+- `EvalTask` created from owning transitions (review assignment, manual-response slots), auto-completed/cancelled with the work; tasks inbox at `/eval/tasks`.
+- `EvalNotification` + `notify.service.js`: in-app notifications panel (unread badge, mark-all-read) plus best-effort email via the shared sender.
+- Manager reminders (`POST /runs/:publicId/remind`), rate-limited per reviewer per hour.
+
+Deferred: cross-tool notification center (in `deferred-work.md`).
+
+Checks/tests run: build, `npm run qa` (23/23), full two-account HTTP end-to-end of the task/notification lifecycle.
+
+Next phase recommendation: Proceed to Phase 15 — Shared Design System and Full UI Migration.
+
+---
+
+## Phase 15 — Shared Rumbo Design System and Full UI Migration
+
+Date: 2026-06-04 (follow-up polish through 2026-06-09)
+
+Outcome: Proceed to finish-line phases
+
+Completed:
+- Align Desk UI language adopted as Rumbo's shared design system via `@rumbo/design-system`: light/dark/paper/pink themes (paper default), comfortable/compact density.
+- Account-synced navigation orientation (horizontal/vertical) and validated session-backed active-organization switching.
+- All surfaces migrated to the shared shell: platform, admin, account, auth, SLU, Eval; authenticated 1200px default width.
+- Restored Eval interaction parity: task-first views, reviewer selection during launch, reports index, score/rank modes, trend chart, drilldowns.
+- Eval run-creation wizard (the deferred authoring UX pass) with reviewer selection step.
+- `markdown-it` + `sanitize-html` for safe response rendering.
+- Structured `firstName`/`lastName` on User.
+
+Changed from original plan: `User.navOrientation` applied with direct `prisma db execute` due to the pre-existing FK drift blocking `db push`.
+
+Docs updated at the time: decision log (Align Desk adoption), deferred-work (authoring UX marked complete). Retrospective entries for 08–15 were backfilled during Phase 16 documentation reconciliation.
+
+Checks/tests run: `db:generate`, build, `npm run qa` (28/28).
+
+Next phase recommendation: Proceed to the finish-line phases (16–23) then Phase 09 launch hardening — see roadmap.
+
+---
+
 ## Template
 
 ```md

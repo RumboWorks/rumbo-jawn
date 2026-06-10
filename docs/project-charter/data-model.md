@@ -1,26 +1,23 @@
-# Data Model Direction
+# Data Model
+
+The implementation source of truth is `packages/db/prisma/schema.prisma`. This file records the direction and conventions; the schema records the detail.
 
 ## Shared platform data
 
-Shared platform tables should include, at minimum:
+Shared platform tables as built:
 
-- users,
-- organizations,
-- memberships,
-- partner accounts,
-- partner memberships,
-- partner organization access,
-- subscriptions,
-- product tiers,
-- organization entitlements,
-- usage events,
-- jobs,
-- AI calls,
-- provider/model configuration,
-- usage limits,
-- feature flags,
-- admin audit logs,
-- artifact manifests.
+- `User` (status ACTIVE/SUSPENDED/DEACTIVATED, `isPlatformAdmin`, structured first/last name),
+- `OAuthAccount`, `PasswordResetToken`, `Session`,
+- `Organization` (soft-delete via `deletedAt`), `Membership` (MANAGER/MEMBER), `OrganizationInvite`, `ApprovedDomain`,
+- `PartnerAccount`, `PartnerMembership`, `PartnerOrganizationAccess`,
+- `ToolGrant` (per-user, per-org, per-tool role),
+- `ProductTier` (limits/features JSON; seeded free/solo/team/partner), `OrganizationEntitlement` (tier, billing responsibility, AI spend cap, and Stripe subscription fields — `stripeCustomerId`, `stripeSubscriptionId`, price/status/period/cancel fields — present in the schema and activated by the Stripe billing phase),
+- `UsageEvent` (org/tool/usageKey rolling-window metering),
+- `Job`, `AiCall` (token + cost logging), `ArtifactManifest`,
+- `AiModelConfig` (tool + callType keyed provider/model config), `FeatureFlag`,
+- `AdminAuditLog`.
+
+Subscription state lives on `OrganizationEntitlement` rather than a separate subscriptions table; Stripe is the system of record for payment history.
 
 Every account should belong to at least one organization. Solo users operate through an internal solo organization with a manager membership, even when the product UI does not need to emphasize organization language.
 
@@ -47,28 +44,19 @@ Tool-specific tables should reference shared platform tables rather than duplica
 
 ## Tool-specific data
 
-Sounds Like Us may need tables for:
+Convention: tool tables reference platform `User`/`Organization` via **scalar** `userId`/`organizationId` fields (indexed, no Prisma relation) so the shared models stay free of tool back-relations. `SluFeedback` established the pattern; all `Eval*` tables follow it. Relations are declared only among a tool's own tables.
 
-- analysis runs,
-- source URLs,
-- source documents,
-- generated guidance profiles,
-- output variants,
-- user selections/options,
-- feedback.
+Sounds Like Us (built) stores most data through the shared platform: analysis runs are `Job` rows (`type: 'slu.analysis'`), crawl/guidance outputs are `ArtifactManifest` + JSON files, and the only SLU-specific table is `SluFeedback` (rating, comment, selected workbench options).
 
-Model Eval may later need tables for:
+Eval (built; phases 10–14) owns the `Eval*` tables:
 
-- evaluation projects,
-- models,
-- prompts,
-- artifacts,
-- criteria/rubrics,
-- scores,
-- reviewers,
-- reports.
-
-Model Eval is out of scope for initial MVP implementation.
+- model catalog: `EvalProvider`, `EvalProviderModel`, `EvalOrgModel`,
+- criteria: `EvalCriterion`,
+- evaluations and runs: `Eval`, `EvalRun` (status lifecycle DRAFT → COLLECTING_RESPONSES → … → COMPLETED/ARCHIVED),
+- immutable launch snapshots: `EvalPromptSnapshot`, `EvalCriterionSnapshot`, `EvalModelSnapshot`,
+- responses and review: `EvalResponse`, `EvalReviewAssignment`, `EvalRating`, `EvalReviewComment`,
+- output: `EvalReport` (with secure share token),
+- workflow: `EvalTask`, `EvalNotification`.
 
 ## Storage split
 

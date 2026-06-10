@@ -17,13 +17,11 @@ Originally identified: Phase 01
 Completed in: Phase 15
 Outcome: The implemented standalone Align Desk UI language was rebranded as Rumbo's shared design system.
 
-## Deferred item: Model Eval implementation
+## Completed item: Model Eval implementation
 
 Originally identified: Platform planning  
-Deferred to: after initial Sounds Like Us MVP scope unless roadmap changes  
-Reason: Model Eval is a sibling tool, not part of first MVP implementation.  
-Blocking: Shared platform foundation and first-tool MVP validation.  
-Must not forget because: Model Eval is an important architectural constraint for shared auth, jobs, AI calls, storage, reporting, and admin.
+Completed in: Phases 10–14 (as "Eval", plus the Phase 15 authoring UX pass)  
+Outcome: Eval was migrated into the platform as the second tool — per-tool access foundation, model catalog + criteria, runs with immutable snapshots, manual + live API collection, review workflow, heatmap report + secure share, tasks and notifications.
 
 ## Deferred item: Google OAuth verification
 
@@ -128,17 +126,17 @@ Must not forget because: Once admin lists need pagination or cross-entity filter
 ## Deferred item: Partner account management screens
 
 Originally identified: Phase 08b
-Deferred to: partner-management phase or Model Eval migration planning
+Deferred to: Phases 18–19 (admin partner CRUD, then `/partner` self-service area) — scheduled on the roadmap
 Reason: Phase 08b added user/org account management but intentionally did not add partner-account self-service screens.
-Blocking: Need clearer partner workflows, branding needs, and whether partner management ships before or with Model Eval.
+Blocking: Nothing — scheduled.
 Must not forget because: Partner accounts are part of the shared platform model and will matter once partner-managed organizations become a real workflow.
 
 ## Deferred item: Account deletion and anonymization
 
 Originally identified: Phase 08b
-Deferred to: launch hardening, legal/privacy phase, or post-MVP account lifecycle work
+Deferred to: Phase 23 (self-serve anonymizing deletion) — scheduled on the roadmap; hard purge of historical records remains deferred beyond that
 Reason: Phase 08b added suspension/deactivation but intentionally avoided permanent deletion/anonymization.
-Blocking: Need retention rules for jobs, artifacts, AI call logs, audit logs, billing records, feedback, and organization membership history.
+Blocking: Hard purge needs retention rules for jobs, artifacts, AI call logs, audit logs, billing records, feedback, and organization membership history.
 Must not forget because: Production users will eventually need a clear account deletion/privacy process.
 
 ## Deferred item: OAuth account linking and unlinking
@@ -204,6 +202,38 @@ Deferred to: a later Eval polish phase
 Reason: The schema supports an EvalRun DRAFT status, but the MVP launches a run directly into COLLECTING_RESPONSES from the run-new form. There is no save-as-draft / edit-before-launch flow.
 Blocking: Need product clarity on whether draft editing (re-selecting models/criteria, editing the prompt) is worth the extra surface before reviewers are involved.
 Must not forget because: Managers may want to stage a run before committing snapshots.
+
+## Deferred item: Custom dunning emails
+
+Originally identified: Finish-line planning (2026-06-10)
+Deferred to: post-launch billing polish
+Reason: Phase 21 relies on Stripe Smart Retries and Stripe-hosted dunning emails; terminal payment failure auto-downgrades the org to free via webhook.
+Blocking: Nothing — Stripe's defaults cover launch.
+Must not forget because: Branded payment-failure communication will matter once paying customers are real.
+
+## Deferred item: Proration and plan-change policy
+
+Originally identified: Finish-line planning (2026-06-10)
+Deferred to: post-launch billing polish
+Reason: Phase 21 uses Stripe Customer Portal defaults for upgrades/downgrades (proration on upgrade, change at period end where configured). No custom policy is encoded in Rumbo.
+Blocking: Need real pricing decisions before customizing.
+Must not forget because: Plan-change behavior is a customer-facing pricing commitment and should eventually be deliberate, not default.
+
+## Deferred item: Seat limits per tier
+
+Originally identified: Finish-line planning (2026-06-10)
+Deferred to: a later billing/packaging phase
+Reason: Tiers gate features and usage budgets but not member counts; team/partner tiers currently allow unlimited members.
+Blocking: Need packaging decisions (seats vs flat tiers).
+Must not forget because: Seat enforcement is a common revenue lever and is cheap to add to `ProductTier.limits` once decided.
+
+## Deferred item: Cookie banner / consent management
+
+Originally identified: Finish-line planning (2026-06-10)
+Deferred to: only if third-party trackers are ever added
+Reason: Rumbo uses only first-party session cookies and stores UI preferences in localStorage; no analytics/marketing trackers exist, so a consent banner is not required.
+Blocking: Nothing.
+Must not forget because: If analytics or marketing pixels are added later, consent requirements change immediately.
 
 ## Completed item: Eval authoring UX refinement (wizard + flows + polish)
 
