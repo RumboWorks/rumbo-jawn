@@ -15,7 +15,7 @@ import {
   listAssignableReviewers, listRunAssignments, setRunReviewers, isAssigned,
   getReviewData, upsertRating, upsertComment, submitReview, listMyOpenReviews,
   getReportData, completeRunAndReport, updateReportText, setReportShare,
-  listReports,
+  listReportsGroupedByEval,
   getEvalDetailReports,
 } from './review.service.js';
 import {
@@ -242,12 +242,12 @@ router.get('/evals', requireManager, asyncHandler(async (req, res) => {
 }));
 
 router.get('/reports', requireManager, asyncHandler(async (req, res) => {
-  const reports = await listReports(req.toolOrgId);
+  const reportGroups = await listReportsGroupedByEval(req.toolOrgId);
   res.render('pages/eval/reports', {
     tool: 'eval',
     title: 'Reports',
     toolRole: req.toolRole,
-    reports,
+    reportGroups,
     flash: takeFlash(req),
   });
 }));
@@ -350,6 +350,12 @@ router.get('/evals/:publicId', requireManager, asyncHandler(async (req, res) => 
   const ev = await getEvalByPublicId(req.toolOrgId, req.params.publicId);
   if (!ev) return res.status(404).render('pages/error', { status: 404, message: 'Evaluation not found.' });
   const detailReports = await getEvalDetailReports(req.toolOrgId, ev);
+  // Single-run collapse: most evals only ever have one run, and a detail page
+  // listing exactly one row is a pointless click — go straight to the run.
+  // (A single COMPLETED run still renders here: the score matrix lives below.)
+  if (detailReports.reports.length === 0 && ev.runs.length === 1) {
+    return res.redirect(`/eval/runs/${ev.runs[0].publicId}`);
+  }
   res.render('pages/eval/eval-detail', {
     tool: 'eval',
     title: ev.title,
@@ -436,11 +442,15 @@ router.get('/runs/:publicId', requireManager, asyncHandler(async (req, res) => {
     collected: r.responseText != null && r.responseText !== '',
     liveCollectable: isLiveCollectable(r.modelSnapshot),
   }));
+  // Single-run collapse: when this is the eval's only run, the page IS the
+  // eval — lead with the eval title instead of "Run 1".
+  const singleRun = (run.eval._count?.runs ?? 1) <= 1;
   res.render('pages/eval/run-status', {
     tool: 'eval',
-    title: `Run ${run.runNumber} · ${run.eval.title}`,
+    title: singleRun ? run.eval.title : `Run ${run.runNumber} · ${run.eval.title}`,
     toolRole: req.toolRole,
     run,
+    singleRun,
     progress: summarizeResponses(run),
     budget,
     assignments,

@@ -193,7 +193,7 @@ Verified admin routes:
 - `/admin/partners` — partner account list
 - `/admin/partners/new` — create a partner account
 - `/admin/partners/:partnerId` — partner detail: edit, add/remove partner managers (by existing-user email), grant/revoke managed-organization access
-- `/admin/eval` — cross-org Eval run list with permanent cascade delete
+- `/admin/eval` — cross-org Eval run list with a trash can: "Move to trash" hides a run everywhere (open tasks cancelled; an eval losing its last run is archived), the Trash panel restores (un-archiving the eval if needed) or deletes permanently, and the worker sweep auto-purges runs trashed more than 30 days ago
 - `/admin/jobs` — recent jobs, with optional `type` and `status` query filters
 - `/admin/jobs/:jobId` — job detail with payload, result, AI calls, artifacts, error text, and artifact purge (deletes stored files, keeps the job record)
 - `/admin/jobs/:jobId/debug` — raw JSON debug payload for a job

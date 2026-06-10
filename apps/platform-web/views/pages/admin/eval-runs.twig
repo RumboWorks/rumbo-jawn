@@ -10,7 +10,7 @@
     <div class="rj-page-header">
         {% include "pages/admin/_breadcrumbs.twig" with { sectionLabel: 'eval runs', sectionHref: '/admin/eval' } %}
         <h1>Eval runs</h1>
-        <p>Every run across all organizations. Deleting a run permanently removes its snapshots, responses, ratings, comments, report, tasks, and notifications.</p>
+        <p>Every run across all organizations. "Move to trash" hides a run everywhere and is reversible for {{ purgeAfterDays }} days, after which it is permanently deleted with all its data.</p>
     </div>
 
     {% include "pages/admin/_flash.twig" %}
@@ -52,8 +52,8 @@
                         <td class="rj-num">{{ run._count.reviewAssignments }}</td>
                         <td class="rj-num">{{ run.createdAt|date("M j, Y") }}</td>
                         <td>
-                            <form method="post" action="/admin/eval/runs/{{ run.id }}/delete" onsubmit="return confirm('Permanently delete this run and all its data?')">
-                                <button class="rj-btn rj-btn--ghost rj-btn--sm" type="submit"><i data-lucide="trash-2"></i> Delete</button>
+                            <form method="post" action="/admin/eval/runs/{{ run.id }}/trash" onsubmit="return confirm('Move this run to the trash? It disappears from the tool and can be restored for {{ purgeAfterDays }} days.')">
+                                <button class="rj-btn rj-btn--ghost rj-btn--sm" type="submit"><i data-lucide="trash-2"></i> Move to trash</button>
                             </form>
                         </td>
                     </tr>
@@ -63,4 +63,49 @@
             </tbody>
         </table>
     </div>
+
+    <section class="rj-admin-panel">
+        <div class="rj-admin-panel__header"><h2>Trash</h2></div>
+        <div class="rj-admin-panel__body">
+            <p class="rj-admin-muted">Trashed runs are hidden from the tool and permanently deleted {{ purgeAfterDays }} days after trashing. If a trashed run was its evaluation's only run, restoring it brings the evaluation back too.</p>
+            {% if trashedRuns is empty %}
+                <p class="rj-admin-empty">The trash is empty.</p>
+            {% else %}
+                <div class="rj-table-wrap">
+                    <table class="rj-table rj-admin-table" data-no-sort>
+                        <thead>
+                            <tr>
+                                <th>Evaluation</th>
+                                <th>Organization</th>
+                                <th>Trashed</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for run in trashedRuns %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ run.eval.title }}</strong>
+                                        <br><span class="rj-admin-muted">Run {{ run.runNumber }}</span>
+                                    </td>
+                                    <td>
+                                        {% if run.org %}{{ run.org.name }}{% else %}<span class="rj-admin-muted">Unknown</span>{% endif %}
+                                    </td>
+                                    <td class="rj-num">{{ run.deletedAt|date("M j, Y") }}</td>
+                                    <td>
+                                        <form method="post" action="/admin/eval/runs/{{ run.id }}/restore" style="display:inline">
+                                            <button class="rj-btn rj-btn--secondary rj-btn--sm" type="submit">Restore</button>
+                                        </form>
+                                        <form method="post" action="/admin/eval/runs/{{ run.id }}/purge" style="display:inline" onsubmit="return confirm('Permanently delete this run and all its data? This cannot be undone.')">
+                                            <button class="rj-btn rj-btn--ghost rj-btn--sm" type="submit"><i data-lucide="trash-2"></i> Delete now</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+    </section>
 {% endblock %}

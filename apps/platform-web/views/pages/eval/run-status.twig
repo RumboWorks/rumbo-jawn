@@ -1,6 +1,6 @@
 {% extends "layouts/app.twig" %}
 
-{% block title %}Run {{ run.runNumber }} — Rumbo{% endblock %}
+{% block title %}{% if singleRun %}{{ run.eval.title }}{% else %}Run {{ run.runNumber }}{% endif %} — Rumbo{% endblock %}
 
 {% block sidebar %}
     {% include "pages/eval/_sidebar.twig" with { active: 'evals', toolRole: toolRole } %}
@@ -8,15 +8,28 @@
 
 {% block content %}
     {% set helpContextKey = 'eval.run.status' %}
-    {% include "partials/page-header.twig" with {
-        heading: 'Run ' ~ run.runNumber,
-        subtitle: run.eval.title,
-        breadcrumbs: [
-            { label: 'Evaluations', href: '/eval/evals' },
-            { label: run.eval.title, href: '/eval/evals/' ~ run.eval.publicId },
-            { label: 'Run ' ~ run.runNumber }
-        ]
-    } %}
+    {# Single-run collapse: this page IS the eval when it has only one run, so
+       lead with the eval title and skip the "Run 1" framing. #}
+    {% if singleRun %}
+        {% include "partials/page-header.twig" with {
+            heading: run.eval.title,
+            subtitle: run.eval.description ?? null,
+            breadcrumbs: [
+                { label: 'Evaluations', href: '/eval/evals' },
+                { label: run.eval.title }
+            ]
+        } %}
+    {% else %}
+        {% include "partials/page-header.twig" with {
+            heading: 'Run ' ~ run.runNumber,
+            subtitle: run.eval.title,
+            breadcrumbs: [
+                { label: 'Evaluations', href: '/eval/evals' },
+                { label: run.eval.title, href: '/eval/evals/' ~ run.eval.publicId },
+                { label: 'Run ' ~ run.runNumber }
+            ]
+        } %}
+    {% endif %}
 
     {% include "pages/eval/_flash.twig" %}
 

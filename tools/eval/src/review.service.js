@@ -147,7 +147,7 @@ export async function submitReview(organizationId, evalRunId, reviewerUserId) {
 // Runs a user is assigned to and can still review (open for review).
 export async function listMyOpenReviews(organizationId, userId) {
   const assignments = await db.evalReviewAssignment.findMany({
-    where: { organizationId, userId, completedAt: null, evalRun: { status: 'IN_REVIEW' } },
+    where: { organizationId, userId, completedAt: null, evalRun: { status: 'IN_REVIEW', deletedAt: null } },
     include: { evalRun: { include: { eval: true } } },
     orderBy: { assignedAt: 'desc' },
   });
@@ -241,10 +241,25 @@ async function buildReport(run, { reveal }) {
 
 export async function listReports(organizationId) {
   return db.evalReport.findMany({
-    where: { organizationId },
+    where: { organizationId, evalRun: { deletedAt: null } },
     include: { evalRun: { include: { eval: true } } },
     orderBy: { createdAt: 'desc' },
   });
+}
+
+// Reports grouped by evaluation (evals primary, runs beneath), newest
+// evaluation activity first.
+export async function listReportsGroupedByEval(organizationId) {
+  const reports = await listReports(organizationId);
+  const groups = new Map();
+  for (const report of reports) {
+    const ev = report.evalRun.eval;
+    if (!groups.has(ev.id)) {
+      groups.set(ev.id, { title: ev.title, publicId: ev.publicId, reports: [] });
+    }
+    groups.get(ev.id).reports.push(report);
+  }
+  return [...groups.values()];
 }
 
 export async function getEvalDetailReports(organizationId, evalRecord) {

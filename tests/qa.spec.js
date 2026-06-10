@@ -923,6 +923,85 @@ test('account page shows usage and self-deletion anonymizes the account', async 
   await expect(page).toHaveURL(/login/);
 });
 
+// ---- Eval run UX collapse + trash can (phase 24) ----
+
+test('single-run collapse, grouped reports, and the admin run trash lifecycle', async ({ page }) => {
+  const runId = Date.now();
+  const email = `run-trash-${runId}@example.org`;
+  const title = `QA Trash Eval ${runId}`;
+  await registerUser(page, { name: 'Trash Tester', email, password: 'trashpass99' });
+  await db.user.update({ where: { email }, data: { isPlatformAdmin: true } });
+  page.on('dialog', dialog => dialog.accept());
+
+  const user = await db.user.findUnique({ where: { email }, include: { memberships: true } });
+  const orgId = user.memberships[0].orgId;
+  await db.toolGrant.create({ data: { userId: user.id, orgId, tool: 'eval', role: 'MANAGER' } });
+
+  const ev = await db.eval.create({ data: { organizationId: orgId, title, createdByUserId: user.id } });
+  const run1 = await db.evalRun.create({
+    data: { organizationId: orgId, evalId: ev.id, runNumber: 1, status: 'COLLECTING_RESPONSES' },
+  });
+  await db.evalPromptSnapshot.create({ data: { evalRunId: run1.id, promptText: 'QA prompt' } });
+
+  // Single-run collapse: the eval detail redirects to the run, which leads
+  // with the eval title instead of "Run 1".
+  await page.goto(`/eval/evals/${ev.publicId}`);
+  await expect(page).toHaveURL(`/eval/runs/${run1.publicId}`);
+  await expect(page.locator('h1')).toContainText(title);
+  await expect(page.locator('h1')).not.toContainText('Run 1');
+
+  // A second run restores the run-centric framing.
+  const run2 = await db.evalRun.create({
+    data: { organizationId: orgId, evalId: ev.id, runNumber: 2, status: 'COLLECTING_RESPONSES' },
+  });
+  await db.evalPromptSnapshot.create({ data: { evalRunId: run2.id, promptText: 'QA prompt 2' } });
+  await page.goto(`/eval/runs/${run1.publicId}`);
+  await expect(page.locator('h1')).toContainText('Run 1');
+
+  // Reports page groups runs beneath their evaluation.
+  await db.evalRun.updateMany({ where: { evalId: ev.id }, data: { status: 'COMPLETED' } });
+  await db.evalReport.create({ data: { organizationId: orgId, evalRunId: run1.id, createdByUserId: user.id } });
+  await db.evalReport.create({ data: { organizationId: orgId, evalRunId: run2.id, createdByUserId: user.id } });
+  await page.goto('/eval/reports');
+  const group = page.locator('.eval-list-section', { hasText: title });
+  await expect(group).toHaveCount(1);
+  await expect(group.locator('a', { hasText: 'View report' })).toHaveCount(2);
+
+  // Trash run 2: hidden from the tool, listed in the admin trash, restorable.
+  await page.goto('/admin/eval');
+  await page.locator('tbody tr', { hasText: title }).filter({ hasText: 'Run 2' })
+    .locator('form[action$="/trash"] button').click();
+  await expect(page.locator('text=Moved run 2')).toBeVisible();
+  const gone = await page.goto(`/eval/runs/${run2.publicId}`);
+  expect(gone.status()).toBe(404);
+  await page.goto('/admin/eval');
+  await page.locator('tr', { hasText: 'Run 2' }).locator('form[action$="/restore"] button').click();
+  await expect(page.locator('text=Restored run 2')).toBeVisible();
+  const back = await page.goto(`/eval/runs/${run2.publicId}`);
+  expect(back.status()).toBe(200);
+
+  // Trashing the LAST run archives the eval; restoring brings it back.
+  await page.goto('/admin/eval');
+  await page.locator('tbody tr', { hasText: title }).filter({ hasText: 'Run 2' })
+    .locator('form[action$="/trash"] button').click();
+  await page.locator('tbody tr', { hasText: title }).filter({ hasText: 'Run 1' })
+    .locator('form[action$="/trash"] button').click();
+  await expect(page.locator('text=was archived')).toBeVisible();
+  await page.goto('/eval/evals');
+  await expect(page.locator('main')).not.toContainText(title);
+  await page.goto('/admin/eval');
+  await page.locator('tr', { hasText: 'Run 1' }).locator('form[action$="/restore"] button').click();
+  await expect(page.locator('text=Restored run 1')).toBeVisible();
+  await page.goto('/eval/evals');
+  await expect(page.locator('main')).toContainText(title);
+
+  // Permanent delete from the trash actually removes the run.
+  await page.goto('/admin/eval');
+  await page.locator('tr', { hasText: 'Run 2' }).locator('form[action$="/purge"] button').click();
+  await expect(page.locator('text=Permanently deleted run 2')).toBeVisible();
+  expect(await db.evalRun.findUnique({ where: { id: run2.id } })).toBeNull();
+});
+
 test('requireAuth redirects unauthenticated users', async ({ page }) => {
   // /account uses app layout but doesn't require auth yet — this tests
   // that protected routes (added in Phase 04+) will redirect correctly.

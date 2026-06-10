@@ -52,6 +52,10 @@ Completion phases covering docs accuracy, UI consistency, admin/partner complete
 - [x] Phase 23 — Missing-pieces sweep (legal pages, account deletion, healthz/monitoring, backups runbook, SameSite CSRF baseline, usage visibility, public polish)
 - [x] Phase 09 — Finish-line discipline and launch hardening (final gate; closed 2026-06-10 — launch pends only the external items in the phase-09 launch checklist)
 
+### Post-hardening adjustments
+
+- [x] Phase 24 — Eval run UX adjustments (single-run collapse, reports grouped by eval) + run trash can (30-day restore window, worker purge sweep, empty evals removed)
+
 ## Next up
 
 Launch: work through the pending-external items in `docs/development-phases/phase-09-finish-line-discipline-launch-hardening.md` (Stripe keys, OAuth creds, SMTP, MySQL privileges for migration baseline + restore rehearsal, storage root, prod env, legal review).

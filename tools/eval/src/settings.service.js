@@ -119,7 +119,7 @@ export async function archiveOrgModel(organizationId, modelId) {
 export async function getDashboardSummary(organizationId) {
   const [evalCount, runCount, criteriaCount, modelCount, recentEvals] = await Promise.all([
     db.eval.count({ where: { organizationId, archivedAt: null } }),
-    db.evalRun.count({ where: { organizationId } }),
+    db.evalRun.count({ where: { organizationId, deletedAt: null } }),
     db.evalCriterion.count({ where: { organizationId, archivedAt: null } }),
     db.evalOrgModel.count({ where: { organizationId, deletedAt: null } }),
     db.eval.findMany({
@@ -127,8 +127,8 @@ export async function getDashboardSummary(organizationId) {
       orderBy: { updatedAt: 'desc' },
       take: 10,
       include: {
-        _count: { select: { runs: true } },
-        runs: { orderBy: { runNumber: 'desc' }, take: 1, include: latestRunProgressInclude },
+        _count: { select: { runs: { where: { deletedAt: null } } } },
+        runs: { where: { deletedAt: null }, orderBy: { runNumber: 'desc' }, take: 1, include: latestRunProgressInclude },
       },
     }),
   ]);

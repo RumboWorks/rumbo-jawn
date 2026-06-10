@@ -1,9 +1,10 @@
 import 'dotenv/config';
 import { claimNextJob, completeJob, failJob } from '@rumbo/jobs';
 import { runAnalysis } from '@rumbo/sounds-like-us/analysis';
-import { collectResponse } from '@rumbo/eval/worker';
+import { collectResponse, purgeExpiredTrashedRuns } from '@rumbo/eval/worker';
 
 const POLL_INTERVAL_MS = parseInt(process.env.WORKER_POLL_MS ?? '3000', 10);
+const TRASH_SWEEP_INTERVAL_MS = 6 * 60 * 60 * 1000; // every 6 hours
 
 // ---- Handler registry ----
 
@@ -43,3 +44,19 @@ async function poll() {
 }
 
 poll();
+
+// ---- Periodic trash sweep ----
+// Hard-purges Eval runs that have sat in the admin trash past the retention
+// window (30 days). Runs at startup and every few hours thereafter.
+
+async function sweepTrash() {
+  try {
+    const { purged } = await purgeExpiredTrashedRuns();
+    if (purged > 0) console.log(`[worker] trash sweep purged ${purged} eval run${purged === 1 ? '' : 's'}`);
+  } catch (err) {
+    console.error('[worker] trash sweep error:', err.message);
+  }
+}
+
+sweepTrash();
+setInterval(sweepTrash, TRASH_SWEEP_INTERVAL_MS);

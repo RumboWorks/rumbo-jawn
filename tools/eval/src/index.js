@@ -3,4 +3,11 @@
 export { default as evalRouter } from './routes.js';
 export { default as evalShareRouter } from './share.js';
 export { seedEvalProviders } from './seed.js';
-export { listEvalRunsForAdmin, deleteEvalRunCascade } from './admin.service.js';
+export {
+  listEvalRunsForAdmin,
+  trashEvalRun,
+  restoreEvalRun,
+  deleteEvalRunCascade,
+  purgeExpiredTrashedRuns,
+  PURGE_AFTER_DAYS,
+} from './admin.service.js';

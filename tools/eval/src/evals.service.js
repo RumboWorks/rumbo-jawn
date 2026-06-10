@@ -106,13 +106,17 @@ export function decorateEvalProgress(evalRow) {
   };
 }
 
+// Trashed runs (deletedAt set) are invisible to the tool everywhere; the
+// admin trash and the worker purge sweep are the only things that see them.
+const LIVE_RUNS = { deletedAt: null };
+
 export async function listEvals(organizationId) {
   const evals = await db.eval.findMany({
     where: { organizationId, archivedAt: null },
     orderBy: { updatedAt: 'desc' },
     include: {
-      _count: { select: { runs: true } },
-      runs: { orderBy: { runNumber: 'desc' }, take: 1, include: latestRunProgressInclude },
+      _count: { select: { runs: { where: LIVE_RUNS } } },
+      runs: { where: LIVE_RUNS, orderBy: { runNumber: 'desc' }, take: 1, include: latestRunProgressInclude },
     },
   });
   return evals.map(decorateEvalProgress);
@@ -125,7 +129,7 @@ export function getEvalById(organizationId, evalId) {
 export function getEvalRow(organizationId, publicId) {
   return db.eval.findFirst({
     where: { publicId, organizationId, archivedAt: null },
-    include: { _count: { select: { runs: true } } },
+    include: { _count: { select: { runs: { where: LIVE_RUNS } } } },
   });
 }
 
@@ -134,6 +138,7 @@ export function getEvalByPublicId(organizationId, publicId) {
     where: { publicId, organizationId, archivedAt: null },
     include: {
       runs: {
+        where: LIVE_RUNS,
         orderBy: { runNumber: 'desc' },
         include: { _count: { select: { responses: true, modelSnapshots: true } } },
       },
@@ -200,6 +205,7 @@ export async function launchRun(organizationId, evalId, {
       where: { organizationId, archivedAt: null, id: { in: wantedCriteria } },
       orderBy: [{ displayOrder: 'asc' }, { title: 'asc' }],
     }),
+    // Counts trashed runs too, so a restored run never collides on runNumber.
     db.evalRun.count({ where: { evalId } }),
   ]);
 
@@ -263,9 +269,11 @@ export async function launchRun(organizationId, evalId, {
 
 export function getRunByPublicId(organizationId, publicId) {
   return db.evalRun.findFirst({
-    where: { publicId, organizationId },
+    where: { publicId, organizationId, ...LIVE_RUNS },
     include: {
-      eval: true,
+      // The live-run count drives the single-run UX collapse (heading,
+      // breadcrumbs) on the run page.
+      eval: { include: { _count: { select: { runs: { where: LIVE_RUNS } } } } },
       promptSnapshot: true,
       criterionSnapshots: { orderBy: { displayOrder: 'asc' } },
       modelSnapshots: { orderBy: { displayOrder: 'asc' } },
@@ -276,7 +284,7 @@ export function getRunByPublicId(organizationId, publicId) {
 
 export function getResponseByPublicId(organizationId, publicId) {
   return db.evalResponse.findFirst({
-    where: { publicId, organizationId },
+    where: { publicId, organizationId, evalRun: LIVE_RUNS },
     include: {
       modelSnapshot: true,
       evalRun: { include: { eval: true, promptSnapshot: true } },

@@ -89,10 +89,11 @@ test('new-eval wizard: steps through and launches the first run', async ({ page 
   await expect(page.locator('[data-wizard-summary-list="modelIds"]')).toContainText('GPT-test');
   await expect(page.locator('[data-wizard-summary-list="criterionIds"]')).toContainText('Clarity');
 
-  // Launch → lands on the run-status page with the success flash.
+  // Launch → lands on the run-status page with the success flash. The eval's
+  // only run leads with the eval title (single-run collapse, phase 24).
   await page.click('[data-wizard-submit]');
   await expect(page).toHaveURL(/\/eval\/runs\/[^/]+$/);
-  await expect(page.locator('h1')).toContainText('Run 1');
+  await expect(page.locator('h1')).toContainText('Spring appeal lines');
   await expect(page.locator('.rj-alert--success')).toContainText('launched');
 
   await page.goto('/eval');
@@ -165,7 +166,8 @@ test('new-run wizard on an existing eval starts at the Prompt step', async ({ pa
   await page.click('[data-wizard-submit]');
 
   await expect(page).toHaveURL(/\/eval\/runs\/[^/]+$/);
-  await expect(page.locator('h1')).toContainText('Run 1');
+  // The eval's only run leads with the eval title (single-run collapse).
+  await expect(page.locator('h1')).toContainText('Existing eval');
 });
 
 test.describe('without JavaScript', () => {
@@ -189,7 +191,8 @@ test.describe('without JavaScript', () => {
     await page.click('[data-wizard-submit]');
 
     await expect(page).toHaveURL(/\/eval\/runs\/[^/]+$/);
-    await expect(page.locator('h1')).toContainText('Run 1');
+    // The eval's only run leads with the eval title (single-run collapse).
+    await expect(page.locator('h1')).toContainText('No-JS eval');
   });
 });
 

@@ -10,21 +10,31 @@
         subtitle: 'Completed evaluation reports for this organization.'
     } %}
     {% include "pages/eval/_flash.twig" %}
-    <div class="rj-table-wrap">
-        <table class="rj-table rj-admin-table">
-            <thead><tr><th>Evaluation</th><th>Run</th><th>Created</th><th></th></tr></thead>
-            <tbody>
-                {% for report in reports %}
-                    <tr>
-                        <td>{{ report.evalRun.eval.title }}</td>
-                        <td>Run {{ report.evalRun.runNumber }}</td>
-                        <td>{{ report.createdAt|date("M j, Y") }}</td>
-                        <td><a class="rj-btn rj-btn--secondary rj-btn--sm" href="/eval/runs/{{ report.evalRun.publicId }}/report">View report</a></td>
-                    </tr>
-                {% else %}
-                    <tr><td colspan="4" class="rj-table__empty">No completed reports yet.</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+
+    {# Evaluations are primary; their completed runs sit beneath. #}
+    {% for group in reportGroups %}
+        <section class="eval-list-section">
+            <h2 class="eval-list-section__title">
+                <a href="/eval/evals/{{ group.publicId }}">{{ group.title }}</a>
+                <span class="eval-list-section__count">{{ group.reports|length }}</span>
+            </h2>
+            <div class="rj-table-wrap">
+                <table class="rj-table rj-admin-table" data-no-sort>
+                    <tbody>
+                        {% for report in group.reports %}
+                            <tr>
+                                <td>Run {{ report.evalRun.runNumber }}</td>
+                                <td class="rj-num">{{ report.createdAt|date("M j, Y") }}</td>
+                                <td><a class="rj-btn rj-btn--secondary rj-btn--sm" href="/eval/runs/{{ report.evalRun.publicId }}/report">View report</a></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    {% else %}
+        <div class="rj-list">
+            <p class="rj-list__empty">No completed reports yet.</p>
+        </div>
+    {% endfor %}
 {% endblock %}

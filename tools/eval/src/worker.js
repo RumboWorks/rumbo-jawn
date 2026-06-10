@@ -5,6 +5,9 @@ import { aiCall } from '@rumbo/ai';
 import { recordUsageEvent, UsageKey } from '@rumbo/billing';
 import { aiProviderFor, getResponseForCollection, applyCollectedResponse } from './evals.service.js';
 
+// Re-exported for the worker's periodic trash sweep.
+export { purgeExpiredTrashedRuns, PURGE_AFTER_DAYS } from './admin.service.js';
+
 // Collect one response for an evaluation by calling the model under test via
 // the shared AI wrapper (cost is logged to AiCall, and the org's AI spend cap
 // is enforced inside aiCall). Records a usage event on success.

@@ -22,7 +22,7 @@ import {
   setMembershipRole,
   updatePartnerAccount,
 } from '@rumbo/auth';
-import { deleteEvalRunCascade, listEvalRunsForAdmin } from '@rumbo/eval';
+import { deleteEvalRunCascade, listEvalRunsForAdmin, PURGE_AFTER_DAYS, restoreEvalRun, trashEvalRun } from '@rumbo/eval';
 import { listTools } from '@rumbo/config';
 import {
   deleteHelpArticle,
@@ -593,16 +593,58 @@ router.get('/help/:articleId', asyncHandler(async (req, res) => {
 // ---- Eval data (cross-org destructive ops) ----
 
 router.get('/eval', asyncHandler(async (req, res) => {
-  const runs = await listEvalRunsForAdmin();
+  const allRuns = await listEvalRunsForAdmin();
   res.render('pages/admin/eval-runs', {
     title: 'Eval runs',
     active: 'eval',
-    runs,
+    runs: allRuns.filter(run => !run.deletedAt),
+    trashedRuns: allRuns.filter(run => run.deletedAt),
+    purgeAfterDays: PURGE_AFTER_DAYS,
     ...takeFlash(req),
   });
 }));
 
-router.post('/eval/runs/:runId/delete', asyncHandler(async (req, res) => {
+router.post('/eval/runs/:runId/trash', asyncHandler(async (req, res) => {
+  try {
+    const { run, evalArchived } = await trashEvalRun({ runId: req.params.runId });
+    await auditAdminAction({
+      actorId: req.user.id,
+      action: 'eval.run_trashed',
+      targetType: 'eval_run',
+      targetId: req.params.runId,
+      orgId: run.organizationId,
+      oldValue: { evalTitle: run.eval.title, runNumber: run.runNumber, status: run.status },
+      newValue: { evalArchived },
+      reason: req.body.reason || null,
+    });
+    req.session.flash_success = `Moved run ${run.runNumber} of "${run.eval.title}" to the trash`
+      + `${evalArchived ? ' (its evaluation had no other runs and was archived)' : ''}.`;
+  } catch (err) {
+    req.session.flash_error = err.message;
+  }
+  res.redirect('/admin/eval');
+}));
+
+router.post('/eval/runs/:runId/restore', asyncHandler(async (req, res) => {
+  try {
+    const { run, evalRestored } = await restoreEvalRun({ runId: req.params.runId });
+    await auditAdminAction({
+      actorId: req.user.id,
+      action: 'eval.run_restored',
+      targetType: 'eval_run',
+      targetId: req.params.runId,
+      orgId: run.organizationId,
+      newValue: { evalTitle: run.eval.title, runNumber: run.runNumber, evalRestored },
+      reason: req.body.reason || null,
+    });
+    req.session.flash_success = `Restored run ${run.runNumber} of "${run.eval.title}".`;
+  } catch (err) {
+    req.session.flash_error = err.message;
+  }
+  res.redirect('/admin/eval');
+}));
+
+router.post('/eval/runs/:runId/purge', asyncHandler(async (req, res) => {
   try {
     const run = await deleteEvalRunCascade({ runId: req.params.runId });
     await auditAdminAction({
@@ -614,7 +656,7 @@ router.post('/eval/runs/:runId/delete', asyncHandler(async (req, res) => {
       oldValue: { evalTitle: run.eval.title, runNumber: run.runNumber, status: run.status },
       reason: req.body.reason || null,
     });
-    req.session.flash_success = `Deleted run ${run.runNumber} of "${run.eval.title}".`;
+    req.session.flash_success = `Permanently deleted run ${run.runNumber} of "${run.eval.title}".`;
   } catch (err) {
     req.session.flash_error = err.message;
   }

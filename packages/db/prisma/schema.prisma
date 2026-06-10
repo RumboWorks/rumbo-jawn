@@ -599,6 +599,9 @@ model EvalRun {
   updatedAt         DateTime      @updatedAt
   completedAt       DateTime?
   archivedAt        DateTime?
+  // Trash-can soft delete: trashed runs are hidden everywhere, restorable from
+  // the admin trash, and hard-purged by the worker sweep after 30 days.
+  deletedAt         DateTime?
 
   eval               Eval                    @relation(fields: [evalId], references: [id], onDelete: Cascade)
   promptSnapshot     EvalPromptSnapshot?
