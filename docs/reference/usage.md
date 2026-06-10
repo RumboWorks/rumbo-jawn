@@ -111,6 +111,14 @@ This sets `User.isPlatformAdmin = true`. The `/admin` area is server-gated and r
 
 Platform-admin grants and revocations remain CLI-only. The admin UI can display platform-admin status but does not change it.
 
+## Public & Operational Endpoints
+
+- `/healthz` — DB ping + uptime JSON for uptime monitors (503 when the database is down)
+- `/legal/terms`, `/legal/privacy` — draft legal pages (review by counsel before launch); linked from the footer and the signup terms checkbox
+- `/support` — support contact page (`SUPPORT_EMAIL` env)
+- `robots.txt` — public pages allowed, app surfaces disallowed
+- Operations runbook (backups, restore, monitoring): `docs/reference/operations.md`
+
 ## Signup & Email Verification
 
 - `/pricing` — public plan comparison (free / solo / team / partner)
@@ -131,7 +139,7 @@ Platform-admin grants and revocations remain CLI-only. The admin UI can display 
 
 Verified account routes:
 
-- `/account` — signed-in user profile, email, password, and access summary
+- `/account` — signed-in user profile, email, password, access summary, active-org usage, and self-service account deletion (typed-email confirm; anonymizes the account, archives sole-member workspaces, blocked while a subscription is active)
 - `/account/orgs/:orgId/members` — organization member management for permitted managers
 - `/password/forgot` — request a password reset email for a local-password account
 - `/password/reset/:token` — complete password reset with a valid reset token

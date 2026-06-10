@@ -328,6 +328,85 @@ export async function removeMembership({ orgId, membershipId, actorId, actorRole
   return membership;
 }
 
+// Self-service deletion: anonymizes the account in place (GDPR-style) rather
+// than hard-deleting rows, so jobs/audit history keep valid references.
+// Solo workspaces where this user was the only member are soft-deleted.
+// Blocked while any sole-member org still has an active subscription — the
+// user must cancel billing first (via /billing) so Stripe doesn't keep
+// charging an orphaned org.
+export async function deleteOwnAccount({ userId, confirmEmail }) {
+  const user = await db.user.findUnique({
+    where: { id: userId },
+    include: {
+      memberships: {
+        include: {
+          org: {
+            include: {
+              entitlement: { select: { stripeSubscriptionStatus: true } },
+              _count: { select: { memberships: true } },
+            },
+          },
+        },
+      },
+    },
+  });
+  if (!user) throw new Error('User not found.');
+  if (normalizeEmail(confirmEmail) !== normalizeEmail(user.email)) {
+    throw new Error('Confirmation email does not match your account email.');
+  }
+
+  const soleMemberOrgs = user.memberships
+    .filter(m => m.org._count.memberships === 1 && !m.org.deletedAt)
+    .map(m => m.org);
+  const withActiveSubscription = soleMemberOrgs.find((org) => {
+    const status = org.entitlement?.stripeSubscriptionStatus;
+    return status && !['canceled', 'incomplete_expired'].includes(status);
+  });
+  if (withActiveSubscription) {
+    throw new Error('Cancel your subscription first (Billing → Manage billing), then delete your account.');
+  }
+
+  const anonymizedEmail = `deleted-${user.id}@deleted.invalid`;
+  await db.$transaction([
+    db.user.update({
+      where: { id: userId },
+      data: {
+        email: anonymizedEmail,
+        name: null,
+        firstName: null,
+        lastName: null,
+        avatarUrl: null,
+        passwordHash: null,
+        emailVerifiedAt: null,
+        status: UserStatus.DEACTIVATED,
+        statusReason: 'Account deleted by user',
+        statusChangedAt: new Date(),
+      },
+    }),
+    db.oAuthAccount.deleteMany({ where: { userId } }),
+    db.passwordResetToken.deleteMany({ where: { userId } }),
+    db.emailVerificationToken.deleteMany({ where: { userId } }),
+    // Drop every session referencing this user (passport stores the id in the
+    // serialized session JSON).
+    db.session.deleteMany({ where: { data: { contains: userId } } }),
+    ...soleMemberOrgs.map(org => db.organization.update({
+      where: { id: org.id },
+      data: { deletedAt: new Date() },
+    })),
+  ]);
+
+  await audit({
+    actorId: userId,
+    action: 'user.self_deleted',
+    targetType: 'user',
+    targetId: userId,
+    oldValue: { email: user.email },
+    newValue: { email: anonymizedEmail, soleMemberOrgsArchived: soleMemberOrgs.length },
+  });
+
+  return { deleted: true };
+}
+
 export async function adminUpdateUser({ userId, actorId, name, firstName, lastName, email, status, statusReason = null, reason = null }) {
   const user = await db.user.findUnique({ where: { id: userId } });
   if (!user) throw new Error('User not found.');

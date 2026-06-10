@@ -8,7 +8,14 @@ import { db } from '@rumbo/db';
 
 export default async function globalTeardown() {
   const users = await db.user.findMany({
-    where: { email: { endsWith: '@example.org' } },
+    where: {
+      OR: [
+        { email: { endsWith: '@example.org' } },
+        // Self-deletion anonymizes rather than deletes; QA's anonymized
+        // residue is swept here (this teardown never runs in production).
+        { email: { endsWith: '@deleted.invalid' } },
+      ],
+    },
     select: { id: true },
   });
   const userIds = users.map(u => u.id);

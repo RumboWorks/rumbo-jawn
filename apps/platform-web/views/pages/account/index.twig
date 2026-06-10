@@ -35,6 +35,37 @@
         </div>
     </section>
 
+    {% if usage %}
+        <section class="rj-admin-panel">
+            <div class="rj-admin-panel__header"><h2>Usage — {{ usage.orgName }}</h2></div>
+            <div class="rj-admin-panel__body">
+                <dl class="rj-admin-kv">
+                    {% if usage.slu %}
+                        <dt>Sounds Like Us analyses</dt>
+                        <dd>
+                            <span class="rj-num">{{ usage.slu.used }} / {{ usage.slu.limit }}</span>
+                            <span class="rj-admin-muted">in the last {{ usage.slu.windowDays }} days</span>
+                            {% if usage.slu.overBudget %}
+                                <span class="rj-badge rj-badge--warning"><span class="rj-dot"></span>Over budget</span>
+                            {% endif %}
+                        </dd>
+                    {% endif %}
+                    {% if usage.eval %}
+                        <dt>Eval response collections</dt>
+                        <dd>
+                            <span class="rj-num">{{ usage.eval.used }} / {{ usage.eval.limit }}</span>
+                            <span class="rj-admin-muted">in the last {{ usage.eval.windowDays }} days</span>
+                            {% if usage.eval.overBudget %}
+                                <span class="rj-badge rj-badge--warning"><span class="rj-dot"></span>Over budget</span>
+                            {% endif %}
+                        </dd>
+                    {% endif %}
+                </dl>
+                <p class="rj-admin-muted">Budgets are soft limits — going over flags usage but doesn't block you. Need more? See <a href="/billing">Billing</a>.</p>
+            </div>
+        </section>
+    {% endif %}
+
     <section class="rj-admin-panel">
         <div class="rj-admin-panel__header"><h2>Access</h2></div>
         <div class="rj-admin-panel__body">
@@ -71,6 +102,22 @@
                 {% endif %}
             </dd>
         </dl>
+        </div>
+    </section>
+
+    <section class="rj-admin-panel">
+        <div class="rj-admin-panel__header"><h2>Delete account</h2></div>
+        <div class="rj-admin-panel__body">
+            <p class="rj-admin-muted">Deleting anonymizes your account permanently: your name and email are removed, sign-in stops working, and personal workspaces with no other members are archived. Active subscriptions must be cancelled first from <a href="/billing">Billing</a>. This cannot be undone.</p>
+            <form class="rj-admin-form" method="post" action="/account/delete" onsubmit="return confirm('Permanently delete your account? This cannot be undone.')">
+                <label>
+                    <span>Type your email to confirm</span>
+                    <input type="email" name="confirmEmail" placeholder="{{ account.email }}" required autocomplete="off">
+                </label>
+                <button class="rj-btn rj-btn--secondary rj-btn--sm" type="submit">
+                    <i data-lucide="trash-2"></i> Delete my account
+                </button>
+            </form>
         </div>
     </section>
 {% endblock %}

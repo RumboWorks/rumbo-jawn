@@ -867,6 +867,62 @@ test('help system: admin CRUD, tool help page, context API, and the drawer', asy
   await expect(page.locator('text=Article deleted.')).toBeVisible();
 });
 
+// ---- Missing-pieces sweep (phase 23) ----
+
+test('healthz, legal pages, support, and robots.txt respond', async ({ page, request }) => {
+  const health = await request.get('/healthz');
+  expect(health.status()).toBe(200);
+  const body = await health.json();
+  expect(body.ok).toBe(true);
+  expect(body.db).toBe('up');
+
+  await page.goto('/legal/terms');
+  await expect(page.locator('h1')).toContainText('Terms of Service');
+  await page.goto('/legal/privacy');
+  await expect(page.locator('h1')).toContainText('Privacy Policy');
+  await page.goto('/support');
+  await expect(page.locator('h1')).toContainText('help');
+
+  const robots = await request.get('/robots.txt');
+  expect(robots.status()).toBe(200);
+  expect(await robots.text()).toContain('Disallow: /admin');
+});
+
+test('account page shows usage and self-deletion anonymizes the account', async ({ page }) => {
+  const runId = Date.now();
+  const email = `delete-me-${runId}@example.org`;
+  await registerUser(page, { name: 'Delete Me', email, password: 'deletepass99' });
+  page.on('dialog', dialog => dialog.accept());
+
+  // Usage card renders for the active org.
+  await page.goto('/account');
+  await expect(page.locator('text=Sounds Like Us analyses')).toBeVisible();
+
+  // Wrong confirmation email is rejected.
+  await page.fill('form[action="/account/delete"] input[name="confirmEmail"]', 'wrong@example.org');
+  await page.locator('form[action="/account/delete"] button[type="submit"]').click();
+  await expect(page.locator('text=Confirmation email does not match')).toBeVisible();
+
+  // Correct confirmation deletes: logged out, anonymized, login impossible.
+  await page.fill('form[action="/account/delete"] input[name="confirmEmail"]', email);
+  await page.locator('form[action="/account/delete"] button[type="submit"]').click();
+  await page.waitForURL('/');
+  await expect(page.locator('text=Sign in')).toBeVisible();
+
+  const gone = await db.user.findUnique({ where: { email } });
+  expect(gone).toBeNull();
+  const anonymized = await db.user.findFirst({ where: { email: { startsWith: 'deleted-' }, statusReason: 'Account deleted by user' }, orderBy: { statusChangedAt: 'desc' } });
+  expect(anonymized).not.toBeNull();
+  expect(anonymized.status).toBe('DEACTIVATED');
+  expect(anonymized.passwordHash).toBeNull();
+
+  await page.goto('/login');
+  await page.fill('input[name="email"]', email);
+  await page.fill('input[name="password"]', 'deletepass99');
+  await page.click('button[type="submit"]');
+  await expect(page).toHaveURL(/login/);
+});
+
 test('requireAuth redirects unauthenticated users', async ({ page }) => {
   // /account uses app layout but doesn't require auth yet — this tests
   // that protected routes (added in Phase 04+) will redirect correctly.

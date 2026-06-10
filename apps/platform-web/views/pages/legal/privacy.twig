@@ -1,0 +1,119 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}Privacy Policy — Rumbo{% endblock %}
+
+{% block content %}
+<div class="rj-container rj-legal-page">
+    <p class="rj-eyebrow">Legal</p>
+    <h1 class="rj-h1">Privacy Policy</h1>
+    <p class="rj-lead">Effective {{ "now"|date("F j, Y") }}. These terms are a working draft and should be reviewed by counsel before launch.</p>
+
+    <h2>1. What We Collect</h2>
+    <p>We collect the following categories of information when you use Rumbo:</p>
+    <ul>
+        <li><strong>Account details</strong> — your name, email address, and hashed password when
+            you register; your organization name and billing contact if you join or create an
+            organization.</li>
+        <li><strong>Content you submit</strong> — public website URLs you analyze with Sounds Like
+            Us; evaluation prompts, model configurations, and AI-generated responses you create in
+            Eval; any free-text input you provide through platform features.</li>
+        <li><strong>Usage and cost metering</strong> — which features you use, how often, and the
+            token or credit consumption associated with each AI request, so we can enforce plan
+            limits and calculate billing.</li>
+        <li><strong>Technical logs</strong> — IP addresses, browser user-agent strings, request
+            timestamps, and error traces retained for security monitoring and debugging. These are
+            stored for a limited period and are not used for advertising.</li>
+    </ul>
+
+    <h2>2. How We Use It</h2>
+    <p>We use the information we collect to:</p>
+    <ul>
+        <li>Provide, operate, and improve the Rumbo platform and its tools.</li>
+        <li>Process payments and manage subscriptions through Stripe.</li>
+        <li>Send transactional emails such as email verification, password reset, and billing
+            receipts.</li>
+        <li>Respond to support requests and investigate reported problems.</li>
+        <li>Detect and prevent abuse, fraud, and unauthorized access.</li>
+    </ul>
+    <p>We do not use your content to train AI models and we do not sell your data to third parties.</p>
+
+    <h2>3. AI Providers</h2>
+    <p>
+        Rumbo integrates with third-party AI providers to generate results. When you use Sounds
+        Like Us, the text content of the public URLs you submit is sent to these providers. When
+        you use Eval, your prompts and any reference content you configure are sent to the
+        providers you select for comparison.
+    </p>
+    <p>Current AI providers include <strong>OpenAI</strong>, <strong>Anthropic</strong>, and
+        <strong>DeepSeek</strong>. Each provider processes your submitted content under their own
+        terms of service and privacy policies.
+    </p>
+    <p>
+        <strong>Do not submit confidential, sensitive, or personally identifiable information
+        through Rumbo features that are processed by AI providers.</strong> Treat submitted content
+        as if it may be visible to those providers' data-handling systems.
+    </p>
+
+    <h2>4. Cookies and Local Storage</h2>
+    <p>
+        Rumbo uses a single first-party session cookie to keep you signed in. No third-party
+        advertising or tracking cookies are set.
+    </p>
+    <p>
+        Some UI preferences (such as theme selection or column visibility) are stored in your
+        browser's local storage so they persist across visits without being sent to our servers.
+        You can clear these at any time by clearing your browser's site data for Rumbo.
+    </p>
+
+    <h2>5. Sharing</h2>
+    <p>We share your information only with the following categories of recipients, and only as
+        necessary to operate the service:</p>
+    <ul>
+        <li><strong>Stripe</strong> — payment processing and subscription management.</li>
+        <li><strong>Email delivery provider</strong> — sending transactional emails on our
+            behalf.</li>
+        <li><strong>AI providers</strong> — OpenAI, Anthropic, and DeepSeek, as described in
+            section 3 above.</li>
+    </ul>
+    <p>
+        Your data is never sold, rented, or shared with advertising networks, data brokers, or
+        any party not listed here.
+    </p>
+
+    <h2>6. Retention and Deletion</h2>
+    <p>
+        You can delete your account at any time from your <a href="/account">account settings</a>.
+        When you delete your account, your name and email address are anonymized and your
+        organization memberships are removed. Content you created (such as eval runs and analysis
+        results) may be retained in anonymized form for product integrity.
+    </p>
+    <p>
+        Some operational records are retained even after account deletion, including audit log
+        entries (for security and fraud purposes) and billing history (as required by law and for
+        Stripe reconciliation). These records do not identify you by name or email after
+        anonymization.
+    </p>
+
+    <h2>7. Security</h2>
+    <p>We apply reasonable technical and organizational measures to protect your information:</p>
+    <ul>
+        <li>All data in transit is encrypted using TLS.</li>
+        <li>Passwords are stored as salted cryptographic hashes — we cannot recover your plaintext
+            password.</li>
+        <li>Access to production systems and user data is restricted to authorized personnel on a
+            need-to-know basis.</li>
+    </ul>
+    <p>
+        No system is perfectly secure. If you believe your account has been compromised, please
+        reset your password immediately and contact us through the <a href="/support">support
+        page</a>.
+    </p>
+
+    <h2>8. Contact</h2>
+    <p>
+        If you have questions about this Privacy Policy or wish to make a data request, please
+        visit our <a href="/support">support page</a>. We will respond within a reasonable
+        timeframe.
+    </p>
+</div>
+{% endblock %}

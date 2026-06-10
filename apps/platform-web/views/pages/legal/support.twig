@@ -1,0 +1,40 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}Support — Rumbo{% endblock %}
+
+{% block content %}
+<div class="rj-container rj-legal-page">
+    <p class="rj-eyebrow">Support</p>
+    <h1 class="rj-h1">We're here to help</h1>
+
+    <h2>Help & FAQ</h2>
+    <p>
+        The fastest way to get answers is our <a href="/help">Help &amp; FAQ</a> page, which
+        covers common questions about Sounds Like Us, Eval, accounts, and billing. You can also
+        tap the <strong>?</strong> button in the bottom corner of any page to open contextual
+        help without leaving your current workflow.
+    </p>
+
+    <h2>Contact Us</h2>
+    <p>
+        If the Help &amp; FAQ doesn't cover your situation, email us at
+        <a href="mailto:{{ supportEmail }}">{{ supportEmail }}</a>. We aim to reply within
+        2 business days. Please include your account email and a brief description of the issue
+        so we can route your request quickly.
+    </p>
+
+    <h2>Billing Issues</h2>
+    <p>
+        For questions about charges, invoices, or plan changes, start at your
+        <a href="/billing">billing settings</a>. Your payment method and transaction history
+        are managed securely through Stripe — Rumbo never stores your full card details.
+    </p>
+
+    <h2>Account Access Problems</h2>
+    <p>
+        If you can't sign in or need to reset your password, visit the
+        <a href="/password/forgot">forgot password</a> page. A reset link will be sent to your
+        registered email address.
+    </p>
+</div>
+{% endblock %}

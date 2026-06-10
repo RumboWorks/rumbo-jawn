@@ -4,6 +4,20 @@ This is the actual project decision log.
 
 Use `.agent/decision-log.agent.md` when maintaining this file.
 
+## 2026-06-10 — CSRF protection via SameSite=Lax session cookie, not per-form tokens
+
+Status: Accepted
+
+Decision:
+The session cookie is explicitly `SameSite=Lax` (plus `httpOnly` and `secure` in production), so browsers do not attach it to cross-site POSTs — foreign forms cannot act as a signed-in user. Per-form double-submit CSRF tokens are deferred rather than retrofitted across every template and fetch call.
+
+Rationale:
+Lax is the modern browser baseline and blocks the classic CSRF vector for a cookie-session app with no cross-origin embedding requirements. Token plumbing would touch every form and the inline-edit fetch path for marginal residual coverage (legacy browsers, subdomain takeover scenarios that have bigger consequences anyway).
+
+Consequences:
+- Recorded in deferred-work: revisit token-based CSRF if cross-origin embedding (e.g. phase-08 widgets) ever lands, since that work weakens SameSite assumptions.
+- `trust proxy` is set so `secure` cookie detection works behind Apache.
+
 ## 2026-06-10 — Finish-line plan: phases 16–23 then phase 09 as the final gate
 
 Status: Accepted

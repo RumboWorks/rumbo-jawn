@@ -23,6 +23,14 @@ router.get('/', async (req, res, next) => {
   }
 });
 
+// Public legal/support pages (linked from the footer and signup terms checkbox).
+router.get('/legal/terms', (req, res) => res.render('pages/legal/terms', { title: 'Terms of Service' }));
+router.get('/legal/privacy', (req, res) => res.render('pages/legal/privacy', { title: 'Privacy Policy' }));
+router.get('/support', (req, res) => res.render('pages/legal/support', {
+  title: 'Support',
+  supportEmail: process.env.SUPPORT_EMAIL || 'support@rumboworks.com',
+}));
+
 router.post('/organization/switch', async (req, res, next) => {
   try {
     await setActiveOrganization(req, req.body.orgId);

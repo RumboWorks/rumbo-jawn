@@ -14,6 +14,7 @@ import {
   primaryOrgIdForUser,
 } from '@rumbo/auth';
 import { listTools } from '@rumbo/config';
+import { db } from '@rumbo/db';
 import routes from './routes/index.js';
 import { handleStripeWebhook } from './routes/billing.js';
 
@@ -33,6 +34,16 @@ app.set('views', path.join(__dirname, '../views'));
 
 // Static files
 app.use(express.static(path.join(__dirname, '../public')));
+
+// Liveness/readiness for an external uptime monitor. No auth, no session.
+app.get('/healthz', async (req, res) => {
+  try {
+    await db.$queryRaw`SELECT 1`;
+    res.json({ ok: true, db: 'up', uptimeSeconds: Math.round(process.uptime()) });
+  } catch {
+    res.status(503).json({ ok: false, db: 'down' });
+  }
+});
 
 // Stripe webhook needs the raw request body for signature verification, so it
 // mounts before the global JSON parser.

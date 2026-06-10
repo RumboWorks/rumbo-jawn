@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /$
+Allow: /pricing
+Allow: /signup
+Allow: /login
+Allow: /slu$
+Allow: /legal/
+Allow: /support
+Disallow: /account
+Disallow: /admin
+Disallow: /partner
+Disallow: /billing
+Disallow: /eval
+Disallow: /help
+Disallow: /auth/
+Disallow: /slu/

@@ -3,8 +3,10 @@ import {
   acceptInvite,
   changeOwnPassword,
   createOrgInvite,
+  deleteOwnAccount,
   getAccountOverview,
   getManagedOrganization,
+  loadActiveOrganization,
   removeMembership,
   requireAuth,
   resolveRole,
@@ -12,6 +14,7 @@ import {
   updateOwnProfile,
   updateNavigationOrientation,
 } from '@rumbo/auth';
+import { getUsageBudgetStatus, UsageKey } from '@rumbo/billing';
 
 const router = Router();
 
@@ -35,14 +38,35 @@ router.use(requireAuth);
 
 router.get('/', asyncHandler(async (req, res) => {
   const account = await getAccountOverview(req.user.id);
+  const organization = await loadActiveOrganization(req);
+  const usage = organization
+    ? {
+        orgName: organization.name,
+        slu: await getUsageBudgetStatus(organization.id, { tool: 'slu', usageKey: UsageKey.SLU_ANALYSIS_ROLLING_7D }),
+        eval: await getUsageBudgetStatus(organization.id, { tool: 'eval', usageKey: UsageKey.EVAL_RESPONSE_COLLECTION }),
+      }
+    : null;
   res.render('pages/account/index', {
     title: 'Account',
     account,
+    usage,
     flash_error: req.session.flash_error ?? null,
     flash_success: req.session.flash_success ?? null,
   });
   delete req.session.flash_error;
   delete req.session.flash_success;
+}));
+
+router.post('/delete', asyncHandler(async (req, res) => {
+  try {
+    await deleteOwnAccount({ userId: req.user.id, confirmEmail: req.body.confirmEmail });
+  } catch (err) {
+    req.session.flash_error = err.message;
+    return res.redirect('/account');
+  }
+  req.logout(() => {
+    req.session.destroy(() => res.redirect('/'));
+  });
 }));
 
 router.post('/profile', asyncHandler(async (req, res) => {

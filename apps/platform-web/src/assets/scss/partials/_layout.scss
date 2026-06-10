@@ -320,7 +320,30 @@ body { display: flex; flex-direction: column; min-height: 100vh; }
   max-width: var(--rj-max-width);
   margin-inline: auto;
   padding-inline: var(--rj-space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--rj-space-4);
   @media (min-width: 768px) { padding-inline: var(--rj-space-8); }
+
+  p { margin: 0; }
+}
+
+.rj-footer__links {
+  display: flex;
+  gap: var(--rj-space-4);
+
+  a { color: var(--rj-fg-3); &:hover { color: var(--rj-fg); } }
+}
+
+// Public legal/support prose pages.
+.rj-legal-page {
+  max-width: 760px;
+  padding-block: var(--rj-space-8) var(--rj-space-12);
+
+  h2 { margin: var(--rj-space-6) 0 var(--rj-space-2); }
+  p, ul { margin-bottom: var(--rj-space-3); line-height: 1.7; }
+  ul { padding-left: 1.2em; }
 }
 
 // ---- App shell (logged-in, with sidebar) ----

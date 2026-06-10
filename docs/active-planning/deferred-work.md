@@ -227,6 +227,14 @@ Reason: Tiers gate features and usage budgets but not member counts; team/partne
 Blocking: Need packaging decisions (seats vs flat tiers).
 Must not forget because: Seat enforcement is a common revenue lever and is cheap to add to `ProductTier.limits` once decided.
 
+## Deferred item: Token-based CSRF protection
+
+Originally identified: Finish-line planning (2026-06-10)
+Deferred to: if/when cross-origin embedding lands (e.g. phase-08 widgets)
+Reason: The session cookie is SameSite=Lax (+httpOnly, +secure in prod), which blocks cross-site POSTs in modern browsers; per-form tokens would touch every template and fetch path for marginal residual coverage. See the decision log (2026-06-10).
+Blocking: Nothing.
+Must not forget because: embeddable widgets or any cross-origin auth flows weaken the SameSite assumption and would make tokens necessary.
+
 ## Deferred item: Cookie banner / consent management
 
 Originally identified: Finish-line planning (2026-06-10)
