@@ -19,15 +19,24 @@ async function screenshot(page, name) {
   await page.screenshot({ path: ss(name), fullPage: true });
 }
 
+// Marks an account's email as verified directly — QA's stand-in for opening
+// the emailed link (the dedicated verification test exercises the real token).
+async function verifyUserByEmail(email) {
+  await db.user.update({ where: { email }, data: { emailVerifiedAt: new Date() } });
+}
+
 async function registerUser(page, { name, email, password }) {
   const [firstName, ...lastParts] = name.split(' ');
-  await page.goto('/register');
+  await page.goto('/register'); // redirects to /signup?tier=free
   await page.fill('input[name="firstName"]', firstName);
   await page.fill('input[name="lastName"]', lastParts.join(' ') || 'User');
   await page.fill('input[name="email"]', email);
   await page.fill('input[name="password"]', password);
+  await page.check('input[name="acceptTerms"]');
   await page.click('button[type="submit"]');
-  await page.waitForURL('/');
+  await page.waitForURL('/auth/verify-pending');
+  await verifyUserByEmail(email);
+  await page.goto('/');
 }
 
 function hashToken(token) {
@@ -241,6 +250,7 @@ test('password reset token updates local password', async ({ page }) => {
   const runId = Date.now();
   const email = `reset-${runId}@example.org`;
   const user = await registerLocalUser({ name: 'Reset User', email, password: 'oldpass99' });
+  await verifyUserByEmail(email);
   const token = `qa-reset-${runId}`;
   await db.passwordResetToken.create({
     data: {
@@ -268,6 +278,7 @@ test('promoted organization manager can view member management', async ({ page }
   const runId = Date.now();
   const email = `manager-${runId}@example.org`;
   const user = await registerLocalUser({ name: 'Manager User', email, password: 'manager99' });
+  await verifyUserByEmail(email);
   const membership = await db.membership.findFirst({ where: { userId: user.id }, include: { org: true } });
   await db.membership.update({ where: { id: membership.id }, data: { role: 'MANAGER' } });
 
@@ -476,7 +487,7 @@ test('SLU: submitting URL without auth redirects to register', async ({ page }) 
   await page.goto('/slu');
   await page.fill('input[name="url"]', 'https://example.org');
   await page.click('button[type="submit"]');
-  await expect(page).toHaveURL(/register/);
+  await expect(page).toHaveURL(/signup|register/);
   // URL should be pre-stashed for resume after auth
 });
 
@@ -485,18 +496,22 @@ test('SLU: URL input pre-fills after returning from auth', async ({ page }) => {
   await page.goto('/slu');
   await page.fill('input[name="url"]', 'https://example.org');
   await page.click('button[type="submit"]');
-  await expect(page).toHaveURL(/register/);
+  await expect(page).toHaveURL(/signup|register/);
 
-  // Register
+  // Register — lands on verify-pending first (email gate), then SLU resumes.
   const email = `slu-resume-${Date.now()}@example.org`;
   await page.fill('input[name="firstName"]', 'SLU');
   await page.fill('input[name="lastName"]', 'Resume');
   await page.fill('input[name="email"]', email);
   await page.fill('input[name="password"]', 'testpass99');
+  await page.check('input[name="acceptTerms"]');
   await page.click('button[type="submit"]');
+  await page.waitForURL('/auth/verify-pending');
+  await verifyUserByEmail(email);
 
-  // Should land on /slu (returnTo set to /slu)
-  await expect(page).toHaveURL('/slu');
+  // The stashed URL survives the verification detour.
+  await page.goto('/slu');
+  await expect(page.locator('input[name="url"]')).toHaveValue('https://example.org');
   await screenshot(page, '13-slu-after-auth');
 });
 
@@ -642,6 +657,92 @@ test('partner manager can create, edit, and archive client orgs and manage co-ma
   expect(res.status()).toBe(403);
 
   await db.partnerAccount.delete({ where: { id: partner.id } });
+});
+
+// ---- Tiered signup + email verification (phase 20) ----
+
+test('tiered signup: pricing, team provisioning, verification gate and real token', async ({ page }) => {
+  const runId = Date.now();
+  const email = `signup-team-${runId}@example.org`;
+  const orgName = `QA Team Org ${runId}`;
+
+  // Pricing page lists all four plans.
+  await page.goto('/pricing');
+  await screenshot(page, '14-pricing');
+  await expect(page.locator('.rj-pricing-card')).toHaveCount(4);
+  await page.getByRole('link', { name: 'Choose Team' }).click();
+  await expect(page).toHaveURL(/\/signup\?tier=team/);
+
+  // Team signup collects an organization name and requires terms.
+  await expect(page.locator('input[name="orgName"]')).toBeVisible();
+  await expect(page.locator('input[name="acceptTerms"]')).toHaveAttribute('required', '');
+  await page.fill('input[name="firstName"]', 'Team');
+  await page.fill('input[name="lastName"]', 'Signup');
+  await page.fill('input[name="email"]', email);
+  await page.fill('input[name="password"]', 'teampass99');
+  await page.fill('input[name="orgName"]', orgName);
+  await page.check('input[name="acceptTerms"]');
+  await page.click('button[type="submit"]');
+  await page.waitForURL('/auth/verify-pending');
+  await screenshot(page, '15-verify-pending');
+
+  // Unverified users are parked: app surfaces bounce back to verify-pending.
+  await page.goto('/account');
+  await expect(page).toHaveURL('/auth/verify-pending');
+
+  // Real token flow: a known token verifies and resumes the stashed URL.
+  const user = await db.user.findUnique({ where: { email } });
+  const token = `qa-verify-${runId}`;
+  await db.emailVerificationToken.create({
+    data: {
+      userId: user.id,
+      tokenHash: hashToken(token),
+      expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+    },
+  });
+  await page.goto(`/auth/verify/${token}`);
+  await expect(page).toHaveURL('/account');
+
+  // Team provisioning: named org, manager membership, recorded paid intent.
+  const org = await db.organization.findFirst({
+    where: { name: orgName },
+    include: { memberships: true, entitlement: true },
+  });
+  expect(org).not.toBeNull();
+  expect(org.memberships).toHaveLength(1);
+  expect(org.memberships[0].role).toBe('MANAGER');
+  expect(org.entitlement.overrides?.intendedTier).toBe('team');
+});
+
+test('partner signup provisions a partner account and first org', async ({ page }) => {
+  const runId = Date.now();
+  const email = `signup-partner-${runId}@example.org`;
+  const partnerName = `QA Signup Partner ${runId}`;
+
+  await page.goto('/signup?tier=partner');
+  await expect(page.locator('input[name="partnerName"]')).toBeVisible();
+  await page.fill('input[name="firstName"]', 'Partner');
+  await page.fill('input[name="lastName"]', 'Signup');
+  await page.fill('input[name="email"]', email);
+  await page.fill('input[name="password"]', 'partnerpass99');
+  await page.fill('input[name="partnerName"]', partnerName);
+  await page.check('input[name="acceptTerms"]');
+  await page.click('button[type="submit"]');
+  await page.waitForURL('/auth/verify-pending');
+  await verifyUserByEmail(email);
+
+  // Verified partner lands in the partner area with their first client org.
+  await page.goto('/partner');
+  await expect(page.locator('h1')).toContainText('Partner dashboard');
+  await expect(page.locator('[data-inline-edit]', { hasText: partnerName })).toBeVisible();
+
+  const partner = await db.partnerAccount.findFirst({
+    where: { name: partnerName },
+    include: { memberships: true, orgAccesses: true },
+  });
+  expect(partner.memberships).toHaveLength(1);
+  expect(partner.memberships[0].role).toBe('MANAGER');
+  expect(partner.orgAccesses).toHaveLength(1);
 });
 
 test('requireAuth redirects unauthenticated users', async ({ page }) => {

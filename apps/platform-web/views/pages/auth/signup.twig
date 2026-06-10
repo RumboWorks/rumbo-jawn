@@ -1,0 +1,94 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}Sign up — Rumbo{% endblock %}
+
+{% block content %}
+<div class="rj-container">
+    <div class="rj-auth-box">
+        <h1 class="rj-auth-box__heading">Create your account</h1>
+        {% if tierCopy %}
+            <p class="rj-auth-box__tier">
+                <span class="rj-badge rj-badge--pine"><span class="rj-dot"></span>{{ tierCopy.name }} plan</span>
+                {{ tierCopy.blurb }} <a href="/pricing">Change plan</a>
+            </p>
+        {% endif %}
+
+        {% if flash_error %}
+            <div class="rj-alert rj-alert--danger">
+                <i data-lucide="circle-x"></i>
+                <div class="rj-alert__body">{{ flash_error }}</div>
+            </div>
+        {% endif %}
+
+        {% if google_enabled %}
+        <a href="/auth/google" class="rj-btn rj-btn--secondary rj-btn--oauth">
+            <i data-lucide="log-in"></i> Continue with Google
+        </a>
+        {% endif %}
+
+        {% if linkedin_enabled %}
+        <a href="/auth/linkedin" class="rj-btn rj-btn--secondary rj-btn--oauth">
+            <i data-lucide="log-in"></i> Continue with LinkedIn
+        </a>
+        {% endif %}
+
+        {% if google_enabled or linkedin_enabled %}
+        <div class="rj-auth-divider"><span>or</span></div>
+        {% endif %}
+
+        <form method="POST" action="/signup" class="rj-form">
+            <input type="hidden" name="tier" value="{{ tier }}">
+            {% if inviteToken %}
+                <input type="hidden" name="inviteToken" value="{{ inviteToken }}">
+            {% endif %}
+            <div class="rj-form-group">
+                <label class="rj-label" for="firstName">First name</label>
+                <input class="rj-input" type="text" id="firstName" name="firstName"
+                       autocomplete="given-name" required placeholder="Morgan">
+            </div>
+            <div class="rj-form-group">
+                <label class="rj-label" for="lastName">Last name</label>
+                <input class="rj-input" type="text" id="lastName" name="lastName"
+                       autocomplete="family-name" required placeholder="Rivera">
+            </div>
+            <div class="rj-form-group">
+                <label class="rj-label" for="email">Work email</label>
+                <input class="rj-input" type="email" id="email" name="email"
+                       autocomplete="email" required placeholder="you@example.org">
+            </div>
+            <div class="rj-form-group">
+                <label class="rj-label" for="password">Password</label>
+                <input class="rj-input" type="password" id="password" name="password"
+                       autocomplete="new-password" required minlength="8">
+                <span class="rj-form-hint">At least 8 characters.</span>
+            </div>
+            {% if tier == 'team' and not inviteToken %}
+                <div class="rj-form-group">
+                    <label class="rj-label" for="orgName">Organization name</label>
+                    <input class="rj-input" type="text" id="orgName" name="orgName"
+                           required placeholder="Riverbend Community Fund">
+                </div>
+            {% endif %}
+            {% if tier == 'partner' and not inviteToken %}
+                <div class="rj-form-group">
+                    <label class="rj-label" for="partnerName">Partner account name</label>
+                    <input class="rj-input" type="text" id="partnerName" name="partnerName"
+                           required placeholder="Rivera Communications">
+                    <span class="rj-form-hint">Your agency or consultancy. You can add client organizations after signup.</span>
+                </div>
+            {% endif %}
+            <div class="rj-form-group">
+                <label class="rj-check">
+                    <input type="checkbox" name="acceptTerms" required>
+                    <span>I agree to the <a href="/legal/terms" target="_blank">terms of service</a> and <a href="/legal/privacy" target="_blank">privacy policy</a>.</span>
+                </label>
+            </div>
+            <button type="submit" class="rj-btn rj-btn--primary">Create account</button>
+        </form>
+
+        <p class="rj-auth-box__footer">
+            Already have an account? <a href="/login">Sign in</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

@@ -2,6 +2,7 @@ import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests',
+  globalTeardown: './tests/global-teardown.mjs',
   timeout: 15000,
   retries: 0,
   reporter: [['list'], ['html', { outputFolder: 'tests/report', open: 'never' }]],

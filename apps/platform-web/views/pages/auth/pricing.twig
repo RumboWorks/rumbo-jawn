@@ -1,0 +1,31 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}Pricing — Rumbo{% endblock %}
+
+{% block content %}
+<div class="rj-container">
+    <div class="rj-pricing-hero">
+        <p class="rj-eyebrow">Pricing</p>
+        <h1 class="rj-h1">Pick the plan that fits</h1>
+        <p class="rj-lead">Start free. Upgrade when your team or clients need more.</p>
+    </div>
+
+    <div class="rj-pricing-grid">
+        {% for tier in tiers %}
+            <div class="rj-card rj-card--pad rj-pricing-card{% if tier.key == 'team' %} rj-pricing-card--featured{% endif %}">
+                <h2 class="rj-pricing-card__name">{{ tier.name }}</h2>
+                <p class="rj-pricing-card__price">{{ tier.price }}</p>
+                <p class="rj-pricing-card__blurb">{{ tier.blurb }}</p>
+                <ul class="rj-pricing-card__features">
+                    {% for feature in tier.features %}
+                        <li><i data-lucide="check-circle-2"></i> {{ feature }}</li>
+                    {% endfor %}
+                </ul>
+                <a href="/signup?tier={{ tier.key }}" class="rj-btn {% if tier.key == 'team' %}rj-btn--primary{% else %}rj-btn--secondary{% endif %}">
+                    {% if tier.key == 'free' %}Start free{% else %}Choose {{ tier.name }}{% endif %}
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

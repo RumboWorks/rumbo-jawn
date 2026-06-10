@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { requireToolAccess, listAccessibleTools, loadActiveOrganization, setActiveOrganization } from '@rumbo/auth';
+import { requireToolAccess, requireVerified, listAccessibleTools, loadActiveOrganization, setActiveOrganization } from '@rumbo/auth';
 import adminRoutes from './admin.js';
 import accountRoutes from './account.js';
 import authRoutes from './auth.js';
@@ -36,13 +36,15 @@ router.post('/organization/switch', async (req, res, next) => {
 
 // Sounds Like Us is orgOpen and keeps a public marketing funnel, so anonymous
 // visitors pass through; authenticated users are still access-checked.
-router.use('/slu', requireToolAccess('slu', { allowAnonymous: true }), sluRouter);
+// requireVerified passes anonymous requests and blocks signed-in unverified
+// accounts (they're parked at /auth/verify-pending until the email link).
+router.use('/slu', requireVerified, requireToolAccess('slu', { allowAnonymous: true }), sluRouter);
 // Public tokenized report share — mounted before the gated /eval router.
 router.use('/eval/share', evalShareRouter);
-router.use('/eval', requireToolAccess('eval'), evalRouter);
-router.use('/admin', adminRoutes);
-router.use('/partner', partnerRoutes);
-router.use('/account', accountRoutes);
+router.use('/eval', requireVerified, requireToolAccess('eval'), evalRouter);
+router.use('/admin', requireVerified, adminRoutes);
+router.use('/partner', requireVerified, partnerRoutes);
+router.use('/account', requireVerified, accountRoutes);
 router.use('/', authRoutes);
 
 export default router;

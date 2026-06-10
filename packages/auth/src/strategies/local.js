@@ -30,16 +30,18 @@ export function buildLocalStrategy() {
   );
 }
 
-// Register a new user with email + password.
-export async function registerLocalUser({ email, name, firstName, lastName, password, inviteToken = null }) {
+// Register a new user with email + password. `provisionOrg: false` skips the
+// default personal-org/invite provisioning so tiered signup (team/partner)
+// can create its own structure instead.
+export async function registerLocalUser({ email, name, firstName, lastName, password, inviteToken = null, termsAcceptedAt = null, provisionOrg = true }) {
   const existing = await findUserByEmail(email.toLowerCase().trim());
   if (existing) throw new Error('An account with this email already exists.');
   const passwordHash = await bcrypt.hash(password, 12);
   const personName = normalizePersonName({ name, firstName, lastName });
   if (!personName.firstName || !personName.lastName) throw new Error('First and last name are required.');
   const user = await db.user.create({
-    data: { email: email.toLowerCase().trim(), ...personName, passwordHash },
+    data: { email: email.toLowerCase().trim(), ...personName, passwordHash, termsAcceptedAt },
   });
-  await createUserFromInviteIfNeeded(user, inviteToken);
+  if (provisionOrg) await createUserFromInviteIfNeeded(user, inviteToken);
   return user;
 }

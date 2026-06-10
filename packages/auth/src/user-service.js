@@ -42,7 +42,10 @@ export async function findOrCreateOAuthUser({ provider, providerId, email, name,
   let user = await findUserByEmail(email);
   if (user && !isActiveUser(user)) throw new Error('Account is not active.');
   if (!user) {
-    user = await db.user.create({ data: { email, ...normalizePersonName({ name, firstName, lastName }), avatarUrl } });
+    // OAuth providers assert the email, so the account starts verified.
+    user = await db.user.create({
+      data: { email, ...normalizePersonName({ name, firstName, lastName }), avatarUrl, emailVerifiedAt: new Date() },
+    });
     await ensureOrgMembership(user);
   }
 

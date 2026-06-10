@@ -1,0 +1,37 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}Verify your email — Rumbo{% endblock %}
+
+{% block content %}
+<div class="rj-container">
+    <div class="rj-auth-box">
+        <h1 class="rj-auth-box__heading">Check your email</h1>
+
+        {% if flash_error %}
+            <div class="rj-alert rj-alert--danger">
+                <i data-lucide="circle-x"></i>
+                <div class="rj-alert__body">{{ flash_error }}</div>
+            </div>
+        {% endif %}
+        {% if flash_success %}
+            <div class="rj-alert rj-alert--success">
+                <i data-lucide="check-circle-2"></i>
+                <div class="rj-alert__body">{{ flash_success }}</div>
+            </div>
+        {% endif %}
+
+        <p class="rj-body">We sent a verification link to <strong>{{ email }}</strong>. Open it to start using Rumbo.</p>
+        <p class="rj-body-sm rj-auth-box__hint">Nothing arriving? Check your spam folder, or resend the link.</p>
+
+        <form method="POST" action="/auth/verify/resend">
+            <button type="submit" class="rj-btn rj-btn--secondary">
+                <i data-lucide="log-in"></i> Resend verification email
+            </button>
+        </form>
+
+        <p class="rj-auth-box__footer">
+            Wrong address? <a href="/auth/logout">Sign out</a> and create a new account.
+        </p>
+    </div>
+</div>
+{% endblock %}

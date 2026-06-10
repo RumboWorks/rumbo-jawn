@@ -7,6 +7,16 @@ export function requireAuth(req, res, next) {
   res.redirect('/login');
 }
 
+// requireVerified — signed-in users with an unverified email are sent to the
+// verify-pending page; anonymous requests pass through (pair with requireAuth
+// or a tool gate when the route needs authentication too).
+export function requireVerified(req, res, next) {
+  if (!req.isAuthenticated()) return next();
+  if (req.user.emailVerifiedAt) return next();
+  if (req.session) req.session.returnTo = req.originalUrl;
+  res.redirect('/auth/verify-pending');
+}
+
 // requireAdmin — 403 if the user is not a platform admin.
 export function requireAdmin(req, res, next) {
   if (req.isAuthenticated() && req.user?.isPlatformAdmin) return next();

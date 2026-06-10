@@ -19,6 +19,8 @@ model User {
   lastName                  String?
   avatarUrl                 String?
   passwordHash              String?
+  emailVerifiedAt           DateTime?
+  termsAcceptedAt           DateTime?
   status                    UserStatus                  @default(ACTIVE)
   statusReason              String?                     @db.Text
   statusChangedAt           DateTime?
@@ -36,6 +38,7 @@ model User {
   invitesSent               OrganizationInvite[]        @relation("OrganizationInviteSentBy")
   oauthAccounts             OAuthAccount[]
   passwordResetTokens       PasswordResetToken[]
+  emailVerificationTokens   EmailVerificationToken[]
   jobs                      Job[]
   toolGrants                ToolGrant[]
 }
@@ -160,6 +163,20 @@ model PasswordResetToken {
   expiresAt DateTime
   usedAt    DateTime?
   createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model EmailVerificationToken {
+  id         String    @id @default(cuid())
+  userId     String
+  tokenHash  String    @unique
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 

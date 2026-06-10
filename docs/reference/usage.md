@@ -111,6 +111,14 @@ This sets `User.isPlatformAdmin = true`. The `/admin` area is server-gated and r
 
 Platform-admin grants and revocations remain CLI-only. The admin UI can display platform-admin status but does not change it.
 
+## Signup & Email Verification
+
+- `/pricing` — public plan comparison (free / solo / team / partner)
+- `/signup?tier=<key>` — tiered signup: team collects an organization name (user becomes MANAGER), partner collects a partner-account name (PartnerAccount + first client org); free/solo create a personal workspace. Terms acceptance is required and recorded (`User.termsAcceptedAt`). Paid intent is stored on the entitlement (`overrides.intendedTier`) until Stripe billing activates the tier.
+- `/register` — legacy URL; redirects to `/signup?tier=free` (invite tokens carry through)
+- New local accounts must verify their email: they can log in but app surfaces redirect to `/auth/verify-pending` (resend available) until the emailed `/auth/verify/:token` link is opened. OAuth accounts start verified. Existing users were backfilled as verified.
+- Public auth endpoints (`POST /signup`, `/auth/local`, `/password/forgot`, `/auth/verify/resend`) are rate-limited per client IP (15-minute windows). Loopback is exempt so the QA suite and local smoke checks are unaffected; the app sets `trust proxy` so Apache-forwarded client IPs are used.
+
 ## Account Management
 
 Verified account routes:

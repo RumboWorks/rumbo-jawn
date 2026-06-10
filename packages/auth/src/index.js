@@ -1,6 +1,8 @@
 export { configurePassport } from './passport.js';
 export { buildSessionMiddleware } from './session.js';
-export { requireAuth, requireAdmin, requirePlatformAdmin, requirePartnerManager } from './middleware.js';
+export { requireAuth, requireAdmin, requirePlatformAdmin, requirePartnerManager, requireVerified } from './middleware.js';
+export { sendVerificationEmail, resendVerificationEmail, verifyEmailToken } from './verification-service.js';
+export { SIGNUP_TIERS, PAID_TIERS, provisionSignup } from './signup-service.js';
 export { registerLocalUser } from './strategies/local.js';
 export { findUserByEmail, loadUser, ensureOrgMembership } from './user-service.js';
 export * from './account-service.js';

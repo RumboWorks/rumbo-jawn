@@ -21,6 +21,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = process.env.PORT || 4000;
 
+// Behind the Apache reverse proxy: trust the first hop so req.ip is the real
+// client address (rate limiting keys on it) and secure-cookie detection works.
+app.set('trust proxy', 1);
+
 // View engine
 app.engine('twig', Twig.__express);
 app.set('view engine', 'twig');

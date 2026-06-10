@@ -12,13 +12,16 @@ import { db } from '@rumbo/db';
 // non-empty.
 async function setupEvalManager(page, label) {
   const email = `${label}-${Date.now()}@example.org`;
-  await page.goto('/register');
+  await page.goto('/register'); // redirects to /signup?tier=free
   await page.fill('input[name="firstName"]', 'Wizard');
   await page.fill('input[name="lastName"]', 'User');
   await page.fill('input[name="email"]', email);
   await page.fill('input[name="password"]', 'testpass99');
+  await page.check('input[name="acceptTerms"]');
   await page.click('button[type="submit"]');
-  await page.waitForURL('/');
+  await page.waitForURL('/auth/verify-pending');
+  await db.user.update({ where: { email }, data: { emailVerifiedAt: new Date() } });
+  await page.goto('/');
 
   const user = await db.user.findUnique({ where: { email }, include: { memberships: true } });
   const orgId = user.memberships[0].orgId;
