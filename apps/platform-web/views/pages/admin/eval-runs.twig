@@ -1,0 +1,66 @@
+{% extends "layouts/app.twig" %}
+
+{% block title %}Eval runs — Rumbo Admin{% endblock %}
+
+{% block sidebar %}
+    {% include "pages/admin/_sidebar.twig" %}
+{% endblock %}
+
+{% block content %}
+    <div class="rj-page-header">
+        {% include "pages/admin/_breadcrumbs.twig" with { sectionLabel: 'eval runs', sectionHref: '/admin/eval' } %}
+        <h1>Eval runs</h1>
+        <p>Every run across all organizations. Deleting a run permanently removes its snapshots, responses, ratings, comments, report, tasks, and notifications.</p>
+    </div>
+
+    {% include "pages/admin/_flash.twig" %}
+
+    <div class="rj-table-wrap">
+        <table class="rj-table rj-admin-table">
+            <thead>
+                <tr>
+                    <th>Evaluation</th>
+                    <th>Organization</th>
+                    <th>Status</th>
+                    <th>Responses</th>
+                    <th>Ratings</th>
+                    <th>Reviewers</th>
+                    <th>Launched</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for run in runs %}
+                    <tr>
+                        <td>
+                            <strong>{{ run.eval.title }}</strong>
+                            <br><span class="rj-admin-muted">Run {{ run.runNumber }}</span>
+                        </td>
+                        <td>
+                            {% if run.org %}
+                                {{ run.org.name }}
+                                <br><span class="rj-admin-muted">{{ run.org.slug }}</span>
+                            {% else %}
+                                <span class="rj-admin-muted">Unknown</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="eval-status eval-status--{{ run.status|lower }}">{{ run.status|replace({'_': ' '})|lower }}</span>
+                        </td>
+                        <td class="rj-num">{{ run._count.responses }}</td>
+                        <td class="rj-num">{{ run._count.ratings }}</td>
+                        <td class="rj-num">{{ run._count.reviewAssignments }}</td>
+                        <td class="rj-num">{{ run.createdAt|date("M j, Y") }}</td>
+                        <td>
+                            <form method="post" action="/admin/eval/runs/{{ run.id }}/delete" onsubmit="return confirm('Permanently delete this run and all its data?')">
+                                <button class="rj-btn rj-btn--ghost rj-btn--sm" type="submit"><i data-lucide="trash-2"></i> Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="8" class="rj-table__empty">No eval runs.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

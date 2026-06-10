@@ -18,6 +18,8 @@
         </a>
     </div>
 
+    {% include "pages/admin/_flash.twig" %}
+
     <section class="rj-admin-metrics rj-admin-metrics--compact" aria-label="Job summary">
         <div class="rj-admin-metric">
             <span class="rj-admin-metric__label">Status</span>
@@ -137,6 +139,13 @@
                             {% endfor %}
                         </tbody>
                     </table>
+                </div>
+                <div class="rj-form-actions">
+                    <form method="post" action="/admin/jobs/{{ job.id }}/purge-artifacts" onsubmit="return confirm('Delete this job\'s stored artifact files? The job record is kept.')">
+                        <button class="rj-btn rj-btn--secondary rj-btn--sm" type="submit">
+                            <i data-lucide="trash-2"></i> Purge artifacts
+                        </button>
+                    </form>
                 </div>
             {% endif %}
         </div>

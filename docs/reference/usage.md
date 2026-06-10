@@ -146,9 +146,14 @@ Verified admin routes:
 - `/admin/users` — user and relationship visibility
 - `/admin/users/:userId` — user detail, profile/status editing, and organization membership management
 - `/admin/orgs` — organization, membership, and partner-access visibility
-- `/admin/orgs/:orgId` — organization member management and entitlement controls for tier, billing responsibility, SLU usage budget, and AI spend cap
+- `/admin/orgs/new` — create an organization directly (name, type, tier)
+- `/admin/orgs/:orgId` — organization member management, entitlement controls (tier, billing responsibility, SLU usage budget, AI spend cap), "Act as this organization" (audit-logged support access with a persistent banner), and soft delete with typed-name confirmation
+- `/admin/partners` — partner account list
+- `/admin/partners/new` — create a partner account
+- `/admin/partners/:partnerId` — partner detail: edit, add/remove partner managers (by existing-user email), grant/revoke managed-organization access
+- `/admin/eval` — cross-org Eval run list with permanent cascade delete
 - `/admin/jobs` — recent jobs, with optional `type` and `status` query filters
-- `/admin/jobs/:jobId` — job detail with payload, result, AI calls, artifacts, and error text
+- `/admin/jobs/:jobId` — job detail with payload, result, AI calls, artifacts, error text, and artifact purge (deletes stored files, keeps the job record)
 - `/admin/jobs/:jobId/debug` — raw JSON debug payload for a job
 - `/admin/sounds-like-us` — Sounds Like Us runs through shared job records
 - `/admin/ai-calls` — recent AI provider/model/token/cost metadata

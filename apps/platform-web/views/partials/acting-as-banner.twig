@@ -1,0 +1,17 @@
+{# Persistent indicator shown when a platform admin's active organization is one
+   they have no membership in (support access). Rendered by both layouts. #}
+{% if actingAsOrg and activeOrganization %}
+    <div class="rj-acting-banner" role="status">
+        <span class="rj-acting-banner__text">
+            <i data-lucide="arrow-left-right"></i>
+            Acting as <strong>{{ activeOrganization.name }}</strong> — platform-admin support access
+        </span>
+        {% if primaryOrgId %}
+            <form method="post" action="/organization/switch">
+                <input type="hidden" name="orgId" value="{{ primaryOrgId }}">
+                <input type="hidden" name="returnTo" value="/">
+                <button type="submit" class="rj-btn rj-btn--ghost rj-btn--sm">Return to my organization</button>
+            </form>
+        {% endif %}
+    </div>
+{% endif %}

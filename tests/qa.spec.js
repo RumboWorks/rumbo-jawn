@@ -119,18 +119,24 @@ test('platform admin can view central admin dashboard', async ({ page }) => {
   const normalizeColumn = async () => (await userColumn.allTextContents())
     .map(text => text.replace(/\s+/g, ' ').trim());
   await expect.poll(async () => (await normalizeColumn()).length).toBeGreaterThan(1);
+  // Server-side sort: compare the rendered order against the database's own
+  // ordering (same collation) instead of re-sorting in JS, whose locale rules
+  // disagree with MySQL on punctuation-vs-digit ordering.
+  const expectedEmails = async (dir) => (await db.user.findMany({
+    orderBy: { email: dir },
+    take: 50,
+    select: { email: true },
+  })).map(u => u.email);
   await page.locator('th.rj-table__sort-head', { hasText: 'User' }).click();
   await expect(page.locator('th', { hasText: 'User' })).toHaveClass(/is-sort-asc/);
   const ascendingUsers = await normalizeColumn();
-  expect(ascendingUsers).toEqual([...ascendingUsers].sort((a, b) => (
-    a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
-  )));
+  const expectedAsc = await expectedEmails('asc');
+  ascendingUsers.forEach((cell, i) => expect(cell).toContain(expectedAsc[i]));
   await page.locator('th.rj-table__sort-head', { hasText: 'User' }).click();
   await expect(page.locator('th', { hasText: 'User' })).toHaveClass(/is-sort-desc/);
   const descendingUsers = await normalizeColumn();
-  expect(descendingUsers).toEqual([...descendingUsers].sort((a, b) => (
-    b.localeCompare(a, undefined, { numeric: true, sensitivity: 'base' })
-  )));
+  const expectedDesc = await expectedEmails('desc');
+  descendingUsers.forEach((cell, i) => expect(cell).toContain(expectedDesc[i]));
 
   await page.goto(`/admin/users/${sortUser.id}`);
   await expect(page.locator('h1')).toContainText('Sort Check User');
@@ -505,6 +511,73 @@ test('SLU: signed-in users get the app shell with the SLU sidebar', async ({ pag
   await page.locator('.rj-sidebar__link', { hasText: 'Your analyses' }).click();
   await expect(page).toHaveURL('/slu/history');
   await expect(page.locator('h1')).toContainText('Your analyses');
+});
+
+// ---- Admin completeness (phase 18) ----
+
+test('admin can create an org, manage partners, act as org, and delete the org', async ({ page }) => {
+  const runId = Date.now();
+  const email = `admin18-${runId}@example.org`;
+  const orgName = `QA Org ${runId}`;
+  const partnerName = `QA Partner ${runId}`;
+  await registerUser(page, { name: 'AdminEighteen User', email, password: 'adminpass99' });
+  await db.user.update({ where: { email }, data: { isPlatformAdmin: true } });
+  page.on('dialog', dialog => dialog.accept());
+
+  // Create an organization from admin.
+  await page.goto('/admin/orgs/new');
+  await expect(page.locator('h1')).toContainText('New organization');
+  await page.fill('input[name="name"]', orgName);
+  await page.selectOption('select[name="organizationType"]', 'NONPROFIT');
+  await page.click('button[type="submit"]');
+  await expect(page.locator('text=Organization created.')).toBeVisible();
+  await expect(page.locator('h1')).toContainText(orgName);
+  const orgUrl = page.url();
+
+  // Act as the new org (admin has no membership there) — banner appears.
+  await page.click('text=Act as this organization');
+  await page.waitForURL('/');
+  await expect(page.locator('.rj-acting-banner')).toContainText(`Acting as ${orgName}`);
+  const actAudit = await db.adminAuditLog.findFirst({
+    where: { action: 'admin.act_as_org' },
+    orderBy: { createdAt: 'desc' },
+  });
+  expect(actAudit).not.toBeNull();
+  await page.click('text=Return to my organization');
+  await page.waitForURL('/');
+  await expect(page.locator('.rj-acting-banner')).toHaveCount(0);
+
+  // Partner account: create, add self as manager, grant access to the new org.
+  await page.goto('/admin/partners/new');
+  await page.fill('input[name="name"]', partnerName);
+  await page.click('button[type="submit"]');
+  await expect(page.locator('text=Partner account created.')).toBeVisible();
+  await expect(page.locator('h1')).toContainText(partnerName);
+
+  await page.fill('form[action*="/members"] input[name="email"]', email);
+  await page.locator('form[action*="/members"] button[type="submit"]').click();
+  await expect(page.locator('text=Partner manager added.')).toBeVisible();
+  await expect(page.locator('.rj-admin-table').first()).toContainText(email);
+
+  await page.selectOption('form[action*="/org-access"] select[name="orgId"]', { label: `${orgName} (${orgName.toLowerCase().replace(/[^a-z0-9]+/g, '-')})` });
+  await page.locator('form[action*="/org-access"] button[type="submit"]').click();
+  await expect(page.locator('text=Organization access granted.')).toBeVisible();
+  await expect(page.locator('text=Managed organizations').locator('..').locator('..')).toContainText(orgName);
+
+  // Eval runs admin panel renders.
+  await page.goto('/admin/eval');
+  await expect(page.locator('h1')).toContainText('Eval runs');
+
+  // Delete the org with typed-name confirmation.
+  await page.goto(orgUrl);
+  await page.fill('input[name="confirmName"]', orgName);
+  await page.locator('form[action$="/delete"] button[type="submit"]').click();
+  await page.waitForURL('/admin/orgs');
+  await expect(page.locator('text=Organization deleted.')).toBeVisible();
+  await expect(page.locator('.rj-admin-table')).not.toContainText(orgName);
+
+  // Cleanup the QA partner account so reruns stay tidy.
+  await db.partnerAccount.deleteMany({ where: { name: partnerName } });
 });
 
 test('requireAuth redirects unauthenticated users', async ({ page }) => {

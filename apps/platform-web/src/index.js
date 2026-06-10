@@ -11,6 +11,7 @@ import {
   loadActiveOrganization,
   displayNameForUser,
   firstNameForUser,
+  primaryOrgIdForUser,
 } from '@rumbo/auth';
 import { listTools } from '@rumbo/config';
 import routes from './routes/index.js';
@@ -71,11 +72,25 @@ app.use(async (req, res, next) => {
     res.locals.organizations = [];
     res.locals.activeOrganization = null;
     res.locals.navOrientation = (req.user?.navOrientation ?? 'HORIZONTAL').toLowerCase();
+    res.locals.actingAsOrg = false;
+    res.locals.primaryOrgId = null;
     if (req.method === 'GET' && req.isAuthenticated()) {
       const organization = await loadActiveOrganization(req);
       res.locals.activeOrganization = organization;
       res.locals.organizations = await listAccessibleOrganizations(req.user);
       res.locals.navTools = await listAccessibleTools(req.user, organization?.id);
+      // Platform admin operating inside an org they don't belong to — show the
+      // persistent "acting as" banner with a way back to their own org, and
+      // surface the acted-as org in the switcher (it is not in their list).
+      res.locals.actingAsOrg = Boolean(
+        req.user.isPlatformAdmin
+        && organization
+        && !(req.user.memberships ?? []).some(m => m.orgId === organization.id),
+      );
+      res.locals.primaryOrgId = primaryOrgIdForUser(req.user);
+      if (res.locals.actingAsOrg && !res.locals.organizations.some(org => org.id === organization.id)) {
+        res.locals.organizations = [...res.locals.organizations, organization];
+      }
     }
     next();
   } catch (err) {

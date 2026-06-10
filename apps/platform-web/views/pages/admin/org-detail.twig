@@ -7,11 +7,22 @@
 {% endblock %}
 
 {% block content %}
-    <div class="rj-page-header">
-        {% include "pages/admin/_breadcrumbs.twig" with { sectionLabel: 'organizations', sectionHref: '/admin/orgs' } %}
-        <h1>{{ org.name }}</h1>
-        <p>{{ org.slug }} · <span class="rj-admin-mono">{{ org.publicId }}</span></p>
+    <div class="rj-page-header rj-page-header--with-action">
+        <div class="rj-page-header__text">
+            {% include "pages/admin/_breadcrumbs.twig" with { sectionLabel: 'organizations', sectionHref: '/admin/orgs' } %}
+            <h1>{{ org.name }}</h1>
+            <p>{{ org.slug }} · <span class="rj-admin-mono">{{ org.publicId }}</span></p>
+        </div>
+        <form method="post" action="/organization/switch" class="rj-page-header__action">
+            <input type="hidden" name="orgId" value="{{ org.id }}">
+            <input type="hidden" name="returnTo" value="/">
+            <button type="submit" class="rj-btn rj-btn--secondary rj-btn--sm">
+                <i data-lucide="arrow-left-right"></i> Act as this organization
+            </button>
+        </form>
     </div>
+
+    {% include "pages/admin/_flash.twig" %}
 
     <section class="rj-admin-metrics rj-admin-metrics--compact">
         <div class="rj-admin-metric">
@@ -230,6 +241,26 @@
         <div class="rj-admin-panel__header"><h2>Recent changes</h2></div>
         <div class="rj-admin-panel__body">
             {% include "pages/admin/_audit-table.twig" with { auditLogs: org.auditLogs } %}
+        </div>
+    </section>
+
+    <section class="rj-admin-panel">
+        <div class="rj-admin-panel__header"><h2>Danger zone</h2></div>
+        <div class="rj-admin-panel__body">
+            <p class="rj-admin-muted">Deleting removes this organization from all access lists and navigation. Its data is retained but unreachable. Type the organization name to confirm.</p>
+            <form class="rj-admin-form" method="post" action="/admin/orgs/{{ org.id }}/delete" onsubmit="return confirm('Delete {{ org.name|e('js') }}? This cannot be undone from the UI.')">
+                <label>
+                    <span>Confirm name</span>
+                    <input type="text" name="confirmName" placeholder="{{ org.name }}" required autocomplete="off">
+                </label>
+                <label>
+                    <span>Reason</span>
+                    <input type="text" name="reason" placeholder="Optional audit note">
+                </label>
+                <button class="rj-btn rj-btn--secondary rj-btn--sm" type="submit">
+                    <i data-lucide="trash-2"></i> Delete organization
+                </button>
+            </form>
         </div>
     </section>
 {% endblock %}

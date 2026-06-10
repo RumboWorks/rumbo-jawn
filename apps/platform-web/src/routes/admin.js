@@ -1,16 +1,27 @@
 import { Router } from 'express';
 import {
+  addPartnerMember,
   adminAddUserMembership,
+  adminCreateOrganization,
   adminRemoveToolGrant,
   adminRemoveUserMembership,
+  adminSoftDeleteOrganization,
   adminUpdateUser,
   adminUpsertToolGrant,
   createOrgInvite,
+  createPartnerAccount,
+  getPartnerAccountDetail,
+  grantPartnerOrgAccess,
+  listPartnerAccounts,
   removeMembership,
+  removePartnerMember,
   requirePlatformAdmin,
+  revokePartnerOrgAccess,
   Role,
   setMembershipRole,
+  updatePartnerAccount,
 } from '@rumbo/auth';
+import { deleteEvalRunCascade, listEvalRunsForAdmin } from '@rumbo/eval';
 import {
   setOrgBillingResponsible,
   setOrgSpendCap,
@@ -30,8 +41,12 @@ import {
   listAdminAuditLogs,
   listAdminAiCalls,
   listAdminJobs,
+  auditAdminAction,
   listAdminOrganizations,
+  listAdminOrgOptions,
+  listAdminProductTiers,
   listAdminUsers,
+  purgeJobArtifacts,
 } from '../services/admin-service.js';
 
 const router = Router();
@@ -147,13 +162,67 @@ router.post('/users/:userId/tool-grants/:grantId/remove', asyncHandler(async (re
   redirectBack(req, res, `/admin/users/${req.params.userId}`);
 }));
 
+function takeFlash(req) {
+  const flash = {
+    flash_error: req.session.flash_error ?? null,
+    flash_success: req.session.flash_success ?? null,
+  };
+  delete req.session.flash_error;
+  delete req.session.flash_success;
+  return flash;
+}
+
 router.get('/orgs', asyncHandler(async (req, res) => {
   const orgs = await listAdminOrganizations();
   res.render('pages/admin/orgs', {
     title: 'Admin organizations',
     active: 'orgs',
     orgs,
+    ...takeFlash(req),
   });
+}));
+
+router.get('/orgs/new', asyncHandler(async (req, res) => {
+  const tiers = await listAdminProductTiers();
+  res.render('pages/admin/org-new', {
+    title: 'New organization',
+    active: 'orgs',
+    tiers,
+    ...takeFlash(req),
+  });
+}));
+
+router.post('/orgs', asyncHandler(async (req, res) => {
+  try {
+    const org = await adminCreateOrganization({
+      name: req.body.name,
+      organizationType: req.body.organizationType || 'NONPROFIT',
+      tierKey: req.body.tierKey || null,
+      actorId: req.user.id,
+      reason: req.body.reason || null,
+    });
+    req.session.flash_success = 'Organization created.';
+    return res.redirect(`/admin/orgs/${org.id}`);
+  } catch (err) {
+    req.session.flash_error = err.message;
+    return res.redirect('/admin/orgs/new');
+  }
+}));
+
+router.post('/orgs/:orgId/delete', asyncHandler(async (req, res) => {
+  try {
+    await adminSoftDeleteOrganization({
+      orgId: req.params.orgId,
+      confirmName: req.body.confirmName,
+      actorId: req.user.id,
+      reason: req.body.reason || null,
+    });
+    req.session.flash_success = 'Organization deleted.';
+    return res.redirect('/admin/orgs');
+  } catch (err) {
+    req.session.flash_error = err.message;
+    return res.redirect(`/admin/orgs/${req.params.orgId}`);
+  }
 }));
 
 router.get('/orgs/:orgId', asyncHandler(async (req, res) => {
@@ -163,6 +232,7 @@ router.get('/orgs/:orgId', asyncHandler(async (req, res) => {
     title: `${org.name} admin`,
     active: 'orgs',
     org,
+    ...takeFlash(req),
   });
 }));
 
@@ -239,6 +309,160 @@ router.post('/orgs/:orgId/memberships/:membershipId/remove', asyncHandler(async 
     reason: req.body.reason || null,
   });
   redirectBack(req, res, `/admin/orgs/${req.params.orgId}`);
+}));
+
+// ---- Partner accounts ----
+
+router.get('/partners', asyncHandler(async (req, res) => {
+  const partners = await listPartnerAccounts();
+  res.render('pages/admin/partners', {
+    title: 'Partner accounts',
+    active: 'partners',
+    partners,
+    ...takeFlash(req),
+  });
+}));
+
+router.get('/partners/new', asyncHandler(async (req, res) => {
+  res.render('pages/admin/partner-new', {
+    title: 'New partner account',
+    active: 'partners',
+    ...takeFlash(req),
+  });
+}));
+
+router.post('/partners', asyncHandler(async (req, res) => {
+  try {
+    const partner = await createPartnerAccount({
+      name: req.body.name,
+      supportEmail: req.body.supportEmail || null,
+      actorId: req.user.id,
+      reason: req.body.reason || null,
+    });
+    req.session.flash_success = 'Partner account created.';
+    return res.redirect(`/admin/partners/${partner.id}`);
+  } catch (err) {
+    req.session.flash_error = err.message;
+    return res.redirect('/admin/partners/new');
+  }
+}));
+
+router.get('/partners/:partnerId', asyncHandler(async (req, res) => {
+  const partner = await getPartnerAccountDetail(req.params.partnerId);
+  if (!partner) return res.status(404).render('pages/error', { status: 404, message: 'Partner account not found' });
+  const orgOptions = await listAdminOrgOptions();
+  res.render('pages/admin/partner-detail', {
+    title: `${partner.name} partner`,
+    active: 'partners',
+    partner,
+    orgOptions,
+    ...takeFlash(req),
+  });
+}));
+
+router.post('/partners/:partnerId', asyncHandler(async (req, res) => {
+  try {
+    await updatePartnerAccount({
+      partnerAccountId: req.params.partnerId,
+      name: req.body.name,
+      supportEmail: req.body.supportEmail || null,
+      actorId: req.user.id,
+      reason: req.body.reason || null,
+    });
+    req.session.flash_success = 'Partner account updated.';
+  } catch (err) {
+    req.session.flash_error = err.message;
+  }
+  res.redirect(`/admin/partners/${req.params.partnerId}`);
+}));
+
+router.post('/partners/:partnerId/members', asyncHandler(async (req, res) => {
+  try {
+    await addPartnerMember({
+      partnerAccountId: req.params.partnerId,
+      email: req.body.email,
+      actorId: req.user.id,
+      reason: req.body.reason || null,
+    });
+    req.session.flash_success = 'Partner manager added.';
+  } catch (err) {
+    req.session.flash_error = err.message;
+  }
+  res.redirect(`/admin/partners/${req.params.partnerId}`);
+}));
+
+router.post('/partners/:partnerId/members/:membershipId/remove', asyncHandler(async (req, res) => {
+  try {
+    await removePartnerMember({
+      partnerMembershipId: req.params.membershipId,
+      actorId: req.user.id,
+      reason: req.body.reason || null,
+    });
+    req.session.flash_success = 'Partner manager removed.';
+  } catch (err) {
+    req.session.flash_error = err.message;
+  }
+  res.redirect(`/admin/partners/${req.params.partnerId}`);
+}));
+
+router.post('/partners/:partnerId/org-access', asyncHandler(async (req, res) => {
+  try {
+    await grantPartnerOrgAccess({
+      partnerAccountId: req.params.partnerId,
+      orgId: req.body.orgId,
+      actorId: req.user.id,
+      reason: req.body.reason || null,
+    });
+    req.session.flash_success = 'Organization access granted.';
+  } catch (err) {
+    req.session.flash_error = err.message;
+  }
+  res.redirect(`/admin/partners/${req.params.partnerId}`);
+}));
+
+router.post('/partners/:partnerId/org-access/:accessId/remove', asyncHandler(async (req, res) => {
+  try {
+    await revokePartnerOrgAccess({
+      accessId: req.params.accessId,
+      actorId: req.user.id,
+      reason: req.body.reason || null,
+    });
+    req.session.flash_success = 'Organization access revoked.';
+  } catch (err) {
+    req.session.flash_error = err.message;
+  }
+  res.redirect(`/admin/partners/${req.params.partnerId}`);
+}));
+
+// ---- Eval data (cross-org destructive ops) ----
+
+router.get('/eval', asyncHandler(async (req, res) => {
+  const runs = await listEvalRunsForAdmin();
+  res.render('pages/admin/eval-runs', {
+    title: 'Eval runs',
+    active: 'eval',
+    runs,
+    ...takeFlash(req),
+  });
+}));
+
+router.post('/eval/runs/:runId/delete', asyncHandler(async (req, res) => {
+  try {
+    const run = await deleteEvalRunCascade({ runId: req.params.runId });
+    await auditAdminAction({
+      actorId: req.user.id,
+      action: 'eval.run_deleted',
+      targetType: 'eval_run',
+      targetId: req.params.runId,
+      orgId: run.organizationId,
+      oldValue: { evalTitle: run.eval.title, runNumber: run.runNumber, status: run.status },
+      reason: req.body.reason || null,
+    });
+    req.session.flash_success = `Deleted run ${run.runNumber} of "${run.eval.title}".`;
+  } catch (err) {
+    req.session.flash_error = err.message;
+  }
+  res.redirect('/admin/eval');
 }));
 
 router.get('/product-controls', asyncHandler(async (req, res) => {
@@ -378,6 +602,20 @@ router.get('/failures', asyncHandler(async (req, res) => {
   });
 }));
 
+router.post('/jobs/:jobId/purge-artifacts', asyncHandler(async (req, res) => {
+  try {
+    const { purged } = await purgeJobArtifacts({
+      jobId: req.params.jobId,
+      actorId: req.user.id,
+      reason: req.body.reason || null,
+    });
+    req.session.flash_success = `Purged ${purged} artifact${purged === 1 ? '' : 's'}.`;
+  } catch (err) {
+    req.session.flash_error = err.message;
+  }
+  res.redirect(`/admin/jobs/${req.params.jobId}`);
+}));
+
 router.get('/jobs/:jobId/debug', asyncHandler(async (req, res) => {
   const job = await getAdminJobDetail(req.params.jobId);
   if (!job) return res.status(404).json({ error: 'not found' });
@@ -405,6 +643,7 @@ router.get('/jobs/:jobId', asyncHandler(async (req, res) => {
     title: `Job ${job.id}`,
     active: 'jobs',
     job,
+    ...takeFlash(req),
   });
 }));
 

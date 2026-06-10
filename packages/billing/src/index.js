@@ -164,10 +164,20 @@ export async function ensureOrgEntitlement(orgId, { tierKey = TierKey.FREE } = {
   }
   if (!tier) throw new Error(`Product tier not found: ${tierKey}`);
 
-  entitlement = await db.organizationEntitlement.create({
-    data: { orgId, tierId: tier.id },
-    include: { tier: true, billingResponsibleUser: true, billingResponsibleMembership: true },
-  });
+  try {
+    entitlement = await db.organizationEntitlement.create({
+      data: { orgId, tierId: tier.id },
+      include: { tier: true, billingResponsibleUser: true, billingResponsibleMembership: true },
+    });
+  } catch (err) {
+    // Concurrent requests can race this create (P2002 on orgId) — the loser
+    // reads the row the winner just made.
+    if (err?.code !== 'P2002') throw err;
+    entitlement = await db.organizationEntitlement.findUnique({
+      where: { orgId },
+      include: { tier: true, billingResponsibleUser: true, billingResponsibleMembership: true },
+    });
+  }
   return entitlement;
 }
 

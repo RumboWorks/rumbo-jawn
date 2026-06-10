@@ -30,6 +30,10 @@ export async function resolveRole(user, orgId) {
   return partnerAccess ? Role.PARTNER_MANAGER : null;
 }
 
+// Orgs the user belongs to or partner-manages — feeds the org switcher.
+// Deliberately NOT every org for platform admins (that list would not scale);
+// admins reach any org via resolveActiveOrganization's direct lookup
+// (the admin org-detail "Act as this organization" action).
 export async function listAccessibleOrganizations(user) {
   if (!user) return [];
 
@@ -37,7 +41,6 @@ export async function listAccessibleOrganizations(user) {
     where: {
       deletedAt: null,
       OR: [
-        user.isPlatformAdmin ? {} : null,
         { memberships: { some: { userId: user.id } } },
         {
           partnerAccesses: {
@@ -49,7 +52,7 @@ export async function listAccessibleOrganizations(user) {
             },
           },
         },
-      ].filter(Boolean),
+      ],
     },
     include: {
       memberships: {

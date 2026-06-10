@@ -1,0 +1,54 @@
+{% extends "layouts/app.twig" %}
+
+{% block title %}New organization — Rumbo Admin{% endblock %}
+
+{% block sidebar %}
+    {% include "pages/admin/_sidebar.twig" %}
+{% endblock %}
+
+{% block content %}
+    <div class="rj-page-header">
+        {% include "pages/admin/_breadcrumbs.twig" with { sectionLabel: 'organizations', sectionHref: '/admin/orgs' } %}
+        <h1>New organization</h1>
+        <p>Create an organization directly (no signup flow).</p>
+    </div>
+
+    {% include "pages/admin/_flash.twig" %}
+
+    <section class="rj-admin-panel">
+        <div class="rj-admin-panel__header"><h2>Details</h2></div>
+        <div class="rj-admin-panel__body">
+            <form class="rj-admin-form" method="post" action="/admin/orgs">
+                <label>
+                    <span>Name</span>
+                    <input type="text" name="name" required>
+                </label>
+                <label>
+                    <span>Type</span>
+                    <select name="organizationType">
+                        <option value="SOLO">Solo</option>
+                        <option value="NONPROFIT" selected>Nonprofit</option>
+                        <option value="AGENCY">Agency</option>
+                        <option value="ENTERPRISE">Enterprise</option>
+                    </select>
+                </label>
+                <label>
+                    <span>Tier</span>
+                    <select name="tierKey">
+                        <option value="">Default (free)</option>
+                        {% for tier in tiers %}
+                            <option value="{{ tier.key }}">{{ tier.name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>
+                    <span>Reason</span>
+                    <input type="text" name="reason" placeholder="Optional audit note">
+                </label>
+                <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit">
+                    <i data-lucide="plus"></i> Create organization
+                </button>
+            </form>
+        </div>
+    </section>
+{% endblock %}

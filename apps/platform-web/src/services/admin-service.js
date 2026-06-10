@@ -5,6 +5,7 @@ import {
   UsageKey,
 } from '@rumbo/billing';
 import { listTools } from '@rumbo/config';
+import { deleteArtifact } from '@rumbo/storage';
 
 const RECENT_LIMIT = 10;
 const LIST_LIMIT = 50;
@@ -342,6 +343,52 @@ export async function listAdminAiCalls() {
     ...call,
     costUsdNumber: decimalToNumber(call.costUsd),
   }));
+}
+
+// Generic admin audit entry for actions whose mutation lives in a tool service
+// (e.g. Eval run deletion) — the platform route records the actor trail.
+export async function auditAdminAction({ actorId, action, targetType, targetId, orgId = null, oldValue = null, newValue = null, reason = null }) {
+  return db.adminAuditLog.create({
+    data: { actorId, action, targetType, targetId, orgId, oldValue, newValue, reason },
+  });
+}
+
+export async function listAdminProductTiers() {
+  return db.productTier.findMany({ where: { isActive: true }, orderBy: { name: 'asc' } });
+}
+
+// Lightweight org options for admin select inputs (partner org-access grant).
+export async function listAdminOrgOptions() {
+  return db.organization.findMany({
+    where: { deletedAt: null },
+    orderBy: { name: 'asc' },
+    select: { id: true, name: true, slug: true },
+  });
+}
+
+// Deletes a job's artifact files from storage and removes their manifest rows.
+// The job record itself (status, costs, audit trail) is retained.
+export async function purgeJobArtifacts({ jobId, actorId, reason = null }) {
+  const artifacts = await db.artifactManifest.findMany({ where: { jobId } });
+  for (const artifact of artifacts) {
+    try {
+      await deleteArtifact(artifact.storagePath);
+    } catch {
+      // File already gone — still drop the manifest row below.
+    }
+  }
+  await db.artifactManifest.deleteMany({ where: { jobId } });
+  await db.adminAuditLog.create({
+    data: {
+      actorId,
+      action: 'job.artifacts_purged',
+      targetType: 'job',
+      targetId: jobId,
+      oldValue: { count: artifacts.length, paths: artifacts.map(a => a.storagePath) },
+      reason,
+    },
+  });
+  return { purged: artifacts.length };
 }
 
 export async function getAdminJobDetail(jobId) {

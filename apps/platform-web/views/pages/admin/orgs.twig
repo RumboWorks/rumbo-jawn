@@ -7,11 +7,18 @@
 {% endblock %}
 
 {% block content %}
-    <div class="rj-page-header">
-        {% include "pages/admin/_breadcrumbs.twig" with { sectionLabel: 'organizations', sectionHref: '/admin/orgs' } %}
-        <h1>Organizations</h1>
-        <p>Tenant records, membership counts, partner access, and tool activity.</p>
+    <div class="rj-page-header rj-page-header--with-action">
+        <div class="rj-page-header__text">
+            {% include "pages/admin/_breadcrumbs.twig" with { sectionLabel: 'organizations', sectionHref: '/admin/orgs' } %}
+            <h1>Organizations</h1>
+            <p>Tenant records, membership counts, partner access, and tool activity.</p>
+        </div>
+        <a href="/admin/orgs/new" class="rj-btn rj-btn--primary rj-btn--sm rj-page-header__action">
+            <i data-lucide="plus"></i> Add organization
+        </a>
     </div>
+
+    {% include "pages/admin/_flash.twig" %}
 
     <div class="rj-table-wrap">
         <table class="rj-table rj-admin-table">

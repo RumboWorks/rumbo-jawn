@@ -20,3 +20,19 @@ export {
   requireToolAccess,
   toolRoleAtLeast,
 } from './tool-access-service.js';
+export {
+  adminCreateOrganization,
+  adminSoftDeleteOrganization,
+  uniqueOrgSlug,
+} from './org-admin-service.js';
+export {
+  listPartnerAccounts,
+  getPartnerAccountDetail,
+  listPartnerAccountsForUser,
+  createPartnerAccount,
+  updatePartnerAccount,
+  addPartnerMember,
+  removePartnerMember,
+  grantPartnerOrgAccess,
+  revokePartnerOrgAccess,
+} from './partner-service.js';

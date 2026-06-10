@@ -44,7 +44,7 @@ Completion phases covering docs accuracy, UI consistency, admin/partner complete
 - [x] Phase 15b — Land the admin-panel body-wrapper UI standardization pass
 - [x] Phase 16 — Documentation reconciliation
 - [x] Phase 17 — Structural and UI consistency (SLU app shell + sidebar, account inline-edit, shared segmented control, error pages)
-- [ ] Phase 18 — Admin completeness (org create/delete, partner account CRUD, act-as-org, targeted tool-data panels)
+- [x] Phase 18 — Admin completeness (org create/delete, partner account CRUD, act-as-org, targeted tool-data panels)
 - [ ] Phase 19 — Partner self-service area (`/partner`: org list, create/edit/archive, partner members)
 - [ ] Phase 20 — Email verification and public signup (pricing page, 4 tiers, terms acceptance, rate limiting)
 - [ ] Phase 21 — Stripe billing (Checkout + Customer Portal, webhooks, entitlement sync, org suspend, admin cancel)
@@ -54,4 +54,4 @@ Completion phases covering docs accuracy, UI consistency, admin/partner complete
 
 ## Next up
 
-Phase 18 — admin completeness and act-as-org.
+Phase 19 — partner self-service area.

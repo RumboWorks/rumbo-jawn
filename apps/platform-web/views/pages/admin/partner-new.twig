@@ -1,0 +1,40 @@
+{% extends "layouts/app.twig" %}
+
+{% block title %}New partner account — Rumbo Admin{% endblock %}
+
+{% block sidebar %}
+    {% include "pages/admin/_sidebar.twig" %}
+{% endblock %}
+
+{% block content %}
+    <div class="rj-page-header">
+        {% include "pages/admin/_breadcrumbs.twig" with { sectionLabel: 'partners', sectionHref: '/admin/partners' } %}
+        <h1>New partner account</h1>
+        <p>Create a partner account for an agency or consultant.</p>
+    </div>
+
+    {% include "pages/admin/_flash.twig" %}
+
+    <section class="rj-admin-panel">
+        <div class="rj-admin-panel__header"><h2>Details</h2></div>
+        <div class="rj-admin-panel__body">
+            <form class="rj-admin-form" method="post" action="/admin/partners">
+                <label>
+                    <span>Name</span>
+                    <input type="text" name="name" required>
+                </label>
+                <label>
+                    <span>Support email</span>
+                    <input type="email" name="supportEmail" placeholder="Optional">
+                </label>
+                <label>
+                    <span>Reason</span>
+                    <input type="text" name="reason" placeholder="Optional audit note">
+                </label>
+                <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit">
+                    <i data-lucide="plus"></i> Create partner account
+                </button>
+            </form>
+        </div>
+    </section>
+{% endblock %}

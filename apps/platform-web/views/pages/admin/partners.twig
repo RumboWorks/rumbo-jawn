@@ -1,0 +1,60 @@
+{% extends "layouts/app.twig" %}
+
+{% block title %}Partner accounts — Rumbo Admin{% endblock %}
+
+{% block sidebar %}
+    {% include "pages/admin/_sidebar.twig" %}
+{% endblock %}
+
+{% block content %}
+    <div class="rj-page-header">
+        {% include "pages/admin/_breadcrumbs.twig" with { sectionLabel: 'partners', sectionHref: '/admin/partners' } %}
+        <h1>Partner accounts</h1>
+        <p>Agencies and consultants who manage multiple client organizations.</p>
+    </div>
+
+    {% include "pages/admin/_flash.twig" %}
+
+    <p><a href="/admin/partners/new" class="rj-btn rj-btn--primary rj-btn--sm"><i data-lucide="plus"></i> Add partner account</a></p>
+
+    <div class="rj-table-wrap">
+        <table class="rj-table rj-admin-table">
+            <thead>
+                <tr>
+                    <th>Partner</th>
+                    <th>Managers</th>
+                    <th>Organizations</th>
+                    <th>Support email</th>
+                    <th>Created</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for partner in partners %}
+                    <tr>
+                        <td>
+                            <a href="/admin/partners/{{ partner.id }}"><strong>{{ partner.name }}</strong></a>
+                            <br><span class="rj-admin-muted rj-admin-mono">{{ partner.publicId }}</span>
+                        </td>
+                        <td>
+                            {{ partner.memberships|length }}
+                            {% for membership in partner.memberships|slice(0, 3) %}
+                                <br><span class="rj-admin-muted">{{ membership.user.email }}</span>
+                            {% endfor %}
+                        </td>
+                        <td>{{ partner.activeOrgAccesses|length }}</td>
+                        <td>
+                            {% if partner.supportEmail %}
+                                {{ partner.supportEmail }}
+                            {% else %}
+                                <span class="rj-admin-muted">None</span>
+                            {% endif %}
+                        </td>
+                        <td class="rj-num">{{ partner.createdAt|date("M j, Y") }}</td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="5" class="rj-table__empty">No partner accounts yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

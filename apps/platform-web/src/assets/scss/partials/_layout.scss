@@ -7,6 +7,28 @@
   @media (min-width: 768px) { padding-inline: var(--rj-space-8); }
 }
 
+// ---- Acting-as banner (platform admin inside a non-membership org) ----
+
+.rj-acting-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--rj-space-4);
+  padding: var(--rj-space-2) var(--rj-space-4);
+  background: var(--rj-warning-bg, #fdf0d5);
+  color: var(--rj-amber-700, #9a6700);
+  border-bottom: 1px solid var(--rj-border);
+  font-size: var(--rj-text-sm);
+
+  svg { width: 1em; height: 1em; vertical-align: -0.15em; }
+}
+
+.rj-acting-banner__text {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--rj-space-2);
+}
+
 // ---- Error page (404/403/500) ----
 
 .rj-error-page {
