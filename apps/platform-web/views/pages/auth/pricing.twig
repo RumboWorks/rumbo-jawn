@@ -8,22 +8,63 @@
         <p class="rj-eyebrow">Pricing</p>
         <h1 class="rj-h1">Pick the plan that fits</h1>
         <p class="rj-lead">Start free. Upgrade when your team or clients need more.</p>
+
+        {# Annual is first and the default; the sliding indicator tracks the active option. #}
+        <div class="rj-segmented rj-pricing-interval" style="max-width:300px;margin:var(--rj-space-5) auto 0" data-interval-toggle>
+            <span class="rj-segmented__indicator" aria-hidden="true"></span>
+            <button class="rj-segmented__btn is-active" data-interval="year" type="button">
+                <span class="rj-segmented__label">Annual</span>
+            </button>
+            <button class="rj-segmented__btn" data-interval="month" type="button">
+                <span class="rj-segmented__label">Monthly</span>
+            </button>
+        </div>
     </div>
 
     <div class="rj-pricing-grid">
         {% for tier in tiers %}
-            <div class="rj-card rj-card--pad rj-pricing-card{% if tier.key == 'team' %} rj-pricing-card--featured{% endif %}">
+            {% set monthHref = tier.key == 'free' ? '/signup?tier=free' : '/signup?tier=' ~ tier.key ~ '&interval=month' %}
+            {% set yearHref = tier.key == 'free' ? '/signup?tier=free' : '/signup?tier=' ~ tier.key ~ '&interval=year' %}
+            <div class="rj-card rj-card--pad rj-pricing-card{% if tier.key == 'team' %} rj-pricing-card--featured{% endif %}"
+                 data-tier-card
+                 data-href-month="{{ monthHref }}"
+                 data-href-year="{{ yearHref }}">
                 <h2 class="rj-pricing-card__name">{{ tier.name }}</h2>
-                <p class="rj-pricing-card__price">{{ tier.price }}</p>
+
+                {# Monthly view: plain monthly price. Hidden by default (annual is default). #}
+                <div data-price-monthly hidden>
+                    {% if tier.key == 'free' %}
+                        <p class="rj-pricing-card__price">Free</p>
+                    {% else %}
+                        <p class="rj-pricing-card__price">${{ tier.priceUsdMonthly|number_format(0, '.', ',') }}<span class="rj-pricing-card__per">/mo</span></p>
+                    {% endif %}
+                </div>
+
+                {# Annual view: large monthly-equivalent, with the billed-annually total beneath it. #}
+                <div data-price-annual>
+                    {% if tier.key == 'free' %}
+                        <p class="rj-pricing-card__price">Free</p>
+                    {% elseif tier.priceUsdAnnual %}
+                        <p class="rj-pricing-card__price">${{ (tier.priceUsdAnnual / 12)|round|number_format(0, '.', ',') }}<span class="rj-pricing-card__per">/mo</span></p>
+                        <p class="rj-pricing-card__sub">${{ tier.priceUsdAnnual|number_format(0, '.', ',') }}/yr billed annually</p>
+                    {% else %}
+                        <p class="rj-pricing-card__price">${{ tier.priceUsdMonthly|number_format(0, '.', ',') }}<span class="rj-pricing-card__per">/mo</span></p>
+                    {% endif %}
+                </div>
+
                 <p class="rj-pricing-card__blurb">{{ tier.blurb }}</p>
                 <ul class="rj-pricing-card__features">
                     {% for feature in tier.features %}
                         <li><i data-lucide="check-circle-2"></i> {{ feature }}</li>
                     {% endfor %}
                 </ul>
-                <a href="/signup?tier={{ tier.key }}" class="rj-btn {% if tier.key == 'team' %}rj-btn--primary{% else %}rj-btn--secondary{% endif %}">
-                    {% if tier.key == 'free' %}Start free{% else %}Choose {{ tier.name }}{% endif %}
-                </a>
+
+                {% set ctaClass = tier.key == 'team' ? 'rj-btn--primary' : 'rj-btn--secondary' %}
+                {% if tier.key == 'free' %}
+                    <a href="/signup?tier=free" class="rj-btn rj-btn--secondary" data-tier-cta>Start free</a>
+                {% else %}
+                    <a href="{{ yearHref }}" class="rj-btn {{ ctaClass }}" data-tier-cta>Choose {{ tier.name }}</a>
+                {% endif %}
             </div>
         {% endfor %}
     </div>

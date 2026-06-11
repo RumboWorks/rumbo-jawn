@@ -8,6 +8,7 @@ import {
 } from './settings.service.js';
 import {
   listEvals, getEvalRow, getEvalByPublicId, createEval, updateEval, archiveEval,
+  listArchivedEvals, restoreEval, deleteEvalCascade,
   launchRun, getRunByPublicId, getResponseByPublicId, saveManualResponse,
   setRunStatus, summarizeResponses, isLiveCollectable,
 } from './evals.service.js';
@@ -241,6 +242,18 @@ router.get('/evals', requireManager, asyncHandler(async (req, res) => {
   });
 }));
 
+// Registered before /evals/:publicId so "archived" isn't read as a publicId.
+router.get('/evals/archived', requireManager, asyncHandler(async (req, res) => {
+  const evals = await listArchivedEvals(req.toolOrgId);
+  res.render('pages/eval/evals-archived', {
+    tool: 'eval',
+    title: 'Archived evaluations',
+    toolRole: req.toolRole,
+    evals,
+    flash: takeFlash(req),
+  });
+}));
+
 router.get('/reports', requireManager, asyncHandler(async (req, res) => {
   const reportGroups = await listReportsGroupedByEval(req.toolOrgId);
   res.render('pages/eval/reports', {
@@ -342,8 +355,28 @@ router.post('/evals/:publicId', requireManager, asyncHandler(async (req, res) =>
 router.post('/evals/:publicId/archive', requireManager, asyncHandler(async (req, res) => {
   await archiveEval(req.toolOrgId, req.params.publicId);
   if (isAjax(req)) return res.json({ ok: true, removed: true });
-  req.session.flash_success = 'Evaluation archived.';
+  req.session.flash_success = 'Evaluation archived. Restore it any time from Archived.';
   res.redirect('/eval/evals');
+}));
+
+router.post('/evals/:publicId/restore', requireManager, asyncHandler(async (req, res) => {
+  await restoreEval(req.toolOrgId, req.params.publicId);
+  if (isAjax(req)) return res.json({ ok: true, removed: true });
+  req.session.flash_success = 'Evaluation restored.';
+  res.redirect('/eval/evals');
+}));
+
+router.post('/evals/:publicId/delete', requireManager, asyncHandler(async (req, res) => {
+  try {
+    await deleteEvalCascade(req.toolOrgId, req.params.publicId);
+  } catch (err) {
+    if (isAjax(req)) return res.status(400).json({ ok: false, error: err.message });
+    req.session.flash_error = err.message;
+    return res.redirect('/eval/evals/archived');
+  }
+  if (isAjax(req)) return res.json({ ok: true, removed: true });
+  req.session.flash_success = 'Evaluation permanently deleted.';
+  res.redirect('/eval/evals/archived');
 }));
 
 router.get('/evals/:publicId', requireManager, asyncHandler(async (req, res) => {

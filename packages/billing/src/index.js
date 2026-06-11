@@ -446,6 +446,40 @@ export async function setOrgSluBudget({ orgId, limit, windowDays, actorId = null
   return updated;
 }
 
+export async function updateProductTierStripe({ tierId, stripePriceId, stripePriceIdAnnual, priceUsdMonthly, priceUsdAnnual, actorId = null, reason = null }) {
+  const tier = await db.productTier.findUnique({ where: { id: tierId } });
+  if (!tier) throw new Error(`Product tier not found: ${tierId}`);
+
+  const priceIdMonthly = stripePriceId?.trim() || null;
+  const priceIdAnnual = stripePriceIdAnnual?.trim() || null;
+  const priceMonthly = priceUsdMonthly === '' || priceUsdMonthly == null ? null : parsePositiveNumber(priceUsdMonthly, 'Monthly price');
+  const priceAnnual = priceUsdAnnual === '' || priceUsdAnnual == null ? null : parsePositiveNumber(priceUsdAnnual, 'Annual price');
+
+  const updated = await db.productTier.update({
+    where: { id: tierId },
+    data: {
+      stripePriceId: priceIdMonthly,
+      stripePriceIdAnnual: priceIdAnnual,
+      priceUsdMonthly: priceMonthly,
+      priceUsdAnnual: priceAnnual,
+    },
+  });
+
+  await db.adminAuditLog.create({
+    data: {
+      actorId,
+      action: 'product_tier.stripe_updated',
+      targetType: 'product_tier',
+      targetId: tierId,
+      oldValue: { stripePriceId: tier.stripePriceId, stripePriceIdAnnual: tier.stripePriceIdAnnual, priceUsdMonthly: tier.priceUsdMonthly, priceUsdAnnual: tier.priceUsdAnnual },
+      newValue: { stripePriceId: priceIdMonthly, stripePriceIdAnnual: priceIdAnnual, priceUsdMonthly: priceMonthly, priceUsdAnnual: priceAnnual },
+      reason,
+    },
+  });
+
+  return updated;
+}
+
 export async function setOrgSpendCap({ orgId, aiSpendCapUsd, actorId = null, reason = null }) {
   const parsedCap = parsePositiveNumber(aiSpendCapUsd, 'Spend cap');
   const before = await ensureOrgEntitlement(orgId);

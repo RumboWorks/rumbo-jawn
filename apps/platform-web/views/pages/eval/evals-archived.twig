@@ -1,0 +1,66 @@
+{% extends "layouts/app.twig" %}
+
+{% block title %}Archived evaluations — Rumbo{% endblock %}
+
+{% block sidebar %}
+    {% include "pages/eval/_sidebar.twig" with { active: 'archived', toolRole: toolRole } %}
+{% endblock %}
+
+{% block content %}
+    {% include "partials/page-header.twig" with {
+        heading: 'Archived evaluations',
+        subtitle: 'Archived evaluations are hidden from the tool but keep all their data. Restore one to bring it back, or delete it permanently.',
+        action: { label: 'Back to evaluations', href: '/eval/evals', icon: 'clipboard-check' }
+    } %}
+
+    {% include "pages/eval/_flash.twig" %}
+
+    {% if evals is empty %}
+        <div class="rj-list">
+            <p class="rj-list__empty">Nothing archived. Archiving an evaluation from the <a href="/eval/evals">evaluations list</a> moves it here.</p>
+        </div>
+    {% else %}
+        <section class="eval-list-section">
+            <div class="rj-table-wrap eval-table-wrap">
+                <table class="rj-table eval-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Runs</th>
+                            <th>Archived</th>
+                            <th class="eval-table__col--actions"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ev in evals %}
+                            <tr class="eval-table__row">
+                                <td>
+                                    <span class="eval-table__title-link">{{ ev.title }}</span>
+                                    {% if ev.description %}<span class="eval-table__description">{{ ev.description }}</span>{% endif %}
+                                </td>
+                                <td class="rj-num">{{ ev._count.runs }}</td>
+                                <td class="eval-table__cell--activity">{{ ev.archivedAt|date("M j, Y") }}</td>
+                                <td class="eval-table__cell--actions">
+                                    <form method="post" action="/eval/evals/{{ ev.publicId }}/restore" style="display:inline">
+                                        <button type="submit" class="rj-btn rj-btn--secondary rj-btn--sm">
+                                            <i data-lucide="rotate-ccw"></i> Restore
+                                        </button>
+                                    </form>
+                                    <form method="post" action="/eval/evals/{{ ev.publicId }}/delete" style="display:inline">
+                                        <button type="submit" class="rj-btn rj-btn--ghost rj-btn--sm"
+                                                data-confirm="Permanently delete “{{ ev.title|e('html_attr') }}” and all of its runs, responses, ratings, and reports? This cannot be undone."
+                                                data-confirm-title="Delete evaluation"
+                                                data-confirm-confirm="Delete permanently"
+                                                data-confirm-danger>
+                                            <i data-lucide="trash-2"></i> Delete
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    {% endif %}
+{% endblock %}

@@ -72,8 +72,10 @@
         <dl class="rj-admin-kv">
             <dt>Status</dt>
             <dd>{{ account.status }}</dd>
-            <dt>Platform admin</dt>
-            <dd>{% if account.isPlatformAdmin %}Yes{% else %}No{% endif %}</dd>
+            {% if account.isPlatformAdmin %}
+                <dt>Platform admin</dt>
+                <dd>Yes</dd>
+            {% endif %}
             <dt>Organizations</dt>
             <dd>
                 {% if account.visibleMemberships|length == 0 %}
@@ -91,16 +93,14 @@
                     {% endfor %}
                 {% endif %}
             </dd>
-            <dt>Partners</dt>
-            <dd>
-                {% if account.partnerMemberships|length == 0 %}
-                    <span class="rj-admin-muted">None</span>
-                {% else %}
+            {% if account.partnerMemberships|length > 0 %}
+                <dt>Partners</dt>
+                <dd>
                     {% for membership in account.partnerMemberships %}
                         <div>{{ membership.partnerAccount.name }} <span class="rj-admin-muted">{{ membership.role|lower }}</span></div>
                     {% endfor %}
-                {% endif %}
-            </dd>
+                </dd>
+            {% endif %}
         </dl>
         </div>
     </section>
@@ -109,12 +109,15 @@
         <div class="rj-admin-panel__header"><h2>Delete account</h2></div>
         <div class="rj-admin-panel__body">
             <p class="rj-admin-muted">Deleting anonymizes your account permanently: your name and email are removed, sign-in stops working, and personal workspaces with no other members are archived. Active subscriptions must be cancelled first from <a href="/billing">Billing</a>. This cannot be undone.</p>
-            <form class="rj-admin-form" method="post" action="/account/delete" onsubmit="return confirm('Permanently delete your account? This cannot be undone.')">
-                <label>
-                    <span>Type your email to confirm</span>
-                    <input type="email" name="confirmEmail" placeholder="{{ account.email }}" required autocomplete="off">
-                </label>
-                <button class="rj-btn rj-btn--secondary rj-btn--sm" type="submit">
+            <form class="rj-admin-form" method="post" action="/account/delete">
+                <button class="rj-btn rj-btn--danger rj-btn--sm" type="submit"
+                        data-confirm="Permanently delete your account? Your name and email are removed and sign-in stops working. This cannot be undone."
+                        data-confirm-title="Delete your account"
+                        data-confirm-confirm="Delete my account"
+                        data-confirm-danger
+                        data-confirm-match="{{ account.email|e('html_attr') }}"
+                        data-confirm-match-name="confirmEmail"
+                        data-confirm-match-label="Type your email ({{ account.email|e('html_attr') }}) to confirm">
                     <i data-lucide="trash-2"></i> Delete my account
                 </button>
             </form>

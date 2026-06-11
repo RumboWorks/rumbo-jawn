@@ -81,12 +81,31 @@
   margin-bottom: var(--rj-space-12);
 }
 
+// Interval toggle (Annual / Monthly). Reuses the shared segmented control with
+// a sliding indicator; centered under the hero.
+.rj-pricing-interval {
+  .rj-segmented__btn { padding-inline: var(--rj-space-4); }
+}
+
 .rj-pricing-card {
   display: flex;
   flex-direction: column;
   gap: var(--rj-space-2);
+  cursor: pointer;
+  transition:
+    border-color var(--rj-dur) var(--rj-ease),
+    box-shadow var(--rj-dur) var(--rj-ease),
+    background var(--rj-dur) var(--rj-ease),
+    transform var(--rj-dur) var(--rj-ease);
 
   .rj-btn { margin-top: auto; justify-content: center; }
+
+  &:hover {
+    border-color: var(--rj-pine-600, #1e7d4f);
+    background: var(--rj-bg-raised);
+    box-shadow: var(--rj-shadow-md);
+    transform: translateY(-2px);
+  }
 }
 
 .rj-pricing-card--featured {
@@ -97,9 +116,27 @@
 .rj-pricing-card__name { margin: 0; font-size: var(--rj-text-h3, 1.25rem); }
 
 .rj-pricing-card__price {
+  margin: 0;
   color: var(--rj-pine-800, #14532d);
   font-size: var(--rj-text-h2);
   font-weight: var(--rj-weight-bold);
+  line-height: 1.1;
+}
+
+// Smaller "/mo" "/yr" unit appended to a price.
+.rj-pricing-card__per {
+  font-size: var(--rj-text-md);
+  font-weight: var(--rj-weight-medium);
+  color: var(--rj-fg-3);
+}
+
+// Annual sub-line: the billed-annually total, shown smaller beneath the
+// large monthly-equivalent figure.
+.rj-pricing-card__sub {
+  margin: 2px 0 0;
+  font-size: var(--rj-text-sm);
+  font-weight: var(--rj-weight-medium);
+  color: var(--rj-fg-3);
 }
 
 .rj-pricing-card__blurb { color: var(--rj-fg-2); }
@@ -114,5 +151,11 @@
   font-size: var(--rj-text-sm);
   color: var(--rj-fg-2);
 
-  svg { width: 1em; height: 1em; vertical-align: -0.125em; color: var(--rj-pine-600, #1e7d4f); }
+  li {
+    display: flex;
+    gap: 0.4em;
+    align-items: center;
+  }
+
+  svg { width: 1em; height: 1em; flex-shrink: 0; color: var(--rj-pine-600, #1e7d4f); }
 }

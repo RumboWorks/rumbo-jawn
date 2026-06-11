@@ -289,6 +289,7 @@ export async function getAdminProductControls() {
         OR: [
           { targetType: 'feature_flag' },
           { targetType: 'ai_model_config' },
+          { targetType: 'product_tier' },
         ],
       },
       orderBy: { createdAt: 'desc' },

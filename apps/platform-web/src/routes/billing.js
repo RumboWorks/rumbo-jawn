@@ -84,9 +84,11 @@ router.post('/checkout', asyncHandler(async (req, res) => {
     return res.status(403).render('pages/error', { status: 403, message: 'Billing is managed by organization managers.' });
   }
   try {
+    const interval = req.body.interval === 'year' ? 'year' : 'month';
     const session = await createCheckoutSession({
       orgId: organization.id,
       tierKey: req.body.tierKey,
+      interval,
       userEmail: req.user.email,
       baseUrl: buildAbsoluteUrl('').replace(/\/$/, ''),
     });

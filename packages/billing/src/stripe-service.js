@@ -35,16 +35,17 @@ export async function listPurchasableTiers() {
   });
 }
 
-export async function createCheckoutSession({ orgId, tierKey, userEmail, baseUrl }) {
+export async function createCheckoutSession({ orgId, tierKey, interval = 'month', userEmail, baseUrl }) {
   const stripe = getStripe();
   const tier = await db.productTier.findUnique({ where: { key: tierKey } });
-  if (!tier?.stripePriceId) throw new Error('That plan is not purchasable yet.');
+  const priceId = interval === 'year' ? tier?.stripePriceIdAnnual : tier?.stripePriceId;
+  if (!priceId) throw new Error(`That plan has no ${interval === 'year' ? 'annual' : 'monthly'} price configured yet.`);
   const entitlement = await db.organizationEntitlement.findUnique({ where: { orgId } });
   if (!entitlement) throw new Error('Organization has no entitlement record.');
 
   return stripe.checkout.sessions.create({
     mode: 'subscription',
-    line_items: [{ price: tier.stripePriceId, quantity: 1 }],
+    line_items: [{ price: priceId, quantity: 1 }],
     client_reference_id: orgId,
     ...(entitlement.stripeCustomerId
       ? { customer: entitlement.stripeCustomerId }
@@ -85,7 +86,7 @@ async function entitlementForSubscription(subscription) {
 // implied by its current price. Idempotent — safe for replayed events.
 export async function syncEntitlementFromSubscription(subscription) {
   const entitlement = await entitlementForSubscription(subscription);
-  if (!entitlement) return null;
+  if (!entitlement) throw new Error(`subscription event: no entitlement for subscription ${subscription.id}`);
 
   const priceId = subscription.items?.data?.[0]?.price?.id ?? null;
   const customerId = typeof subscription.customer === 'string'
@@ -124,7 +125,7 @@ export async function syncEntitlementFromSubscription(subscription) {
 
 async function handleSubscriptionDeleted(subscription) {
   const entitlement = await entitlementForSubscription(subscription);
-  if (!entitlement) return;
+  if (!entitlement) throw new Error(`subscription.deleted: no entitlement for subscription ${subscription.id}`);
 
   await db.organizationEntitlement.update({
     where: { id: entitlement.id },
@@ -143,9 +144,9 @@ async function handleSubscriptionDeleted(subscription) {
 
 async function handleCheckoutCompleted(session) {
   const orgId = session.client_reference_id || session.metadata?.orgId;
-  if (!orgId) return;
+  if (!orgId) throw new Error(`checkout.session.completed missing orgId (session ${session.id})`);
   const entitlement = await db.organizationEntitlement.findUnique({ where: { orgId } });
-  if (!entitlement) return;
+  if (!entitlement) throw new Error(`checkout.session.completed: no entitlement for org ${orgId} (session ${session.id})`);
 
   const customerId = typeof session.customer === 'string' ? session.customer : session.customer?.id ?? null;
   const subscriptionId = typeof session.subscription === 'string' ? session.subscription : session.subscription?.id ?? null;

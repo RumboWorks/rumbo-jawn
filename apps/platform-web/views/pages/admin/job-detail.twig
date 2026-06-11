@@ -141,8 +141,12 @@
                     </table>
                 </div>
                 <div class="rj-form-actions">
-                    <form method="post" action="/admin/jobs/{{ job.id }}/purge-artifacts" onsubmit="return confirm('Delete this job\'s stored artifact files? The job record is kept.')">
-                        <button class="rj-btn rj-btn--secondary rj-btn--sm" type="submit">
+                    <form method="post" action="/admin/jobs/{{ job.id }}/purge-artifacts">
+                        <button class="rj-btn rj-btn--secondary rj-btn--sm" type="submit"
+                                data-confirm="Delete this job's stored artifact files? The job record is kept."
+                                data-confirm-title="Purge artifacts"
+                                data-confirm-confirm="Purge artifacts"
+                                data-confirm-danger>
                             <i data-lucide="trash-2"></i> Purge artifacts
                         </button>
                     </form>

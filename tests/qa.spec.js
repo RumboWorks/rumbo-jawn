@@ -19,6 +19,18 @@ async function screenshot(page, name) {
   await page.screenshot({ path: ss(name), fullPage: true });
 }
 
+// Drives the shared confirmation modal (replaces native confirm()). Pass `type`
+// to fill a typed-confirmation gate (delete account/org); omit it for a plain
+// confirm. Waits for the dialog, satisfies the gate, and clicks Confirm.
+async function confirmModal(page, type) {
+  const dialog = page.locator('#rj-confirm');
+  await expect(dialog).toBeVisible();
+  if (type !== undefined) {
+    await dialog.locator('[data-confirm-match-input]').fill(type);
+  }
+  await dialog.locator('[data-confirm-ok]').click();
+}
+
 // Marks an account's email as verified directly — QA's stand-in for opening
 // the emailed link (the dedicated verification test exercises the real token).
 async function verifyUserByEmail(email) {
@@ -177,10 +189,15 @@ test('platform admin can view central admin dashboard', async ({ page }) => {
   await page.goto('/admin/product-controls');
   await expect(page.locator('h1')).toContainText('Product controls');
   await expect(page.locator('.rj-admin-breadcrumbs').first()).toHaveText('admin / product controls');
+  // Default tab is Tiers (Stripe pricing per tier).
+  await expect(page.locator('th', { hasText: 'Monthly price ID' }).first()).toBeVisible();
+  // AI models tab shows the model-config table.
+  await page.getByRole('link', { name: 'AI models' }).click();
   await expect(page.locator('th', { hasText: 'Tool' }).first()).toBeVisible();
   await expect(page.locator('td', { hasText: 'slu' }).first()).toBeVisible();
-  await expect(page.locator('form[action$="/feature-flags"]')).toHaveCount(0);
-  await page.getByRole('link', { name: 'Add' }).nth(1).click();
+  // Feature flags tab → add a flag through the dedicated editor.
+  await page.getByRole('link', { name: 'Feature flags' }).click();
+  await page.getByRole('link', { name: 'Add' }).click();
   await expect(page.locator('h1')).toContainText('New feature flag');
   await expect(page.locator('.rj-admin-breadcrumbs').first()).toHaveText('admin / product controls');
   await page.fill('form[action$="/feature-flags"] input[name="key"]', `qa.flag.${Date.now()}`);
@@ -583,10 +600,10 @@ test('admin can create an org, manage partners, act as org, and delete the org',
   await page.goto('/admin/eval');
   await expect(page.locator('h1')).toContainText('Eval runs');
 
-  // Delete the org with typed-name confirmation.
+  // Delete the org with typed-name confirmation in the modal.
   await page.goto(orgUrl);
-  await page.fill('input[name="confirmName"]', orgName);
   await page.locator('form[action$="/delete"] button[type="submit"]').click();
+  await confirmModal(page, orgName);
   await page.waitForURL('/admin/orgs');
   await expect(page.locator('text=Organization deleted.')).toBeVisible();
   await expect(page.locator('.rj-admin-table')).not.toContainText(orgName);
@@ -646,6 +663,7 @@ test('partner manager can create, edit, and archive client orgs and manage co-ma
   // Archive the org (it has no direct members, so it is removed entirely).
   await page.locator('[data-inline-edit]', { hasText: `${orgName} Edited` })
     .locator('form[action$="/archive"] button').click();
+  await confirmModal(page);
   await expect(page.locator('text=Organization archived and removed')).toBeVisible();
   await expect(page.locator('[data-inline-edit]', { hasText: orgName })).toHaveCount(0);
 
@@ -666,52 +684,60 @@ test('tiered signup: pricing, team provisioning, verification gate and real toke
   const email = `signup-team-${runId}@example.org`;
   const orgName = `QA Team Org ${runId}`;
 
-  // Pricing page lists all four plans.
-  await page.goto('/pricing');
-  await screenshot(page, '14-pricing');
-  await expect(page.locator('.rj-pricing-card')).toHaveCount(4);
-  await page.getByRole('link', { name: 'Choose Team' }).click();
-  await expect(page).toHaveURL(/\/signup\?tier=team/);
+  // The pricing page only shows tiers that have a price configured; ensure the
+  // Team tier is purchasable for this run, and restore it afterward.
+  const teamTier = await db.productTier.findUnique({ where: { key: 'team' } });
+  await db.productTier.update({ where: { key: 'team' }, data: { priceUsdMonthly: teamTier.priceUsdMonthly ?? 49 } });
+  try {
+    // Pricing page shows the (priced) Team plan; choosing it carries to signup.
+    await page.goto('/pricing');
+    await screenshot(page, '14-pricing');
+    await expect(page.getByRole('link', { name: 'Choose Team' })).toBeVisible();
+    await page.getByRole('link', { name: 'Choose Team' }).click();
+    await expect(page).toHaveURL(/\/signup\?tier=team/);
 
-  // Team signup collects an organization name and requires terms.
-  await expect(page.locator('input[name="orgName"]')).toBeVisible();
-  await expect(page.locator('input[name="acceptTerms"]')).toHaveAttribute('required', '');
-  await page.fill('input[name="firstName"]', 'Team');
-  await page.fill('input[name="lastName"]', 'Signup');
-  await page.fill('input[name="email"]', email);
-  await page.fill('input[name="password"]', 'teampass99');
-  await page.fill('input[name="orgName"]', orgName);
-  await page.check('input[name="acceptTerms"]');
-  await page.click('button[type="submit"]');
-  await page.waitForURL('/auth/verify-pending');
-  await screenshot(page, '15-verify-pending');
+    // Team signup collects an organization name and requires terms.
+    await expect(page.locator('input[name="orgName"]')).toBeVisible();
+    await expect(page.locator('input[name="acceptTerms"]')).toHaveAttribute('required', '');
+    await page.fill('input[name="firstName"]', 'Team');
+    await page.fill('input[name="lastName"]', 'Signup');
+    await page.fill('input[name="email"]', email);
+    await page.fill('input[name="password"]', 'teampass99');
+    await page.fill('input[name="orgName"]', orgName);
+    await page.check('input[name="acceptTerms"]');
+    await page.click('button[type="submit"]');
+    await page.waitForURL('/auth/verify-pending');
+    await screenshot(page, '15-verify-pending');
 
-  // Unverified users are parked: app surfaces bounce back to verify-pending.
-  await page.goto('/account');
-  await expect(page).toHaveURL('/auth/verify-pending');
+    // Unverified users are parked: app surfaces bounce back to verify-pending.
+    await page.goto('/account');
+    await expect(page).toHaveURL('/auth/verify-pending');
 
-  // Real token flow: a known token verifies and resumes the stashed URL.
-  const user = await db.user.findUnique({ where: { email } });
-  const token = `qa-verify-${runId}`;
-  await db.emailVerificationToken.create({
-    data: {
-      userId: user.id,
-      tokenHash: hashToken(token),
-      expiresAt: new Date(Date.now() + 60 * 60 * 1000),
-    },
-  });
-  await page.goto(`/auth/verify/${token}`);
-  await expect(page).toHaveURL('/account');
+    // Real token flow: a known token verifies and resumes the stashed URL.
+    const user = await db.user.findUnique({ where: { email } });
+    const token = `qa-verify-${runId}`;
+    await db.emailVerificationToken.create({
+      data: {
+        userId: user.id,
+        tokenHash: hashToken(token),
+        expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+      },
+    });
+    await page.goto(`/auth/verify/${token}`);
+    await expect(page).toHaveURL('/account');
 
-  // Team provisioning: named org, manager membership, recorded paid intent.
-  const org = await db.organization.findFirst({
-    where: { name: orgName },
-    include: { memberships: true, entitlement: true },
-  });
-  expect(org).not.toBeNull();
-  expect(org.memberships).toHaveLength(1);
-  expect(org.memberships[0].role).toBe('MANAGER');
-  expect(org.entitlement.overrides?.intendedTier).toBe('team');
+    // Team provisioning: named org, manager membership, recorded paid intent.
+    const org = await db.organization.findFirst({
+      where: { name: orgName },
+      include: { memberships: true, entitlement: true },
+    });
+    expect(org).not.toBeNull();
+    expect(org.memberships).toHaveLength(1);
+    expect(org.memberships[0].role).toBe('MANAGER');
+    expect(org.entitlement.overrides?.intendedTier).toBe('team');
+  } finally {
+    await db.productTier.update({ where: { key: 'team' }, data: { priceUsdMonthly: teamTier.priceUsdMonthly } });
+  }
 });
 
 test('partner signup provisions a partner account and first org', async ({ page }) => {
@@ -758,9 +784,10 @@ test('billing page renders and webhook sync drives the tier up and back down', a
   await expect(page.locator('text=Current plan')).toBeVisible();
   await expect(page.locator('text=Free plan')).toBeVisible();
 
-  // The webhook endpoint refuses politely while Stripe isn't configured.
+  // The webhook endpoint rejects an unsigned/empty body: 503 when Stripe isn't
+  // configured, 400 (bad signature) once a webhook secret is set.
   const webhookRes = await request.post('/billing/webhook', { data: {} });
-  expect(webhookRes.status()).toBe(503);
+  expect([400, 503]).toContain(webhookRes.status());
 
   // Webhook sync: an active subscription flips the tier implied by its price.
   const user = await db.user.findUnique({ where: { email }, include: { memberships: true } });
@@ -864,6 +891,7 @@ test('help system: admin CRUD, tool help page, context API, and the drawer', asy
   await expect(page.locator('.rj-help-item', { hasText: title })).toHaveCount(0);
   await page.goto('/admin/help');
   await page.locator('tr', { hasText: title }).locator('form[action$="/delete"] button').click();
+  await confirmModal(page);
   await expect(page.locator('text=Article deleted.')).toBeVisible();
 });
 
@@ -898,14 +926,18 @@ test('account page shows usage and self-deletion anonymizes the account', async 
   await page.goto('/account');
   await expect(page.locator('text=Sounds Like Us analyses')).toBeVisible();
 
-  // Wrong confirmation email is rejected.
-  await page.fill('form[action="/account/delete"] input[name="confirmEmail"]', 'wrong@example.org');
+  // The delete modal gates on the typed email: Confirm stays disabled until it
+  // matches, so a wrong email can't be submitted.
   await page.locator('form[action="/account/delete"] button[type="submit"]').click();
-  await expect(page.locator('text=Confirmation email does not match')).toBeVisible();
+  const deleteDialog = page.locator('#rj-confirm');
+  await expect(deleteDialog).toBeVisible();
+  await deleteDialog.locator('[data-confirm-match-input]').fill('wrong@example.org');
+  await expect(deleteDialog.locator('[data-confirm-ok]')).toBeDisabled();
 
   // Correct confirmation deletes: logged out, anonymized, login impossible.
-  await page.fill('form[action="/account/delete"] input[name="confirmEmail"]', email);
-  await page.locator('form[action="/account/delete"] button[type="submit"]').click();
+  await deleteDialog.locator('[data-confirm-match-input]').fill(email);
+  await expect(deleteDialog.locator('[data-confirm-ok]')).toBeEnabled();
+  await deleteDialog.locator('[data-confirm-ok]').click();
   await page.waitForURL('/');
   await expect(page.locator('text=Sign in')).toBeVisible();
 
@@ -971,6 +1003,7 @@ test('single-run collapse, grouped reports, and the admin run trash lifecycle', 
   await page.goto('/admin/eval');
   await page.locator('tbody tr', { hasText: title }).filter({ hasText: 'Run 2' })
     .locator('form[action$="/trash"] button').click();
+  await confirmModal(page);
   await expect(page.locator('text=Moved run 2')).toBeVisible();
   const gone = await page.goto(`/eval/runs/${run2.publicId}`);
   expect(gone.status()).toBe(404);
@@ -984,8 +1017,10 @@ test('single-run collapse, grouped reports, and the admin run trash lifecycle', 
   await page.goto('/admin/eval');
   await page.locator('tbody tr', { hasText: title }).filter({ hasText: 'Run 2' })
     .locator('form[action$="/trash"] button').click();
+  await confirmModal(page);
   await page.locator('tbody tr', { hasText: title }).filter({ hasText: 'Run 1' })
     .locator('form[action$="/trash"] button').click();
+  await confirmModal(page);
   await expect(page.locator('text=was archived')).toBeVisible();
   await page.goto('/eval/evals');
   await expect(page.locator('main')).not.toContainText(title);
@@ -998,8 +1033,52 @@ test('single-run collapse, grouped reports, and the admin run trash lifecycle', 
   // Permanent delete from the trash actually removes the run.
   await page.goto('/admin/eval');
   await page.locator('tr', { hasText: 'Run 2' }).locator('form[action$="/purge"] button').click();
+  await confirmModal(page);
   await expect(page.locator('text=Permanently deleted run 2')).toBeVisible();
   expect(await db.evalRun.findUnique({ where: { id: run2.id } })).toBeNull();
+});
+
+test('manager can archive, restore, and permanently delete an evaluation', async ({ page }) => {
+  const runId = Date.now();
+  const email = `eval-archive-${runId}@example.org`;
+  const title = `QA Archive Eval ${runId}`;
+  await registerUser(page, { name: 'Archive Tester', email, password: 'archivepass99' });
+
+  const user = await db.user.findUnique({ where: { email }, include: { memberships: true } });
+  const orgId = user.memberships[0].orgId;
+  await db.toolGrant.create({ data: { userId: user.id, orgId, tool: 'eval', role: 'MANAGER' } });
+  const ev = await db.eval.create({ data: { organizationId: orgId, title, createdByUserId: user.id } });
+  const run = await db.evalRun.create({
+    data: { organizationId: orgId, evalId: ev.id, runNumber: 1, status: 'COLLECTING_RESPONSES' },
+  });
+  await db.evalPromptSnapshot.create({ data: { evalRunId: run.id, promptText: 'QA archive prompt' } });
+
+  // Archive from the evaluations list (confirm modal) → leaves the list.
+  await page.goto('/eval/evals');
+  await page.locator('.eval-table__row', { hasText: title }).locator('form[action$="/archive"] button').click();
+  await confirmModal(page);
+  await expect(page.locator('main')).not.toContainText(title);
+
+  // It appears under Archived, where it can be restored.
+  await page.goto('/eval/evals/archived');
+  await expect(page.locator('.eval-table__row', { hasText: title })).toBeVisible();
+  await page.locator('.eval-table__row', { hasText: title }).locator('form[action$="/restore"] button').click();
+  await expect(page.locator('text=Evaluation restored.')).toBeVisible();
+  await page.goto('/eval/evals');
+  await expect(page.locator('main')).toContainText(title);
+
+  // Archive again, then permanently delete from the archive (danger modal).
+  await page.goto('/eval/evals');
+  await page.locator('.eval-table__row', { hasText: title }).locator('form[action$="/archive"] button').click();
+  await confirmModal(page);
+  await page.goto('/eval/evals/archived');
+  await page.locator('.eval-table__row', { hasText: title }).locator('form[action$="/delete"] button').click();
+  await confirmModal(page);
+  await expect(page.locator('text=Evaluation permanently deleted.')).toBeVisible();
+
+  // The eval and its run are gone from the database (cascade).
+  expect(await db.eval.findUnique({ where: { id: ev.id } })).toBeNull();
+  expect(await db.evalRun.findUnique({ where: { id: run.id } })).toBeNull();
 });
 
 test('requireAuth redirects unauthenticated users', async ({ page }) => {

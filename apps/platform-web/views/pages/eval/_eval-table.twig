@@ -52,7 +52,17 @@
                                 {% endif %}
                             </td>
                             <td class="eval-table__cell--activity">{{ ev.updatedAt|date("M j, Y") }}</td>
-                            <td class="eval-table__cell--actions"><a class="rj-btn rj-btn--secondary rj-btn--sm" href="/eval/evals/{{ ev.publicId }}">Open</a></td>
+                            <td class="eval-table__cell--actions">
+                                <a class="rj-btn rj-btn--secondary rj-btn--sm" href="/eval/evals/{{ ev.publicId }}">Open</a>
+                                <form method="post" action="/eval/evals/{{ ev.publicId }}/archive" style="display:inline">
+                                    <button type="submit" class="rj-btn rj-btn--ghost rj-btn--sm"
+                                            data-confirm="Archive “{{ ev.title|e('html_attr') }}”? It moves to Archived and leaves this list — you can restore it any time."
+                                            data-confirm-confirm="Archive"
+                                            data-confirm-title="Archive evaluation">
+                                        <i data-lucide="archive"></i> Archive
+                                    </button>
+                                </form>
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>

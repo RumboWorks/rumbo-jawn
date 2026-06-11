@@ -75,8 +75,12 @@
                                 <input type="hidden" name="publish" value="{% if article.isPublished %}0{% else %}1{% endif %}">
                                 <button class="rj-btn rj-btn--ghost rj-btn--sm" type="submit">{% if article.isPublished %}Unpublish{% else %}Publish{% endif %}</button>
                             </form>
-                            <form method="post" action="/admin/help/{{ article.id }}/delete" style="display:inline" onsubmit="return confirm('Delete this article?')">
-                                <button class="rj-btn rj-btn--ghost rj-btn--sm" type="submit">Delete</button>
+                            <form method="post" action="/admin/help/{{ article.id }}/delete" style="display:inline">
+                                <button class="rj-btn rj-btn--ghost rj-btn--sm" type="submit"
+                                        data-confirm="Delete this help article? This cannot be undone."
+                                        data-confirm-title="Delete article"
+                                        data-confirm-confirm="Delete"
+                                        data-confirm-danger>Delete</button>
                             </form>
                         </td>
                     </tr>

@@ -10,9 +10,99 @@
     <div class="rj-page-header">
         {% include "pages/admin/_breadcrumbs.twig" with { sectionLabel: 'product controls', sectionHref: '/admin/product-controls' } %}
         <h1>Product controls</h1>
-        <p>Feature flags and AI model/provider settings. Open a row to edit; changes are audit-logged.</p>
+        <p>Tier Stripe pricing, feature flags, and AI model/provider settings. Changes are audit-logged.</p>
     </div>
 
+    {% if flash_success %}
+        <div class="rj-alert rj-alert--success"><i data-lucide="check-circle"></i><div class="rj-alert__body">{{ flash_success }}</div></div>
+    {% endif %}
+    {% if flash_error %}
+        <div class="rj-alert rj-alert--danger"><i data-lucide="circle-alert"></i><div class="rj-alert__body">{{ flash_error }}</div></div>
+    {% endif %}
+
+    {% set activeTab = tab %}
+
+    <div class="rj-segmented" style="max-width:520px;margin-bottom:var(--rj-space-5)">
+        <span class="rj-segmented__indicator" aria-hidden="true"></span>
+        <a href="?tab=tiers"     class="rj-segmented__btn {% if activeTab == 'tiers' %}is-active{% endif %}">Tiers</a>
+        <a href="?tab=ai-models" class="rj-segmented__btn {% if activeTab == 'ai-models' %}is-active{% endif %}">AI models</a>
+        <a href="?tab=flags"     class="rj-segmented__btn {% if activeTab == 'flags' %}is-active{% endif %}">Feature flags</a>
+        <a href="?tab=audit"     class="rj-segmented__btn {% if activeTab == 'audit' %}is-active{% endif %}">Recent changes</a>
+    </div>
+
+    {# ── Tiers ── #}
+    {% if activeTab == 'tiers' %}
+    <section class="rj-admin-panel">
+        <div class="rj-admin-panel__header"><h2>Product tiers — Stripe pricing</h2></div>
+        <div class="rj-admin-panel__body">
+            <p class="rj-admin-muted" style="margin-bottom:var(--rj-space-4)">Paste Price IDs from your Stripe dashboard. Each paid tier needs one monthly and one annual Price. Free tier is always free.</p>
+            <div class="rj-table-wrap">
+                <table class="rj-table rj-admin-table">
+                    <thead>
+                        <tr>
+                            <th>Tier</th>
+                            <th>Monthly price ID</th>
+                            <th>USD/mo</th>
+                            <th>Annual price ID</th>
+                            <th>USD/yr</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tier in controls.tiers %}
+                        <tr>
+                            <form method="post" action="/admin/product-controls/tiers/{{ tier.id }}">
+                            <td>
+                                <strong>{{ tier.name }}</strong>
+                                <br><span class="rj-admin-muted rj-admin-mono">{{ tier.key }}</span>
+                            </td>
+                            <td>
+                                <input class="rj-input rj-input--sm" style="width:100%;min-width:180px"
+                                    type="text" name="stripePriceId"
+                                    value="{{ tier.stripePriceId ?? '' }}"
+                                    placeholder="price_…"
+                                    {% if tier.key == 'free' %}disabled{% endif %}>
+                            </td>
+                            <td>
+                                <input class="rj-input rj-input--sm" style="width:80px"
+                                    type="number" name="priceUsdMonthly" min="0" step="0.01"
+                                    value="{{ tier.priceUsdMonthly ?? '' }}"
+                                    placeholder="0.00"
+                                    {% if tier.key == 'free' %}disabled{% endif %}>
+                            </td>
+                            <td>
+                                <input class="rj-input rj-input--sm" style="width:100%;min-width:180px"
+                                    type="text" name="stripePriceIdAnnual"
+                                    value="{{ tier.stripePriceIdAnnual ?? '' }}"
+                                    placeholder="price_…"
+                                    {% if tier.key == 'free' %}disabled{% endif %}>
+                            </td>
+                            <td>
+                                <input class="rj-input rj-input--sm" style="width:80px"
+                                    type="number" name="priceUsdAnnual" min="0" step="0.01"
+                                    value="{{ tier.priceUsdAnnual ?? '' }}"
+                                    placeholder="0.00"
+                                    {% if tier.key == 'free' %}disabled{% endif %}>
+                            </td>
+                            <td>
+                                {% if tier.key != 'free' %}
+                                    <button class="rj-btn rj-btn--secondary rj-btn--sm" type="submit">Save</button>
+                                {% else %}
+                                    <span class="rj-admin-muted">—</span>
+                                {% endif %}
+                            </td>
+                            </form>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    {# ── AI models ── #}
+    {% if activeTab == 'ai-models' %}
     <section class="rj-admin-panel">
         <div class="rj-admin-panel__header">
             <h2>AI model config</h2>
@@ -51,7 +141,10 @@
             </div>
         </div>
     </section>
+    {% endif %}
 
+    {# ── Feature flags ── #}
+    {% if activeTab == 'flags' %}
     <section class="rj-admin-panel">
         <div class="rj-admin-panel__header">
             <h2>Feature flags</h2>
@@ -88,11 +181,16 @@
             </div>
         </div>
     </section>
+    {% endif %}
 
+    {# ── Recent changes ── #}
+    {% if activeTab == 'audit' %}
     <section class="rj-admin-panel">
         <div class="rj-admin-panel__header"><h2>Recent product-control changes</h2></div>
         <div class="rj-admin-panel__body">
             {% include "pages/admin/_audit-table.twig" with { auditLogs: controls.auditLogs } %}
         </div>
     </section>
+    {% endif %}
+
 {% endblock %}

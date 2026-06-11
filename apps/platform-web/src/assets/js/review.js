@@ -2,6 +2,8 @@
 // change; comments autosave debounced. Vanilla, progressive: only runs when
 // #eval-review is present. Endpoints return { ok } JSON.
 
+import { confirmModal } from './confirm-modal.js';
+
 function post(url, payload) {
   return fetch(url, {
     method: 'POST',
@@ -97,7 +99,8 @@ export function initReview() {
       const msg = have < totalExpected
         ? `You've scored ${have} of ${totalExpected}. Unscored criteria are excluded from the report. Submit anyway?`
         : 'Submit your review? Your scores and comments will be locked.';
-      if (window.confirm(msg)) submitForm.submit();
+      confirmModal({ message: msg, title: 'Submit review', confirmLabel: 'Submit' })
+        .then(({ ok }) => { if (ok) submitForm.submit(); });
     });
   }
 

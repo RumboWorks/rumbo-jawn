@@ -1,0 +1,54 @@
+// Shared confirmation modal (rj-confirm). Centered dialog replacing
+// window.confirm(); markup in partials/confirm-modal.twig, behaviour in
+// confirm-modal.js.
+
+.rj-confirm {
+  margin: auto;
+  width: min(440px, 92vw);
+  padding: 0;
+  border: 1px solid var(--rj-border);
+  border-radius: var(--rj-radius-lg, 12px);
+  background: var(--rj-bg-raised);
+  color: var(--rj-fg);
+  box-shadow: var(--rj-shadow-lg, 0 12px 40px rgb(15 23 42 / 0.25));
+
+  &::backdrop { background: rgb(15 23 42 / 0.45); }
+}
+
+.rj-confirm__box {
+  padding: var(--rj-space-5);
+}
+
+.rj-confirm__title {
+  margin: 0 0 var(--rj-space-2);
+  font-size: var(--rj-text-lg);
+}
+
+.rj-confirm__message {
+  margin: 0;
+  color: var(--rj-fg-2);
+  line-height: 1.5;
+}
+
+.rj-confirm__match {
+  display: block;
+  margin-top: var(--rj-space-4);
+
+  span {
+    display: block;
+    margin-bottom: var(--rj-space-1);
+    font-size: var(--rj-text-sm);
+    color: var(--rj-fg-2);
+  }
+
+  input {
+    width: 100%;
+  }
+}
+
+.rj-confirm__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--rj-space-2);
+  margin-top: var(--rj-space-5);
+}

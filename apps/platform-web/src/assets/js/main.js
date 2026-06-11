@@ -5,6 +5,9 @@ import './inline-edit.js';
 import { initHelp } from './help.js';
 import { initReview } from './review.js';
 import { initWizards } from './wizard.js';
+import { initPricing } from './pricing.js';
+import { initConfirms } from './confirm-modal.js';
+import { initSegmented } from './segmented.js';
 
 // Replace all <i data-lucide="icon-name"> elements with inline SVGs.
 // Add new icons to the map in icons.js as they appear in Twig templates.
@@ -18,6 +21,15 @@ initWizards();
 
 // Context-sensitive help drawer (no-op unless the drawer is present).
 initHelp();
+
+// Public pricing page interval toggle (no-op unless its toggle is present).
+initPricing();
+
+// Styled confirmation modal (intercepts [data-confirm] buttons/links).
+initConfirms();
+
+// Sliding highlight for every rj-segmented control (skips React-managed ones).
+initSegmented();
 
 applyLocalUiPreferences();
 

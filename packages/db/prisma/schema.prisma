@@ -256,8 +256,10 @@ model ProductTier {
   description     String?  @db.Text
   limits          Json?
   features        Json?
-  stripePriceId   String?
-  priceUsdMonthly Decimal? @db.Decimal(10, 2)
+  stripePriceId        String?
+  stripePriceIdAnnual  String?
+  priceUsdMonthly      Decimal? @db.Decimal(10, 2)
+  priceUsdAnnual       Decimal? @db.Decimal(10, 2)
   isDefault       Boolean  @default(false)
   isActive        Boolean  @default(true)
   createdAt       DateTime @default(now())

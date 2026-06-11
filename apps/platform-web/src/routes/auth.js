@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import passport from 'passport';
 import { rateLimit } from 'express-rate-limit';
+import { db } from '@rumbo/db';
 import {
   acceptInvite,
   getInviteByToken,
@@ -15,6 +16,10 @@ import {
 } from '@rumbo/auth';
 
 const router = Router();
+
+function asyncHandler(fn) {
+  return (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
+}
 
 const oauthEnabled = {
   google_enabled:   !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET),
@@ -75,9 +80,21 @@ const TIER_COPY = [
   { key: 'partner', name: 'Partner', price: 'Paid', blurb: 'Agencies managing client organizations.', features: ['Partner dashboard', 'Create client organizations', 'Co-manager access'] },
 ];
 
-router.get('/pricing', (req, res) => {
-  res.render('pages/auth/pricing', { title: 'Pricing', tiers: TIER_COPY });
-});
+router.get('/pricing', asyncHandler(async (req, res) => {
+  const dbTiers = await db.productTier.findMany({ where: { isActive: true } });
+  const dbByKey = Object.fromEntries(dbTiers.map(t => [t.key, t]));
+  const tiers = TIER_COPY
+    .map(copy => ({
+      ...copy,
+      priceUsdMonthly: Number(dbByKey[copy.key]?.priceUsdMonthly ?? 0) || null,
+      priceUsdAnnual: Number(dbByKey[copy.key]?.priceUsdAnnual ?? 0) || null,
+      stripePriceId: dbByKey[copy.key]?.stripePriceId ?? null,
+      stripePriceIdAnnual: dbByKey[copy.key]?.stripePriceIdAnnual ?? null,
+    }))
+    // Free always shows; other tiers only once they have a real price set.
+    .filter(t => t.key === 'free' || t.priceUsdMonthly || t.priceUsdAnnual);
+  res.render('pages/auth/pricing', { title: 'Pricing', tiers });
+}));
 
 router.get('/signup', (req, res) => {
   if (req.isAuthenticated()) return res.redirect('/');

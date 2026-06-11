@@ -10,8 +10,12 @@
             <button type="button" class="rj-btn rj-btn--ghost rj-btn--sm" data-edit-start>
                 <i data-lucide="pencil"></i> Edit
             </button>
-            <form method="post" action="/partner/orgs/{{ org.id }}/archive" onsubmit="return confirm('Remove {{ org.name }} from your partner account?')">
-                <button type="submit" class="rj-btn rj-btn--ghost rj-btn--sm">Archive</button>
+            <form method="post" action="/partner/orgs/{{ org.id }}/archive">
+                <button type="submit" class="rj-btn rj-btn--ghost rj-btn--sm"
+                        data-confirm="Remove {{ org.name|e('html_attr') }} from your partner account? You'll lose management access to it."
+                        data-confirm-title="Remove organization"
+                        data-confirm-confirm="Remove"
+                        data-confirm-danger>Archive</button>
             </form>
         </div>
     </div>

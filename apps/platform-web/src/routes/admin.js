@@ -38,6 +38,7 @@ import {
   setOrgSpendCap,
   setOrgSluBudget,
   setOrgTier,
+  updateProductTierStripe,
   upsertAiModelConfig,
   upsertFeatureFlag,
 } from '@rumbo/billing';
@@ -669,6 +670,8 @@ router.get('/product-controls', asyncHandler(async (req, res) => {
     title: 'Product controls',
     active: 'product-controls',
     controls,
+    tab: typeof req.query.tab === 'string' && req.query.tab ? req.query.tab : 'tiers',
+    ...takeFlash(req),
   });
 }));
 
@@ -738,6 +741,24 @@ router.get('/product-controls/feature-flags/:flagId', asyncHandler(async (req, r
     active: 'product-controls',
     flag,
   });
+}));
+
+router.post('/product-controls/tiers/:tierId', asyncHandler(async (req, res) => {
+  try {
+    await updateProductTierStripe({
+      tierId: req.params.tierId,
+      stripePriceId: req.body.stripePriceId,
+      stripePriceIdAnnual: req.body.stripePriceIdAnnual,
+      priceUsdMonthly: req.body.priceUsdMonthly,
+      priceUsdAnnual: req.body.priceUsdAnnual,
+      actorId: req.user.id,
+      reason: req.body.reason || null,
+    });
+    req.session.flash_success = 'Tier Stripe settings saved.';
+  } catch (err) {
+    req.session.flash_error = err.message;
+  }
+  res.redirect('/admin/product-controls?tab=tiers');
 }));
 
 router.get('/audit-log', asyncHandler(async (req, res) => {

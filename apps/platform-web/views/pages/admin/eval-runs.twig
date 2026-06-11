@@ -52,8 +52,11 @@
                         <td class="rj-num">{{ run._count.reviewAssignments }}</td>
                         <td class="rj-num">{{ run.createdAt|date("M j, Y") }}</td>
                         <td>
-                            <form method="post" action="/admin/eval/runs/{{ run.id }}/trash" onsubmit="return confirm('Move this run to the trash? It disappears from the tool and can be restored for {{ purgeAfterDays }} days.')">
-                                <button class="rj-btn rj-btn--ghost rj-btn--sm" type="submit"><i data-lucide="trash-2"></i> Move to trash</button>
+                            <form method="post" action="/admin/eval/runs/{{ run.id }}/trash">
+                                <button class="rj-btn rj-btn--ghost rj-btn--sm" type="submit"
+                                        data-confirm="Move this run to the trash? It disappears from the tool and can be restored for {{ purgeAfterDays }} days."
+                                        data-confirm-title="Move run to trash"
+                                        data-confirm-confirm="Move to trash"><i data-lucide="trash-2"></i> Move to trash</button>
                             </form>
                         </td>
                     </tr>
@@ -96,8 +99,12 @@
                                         <form method="post" action="/admin/eval/runs/{{ run.id }}/restore" style="display:inline">
                                             <button class="rj-btn rj-btn--secondary rj-btn--sm" type="submit">Restore</button>
                                         </form>
-                                        <form method="post" action="/admin/eval/runs/{{ run.id }}/purge" style="display:inline" onsubmit="return confirm('Permanently delete this run and all its data? This cannot be undone.')">
-                                            <button class="rj-btn rj-btn--ghost rj-btn--sm" type="submit"><i data-lucide="trash-2"></i> Delete now</button>
+                                        <form method="post" action="/admin/eval/runs/{{ run.id }}/purge" style="display:inline">
+                                            <button class="rj-btn rj-btn--ghost rj-btn--sm" type="submit"
+                                                    data-confirm="Permanently delete this run and all its data? This cannot be undone."
+                                                    data-confirm-title="Delete run permanently"
+                                                    data-confirm-confirm="Delete now"
+                                                    data-confirm-danger><i data-lucide="trash-2"></i> Delete now</button>
                                         </form>
                                     </td>
                                 </tr>

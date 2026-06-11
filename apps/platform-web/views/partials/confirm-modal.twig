@@ -1,0 +1,16 @@
+{# Shared confirmation modal. One per page; driven by confirm-modal.js, which
+   reads data-confirm* attributes off the triggering button/link. #}
+<dialog class="rj-confirm" id="rj-confirm" aria-labelledby="rj-confirm-title">
+    <div class="rj-confirm__box">
+        <h2 class="rj-confirm__title" id="rj-confirm-title" data-confirm-title-el>Are you sure?</h2>
+        <p class="rj-confirm__message" data-confirm-message-el></p>
+        <label class="rj-confirm__match" data-confirm-match-wrap hidden>
+            <span data-confirm-match-label-el></span>
+            <input type="text" autocomplete="off" autocapitalize="off" spellcheck="false" data-confirm-match-input>
+        </label>
+        <div class="rj-confirm__actions">
+            <button type="button" class="rj-btn rj-btn--ghost rj-btn--sm" data-confirm-cancel>Cancel</button>
+            <button type="button" class="rj-btn rj-btn--primary rj-btn--sm" data-confirm-ok>Confirm</button>
+        </div>
+    </div>
+</dialog>

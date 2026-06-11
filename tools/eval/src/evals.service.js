@@ -166,6 +166,44 @@ export function archiveEval(organizationId, publicId) {
   });
 }
 
+// Archived evals for the manager-facing archive listing. Run count is the
+// total (archiving an eval doesn't trash its runs), and trashed runs are
+// excluded so the count matches what a restore would surface.
+export function listArchivedEvals(organizationId) {
+  return db.eval.findMany({
+    where: { organizationId, archivedAt: { not: null } },
+    orderBy: { archivedAt: 'desc' },
+    include: { _count: { select: { runs: { where: LIVE_RUNS } } } },
+  });
+}
+
+export function restoreEval(organizationId, publicId) {
+  return db.eval.updateMany({
+    where: { publicId, organizationId },
+    data: { archivedAt: null },
+  });
+}
+
+// Permanently delete an eval and everything beneath it. Runs and their
+// children (snapshots, responses, ratings, comments, assignments, report,
+// tasks) cascade from the Eval/EvalRun FKs; EvalNotification references runs by
+// a no-FK scalar, so those are removed explicitly first. Scoped by org id so a
+// manager can only ever delete their own org's eval.
+export async function deleteEvalCascade(organizationId, publicId) {
+  const ev = await db.eval.findFirst({
+    where: { publicId, organizationId },
+    include: { runs: { select: { id: true } } },
+  });
+  if (!ev) throw new Error('Evaluation not found.');
+
+  const runIds = ev.runs.map(run => run.id);
+  await db.$transaction([
+    ...(runIds.length ? [db.evalNotification.deleteMany({ where: { evalRunId: { in: runIds } } })] : []),
+    db.eval.delete({ where: { id: ev.id } }),
+  ]);
+  return ev;
+}
+
 // ---- Run launch ----
 
 function normalizeIds(value) {

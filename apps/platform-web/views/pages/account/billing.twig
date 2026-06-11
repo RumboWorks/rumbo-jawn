@@ -96,17 +96,30 @@
                                     <div class="rj-item__main">
                                         <div class="rj-item__title">{{ tier.name }}</div>
                                         <div class="rj-item__meta">
-                                            {% if tier.priceUsdMonthly %}${{ tier.priceUsdMonthly|number_format(2, '.', ',') }} / month{% endif %}
+                                            {% if tier.priceUsdMonthly %}${{ tier.priceUsdMonthly|number_format(0, '.', ',') }}/mo{% endif %}
+                                            {% if tier.priceUsdAnnual %} · ${{ tier.priceUsdAnnual|number_format(0, '.', ',') }}/yr{% endif %}
                                             {% if tier.description %} · {{ tier.description }}{% endif %}
                                         </div>
                                     </div>
-                                    <div class="rj-item__actions">
+                                    <div class="rj-item__actions" style="display:flex;gap:var(--rj-space-2)">
+                                        {% if tier.stripePriceId %}
                                         <form method="post" action="/billing/checkout">
                                             <input type="hidden" name="tierKey" value="{{ tier.key }}">
-                                            <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit"{% if not stripeConfigured %} disabled{% endif %}>
-                                                Choose {{ tier.name }}
+                                            <input type="hidden" name="interval" value="month">
+                                            <button class="rj-btn rj-btn--secondary rj-btn--sm" type="submit"{% if not stripeConfigured %} disabled{% endif %}>
+                                                Monthly{% if tier.priceUsdMonthly %} · ${{ tier.priceUsdMonthly|number_format(0, '.', ',') }}{% endif %}
                                             </button>
                                         </form>
+                                        {% endif %}
+                                        {% if tier.stripePriceIdAnnual %}
+                                        <form method="post" action="/billing/checkout">
+                                            <input type="hidden" name="tierKey" value="{{ tier.key }}">
+                                            <input type="hidden" name="interval" value="year">
+                                            <button class="rj-btn rj-btn--primary rj-btn--sm" type="submit"{% if not stripeConfigured %} disabled{% endif %}>
+                                                Annual{% if tier.priceUsdAnnual %} · ${{ tier.priceUsdAnnual|number_format(0, '.', ',') }}{% endif %}
+                                            </button>
+                                        </form>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>

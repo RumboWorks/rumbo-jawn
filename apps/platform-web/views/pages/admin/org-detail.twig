@@ -274,12 +274,16 @@
                     {% endif %}
                 </dl>
                 {% if org.entitlement.stripeSubscriptionStatus and org.entitlement.stripeSubscriptionStatus not in ['canceled', 'incomplete_expired'] %}
-                    <form class="rj-admin-form" method="post" action="/admin/orgs/{{ org.id }}/cancel-subscription" onsubmit="return confirm('Cancel this subscription immediately? The organization drops to the free tier.')">
+                    <form class="rj-admin-form" method="post" action="/admin/orgs/{{ org.id }}/cancel-subscription">
                         <label>
                             <span>Reason</span>
                             <input type="text" name="reason" placeholder="Optional audit note">
                         </label>
-                        <button class="rj-btn rj-btn--secondary rj-btn--sm" type="submit">
+                        <button class="rj-btn rj-btn--secondary rj-btn--sm" type="submit"
+                                data-confirm="Cancel this subscription immediately? The organization drops to the free tier."
+                                data-confirm-title="Cancel subscription"
+                                data-confirm-confirm="Cancel subscription"
+                                data-confirm-danger>
                             <i data-lucide="circle-x"></i> Cancel subscription
                         </button>
                     </form>
@@ -302,12 +306,16 @@
                     </form>
                 {% else %}
                     <p class="rj-admin-muted">Suspending blocks tool access for every member (platform admins keep access). Sign-in still works.</p>
-                    <form class="rj-admin-form" method="post" action="/admin/orgs/{{ org.id }}/suspend" onsubmit="return confirm('Suspend {{ org.name|e('js') }}?')">
+                    <form class="rj-admin-form" method="post" action="/admin/orgs/{{ org.id }}/suspend">
                         <label>
                             <span>Reason</span>
                             <input type="text" name="reason" placeholder="Shown in the audit log">
                         </label>
-                        <button class="rj-btn rj-btn--secondary rj-btn--sm" type="submit">
+                        <button class="rj-btn rj-btn--secondary rj-btn--sm" type="submit"
+                                data-confirm="Suspend {{ org.name|e('html_attr') }}? Tool access is blocked for every member (platform admins keep access)."
+                                data-confirm-title="Suspend organization"
+                                data-confirm-confirm="Suspend"
+                                data-confirm-danger>
                             <i data-lucide="circle-alert"></i> Suspend organization
                         </button>
                     </form>
@@ -319,17 +327,20 @@
     <section class="rj-admin-panel">
         <div class="rj-admin-panel__header"><h2>Danger zone</h2></div>
         <div class="rj-admin-panel__body">
-            <p class="rj-admin-muted">Deleting removes this organization from all access lists and navigation. Its data is retained but unreachable. Type the organization name to confirm.</p>
-            <form class="rj-admin-form" method="post" action="/admin/orgs/{{ org.id }}/delete" onsubmit="return confirm('Delete {{ org.name|e('js') }}? This cannot be undone from the UI.')">
-                <label>
-                    <span>Confirm name</span>
-                    <input type="text" name="confirmName" placeholder="{{ org.name }}" required autocomplete="off">
-                </label>
+            <p class="rj-admin-muted">Deleting removes this organization from all access lists and navigation. Its data is retained but unreachable. You'll be asked to type the organization name to confirm.</p>
+            <form class="rj-admin-form" method="post" action="/admin/orgs/{{ org.id }}/delete">
                 <label>
                     <span>Reason</span>
                     <input type="text" name="reason" placeholder="Optional audit note">
                 </label>
-                <button class="rj-btn rj-btn--secondary rj-btn--sm" type="submit">
+                <button class="rj-btn rj-btn--danger rj-btn--sm" type="submit"
+                        data-confirm="Delete {{ org.name|e('html_attr') }}? It's removed from all access lists and navigation. This cannot be undone from the UI."
+                        data-confirm-title="Delete organization"
+                        data-confirm-confirm="Delete organization"
+                        data-confirm-danger
+                        data-confirm-match="{{ org.name|e('html_attr') }}"
+                        data-confirm-match-name="confirmName"
+                        data-confirm-match-label="Type the organization name to confirm">
                     <i data-lucide="trash-2"></i> Delete organization
                 </button>
             </form>
